@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Registro de Jugador | Liga Barrial</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+
+    <!-- html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Font Awesome para los iconos -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/registro.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg shadow-sm px-4">
+      <div class="container-fluid">
+        <a
+          class="navbar-brand text-white fw-bold d-flex align-items-center"
+          href="#"
+        >
+          <img
+            src="img/logo.png"
+            alt="Logo"
+            width="30"
+            height="30"
+            class="me-2"
+          />
+          LIGA BARRIAL ARGELIA ALTA
+        </a>
+        <button
+          class="btn btn-outline-light"
+          onclick="window.location.href='carnetizacion.html'"
+        >
+          <i class="fas fa-arrow-left me-2"></i>Regresar
+        </button>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <div class="row">
+        <!-- Formulario de registro -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h4 class="card-title mb-4">Registro de Jugador</h4>
+              <form id="playerForm">
+                <div class="mb-3">
+                  <label for="teamName" class="form-label">Equipo</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="teamName"
+                    readonly
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="playerPhoto" class="form-label"
+                    >Foto del Jugador (Tamaño Carnet)</label
+                  >
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="playerPhoto"
+                    accept="image/*"
+                    required
+                  />
+                  <div class="photo-dimensions">
+                    Dimensiones recomendadas: 300x400 píxeles
+                  </div>
+                  <div class="preview-container mt-2">
+                    <img
+                      id="playerPhotoPreview"
+                      class="preview-image carnet-photo d-none"
+                      alt="Vista previa de la foto"
+                    />
+                    <p class="text-muted mb-0" id="playerPhotoText">
+                      Vista previa de la foto
+                    </p>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="nombres" class="form-label">Nombres</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="nombres"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="apellidos" class="form-label">Apellidos</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="apellidos"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="cedula" class="form-label"
+                    >Número de Cédula</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="cedula"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="fechaNacimiento" class="form-label"
+                    >Fecha de Nacimiento</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="fechaNacimiento"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="numeroJugador" class="form-label"
+                    >Número de Jugador</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="numeroJugador"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="cedulaPhoto" class="form-label"
+                    >Foto de la Cédula</label
+                  >
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="cedulaPhoto"
+                    accept="image/*"
+                    required
+                  />
+                  <div class="photo-dimensions">
+                    Dimensiones recomendadas: 400x250 píxeles
+                  </div>
+                  <div class="preview-container mt-2">
+                    <img
+                      id="cedulaPhotoPreview"
+                      class="preview-image cedula-photo d-none"
+                      alt="Vista previa de la cédula"
+                    />
+                    <p class="text-muted mb-0" id="cedulaPhotoText">
+                      Vista previa de la cédula
+                    </p>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-success w-100">
+                  Registrar Jugador
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de jugadores registrados -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <div
+                class="d-flex justify-content-between align-items-center mb-4"
+              >
+                <h4 class="card-title mb-0">Jugadores Registrados</h4>
+                <button class="btn btn-primary" onclick="generarCarnets()">
+                  <i class="fas fa-id-card me-2"></i>Generar Carnets
+                </button>
+              </div>
+              <div id="playersList" class="player-list">
+                <!-- Los jugadores se cargarán aquí dinámicamente -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para ver detalles del jugador -->
+    <div
+      class="modal fade"
+      id="playerModal"
+      tabindex="-1"
+      aria-labelledby="playerModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="playerModalLabel">
+              Documentos del Jugador
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="document-container">
+              <!-- Carnet -->
+              <div class="carnet-container">
+                <div class="carnet-content">
+                  <div class="carnet-header">
+                    <h3 class="carnet-title">LIGA BARRIAL ARGELIA ALTA</h3>
+                    <p class="carnet-subtitle">CAMPEONATO 2025</p>
+                  </div>
+                  <img
+                    id="modalPlayerPhoto"
+                    class="carnet-photo"
+                    alt="Foto del jugador"
+                  />
+                  <div class="carnet-info">
+                    <p>
+                      <strong>NOMBRE:</strong>
+                      <span id="modalPlayerName"></span>
+                    </p>
+                    <p>
+                      <strong>APELLIDO:</strong>
+                      <span id="modalPlayerApellido"></span>
+                    </p>
+                    <p>
+                      <strong>CÉDULA:</strong>
+                      <span id="modalPlayerCedula"></span>
+                    </p>
+                    <p>
+                      <strong>EQUIPO:</strong> <span id="modalTeamName"></span>
+                    </p>
+                    <p>
+                      <strong>CATEGORÍA:</strong>
+                      <span id="modalTeamCategory"></span>
+                    </p>
+                    <p>
+                      <strong>NUMERO:</strong>
+                      <span id="modalPlayerNumero"></span>
+                    </p>
+                    <p>
+                      <strong>FECHA NAC:</strong>
+                      <span id="modalPlayerFechaNacimiento"></span>
+                    </p>
+                  </div>
+                  <div class="carnet-footer">
+                    <p class="mb-0">
+                      Documento oficial de la Liga Barrial Argelia Alta
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cédula -->
+              <div class="cedula-container">
+                <div class="cedula-content">
+                  <div class="cedula-header">
+                    <h3 class="cedula-title">DOCUMENTO DE IDENTIDAD</h3>
+                  </div>
+                  <img
+                    id="modalCedulaPhoto"
+                    class="cedula-photo"
+                    alt="Foto de la cédula"
+                  />
+                  <div class="cedula-info">
+                    <p>
+                      <strong>Número de Cédula:</strong>
+                      <span id="modalCedulaNumber"></span>
+                    </p>
+                  </div>
+                  <div class="cedula-footer">
+                    <p class="mb-0">Documento de identificación oficial</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-info me-2"
+              onclick="cambiarFondoCarnet()"
+            >
+              <i class="fas fa-image me-2"></i>Cambiar Fondo
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="imprimirCarnets()"
+            >
+              <i class="fas fa-print me-2"></i>Imprimir Carnets
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para carnets generados -->
+    <div
+      class="modal fade"
+      id="carnetsModal"
+      tabindex="-1"
+      aria-labelledby="carnetsModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="carnetsModalLabel">
+              Carnets de Jugadores
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="carnetsContainer" class="row">
+              <!-- Los carnets se generarán aquí -->
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-info me-2"
+              onclick="cambiarFondoCarnet()"
+            >
+              <i class="fas fa-image me-2"></i>Cambiar Fondo
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="imprimirCarnets()"
+            >
+              <i class="fas fa-print me-2"></i>Imprimir Carnets
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Configuración de Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
+        authDomain: "ldbaa-calificaciones.firebaseapp.com",
+        projectId: "ldbaa-calificaciones",
+        storageBucket: "ldbaa-calificaciones.firebasestorage.app",
+        messagingSenderId: "277579489603",
+        appId: "1:277579489603:web:bc93c22fea5f5f6b63cff6",
+      };
+
+      // Inicializar Firebase
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      const db = firebase.firestore();
+
+      // Obtener el ID del equipo de la URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const teamId = urlParams.get("teamId");
+
+      // Función para solicitar la clave de administrador
+      function solicitarClaveAdmin() {
+        return Swal.fire({
+          title: "Configuración Inicial",
+          text: "Por favor, establece una clave de administrador. Esta clave será necesaria para eliminar registros.",
+          input: "password",
+          inputAttributes: {
+            autocapitalize: "off",
+          },
+          showCancelButton: true,
+          confirmButtonText: "Establecer",
+          cancelButtonText: "Cancelar",
+          showLoaderOnConfirm: true,
+          preConfirm: (password) => {
+            if (!password) {
+              Swal.showValidationMessage("Por favor ingresa una clave");
+              return false;
+            }
+            return password;
+          },
+        });
+      }
+
+      // Verificar si ya existe una clave de administrador
+      let adminKey = localStorage.getItem("adminKey");
+
+      // Si no hay clave o no hay teamId, solicitar la clave
+      if (!adminKey || !teamId) {
+        solicitarClaveAdmin().then((result) => {
+          if (result.isConfirmed) {
+            adminKey = result.value;
+            localStorage.setItem("adminKey", adminKey);
+
+            // Guardar la clave en el documento del equipo
+            if (teamId) {
+              db.collection("teams")
+                .doc(teamId)
+                .update({
+                  adminKey: adminKey,
+                })
+                .then(() => {
+                  Swal.fire({
+                    title: "¡Clave establecida!",
+                    text: "Tu clave de administrador ha sido guardada.",
+                    icon: "success",
+                    confirmButtonColor: "#28a745",
+                  });
+                })
+                .catch((error) => {
+                  console.error("Error al guardar la clave:", error);
+                  Swal.fire(
+                    "Error",
+                    "No se pudo guardar la clave. Por favor, intenta de nuevo.",
+                    "error"
+                  );
+                });
+            }
+          }
+        });
+      } else {
+        // Si ya existe una clave, verificar si coincide con la del equipo
+        if (teamId) {
+          db.collection("teams")
+            .doc(teamId)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                const teamData = doc.data();
+                if (!teamData.adminKey) {
+                  // Si el equipo no tiene clave, solicitar una nueva
+                  solicitarClaveAdmin().then((result) => {
+                    if (result.isConfirmed) {
+                      adminKey = result.value;
+                      localStorage.setItem("adminKey", adminKey);
+                      db.collection("teams").doc(teamId).update({
+                        adminKey: adminKey,
+                      });
+                    }
+                  });
+                } else if (teamData.adminKey !== adminKey) {
+                  // Si la clave no coincide, actualizar con la del equipo
+                  adminKey = teamData.adminKey;
+                  localStorage.setItem("adminKey", adminKey);
+                }
+              }
+            });
+        }
+      }
+
+      // Cargar información del equipo
+      if (teamId) {
+        db.collection("teams")
+          .doc(teamId)
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+              const teamData = doc.data();
+              document.getElementById("teamName").value = teamData.name;
+
+              // Mostrar información del equipo en la parte superior
+              const teamInfo = document.createElement("div");
+              teamInfo.className = "text-center mb-4";
+              teamInfo.innerHTML = `
+                <img src="${teamData.logo}" class="img-fluid mb-3" style="max-height: 100px; object-fit: contain;" alt="Logo del equipo">
+                <h4 class="mb-1">${teamData.name}</h4>
+                <p class="text-muted mb-0">${teamData.category}</p>
+              `;
+              document
+                .querySelector(".card-body")
+                .insertBefore(
+                  teamInfo,
+                  document.querySelector(".card-body h4")
+                );
+            }
+          })
+          .catch((error) => {
+            console.error("Error al cargar el equipo:", error);
+            Swal.fire(
+              "Error",
+              "No se pudo cargar la información del equipo",
+              "error"
+            );
+          });
+      }
+
+      // Cargar lista de jugadores
+      function loadPlayers() {
+        console.log("Iniciando carga de jugadores para el equipo:", teamId);
+        if (teamId) {
+          db.collection("players")
+            .where("teamId", "==", teamId)
+            .get()
+            .then((querySnapshot) => {
+              console.log("Jugadores cargados:", querySnapshot.size);
+              const playersList = document.getElementById("playersList");
+              playersList.innerHTML = "";
+
+              if (querySnapshot.empty) {
+                console.log("No se encontraron jugadores");
+                playersList.innerHTML =
+                  '<p class="text-center text-muted">No hay jugadores registrados</p>';
+              } else {
+                querySnapshot.forEach((doc) => {
+                  const player = doc.data();
+                  console.log(
+                    "Procesando jugador:",
+                    player.nombres,
+                    player.apellidos
+                  );
+                  const playerItem = document.createElement("div");
+                  playerItem.className = "player-item";
+                  playerItem.innerHTML = `
+              <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">${player.nombres} ${player.apellidos}</h6>
+                <div>
+                  <button class="btn btn-sm btn-success" onclick="viewPlayerDetails('${doc.id}')">Ver</button>
+                  <button class="btn btn-sm btn-danger ms-2" onclick="deletePlayer('${doc.id}')">Eliminar</button>
+                </div>
+              </div>
+            `;
+                  playersList.appendChild(playerItem);
+                });
+              }
+            })
+            .catch((error) => {
+              console.error("Error al cargar jugadores:", error);
+              const playersList = document.getElementById("playersList");
+              playersList.innerHTML = `
+        <div class="alert alert-danger" role="alert">
+          Error al cargar los jugadores. Por favor, intenta de nuevo.
+        </div>
+      `;
+            });
+        } else {
+          console.error("No se encontró ID del equipo");
+          const playersList = document.getElementById("playersList");
+          playersList.innerHTML = `
+    <div class="alert alert-warning" role="alert">
+      No se pudo identificar el equipo. Por favor, vuelve a la página anterior.
+    </div>
+  `;
+        }
+      }
+
+      // Función para eliminar un jugador
+      function deletePlayer(playerId) {
+        Swal.fire({
+          title: "Ingresa la clave de administrador",
+          input: "password",
+          inputAttributes: {
+            autocapitalize: "off",
+          },
+          showCancelButton: true,
+          confirmButtonText: "Eliminar",
+          cancelButtonText: "Cancelar",
+          showLoaderOnConfirm: true,
+          preConfirm: (password) => {
+            if (!password) {
+              Swal.showValidationMessage("Por favor ingresa la clave");
+              return false;
+            }
+            if (password !== adminKey) {
+              Swal.showValidationMessage("Clave incorrecta");
+              return false;
+            }
+            return password;
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            Swal.fire({
+              title: "¿Estás seguro?",
+              text: "¡No podrás deshacer esta acción!",
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#d33",
+              cancelButtonColor: "#3085d6",
+              confirmButtonText: "Sí, eliminar",
+              cancelButtonText: "Cancelar",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                db.collection("players")
+                  .doc(playerId)
+                  .delete()
+                  .then(() => {
+                    Swal.fire(
+                      "Eliminado!",
+                      "El jugador ha sido eliminado correctamente.",
+                      "success"
+                    );
+                    loadPlayers();
+                  })
+                  .catch((error) => {
+                    console.error("Error al eliminar jugador:", error);
+                    Swal.fire(
+                      "Error",
+                      "No se pudo eliminar el jugador. Por favor, intenta de nuevo.",
+                      "error"
+                    );
+                  });
+              }
+            });
+          }
+        });
+      }
+
+      // Cargar jugadores al iniciar
+      loadPlayers();
+
+      // Previsualización de imágenes
+      function setupImagePreview(
+        inputId,
+        previewId,
+        textId,
+        expectedWidth,
+        expectedHeight
+      ) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        const text = document.getElementById(textId);
+
+        input.addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const img = new Image();
+              img.onload = function () {
+                // Verificar dimensiones
+                if (
+                  Math.abs(img.width - expectedWidth) > 50 ||
+                  Math.abs(img.height - expectedHeight) > 50
+                ) {
+                  Swal.fire({
+                    title: "Advertencia",
+                    text: `La imagen debe tener dimensiones aproximadas de ${expectedWidth}x${expectedHeight} píxeles. La imagen actual es de ${img.width}x${img.height} píxeles.`,
+                    icon: "warning",
+                    confirmButtonColor: "#28a745",
+                  });
+                }
+
+                preview.src = e.target.result;
+                preview.classList.remove("d-none");
+                text.classList.add("d-none");
+              };
+              img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      setupImagePreview(
+        "playerPhoto",
+        "playerPhotoPreview",
+        "playerPhotoText",
+        300,
+        400
+      );
+      setupImagePreview(
+        "cedulaPhoto",
+        "cedulaPhotoPreview",
+        "cedulaPhotoText",
+        400,
+        250
+      );
+
+      // Manejar el envío del formulario
+      document
+        .getElementById("playerForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          console.log("Iniciando registro de jugador...");
+
+          // Obtener información del equipo
+          db.collection("teams")
+            .doc(teamId)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                const teamData = doc.data();
+
+                // Obtener los valores de los campos y convertir a mayúsculas
+                const nombres = document
+                  .getElementById("nombres")
+                  .value.toUpperCase();
+                const apellidos = document
+                  .getElementById("apellidos")
+                  .value.toUpperCase();
+                const cedula = document
+                  .getElementById("cedula")
+                  .value.toUpperCase();
+                const fechaNacimiento =
+                  document.getElementById("fechaNacimiento").value;
+                const numeroJugador =
+                  document.getElementById("numeroJugador").value;
+
+                // Crear el objeto con los datos del jugador
+                const playerData = {
+                  teamId: teamId,
+                  teamName: teamData.name,
+                  teamCategory: teamData.category,
+                  nombres: nombres,
+                  apellidos: apellidos,
+                  cedula: cedula,
+                  fechaNacimiento: fechaNacimiento,
+                  numeroJugador: numeroJugador,
+                  playerPhoto:
+                    document.getElementById("playerPhotoPreview").src,
+                  cedulaPhoto:
+                    document.getElementById("cedulaPhotoPreview").src,
+                  createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                };
+
+                console.log("Datos del jugador a registrar:", playerData);
+
+                // Guardar los datos del jugador en Firestore
+                db.collection("players")
+                  .add(playerData)
+                  .then((docRef) => {
+                    console.log("Jugador registrado con ID:", docRef.id);
+                    Swal.fire({
+                      title: "¡Registro exitoso!",
+                      text: "El jugador ha sido registrado correctamente",
+                      icon: "success",
+                      confirmButtonColor: "#28a745",
+                    }).then(() => {
+                      // Recargar la lista de jugadores
+                      loadPlayers();
+                      // Limpiar el formulario
+                      document.getElementById("playerForm").reset();
+                      document
+                        .getElementById("playerPhotoPreview")
+                        .classList.add("d-none");
+                      document
+                        .getElementById("playerPhotoText")
+                        .classList.remove("d-none");
+                      document
+                        .getElementById("cedulaPhotoPreview")
+                        .classList.add("d-none");
+                      document
+                        .getElementById("cedulaPhotoText")
+                        .classList.remove("d-none");
+                    });
+                  })
+                  .catch((error) => {
+                    console.error("Error al registrar jugador:", error);
+                    Swal.fire(
+                      "Error",
+                      "No se pudo registrar el jugador. Por favor, intenta de nuevo.",
+                      "error"
+                    );
+                  });
+              }
+            })
+            .catch((error) => {
+              console.error("Error al obtener información del equipo:", error);
+              Swal.fire(
+                "Error",
+                "No se pudo obtener la información del equipo",
+                "error"
+              );
+            });
+        });
+
+      // Función para ver detalles del jugador
+      window.viewPlayerDetails = function (playerId) {
+        db.collection("players")
+          .doc(playerId)
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+              const player = doc.data();
+              document.getElementById("modalPlayerPhoto").src =
+                player.playerPhoto;
+              document.getElementById("modalCedulaPhoto").src =
+                player.cedulaPhoto;
+              document.getElementById("modalPlayerName").textContent =
+                player.nombres;
+              document.getElementById("modalPlayerApellido").textContent =
+                player.apellidos;
+              document.getElementById("modalPlayerCedula").textContent =
+                player.cedula;
+              document.getElementById("modalCedulaNumber").textContent =
+                player.cedula;
+              document.getElementById("modalPlayerNumero").textContent =
+                player.numeroJugador;
+              document.getElementById("modalTeamName").textContent =
+                player.teamName;
+              document.getElementById("modalTeamCategory").textContent =
+                player.teamCategory;
+              document.getElementById(
+                "modalPlayerFechaNacimiento"
+              ).textContent = formatDate(player.fechaNacimiento);
+
+              // Agregar el identificador JUVENIL si corresponde
+              const cedulaElement =
+                document.getElementById("modalPlayerCedula");
+              cedulaElement.innerHTML = player.cedula;
+
+              // Agregar el identificador JUVENIL en una línea separada
+              if (esJuvenil(player.fechaNacimiento)) {
+                const juvenilElement = document.createElement("p");
+                juvenileElement.className = "text-end";
+                juvenileElement.innerHTML =
+                  '<strong><span class="badge bg-light text-dark">JUVENIL</span></strong>';
+                cedulaElement.parentNode.insertBefore(
+                  juvenileElement,
+                  cedulaElement.nextSibling
+                );
+              }
+
+              const modal = new bootstrap.Modal(
+                document.getElementById("playerModal")
+              );
+              modal.show();
+            }
+          })
+          .catch((error) => {
+            console.error("Error al cargar detalles del jugador:", error);
+            Swal.fire(
+              "Error",
+              "No se pudieron cargar los detalles del jugador",
+              "error"
+            );
+          });
+      };
+
+      // Función para cambiar el fondo del carnet
+      function cambiarFondoCarnet() {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+
+        input.onchange = function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const imageUrl = e.target.result;
+              document.documentElement.style.setProperty(
+                "--carnet-background",
+                `url('${imageUrl}')`
+              );
+
+              // Mostrar mensaje de éxito
+              Swal.fire({
+                title: "¡Éxito!",
+                text: "El fondo del carnet ha sido actualizado",
+                icon: "success",
+                confirmButtonColor: "#28a745",
+              });
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+
+        input.click();
+      }
+
+      // Función para generar carnets
+      function generarCarnets() {
+        Swal.fire({
+          title: "Ingrese la clave de administrador",
+          input: "password",
+          inputAttributes: {
+            autocapitalize: "off",
+          },
+          showCancelButton: true,
+          confirmButtonText: "Verificar",
+          cancelButtonText: "Cancelar",
+          showLoaderOnConfirm: true,
+          preConfirm: (password) => {
+            if (password !== "admin2025") {
+              Swal.showValidationMessage("Clave incorrecta");
+              return false;
+            }
+            return password;
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            db.collection("players")
+              .where("teamId", "==", teamId)
+              .get()
+              .then((querySnapshot) => {
+                const carnetsContainer =
+                  document.getElementById("carnetsContainer");
+                carnetsContainer.innerHTML = "";
+
+                // Obtener el nombre del equipo
+                db.collection("teams")
+                  .doc(teamId)
+                  .get()
+                  .then((teamDoc) => {
+                    const teamName = teamDoc.data().name;
+
+                    querySnapshot.forEach((doc) => {
+                      const player = doc.data();
+                      const carnetHtml = `
+                      <div class="col-md-6">
+                        <div class="carnet-moderno">
+                          <div class="carnet-header">
+                            <h6>LIGA BARRIAL ARGELIA ALTA</h6>
+                            <p>CAMPEONATO 2025</p>
+                            </div>
+                            <div class="carnet-content">
+                              <div class="carnet-photo-section">
+                                <div class="carnet-photo-container">
+                                  <img src="${
+                                    player.playerPhoto
+                                  }" alt="Foto del jugador">
+                                  </div>
+                                  <div class="carnet-numero-jugador">${
+                                    player.numeroJugador
+                                  }</div>
+                                  </div>
+                                  <div class="carnet-info">
+                                    <div class="team-name">${teamName}</div>
+                                    <p><strong>CATEGORIA:</strong> ${
+                                      player.teamCategory
+                                    }</p>
+                                    <p><strong>NOM:</strong> ${
+                                      player.nombres
+                                    }</p>
+                                    <p><strong>APELL:</strong> ${
+                                      player.apellidos
+                                    }</p>
+                                    <p><strong>FECHA NAC:</strong> ${formatDate(
+                                      player.fechaNacimiento
+                                    )}</p>
+<p class="d-flex justify-content-between align-items-center">
+  <strong>CI:</strong> ${player.cedula}
+  ${
+    esJuvenil(player.fechaNacimiento)
+      ? '<span class="badge bg-light text-dark ms-5">JUVENIL</span>'
+      : ""
+  }
+</p>
+                                  </div>
+                                </div>
+                              </div>
+                      </div>
+                    `;
+                      carnetsContainer.innerHTML += carnetHtml;
+                    });
+
+                    const modal = new bootstrap.Modal(
+                      document.getElementById("carnetsModal")
+                    );
+                    modal.show();
+                  });
+              })
+              .catch((error) => {
+                console.error("Error al generar carnets:", error);
+                Swal.fire(
+                  "Error",
+                  "No se pudieron generar los carnets. Por favor, intenta de nuevo.",
+                  "error"
+                );
+              });
+          }
+        });
+      }
+
+      function imprimirCarnets() {
+        const element = document.getElementById("carnetsContainer");
+        const opt = {
+          margin: 1,
+          filename: "carnets_jugadores.pdf",
+          image: { type: "jpeg", quality: 1 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: "#ffffff",
+          },
+          jsPDF: { unit: "cm", format: "a4", orientation: "portrait" },
+        };
+
+        // Generar el PDF
+        html2pdf()
+          .set(opt)
+          .from(element)
+          .save()
+          .then(() => {
+            // Cerrar el modal
+            const modal = bootstrap.Modal.getInstance(
+              document.getElementById("carnetsModal")
+            );
+            modal.hide();
+
+            Swal.fire({
+              title: "¡Éxito!",
+              text: "Los carnets se han generado correctamente",
+              icon: "success",
+              confirmButtonColor: "#28a745",
+            });
+          })
+          .catch((err) => {
+            console.error("Error al generar PDF:", err);
+            Swal.fire({
+              title: "Error",
+              text: "No se pudo generar el PDF. Por favor, intenta de nuevo.",
+              icon: "error",
+            });
+          });
+      }
+
+      // Función para formatear la fecha
+      function formatDate(dateString) {
+        const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+        return new Date(dateString).toLocaleDateString("es-ES", options);
+      }
+
+      // Función para calcular la edad
+      function calcularEdad(fechaNacimiento) {
+        const hoy = new Date();
+        const fechaNac = new Date(fechaNacimiento);
+        let edad = hoy.getFullYear() - fechaNac.getFullYear();
+        const mes = hoy.getMonth() - fechaNac.getMonth();
+
+        if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+          edad--;
+        }
+
+        return edad;
+      }
+
+      // Función para verificar si es juvenil
+      function esJuvenil(fechaNacimiento) {
+        return calcularEdad(fechaNacimiento) < 18;
+      }
+    </script>
+
+    <style>
+      /* Estilos para el modal de ver jugador */
+      .carnet-container {
+        /* background:  */
+        border-radius: 15px;
+        padding: 20px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .carnet-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          45deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.1) 100%
+        );
+        pointer-events: none;
+      }
+
+      .carnet-header {
+        text-align: center;
+        margin-bottom: 20px;
+        position: relative;
+      }
+
+      .carnet-header h3 {
+        font-size: 1.5rem;
+        margin: 0;
+        background: linear-gradient(45deg, #28a745, #20c997);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: bold;
+      }
+
+      .carnet-photo-container {
+        width: 150px;
+        height: 200px;
+        margin: 0 auto 20px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 3px solid #28a745;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .carnet-photo-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .carnet-info {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 1px;
+        border-radius: 10px;
+        margin-bottom: -1%;
+      }
+
+      .carnet-info p {
+        margin: 5px 0;
+        font-size: 0.9rem;
+      }
+
+      .carnet-info strong {
+        color: #28a745;
+      }
+
+      .carnet-footer,
+      .cedula-footer {
+        text-align: center;
+        font-size: 0.8rem;
+        color: rgba(000);
+        border-top: 1px solid #28a745;
+        padding-top: 1px;
+        margin-top: auto;
+        font-style: italic;
+        letter-spacing: 0.2px;
+        width: 100%;
+        background: transparent;
+      }
+      .carnet-footer p,
+      .cedula-footer p {
+        margin: 0;
+      }
+
+      /* Estilos para la generación de carnets */
+      .carnet-moderno {
+        background: var(
+            --carnet-background,
+            url("https://img.freepik.com/vector-premium/fondo-futbol-abstracto-jugador-futbol-pateando-pelota-otros-simbolos-deportivos-colores-verdes_444390-23654.jpg")
+          )
+          no-repeat center center;
+        background-size: cover;
+        border-radius: 16px;
+        padding: 18px 22px 12px 22px;
+        color: #222;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 18px rgba(40, 167, 69, 0.1);
+        width: 8.5cm;
+        height: 5.4cm;
+        margin: 0 auto 24px;
+        font-size: 0.9rem;
+        display: flex;
+        flex-direction: column;
+        border: 1.5px solid #e0e0e0;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .carnet-moderno .carnet-header {
+        text-align: center;
+        margin-bottom: 8px;
+        position: relative;
+        width: 100%;
+        border-bottom: 1.5px solid #080404;
+        padding-bottom: 4px;
+      }
+
+      .carnet-moderno .carnet-header h3 {
+        font-size: 1.1rem;
+        margin: 0;
+        color: #0c0303;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+      }
+
+      .carnet-moderno .carnet-header p {
+        font-size: 0.8rem;
+        color: #000;
+        margin: 2px 0 0 0;
+        font-weight: 500;
+      }
+
+      .carnet-moderno .carnet-content {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-start;
+        flex: 1;
+        margin: 0;
+        padding: 0;
+        background: none;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: visible;
+        min-width: 0;
+      }
+
+      .carnet-moderno .carnet-photo-section {
+        width: 70px;
+        min-width: 70px;
+        max-width: 70px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        margin-right: 18px;
+        margin-top: 0;
+      }
+
+      .carnet-moderno .carnet-photo-container {
+        width: 70px;
+        height: 90px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 2.5px solid #28a745;
+        box-shadow: 0 2px 10px rgba(40, 167, 69, 0.1);
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .carnet-moderno .carnet-photo-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .carnet-moderno .carnet-numero-jugador {
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #000;
+        margin-top: -20px;
+        letter-spacing: 1.2px;
+        text-shadow: 0 1px 2px #e0e0e0;
+      }
+
+      .carnet-moderno .carnet-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        flex: 1;
+        min-width: 0;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
+        min-height: 0;
+        font-size: 0.72rem;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.6; /* <<< aumenté el espacio entre líneas */
+        margin-bottom: 0;
+        margin-top: -1%;
+      }
+
+      .carnet-moderno .carnet-info p {
+        margin: 0 0 0px 0;
+        font-size: 0.72rem;
+        line-height: 1.6;
+        color: #000;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+      }
+
+      .carnet-moderno .carnet-info strong {
+        color: #000;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+      }
+
+      .carnet-moderno .carnet-footer {
+        text-align: center;
+        font-size: 0.7rem;
+        color: #888;
+        border-top: 1px solid #e0e0e0;
+        padding-top: 4px;
+        margin-top: auto;
+        font-style: italic;
+        letter-spacing: 0.2px;
+        width: 100%;
+      }
+
+      .carnet-moderno .carnet-footer p {
+        margin: 0;
+      }
+
+      @media print {
+        .carnet-moderno {
+          break-inside: avoid;
+          page-break-inside: avoid;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          background-color: #ffffff !important;
+          background-image: var(--carnet-background) !important;
+          background-size: cover !important;
+          background-position: center !important;
+          background-repeat: no-repeat !important;
+        }
+      }
+
+      /* Estilos para el nombre del equipo en el carnet */
+      .carnet-moderno .team-name {
+        text-align: center;
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: #000;
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    </style>
+  </body>
+</html>

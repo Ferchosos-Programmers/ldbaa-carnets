@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Carnetización | Liga Barrial</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 -->
+    
+    <!-- Firebase SDK sin módulos -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+
+    <style>
+      body {
+        background-color: #f1f1f1;
+        font-family: 'Times New Roman', Times, serif;
+      }
+      .navbar {
+        background-color: #000;
+      }
+      .navbar-brand {
+        font-weight: bold;
+        font-size: 1.5rem;
+        color: #fff !important;
+      }
+      .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+      }
+      .btn-success:hover {
+        background-color: #28a745;
+      }
+      .card {
+        transition: transform 0.2s ease-in-out;
+        border-radius: 1rem;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      }
+      .card-title {
+        color: #28a745;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <nav
+      class="navbar navbar-expand-lg shadow-sm px-4"
+      style="background-color: #28a745"
+    >
+      <div class="container-fluid">
+        <a
+          class="navbar-brand text-white fw-bold d-flex align-items-center"
+          href="#"
+        >
+          <img
+            src="img/logo.png"
+            alt="Logo"
+            width="30"
+            height="30"
+            class="me-2"
+          />
+          LIGA BARRIAL ARGELIA ALTA
+        </a>
+        <button class="btn btn-outline-light" onclick="window.location.href='index.html'">
+          <i class="fas fa-arrow-left me-2"></i>Regresar
+        </button>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <h3 class="text-dark">🏆 Equipos Registrados</h3>
+
+      <!-- Filtros de búsqueda -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="input-group shadow-sm">
+            <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre del equipo...">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="input-group shadow-sm">
+            <span class="input-group-text bg-white"><i class="fas fa-filter text-muted"></i></span>
+            <select id="categoryFilter" class="form-select">
+              <option value="">Todas las categorías</option>
+              <option value="MÁXIMA">MÁXIMA</option>
+              <option value="PRIMERA">PRIMERA</option>
+              <option value="FEMENINO">FEMENINO</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenedor de tarjetas -->
+      <div class="row" id="teamCardsContainer">
+        <!-- Se cargan dinámicamente -->
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const teamCardsContainer = document.getElementById("teamCardsContainer");
+      const searchInput = document.getElementById("searchInput");
+      const categoryFilter = document.getElementById("categoryFilter");
+      let allTeams = []; // Almacenar todos los equipos para filtrar
+
+      // Inicializar Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
+        authDomain: "ldbaa-calificaciones.firebaseapp.com",
+        projectId: "ldbaa-calificaciones",
+        storageBucket: "ldbaa-calificaciones.firebasestorage.app",
+        messagingSenderId: "277579489603",
+        appId: "1:277579489603:web:bc93c22fea5f5f6b63cff6",
+      };
+
+      // Inicializar Firebase
+      try {
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Configurar Firestore
+        db.settings({
+          cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+        });
+
+        // Cargar equipos al iniciar la página
+        loadTeams();
+
+        // Agregar event listeners para los filtros
+        searchInput.addEventListener("input", filterTeams);
+        categoryFilter.addEventListener("change", filterTeams);
+
+        function loadTeams() {
+          console.log('Iniciando carga de equipos...');
+          db.collection("teams").get()
+            .then((querySnapshot) => {
+              console.log('Equipos cargados exitosamente');
+              teamCardsContainer.innerHTML = ''; // Limpiar contenedor
+              allTeams = []; // Reiniciar array de equipos
+              
+              if (querySnapshot.empty) {
+                teamCardsContainer.innerHTML = '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
+              } else {
+                querySnapshot.forEach((doc) => {
+                  const teamData = doc.data();
+                  teamData.id = doc.id;
+                  allTeams.push(teamData); // Almacenar equipo en el array
+                });
+                
+                // Mostrar todos los equipos inicialmente
+                displayTeams(allTeams);
+              }
+            })
+            .catch((error) => {
+              console.error("Error al cargar equipos:", error);
+              Swal.fire('Error', 'No se pudieron cargar los equipos. Por favor, intenta de nuevo.', 'error');
+            });
+        }
+
+        // Función para filtrar equipos
+        function filterTeams() {
+          const searchTerm = searchInput.value.toLowerCase();
+          const selectedCategory = categoryFilter.value;
+          
+          const filteredTeams = allTeams.filter(team => {
+            const nameMatch = team.name.toLowerCase().includes(searchTerm);
+            const categoryMatch = selectedCategory === "" || team.category === selectedCategory;
+            
+            return nameMatch && categoryMatch;
+          });
+          
+          displayTeams(filteredTeams);
+        }
+
+        // Función para mostrar equipos filtrados
+        function displayTeams(teams) {
+          teamCardsContainer.innerHTML = ''; // Limpiar contenedor
+          
+          if (teams.length === 0) {
+            teamCardsContainer.innerHTML = '<div class="col-12 text-center"><p>No se encontraron equipos que coincidan con los filtros</p></div>';
+          } else {
+            teams.forEach(team => {
+              createTeamCard(team);
+            });
+          }
+        }
+
+        function createTeamCard(team) {
+          const card = document.createElement("div");
+          card.className = "col-md-4 mb-4";
+          card.innerHTML = `
+            <div class="card shadow-sm border-0 h-100">
+              <img src="${team.logo}" class="card-img-top p-3" alt="Logo del equipo" style="height: 200px; object-fit: contain;">
+              <div class="card-body text-center">
+                <h5 class="card-title">${team.name}</h5>
+                <p class="card-text"><strong>Categoría:</strong> ${team.category}</p>
+                <button class="btn btn-success btn-sm" onclick="entrarEquipo('${team.id}', '${team.name}')">Entrar</button>
+              </div>
+            </div>
+          `;
+          teamCardsContainer.appendChild(card);
+        }
+
+        // Función para manejar el clic en el botón "Entrar"
+        window.entrarEquipo = function(teamId, teamName) {
+          Swal.fire({
+            title: '¿Entrar al equipo?',
+            text: `¿Deseas entrar al equipo ${teamName}?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, entrar',
+            cancelButtonText: 'Cancelar'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // Redirigir a la página de registro de jugadores
+              window.location.href = `registro-jugador.html?teamId=${teamId}`;
+            }
+          });
+        };
+
+      } catch (error) {
+        console.error("Error al inicializar Firebase:", error);
+        Swal.fire('Error', 'No se pudo inicializar la aplicación. Por favor, recarga la página.', 'error');
+      }
+    </script>
+  </body>
+</html>

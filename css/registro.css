@@ -1,0 +1,237 @@
+body {
+  background-color: #f1f1f1;
+  font-family: 'Times New Roman', Times, serif;
+}
+.navbar {
+  background-color: #28a745;
+}
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #fff !important;
+}
+.card {
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.preview-image {
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 0.5rem;
+}
+.preview-container {
+  border: 2px dashed #28a745;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+.player-list {
+  max-height: 600px;
+  overflow-y: auto;
+}
+.player-item {
+  border-bottom: 1px solid #dee2e6;
+  padding: 10px 0;
+}
+.player-item:last-child {
+  border-bottom: none;
+}
+.modal-image {
+  max-width: 100%;
+  object-fit: contain;
+}
+/* Tamaños predeterminados para las fotos */
+.carnet-photo {
+  width: 300px;
+  height: 400px;
+  object-fit: cover;
+}
+.cedula-photo {
+  width: 400px;
+  height: 250px;
+  object-fit: cover;
+}
+.photo-container {
+  position: relative;
+  margin-bottom: 1rem;
+}
+.photo-dimensions {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+/* Estilos para el carnet y cédula */
+.document-container {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.carnet-container, .cedula-container {
+  flex: 1;
+  background-image: url('https://img.freepik.com/free-photo/soccer-field-background_1248-11.jpg');
+  background-size: cover;
+  background-position: center;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  height: 600px;
+}
+
+.cedula-container {
+  background-image: none;
+  background-color: #f8f9fa;
+}
+
+.carnet-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f8f9fa;        
+  z-index: 1;
+}
+
+.carnet-content, .cedula-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.carnet-content {
+  color: rgb(0, 0, 0);
+  background-color: #f8f9fa;
+  background-image: none;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid #28a745;
+}
+
+.cedula-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid #28a745;
+}
+
+.carnet-header {
+  text-align: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #28a745;
+  padding-bottom: 10px;
+}
+
+.carnet-title {
+  color: #28a745;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.carnet-subtitle {
+  color: #000;
+  font-size: 18px;
+  margin: 5px 0;
+}
+
+.carnet-photo {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  border: 3px solid #28a745;
+  border-radius: 10px;
+  margin: 0 auto;
+  display: block;
+}
+
+.carnet-info {
+  margin-top: 20px;
+}
+
+.carnet-info p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.carnet-info strong {
+  color: #28a745;
+}
+
+.carnet-footer {
+  text-align: center;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 2px solid #28a745;
+}
+
+.cedula-header {
+  text-align: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #28a745;
+  padding-bottom: 10px;
+}
+
+.cedula-title {
+  color: #28a745;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.cedula-photo {
+  width: 100%;
+  height: 400px;
+  object-fit: contain;
+  border: 3px solid #28a745;
+  border-radius: 10px;
+  margin: 0 auto;
+  display: block;
+}
+
+.cedula-info {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.cedula-info p {
+  margin: 8px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.cedula-info strong {
+  color: #28a745;
+}
+
+.cedula-footer {
+  text-align: center;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 2px solid #28a745;
+}
+
+@media (max-width: 768px) {
+  .document-container {
+    flex-direction: column;
+  }
+  
+  .carnet-container, .cedula-container {
+    height: auto;
+  }
+}

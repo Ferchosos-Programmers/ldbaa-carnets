@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iniciar Sesión - LDBAA</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/login.css" />
+    <!-- Agregar SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.17/dist/sweetalert2.all.min.js"></script>
+  </head>
+  <body>
+    <div class="overlay"></div>
+
+    <div class="login-box">
+      <h2 class="text-center mb-4">Iniciar Sesión</h2>
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="email" class="form-label">Correo Electrónico</label>
+          <input type="email" class="form-control" id="email" required />
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Contraseña</label>
+          <input type="password" class="form-control" id="password" required />
+        </div>
+        <div id="error-message" class="text-danger mb-3"></div>
+        <button type="submit" class="btn btn-green w-100">Entrar</button>
+      </form>
+
+      <!-- Botón para volver al inicio -->
+      <div class="mt-3 text-center">
+        <a href="index.html" class="btn btn-outline-light w-100"
+          >Regresar al Inicio</a
+        >
+      </div>
+    </div>
+
+    <!-- Cargar Firebase desde un CDN compatible con módulos -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
+        authDomain: "ldbaa-calificaciones.firebaseapp.com",
+        projectId: "ldbaa-calificaciones",
+        storageBucket: "ldbaa-calificaciones.firebasestorage.app",
+        messagingSenderId: "277579489603",
+        appId: "1:277579489603:web:01a1cc9ee1c9538163cff6",
+      };
+
+      // Inicializar Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      const loginForm = document.getElementById("loginForm");
+
+      loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        signInWithEmailAndPassword(auth, email, password)
+          .then(() => {
+            // Alerta de éxito con SweetAlert2
+            Swal.fire({
+              icon: "success",
+              title: "¡Bienvenido!",
+              text: "Has iniciado sesión correctamente.",
+              confirmButtonText: "Ir al Dashboard",
+            }).then(() => {
+              window.location.href = "dashboard.html"; // Redirigir al dashboard
+            });
+          })
+          .catch(() => {
+            // Alerta de error con SweetAlert2
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Correo o contraseña incorrectos.",
+              confirmButtonText: "Intentar nuevamente",
+            });
+          });
+      });
+    </script>
+  </body>
+</html>

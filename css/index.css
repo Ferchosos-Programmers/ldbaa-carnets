@@ -1,0 +1,49 @@
+body {
+    background-image: url('https://img.freepik.com/fotos-premium/balon-futbol-renderizado-3d-estadio-futbol-fondo-confeti_493806-5425.jpg'); /* Cambia esta ruta si usas otra imagen */
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+  }
+  
+  .welcome-container {
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.85); /* Oscurece más el fondo para mejor contraste */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .content-box {
+    background-color: rgba(0, 0, 0, 0.7);
+    max-width: 700px;
+    border: 2px solid #28a745;
+  }
+  
+  .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    transform: scale(1.05);
+  }
+  
+  .btn-outline-success {
+    color: white;
+    border-color: #28a745;
+  }
+  
+  .btn-outline-success:hover {
+    background-color: #28a745;
+    color: white;
+    transform: scale(1.05);
+  }
+  
