@@ -206,8 +206,8 @@
       aria-labelledby="playerModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
+    <div class="modal-dialog modal-xl w-100" style="max-width: 1000px;">
+      <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="playerModalLabel">
               Documentos del Jugador
@@ -220,7 +220,7 @@
             ></button>
           </div>
           <div class="modal-body">
-            <div class="document-container">
+            <div class="document-container d-flex justify-content-center align-items-center flex-wrap gap-4">
               <!-- Carnet -->
               <div class="carnet-container">
                 <div class="carnet-content">
@@ -228,11 +228,15 @@
                     <h3 class="carnet-title">LIGA BARRIAL ARGELIA ALTA</h3>
                     <p class="carnet-subtitle">CAMPEONATO 2025</p>
                   </div>
-                  <img
-                    id="modalPlayerPhoto"
-                    class="carnet-photo"
-                    alt="Foto del jugador"
-                  />
+                  <div class="d-flex justify-content-center">
+                    <img
+                      id="modalPlayerPhoto"
+                      class="carnet-photo"
+                      alt="Foto del jugador"
+                      style="max-width: 120px; height: 190px;"
+                    />
+                  </div>
+                  
                   <div class="carnet-info">
                     <p>
                       <strong>NOMBRE:</strong>
@@ -280,6 +284,7 @@
                     id="modalCedulaPhoto"
                     class="cedula-photo"
                     alt="Foto de la cédula"
+                    
                   />
                   <div class="cedula-info">
                     <p>
@@ -294,33 +299,9 @@
               </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <!-- <button
-              type="button"
-              class="btn btn-info me-2"
-              onclick="cambiarFondoCarnet()"
-            >
-              <i class="fas fa-image me-2"></i>Cambiar Fondo
-            </button> -->
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cerrar
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary"
-              onclick="imprimirCarnets()"
-            >
-              <i class="fas fa-print me-2"></i>Imprimir Carnets
-            </button>
-          </div>
         </div>
       </div>
     </div>
-
     <!-- Modal para carnets generados -->
     <div
       class="modal fade"
@@ -329,8 +310,8 @@
       aria-labelledby="carnetsModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
+    <div class="modal-dialog modal-xl w-100" style="max-width: 1000px;">
+      <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="carnetsModalLabel">
               Carnets de Jugadores
@@ -1084,6 +1065,29 @@
 
     <style>
       /* Estilos para el modal de ver jugador */
+      .document-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        flex-wrap: nowrap; /* no permite que salten de línea */
+        gap: 20px;
+        width: 100%;
+        height: auto;
+      }
+
+      .carnet-container
+      .cedula-container {
+        /* border: 2px solid #28a745; */
+        border-radius: 12px;
+        padding:80px;
+        background-color: #fff;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+        width: 48%; /* ocupan lado a lado sin romper */
+        box-sizing: border-box;
+        /* height: 80%; */
+      }
+
       .carnet-container {
         /* background:  */
         border-radius: 15px;
@@ -1111,12 +1115,12 @@
         pointer-events: none;
       }
 
-      .carnet-header {
+      .carnet-header,
+      .cedula-header {
         text-align: center;
-        margin-bottom: 20px;
-        position: relative;
+        border-bottom: 2px solid #28a745;
+        margin-bottom: 12px;
       }
-
       .carnet-header h3 {
         font-size: 1.5rem;
         margin: 0;
@@ -1230,8 +1234,8 @@
       .carnet-moderno .carnet-content {
         display: flex;
         flex-direction: row;
-        align-items: flex-start;
-        justify-content: flex-start;
+        align-items: center;
+        justify-content: center;
         flex: 1;
         margin: 0;
         padding: 0;
@@ -1250,7 +1254,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: center;
         margin-right: 18px;
         margin-top: 0;
       }
@@ -1287,8 +1291,8 @@
       .carnet-moderno .carnet-info {
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
-        align-items: flex-start;
+        justify-content: center;
+        align-items: center;
         flex: 1;
         min-width: 0;
         padding: 0;
