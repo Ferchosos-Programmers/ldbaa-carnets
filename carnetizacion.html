@@ -8,9 +8,13 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 -->
-    
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- SweetAlert2 -->
+
     <!-- Firebase SDK sin módulos -->
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
@@ -38,7 +42,10 @@
           />
           LIGA BARRIAL ARGELIA ALTA
         </a>
-        <button class="btn btn-outline-light" onclick="window.location.href='index.html'">
+        <button
+          class="btn btn-outline-light"
+          onclick="window.location.href='index.html'"
+        >
           <i class="fas fa-arrow-left me-2"></i>Regresar
         </button>
       </div>
@@ -51,13 +58,22 @@
       <div class="row mb-4">
         <div class="col-md-6">
           <div class="input-group shadow-sm">
-            <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-            <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre del equipo...">
+            <span class="input-group-text bg-white"
+              ><i class="fas fa-search text-muted"></i
+            ></span>
+            <input
+              type="text"
+              id="searchInput"
+              class="form-control"
+              placeholder="Buscar por nombre del equipo..."
+            />
           </div>
         </div>
         <div class="col-md-6">
           <div class="input-group shadow-sm">
-            <span class="input-group-text bg-white"><i class="fas fa-filter text-muted"></i></span>
+            <span class="input-group-text bg-white"
+              ><i class="fas fa-filter text-muted"></i
+            ></span>
             <select id="categoryFilter" class="form-select">
               <option value="">Todas las categorías</option>
               <option value="MÁXIMA">MÁXIMA</option>
@@ -81,7 +97,7 @@
       const teamCardsContainer = document.getElementById("teamCardsContainer");
       const searchInput = document.getElementById("searchInput");
       const categoryFilter = document.getElementById("categoryFilter");
-      let allTeams = []; // Almacenar todos los equipos para filtrar
+      let allTeams = [];
 
       // Inicializar Firebase
       const firebaseConfig = {
@@ -93,73 +109,135 @@
         appId: "1:277579489603:web:bc93c22fea5f5f6b63cff6",
       };
 
-      // Inicializar Firebase
       try {
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Configurar Firestore
         db.settings({
-          cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+          cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
         });
 
-        // Cargar equipos al iniciar la página
-        loadTeams();
+        // Mostrar cuenta regresiva y luego cargar equipos
+        mostrarCuentaRegresiva().then(() => {
+          loadTeams();
+        });
 
-        // Agregar event listeners para los filtros
         searchInput.addEventListener("input", filterTeams);
         categoryFilter.addEventListener("change", filterTeams);
 
+        <!-- Dentro de tu archivo HTML, reemplaza el bloque mostrarCuentaRegresiva() por este -->
+
+        function mostrarCuentaRegresiva() {
+          return new Promise((resolve) => {
+            const deadline = new Date("2025-05-10T23:59:59").getTime();
+            const countdownDiv = document.createElement("div");
+            countdownDiv.style.fontSize = "1rem";
+            countdownDiv.style.fontWeight = "normal";
+            countdownDiv.style.textAlign = "center";
+            countdownDiv.style.color = "#333";
+
+            const interval = setInterval(() => {
+              const now = new Date().getTime();
+              const distance = deadline - now;
+
+              if (distance < 0) {
+                clearInterval(interval);
+                countdownDiv.innerHTML = "⏰ ¡La fecha límite ha pasado!";
+                return;
+              }
+
+              const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+              const hours = Math.floor(
+                (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+              );
+              const minutes = Math.floor(
+                (distance % (1000 * 60 * 60)) / (1000 * 60)
+              );
+              const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+              countdownDiv.innerHTML = `
+        <div style="font-size: 1.1rem; margin-top: -2px;">
+          ⏳ Tienes hasta el <strong>10 de mayo</strong> para completar la carnetización.
+        </div>
+        <div style="margin-top: 8px; font-weight: bold; font-size: 1.2rem;">
+          Tiempo restante: <span style="color: #28a745;">${days}d ${hours}h ${minutes}m ${seconds}s</span>
+        </div>
+      `;
+            }, 1000);
+
+            Swal.fire({
+              title:
+                '<img src="img/logo.png" alt="Logo" width="60" style="margin-bottom: 5px;"><br><span style="font-size: 1.4rem;">Aviso Importante</span>',
+              html: countdownDiv,
+              confirmButtonText: "Entendido",
+              allowOutsideClick: false,
+              showCloseButton: true,
+              customClass: {
+                confirmButton: "btn btn-success px-4",
+                popup: "shadow-lg rounded",
+                title: "mb-3",
+              },
+              buttonsStyling: false,
+              didOpen: () => {
+                Swal.getContent().appendChild(countdownDiv);
+              },
+            }).then(() => {
+              clearInterval(interval);
+              resolve();
+            });
+          });
+        }
+
         function loadTeams() {
-          console.log('Iniciando carga de equipos...');
-          db.collection("teams").get()
+          db.collection("teams")
+            .get()
             .then((querySnapshot) => {
-              console.log('Equipos cargados exitosamente');
-              teamCardsContainer.innerHTML = ''; // Limpiar contenedor
-              allTeams = []; // Reiniciar array de equipos
-              
+              teamCardsContainer.innerHTML = "";
+              allTeams = [];
+
               if (querySnapshot.empty) {
-                teamCardsContainer.innerHTML = '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
+                teamCardsContainer.innerHTML =
+                  '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
               } else {
                 querySnapshot.forEach((doc) => {
                   const teamData = doc.data();
                   teamData.id = doc.id;
-                  allTeams.push(teamData); // Almacenar equipo en el array
+                  allTeams.push(teamData);
                 });
-                
-                // Mostrar todos los equipos inicialmente
                 displayTeams(allTeams);
               }
             })
             .catch((error) => {
               console.error("Error al cargar equipos:", error);
-              Swal.fire('Error', 'No se pudieron cargar los equipos. Por favor, intenta de nuevo.', 'error');
+              Swal.fire(
+                "Error",
+                "No se pudieron cargar los equipos. Por favor, intenta de nuevo.",
+                "error"
+              );
             });
         }
 
-        // Función para filtrar equipos
         function filterTeams() {
           const searchTerm = searchInput.value.toLowerCase();
           const selectedCategory = categoryFilter.value;
-          
-          const filteredTeams = allTeams.filter(team => {
+
+          const filteredTeams = allTeams.filter((team) => {
             const nameMatch = team.name.toLowerCase().includes(searchTerm);
-            const categoryMatch = selectedCategory === "" || team.category === selectedCategory;
-            
+            const categoryMatch =
+              selectedCategory === "" || team.category === selectedCategory;
             return nameMatch && categoryMatch;
           });
-          
+
           displayTeams(filteredTeams);
         }
 
-        // Función para mostrar equipos filtrados
         function displayTeams(teams) {
-          teamCardsContainer.innerHTML = ''; // Limpiar contenedor
-          
+          teamCardsContainer.innerHTML = "";
           if (teams.length === 0) {
-            teamCardsContainer.innerHTML = '<div class="col-12 text-center"><p>No se encontraron equipos que coincidan con los filtros</p></div>';
+            teamCardsContainer.innerHTML =
+              '<div class="col-12 text-center"><p>No se encontraron equipos que coincidan con los filtros</p></div>';
           } else {
-            teams.forEach(team => {
+            teams.forEach((team) => {
               createTeamCard(team);
             });
           }
@@ -181,28 +259,29 @@
           teamCardsContainer.appendChild(card);
         }
 
-        // Función para manejar el clic en el botón "Entrar"
-        window.entrarEquipo = function(teamId, teamName) {
+        window.entrarEquipo = function (teamId, teamName) {
           Swal.fire({
-            title: '¿Entrar al equipo?',
+            title: "¿Entrar al equipo?",
             text: `¿Deseas entrar al equipo ${teamName}?`,
-            icon: 'question',
+            icon: "question",
             showCancelButton: true,
-            confirmButtonColor: '#28a745',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, entrar',
-            cancelButtonText: 'Cancelar'
+            confirmButtonColor: "#28a745",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, entrar",
+            cancelButtonText: "Cancelar",
           }).then((result) => {
             if (result.isConfirmed) {
-              // Redirigir a la página de registro de jugadores
               window.location.href = `registro-jugador.html?teamId=${teamId}`;
             }
           });
         };
-
       } catch (error) {
         console.error("Error al inicializar Firebase:", error);
-        Swal.fire('Error', 'No se pudo inicializar la aplicación. Por favor, recarga la página.', 'error');
+        Swal.fire(
+          "Error",
+          "No se pudo inicializar la aplicación. Por favor, recarga la página.",
+          "error"
+        );
       }
     </script>
   </body>
