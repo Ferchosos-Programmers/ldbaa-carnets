@@ -275,18 +275,22 @@
               </div>
 
               <!-- Cédula -->
-              <div class="cedula-container">
-                <div class="cedula-content">
+              <div class="cedula-container" style="margin-top: -2%;">
+                <div class="cedula-content " >
                   <div class="cedula-header">
-                    <h3 class="cedula-title">DOCUMENTO DE IDENTIDAD</h3>
+                    <h3 class="carnet-title">LIGA BARRIAL ARGELIA ALTA</h3>
+                    <p class="carnet-subtitle">DOCUMENTO DE IDENTIDAD</p>
                   </div>
-                  <img
+                  <div class="d-flex justify-content-center" style="margin-top: 15%;" >
+                    <img
                     id="modalCedulaPhoto"
                     class="cedula-photo"
                     alt="Foto de la cédula"
-                    
+                    style="max-height: 250px;"
                   />
-                  <div class="cedula-info">
+                  </div>
+                  
+                  <div class="cedula-info" style="margin-top: 10%;margin-bottom: 10%;">
                     <p>
                       <strong>Número de Cédula:</strong>
                       <span id="modalCedulaNumber"></span>
@@ -1078,9 +1082,9 @@
 
       .carnet-container
       .cedula-container {
-        /* border: 2px solid #28a745; */
+        border: 2px solid #28a745;
         border-radius: 12px;
-        padding:80px;
+        padding:-15px;
         background-color: #fff;
         box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
         width: 48%; /* ocupan lado a lado sin romper */
