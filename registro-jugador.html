@@ -1016,7 +1016,7 @@
       function imprimirCarnets() {
         const element = document.getElementById("carnetsContainer");
         const opt = {
-          margin: 1,
+          margin: 0.4,
           filename: "carnets_jugadores.pdf",
           image: { type: "jpeg", quality: 1 },
           html2canvas: {
@@ -1216,7 +1216,7 @@
         margin-bottom: 24px;
         box-shadow: 0 4px 18px rgba(40, 167, 69, 0.1);
         width: 8.5cm;
-        height: 5.4cm;
+        height: 5.2cm;
         margin: 0 auto 24px;
         font-size: 0.9rem;
         display: flex;
@@ -1251,6 +1251,11 @@
         font-weight: 500;
       }
 
+      #content {
+        page-break-after: avoid;
+        page-break-before: avoid;
+        page-break-inside: avoid;
+      }
       .carnet-moderno .carnet-content {
         display: flex;
         flex-direction: row;
