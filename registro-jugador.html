@@ -206,8 +206,8 @@
       aria-labelledby="playerModalLabel"
       aria-hidden="true"
     >
-    <div class="modal-dialog modal-xl w-100" style="max-width: 1000px;">
-      <div class="modal-content">
+      <div class="modal-dialog modal-xl w-100" style="max-width: 1000px">
+        <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="playerModalLabel">
               Documentos del Jugador
@@ -220,7 +220,9 @@
             ></button>
           </div>
           <div class="modal-body">
-            <div class="document-container d-flex justify-content-center align-items-center flex-wrap gap-4">
+            <div
+              class="document-container d-flex justify-content-center align-items-center flex-wrap gap-4"
+            >
               <!-- Carnet -->
               <div class="carnet-container">
                 <div class="carnet-content">
@@ -233,10 +235,10 @@
                       id="modalPlayerPhoto"
                       class="carnet-photo"
                       alt="Foto del jugador"
-                      style="max-width: 120px; height: 190px;"
+                      style="max-width: 120px; height: 190px"
                     />
                   </div>
-                  
+
                   <div class="carnet-info">
                     <p>
                       <strong>NOMBRE:</strong>
@@ -275,22 +277,28 @@
               </div>
 
               <!-- Cédula -->
-              <div class="cedula-container" style="margin-top: -2%;">
-                <div class="cedula-content " >
+              <div class="cedula-container" style="margin-top: -2%">
+                <div class="cedula-content">
                   <div class="cedula-header">
                     <h3 class="carnet-title">LIGA BARRIAL ARGELIA ALTA</h3>
                     <p class="carnet-subtitle">DOCUMENTO DE IDENTIDAD</p>
                   </div>
-                  <div class="d-flex justify-content-center" style="margin-top: 15%;" >
+                  <div
+                    class="d-flex justify-content-center"
+                    style="margin-top: 15%"
+                  >
                     <img
-                    id="modalCedulaPhoto"
-                    class="cedula-photo"
-                    alt="Foto de la cédula"
-                    style="max-height: 250px;"
-                  />
+                      id="modalCedulaPhoto"
+                      class="cedula-photo"
+                      alt="Foto de la cédula"
+                      style="max-height: 250px"
+                    />
                   </div>
-                  
-                  <div class="cedula-info" style="margin-top: 10%;margin-bottom: 10%;">
+
+                  <div
+                    class="cedula-info"
+                    style="margin-top: 10%; margin-bottom: 10%"
+                  >
                     <p>
                       <strong>Número de Cédula:</strong>
                       <span id="modalCedulaNumber"></span>
@@ -314,8 +322,8 @@
       aria-labelledby="carnetsModalLabel"
       aria-hidden="true"
     >
-    <div class="modal-dialog modal-xl w-100" style="max-width: 1000px;">
-      <div class="modal-content">
+      <div class="modal-dialog modal-xl w-100" style="max-width: 1000px">
+        <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="carnetsModalLabel">
               Carnets de Jugadores
@@ -806,6 +814,7 @@
           .then((doc) => {
             if (doc.exists) {
               const player = doc.data();
+
               document.getElementById("modalPlayerPhoto").src =
                 player.playerPhoto;
               document.getElementById("modalCedulaPhoto").src =
@@ -824,27 +833,23 @@
                 player.teamName;
               document.getElementById("modalTeamCategory").textContent =
                 player.teamCategory;
+
+              // Fecha de nacimiento y categoría
+              const fechaNacimientoFormatted = formatDate(
+                player.fechaNacimiento
+              );
+              const categoria = esJuvenil(player.fechaNacimiento)
+                ? "Juvenil"
+                : "Senior";
+              const categoriaBadge =
+                categoria === "Juvenil"
+                  ? '<span class="badge bg-success ms-2">JUVENIL</span>'
+                  : '<span class="badge bg-primary ms-2">SENIOR</span>';
               document.getElementById(
                 "modalPlayerFechaNacimiento"
-              ).textContent = formatDate(player.fechaNacimiento);
+              ).innerHTML = `<strong>${fechaNacimientoFormatted}</strong> ${categoriaBadge}`;
 
-              // Agregar el identificador JUVENIL si corresponde
-              const cedulaElement =
-                document.getElementById("modalPlayerCedula");
-              cedulaElement.innerHTML = player.cedula;
-
-              // Agregar el identificador JUVENIL en una línea separada
-              if (esJuvenil(player.fechaNacimiento)) {
-                const juvenileElement = document.createElement("p");
-                juvenileElement.className = "text-end";
-                juvenileElement.innerHTML =
-                  '<strong><span class="badge bg-light text-dark">JUVENIL</span></strong>';
-                cedulaElement.parentNode.insertBefore(
-                  juvenileElement,
-                  cedulaElement.nextSibling
-                );
-              }
-
+              // Mostrar el modal
               const modal = new bootstrap.Modal(
                 document.getElementById("playerModal")
               );
@@ -861,6 +866,17 @@
           });
       };
 
+      // Función para determinar si es juvenil (menor de 18 años)
+      function esJuvenil(fechaNacimiento) {
+        const fechaNac = new Date(fechaNacimiento);
+        const hoy = new Date();
+        let edad = hoy.getFullYear() - fechaNac.getFullYear();
+        const mes = hoy.getMonth() - fechaNac.getMonth();
+        if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+          edad--;
+        }
+        return edad < 18;
+      }
       // Función para cambiar el fondo del carnet
       function cambiarFondoCarnet() {
         const input = document.createElement("input");
@@ -1042,9 +1058,10 @@
       }
 
       // Función para formatear la fecha
+      // Función para formatear la fecha sin afectar la zona horaria
       function formatDate(dateString) {
-        const options = { year: "numeric", month: "2-digit", day: "2-digit" };
-        return new Date(dateString).toLocaleDateString("es-ES", options);
+        const [year, month, day] = dateString.split("-");
+        return `${day}/${month}/${year}`;
       }
 
       // Función para calcular la edad
@@ -1080,11 +1097,10 @@
         height: auto;
       }
 
-      .carnet-container
-      .cedula-container {
+      .carnet-container .cedula-container {
         border: 2px solid #28a745;
         border-radius: 12px;
-        padding:-15px;
+        padding: -15px;
         background-color: #fff;
         box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
         width: 48%; /* ocupan lado a lado sin romper */
@@ -1193,7 +1209,7 @@
           no-repeat center center;
         background-size: cover;
         border-radius: 16px;
-        padding: 18px 22px 12px 22px;
+        padding: 5px 22px 12px 10px;
         color: #222;
         position: relative;
         overflow: hidden;
