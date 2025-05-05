@@ -840,11 +840,25 @@
               );
               const categoria = esJuvenil(player.fechaNacimiento)
                 ? "Juvenil"
+                : esMaster(player.fechaNacimiento)
+                ? "Master"
                 : "Senior";
-              const categoriaBadge =
-                categoria === "Juvenil"
-                  ? '<span class="badge bg-success ms-2">JUVENIL</span>'
-                  : '<span class="badge bg-primary ms-2">SENIOR</span>';
+
+              // Badge de la categoría según la edad
+              let categoriaBadge = "";
+
+              if (
+                player.teamCategory.toLowerCase() === "primera" ||
+                player.teamCategory.toLowerCase() === "máxima"
+              ) {
+                categoriaBadge =
+                  categoria === "Juvenil"
+                    ? '<span class="badge bg-success ms-2">JUVENIL</span>'
+                    : categoria === "Master"
+                    ? '<span class="badge bg-warning text-dark ms-2">MASTER</span>'
+                    : '<span class="badge bg-primary ms-2">SENIOR</span>';
+              }
+
               document.getElementById(
                 "modalPlayerFechaNacimiento"
               ).innerHTML = `<strong style="color: black;">${fechaNacimientoFormatted}</strong> ${categoriaBadge}`;
@@ -877,6 +891,18 @@
         }
         return edad < 18;
       }
+
+      function esMaster(fechaNacimiento) {
+        const hoy = new Date();
+        const nacimiento = new Date(fechaNacimiento);
+        let edad = hoy.getFullYear() - nacimiento.getFullYear();
+        const mes = hoy.getMonth() - nacimiento.getMonth();
+        if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+          edad--;
+        }
+        return edad >= 40;
+      }
+
       // Función para cambiar el fondo del carnet
       function cambiarFondoCarnet() {
         const input = document.createElement("input");
@@ -984,6 +1010,8 @@
   ${
     esJuvenil(player.fechaNacimiento)
       ? '<span class="badge bg-light text-dark ms-5">JUVENIL</span>'
+      : esMaster(player.fechaNacimiento)
+      ? '<span class="badge bg-warning text-dark ms-5">MASTER</span>'
       : ""
   }
 </p>
@@ -1081,6 +1109,10 @@
       // Función para verificar si es juvenil
       function esJuvenil(fechaNacimiento) {
         return calcularEdad(fechaNacimiento) < 18;
+      }
+
+      function esMaster(fechaNacimiento) {
+        return calcularEdad(fechaNacimiento) > 40;
       }
     </script>
 
