@@ -13,9 +13,8 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- SweetAlert2 -->
 
-    <!-- Firebase SDK sin módulos -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
 
@@ -24,28 +23,13 @@
   </head>
   <body>
     <!-- Header -->
-    <nav
-      class="navbar navbar-expand-lg shadow-sm px-4"
-      style="background-color: #28a745"
-    >
+    <nav class="navbar navbar-expand-lg shadow-sm px-4" style="background-color: #28a745">
       <div class="container-fluid">
-        <a
-          class="navbar-brand text-white fw-bold d-flex align-items-center"
-          href="#"
-        >
-          <img
-            src="img/logo.png"
-            alt="Logo"
-            width="30"
-            height="30"
-            class="me-2"
-          />
+        <a class="navbar-brand text-white fw-bold d-flex align-items-center" href="#">
+          <img src="img/logo.png" alt="Logo" width="30" height="30" class="me-2" />
           LIGA BARRIAL ARGELIA ALTA
         </a>
-        <button
-          class="btn btn-outline-light"
-          onclick="window.location.href='index.html'"
-        >
+        <button class="btn btn-outline-light" onclick="window.location.href='index.html'">
           <i class="fas fa-arrow-left me-2"></i>Regresar
         </button>
       </div>
@@ -54,26 +38,17 @@
     <div class="container mt-4">
       <h3 class="text-dark">🏆 Equipos Registrados</h3>
 
-      <!-- Filtros de búsqueda -->
+      <!-- Filtros -->
       <div class="row mb-4">
         <div class="col-md-6">
           <div class="input-group shadow-sm">
-            <span class="input-group-text bg-white"
-              ><i class="fas fa-search text-muted"></i
-            ></span>
-            <input
-              type="text"
-              id="searchInput"
-              class="form-control"
-              placeholder="Buscar por nombre del equipo..."
-            />
+            <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre del equipo..." />
           </div>
         </div>
         <div class="col-md-6">
           <div class="input-group shadow-sm">
-            <span class="input-group-text bg-white"
-              ><i class="fas fa-filter text-muted"></i
-            ></span>
+            <span class="input-group-text bg-white"><i class="fas fa-filter text-muted"></i></span>
             <select id="categoryFilter" class="form-select">
               <option value="">Todas las categorías</option>
               <option value="MÁXIMA">MÁXIMA</option>
@@ -84,7 +59,7 @@
         </div>
       </div>
 
-      <!-- Contenedor de tarjetas -->
+      <!-- Tarjetas -->
       <div class="row" id="teamCardsContainer">
         <!-- Se cargan dinámicamente -->
       </div>
@@ -98,8 +73,8 @@
       const searchInput = document.getElementById("searchInput");
       const categoryFilter = document.getElementById("categoryFilter");
       let allTeams = [];
+      let carnetizacionFinalizada = false;
 
-      // Inicializar Firebase
       const firebaseConfig = {
         apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
         authDomain: "ldbaa-calificaciones.firebaseapp.com",
@@ -117,7 +92,6 @@
           cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
         });
 
-        // Mostrar cuenta regresiva y luego cargar equipos
         mostrarCuentaRegresiva().then(() => {
           loadTeams();
         });
@@ -125,12 +99,11 @@
         searchInput.addEventListener("input", filterTeams);
         categoryFilter.addEventListener("change", filterTeams);
 
-        <!-- Dentro de tu archivo HTML, reemplaza el bloque mostrarCuentaRegresiva() por este -->
-
         function mostrarCuentaRegresiva() {
           return new Promise((resolve) => {
-            const deadline = new Date("2025-05-10T23:59:59").getTime();
+            const deadline = new Date("2025-05-10T23:59:00").getTime();
             const countdownDiv = document.createElement("div");
+
             countdownDiv.style.fontSize = "1rem";
             countdownDiv.style.fontWeight = "normal";
             countdownDiv.style.textAlign = "center";
@@ -142,27 +115,28 @@
 
               if (distance < 0) {
                 clearInterval(interval);
-                countdownDiv.innerHTML = "⏰ ¡La fecha límite ha pasado!";
+                countdownDiv.innerHTML = `
+                  <div style="color: red; font-weight: bold; font-size: 1.2rem;">
+                    ⛔ La fecha de carnetización ha terminado.
+                  </div>`;
+                carnetizacionFinalizada = true;
+                resolve(); // continuar con la carga
                 return;
               }
 
               const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-              const hours = Math.floor(
-                (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-              );
-              const minutes = Math.floor(
-                (distance % (1000 * 60 * 60)) / (1000 * 60)
-              );
+              const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
               const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
               countdownDiv.innerHTML = `
-        <div style="font-size: 1.1rem; margin-top: -2px;">
-          ⏳ Tienes hasta el <strong>10 de mayo</strong> para completar la carnetización.
-        </div>
-        <div style="margin-top: 8px; font-weight: bold; font-size: 1.2rem;">
-          Tiempo restante: <span style="color: #28a745;">${days}d ${hours}h ${minutes}m ${seconds}s</span>
-        </div>
-      `;
+                <div style="font-size: 1.1rem; margin-top: -2px;">
+                  ⏳ Tienes hasta el <strong>10 de mayo</strong> para completar la carnetización.
+                </div>
+                <div style="margin-top: 8px; font-weight: bold; font-size: 1.2rem;">
+                  Tiempo restante: <span style="color: #28a745;">${days}d ${hours}h ${minutes}m ${seconds}s</span>
+                </div>
+              `;
             }, 1000);
 
             Swal.fire({
@@ -209,11 +183,7 @@
             })
             .catch((error) => {
               console.error("Error al cargar equipos:", error);
-              Swal.fire(
-                "Error",
-                "No se pudieron cargar los equipos. Por favor, intenta de nuevo.",
-                "error"
-              );
+              Swal.fire("Error", "No se pudieron cargar los equipos.", "error");
             });
         }
 
@@ -223,8 +193,7 @@
 
           const filteredTeams = allTeams.filter((team) => {
             const nameMatch = team.name.toLowerCase().includes(searchTerm);
-            const categoryMatch =
-              selectedCategory === "" || team.category === selectedCategory;
+            const categoryMatch = selectedCategory === "" || team.category === selectedCategory;
             return nameMatch && categoryMatch;
           });
 
@@ -246,13 +215,17 @@
         function createTeamCard(team) {
           const card = document.createElement("div");
           card.className = "col-md-4 mb-4";
+          const buttonHtml = carnetizacionFinalizada
+            ? '<button class="btn btn-danger btn-sm" disabled>Carnetización finalizada</button>'
+            : `<button class="btn btn-success btn-sm" onclick="entrarEquipo('${team.id}', '${team.name}')">Entrar</button>`;
+
           card.innerHTML = `
             <div class="card shadow-sm border-0 h-100">
               <img src="${team.logo}" class="card-img-top p-3" alt="Logo del equipo" style="height: 200px; object-fit: contain;">
               <div class="card-body text-center">
                 <h5 class="card-title">${team.name}</h5>
                 <p class="card-text"><strong>Categoría:</strong> ${team.category}</p>
-                <button class="btn btn-success btn-sm" onclick="entrarEquipo('${team.id}', '${team.name}')">Entrar</button>
+                ${buttonHtml}
               </div>
             </div>
           `;
@@ -260,6 +233,8 @@
         }
 
         window.entrarEquipo = function (teamId, teamName) {
+          if (carnetizacionFinalizada) return;
+
           Swal.fire({
             title: "¿Entrar al equipo?",
             text: `¿Deseas entrar al equipo ${teamName}?`,
@@ -277,11 +252,7 @@
         };
       } catch (error) {
         console.error("Error al inicializar Firebase:", error);
-        Swal.fire(
-          "Error",
-          "No se pudo inicializar la aplicación. Por favor, recarga la página.",
-          "error"
-        );
+        Swal.fire("Error", "No se pudo inicializar la aplicación.", "error");
       }
     </script>
   </body>
