@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Vocalías | Liga Barrial</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+  </head>
+  <body class="bg-light">
+    <nav
+      class="navbar navbar-expand-lg shadow-sm px-4"
+      style="background-color: #28a745"
+    >
+      <div class="container-fluid">
+        <a
+          class="navbar-brand text-white fw-bold d-flex align-items-center"
+          href="#"
+        >
+          <img
+            src="img/logo.png"
+            alt="Logo"
+            width="30"
+            height="30"
+            class="me-2"
+          />
+          LIGA BARRIAL ARGELIA ALTA
+        </a>
+        <a href="index.html" class="btn btn-outline-light">Volver al Inicio</a>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <h3 class="text-center mb-4">⚽ Partidos Programados</h3>
+      <div class="row" id="matchesContainer">
+        <!-- Las tarjetas de partidos se cargarán dinámicamente aquí -->
+      </div>
+    </div>
+
+    <!-- Modal de Vocalía Virtual -->
+    <div class="modal fade" id="vocaliaModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title">Vocalía Virtual</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="match-info-row">
+              <div class="team-container">
+                <img
+                  src=""
+                  alt="Logo Local"
+                  class="team-logo"
+                  id="localTeamLogo"
+                />
+                <h5 class="mb-0" id="localTeamName"></h5>
+              </div>
+
+              <div class="match-time-info">
+                <h5 class="mb-2">VS</h5>
+                <span class="badge bg-success mb-2" id="matchCategory"></span>
+                <div class="text-muted">
+                  <small id="matchDate"></small>
+                  <br />
+                  <small id="matchTime"></small>
+                </div>
+              </div>
+
+              <div class="team-container">
+                <h5 class="mb-0" id="visitorTeamName"></h5>
+                <img
+                  src=""
+                  alt="Logo Visitante"
+                  class="team-logo"
+                  id="visitorTeamLogo"
+                />
+              </div>
+            </div>
+
+            <div class="text-center">
+              <button class="btn btn-success" onclick="mostrarVocaliaVirtual()">
+                <i class="fas fa-play me-2"></i>Comenzar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Vocalía Virtual Completa -->
+    <div class="modal fade" id="vocaliaCompletaModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title">
+              Vocalía Virtual - Acta No. <span id="numeroVocalia"></span>
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card">
+                  <div
+                    class="card-header bg-success text-white d-flex justify-content-between align-items-center"
+                  >
+                    <h5 class="card-title mb-0" id="equipoLocalNombre"></h5>
+                    <button
+                      class="btn btn-light btn-sm"
+                      onclick="agregarJugador('Local')"
+                    >
+                      <i class="fas fa-plus"></i> Agregar Jugador
+                    </button>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th>No.</th>
+                            <th>Jugador</th>
+                            <th>Goles</th>
+                            <th>T.A</th>
+                            <th>T.R</th>
+                            <th>Opc</th>
+                          </tr>
+                        </thead>
+                        <tbody id="jugadoresLocal">
+                          <!-- Se llenarán dinámicamente -->
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="mt-3">
+                      <div
+                        class="d-flex justify-content-between align-items-center"
+                      >
+                        <h6>CAMBIOS</h6>
+                        <button
+                          class="btn btn-danger btn-sm"
+                          onclick="agregarCambio('Local')"
+                          id="btnCambioLocal"
+                        >
+                          <i class="fas fa-exchange-alt"></i> Agregar Cambio
+                        </button>
+                      </div>
+                      <table class="table table-bordered mt-2">
+                        <thead>
+                          <tr>
+                            <th>Entra</th>
+                            <th>Sale</th>
+                            <th>Goles</th>
+                            <th>T.A</th>
+                            <th>T.R</th>
+                            <th>Opc</th>
+                          </tr>
+                        </thead>
+                        <tbody id="cambiosLocal">
+                          <!-- Se llenarán dinámicamente -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Repetir la misma estructura para el equipo visitante -->
+              <div class="col-md-6">
+                <div class="card">
+                  <div
+                    class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+                  >
+                    <h5 class="card-title mb-0" id="equipoVisitanteNombre"></h5>
+                    <button
+                      class="btn btn-light btn-sm"
+                      onclick="agregarJugador('Visitante')"
+                    >
+                      <i class="fas fa-plus"></i> Agregar Jugador
+                    </button>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th>No.</th>
+                            <th>Jugador</th>
+                            <th>Goles</th>
+                            <th>T.A</th>
+                            <th>T.R</th>
+                            <th>Opc</th>
+                          </tr>
+                        </thead>
+                        <tbody id="jugadoresVisitante">
+                          <!-- Se llenarán dinámicamente -->
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="mt-3">
+                      <div
+                        class="d-flex justify-content-between align-items-center"
+                      >
+                        <h6>CAMBIOS</h6>
+                        <button
+                          class="btn btn-danger btn-sm"
+                          onclick="agregarCambio('Visitante')"
+                          id="btnCambioVisitante"
+                        >
+                          <i class="fas fa-exchange-alt"></i> Agregar Cambio
+                        </button>
+                      </div>
+                      <table class="table table-bordered mt-2">
+                        <thead>
+                          <tr>
+                            <th>Entra</th>
+                            <th>Sale</th>
+                            <th>Goles</th>
+                            <th>T.A</th>
+                            <th>T.R</th>
+                            <th>Opc</th>
+                          </tr>
+                        </thead>
+                        <tbody id="cambiosVisitante">
+                          <!-- Se llenarán dinámicamente -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mt-3">
+                <div class="col-md-12">
+                  <div class="card">
+                    <div class="card-header bg-primary text-white">
+                      <h5 class="card-title mb-0">Novedades del Vocal</h5>
+                    </div>
+                    <div class="card-body">
+                      <div class="form-group">
+                        <textarea
+                          class="form-control"
+                          id="novedadesVocal"
+                          rows="4"
+                          placeholder="Ingrese aquí las novedades ocurridas durante el partido..."
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Novedades del Veedor</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-group">
+                      <textarea
+                        class="form-control"
+                        id="novedadesVeedor"
+                        rows="4"
+                        placeholder="Ingrese aquí las observaciones del veedor..."
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Nueva sección para el informe del árbitro -->
+              <div class="col-12 mt-2">
+                <div class="card">
+                  <div class="card-header bg-warning text-white">
+                    <h5 class="card-title mb-0">Informe del Árbitro</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <!-- Equipo Local -->
+                      <div class="col-md-6">
+                        <h6
+                          class="border-bottom pb-2"
+                          id="equipoLocalTarjetasTitle"
+                        ></h6>
+                        <div class="mb-3">
+                          <h6 class="text-warning">Tarjetas Amarillas</h6>
+                          <div
+                            id="tarjetasAmarillasLocal"
+                            class="tarjetas-container"
+                          >
+                            <button
+                              class="btn btn-sm btn-warning mb-2"
+                              onclick="agregarTarjeta('Local', 'Amarilla')"
+                            >
+                              <i class="fas fa-plus"></i> Agregar TA
+                            </button>
+                          </div>
+                        </div>
+                        <div class="mb-3">
+                          <h6 class="text-danger">Tarjetas Rojas</h6>
+                          <div
+                            id="tarjetasRojasLocal"
+                            class="tarjetas-container"
+                          >
+                            <button
+                              class="btn btn-sm btn-danger mb-2"
+                              onclick="agregarTarjeta('Local', 'Roja')"
+                            >
+                              <i class="fas fa-plus"></i> Agregar TR
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Equipo Visitante -->
+                      <div class="col-md-6">
+                        <h6
+                          class="border-bottom pb-2"
+                          id="equipoVisitanteTarjetasTitle"
+                        ></h6>
+                        <div class="mb-3">
+                          <h6 class="text-warning">Tarjetas Amarillas</h6>
+                          <div
+                            id="tarjetasAmarillasVisitante"
+                            class="tarjetas-container"
+                          >
+                            <button
+                              class="btn btn-sm btn-warning mb-2"
+                              onclick="agregarTarjeta('Visitante', 'Amarilla')"
+                            >
+                              <i class="fas fa-plus"></i> Agregar TA
+                            </button>
+                          </div>
+                        </div>
+                        <div class="mb-3">
+                          <h6 class="text-danger">Tarjetas Rojas</h6>
+                          <div
+                            id="tarjetasRojasVisitante"
+                            class="tarjetas-container"
+                          >
+                            <button
+                              class="btn btn-sm btn-danger mb-2"
+                              onclick="agregarTarjeta('Visitante', 'Roja')"
+                            >
+                              <i class="fas fa-plus"></i> Agregar TR
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group mt-3">
+                      <label class="form-label"
+                        >Informe General del Árbitro:</label
+                      >
+                      <div
+                        class="border rounded p-2"
+                        style="background-color: #fff"
+                      >
+                        <textarea
+                          class="form-control border-0"
+                          id="informeArbitro"
+                          rows="6"
+                          placeholder="Ingrese aquí el informe general del partido..."
+                          style="resize: none; box-shadow: none"
+                        ></textarea>
+                        <input
+                          type="text"
+                          class="form-control border-0 border-top mt-2 pt-2"
+                          id="nombreArbitro"
+                          placeholder="Nombre del Árbitro"
+                          style="box-shadow: none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-success"
+              onclick="guardarVocalia()"
+            >
+              <i class="fas fa-save me-2"></i>Guardar Vocalía
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Configuración de Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
+        authDomain: "ldbaa-calificaciones.firebaseapp.com",
+        projectId: "ldbaa-calificaciones",
+        storageBucket: "ldbaa-calificaciones.firebasestorage.app",
+        messagingSenderId: "277579489603",
+        appId: "1:277579489603:web:bc93c22fea5f5f6b63cff6",
+      };
+
+      // Inicializar Firebase
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      const db = firebase.firestore();
+
+      // Cargar partidos programados
+      function loadScheduledMatches() {
+        db.collection("matches")
+          .orderBy("date", "asc")
+          .get()
+          .then((querySnapshot) => {
+            const matchesContainer =
+              document.getElementById("matchesContainer");
+            matchesContainer.innerHTML = "";
+
+            if (querySnapshot.empty) {
+              matchesContainer.innerHTML =
+                '<div class="col-12 text-center"><p>No hay partidos programados</p></div>';
+              return;
+            }
+
+            querySnapshot.forEach((doc) => {
+              const match = doc.data();
+              const matchCard = createMatchCard(match, doc.id);
+              matchesContainer.appendChild(matchCard);
+            });
+          })
+          .catch((error) => {
+            console.error("Error al cargar partidos:", error);
+            Swal.fire("Error", "No se pudieron cargar los partidos", "error");
+          });
+      }
+
+      // Crear tarjeta de partido
+      function createMatchCard(match, matchId) {
+        const col = document.createElement("div");
+        col.className = "col-md-6 col-lg-4 mb-4";
+
+        const matchDate = new Date(match.date);
+
+        const card = document.createElement("div");
+        card.className = "card match-card shadow-sm";
+        card.onclick = () => openVocalia(match);
+
+        card.innerHTML = `
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="text-center flex-grow-1">
+                            <img src="${
+                              match.localTeamLogo
+                            }" class="team-logo" alt="Local">
+                            <h6 class="mt-2 mb-0">${match.localTeamName}</h6>
+                        </div>
+                        <div class="text-center mx-3">
+                            <h5 class="mb-0">VS</h5>
+                            <small class="text-muted">${matchDate.toLocaleDateString()}</small>
+                            <br>
+                            <small class="text-muted">${match.time}</small>
+                        </div>
+                        <div class="text-center flex-grow-1">
+                            <img src="${
+                              match.visitorTeamLogo
+                            }" class="team-logo" alt="Visitante">
+                            <h6 class="mt-2 mb-0">${match.visitorTeamName}</h6>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <span class="badge bg-success">${match.category}</span>
+                    </div>
+                </div>
+            `;
+
+        col.appendChild(card);
+        return col;
+      }
+
+      // Abrir modal de vocalía
+      function openVocalia(match) {
+        document.getElementById("localTeamLogo").src = match.localTeamLogo;
+        document.getElementById("localTeamName").textContent =
+          match.localTeamName;
+        document.getElementById("visitorTeamLogo").src = match.visitorTeamLogo;
+        document.getElementById("visitorTeamName").textContent =
+          match.visitorTeamName;
+        document.getElementById("matchCategory").textContent = match.category;
+        document.getElementById("matchDate").textContent = new Date(
+          match.date
+        ).toLocaleDateString();
+        document.getElementById("matchTime").textContent = match.time;
+
+        const vocaliaModal = new bootstrap.Modal(
+          document.getElementById("vocaliaModal")
+        );
+        vocaliaModal.show();
+      }
+
+      // Cargar partidos al iniciar
+      document.addEventListener("DOMContentLoaded", loadScheduledMatches);
+
+      // Función para mostrar la vocalía virtual completa
+      function mostrarVocaliaVirtual() {
+        const vocaliaModal = bootstrap.Modal.getInstance(
+          document.getElementById("vocaliaModal")
+        );
+        vocaliaModal.hide();
+
+        const vocaliaCompletaModal = new bootstrap.Modal(
+          document.getElementById("vocaliaCompletaModal")
+        );
+        document.getElementById("numeroVocalia").textContent =
+          generarNumeroVocalia();
+        document.getElementById("equipoLocalNombre").textContent =
+          document.getElementById("localTeamName").textContent;
+        document.getElementById("equipoVisitanteNombre").textContent =
+          document.getElementById("visitorTeamName").textContent;
+
+        // Limpiar las tablas
+        document.getElementById("jugadoresLocal").innerHTML = "";
+        document.getElementById("jugadoresVisitante").innerHTML = "";
+        document.getElementById("cambiosLocal").innerHTML = "";
+        document.getElementById("cambiosVisitante").innerHTML = "";
+
+        vocaliaCompletaModal.show();
+      }
+
+      // Función para generar número de vocalía
+      function generarNumeroVocalia() {
+        return Math.floor(Math.random() * 1000) + 1;
+      }
+
+      // Función para guardar la vocalía
+      // Función para agregar tarjeta
+      async function agregarTarjeta(equipo, tipo) {
+        const equipoNombre = document.getElementById(
+          `equipo${equipo}Nombre`
+        ).textContent;
+        const jugadoresSnapshot = await db
+          .collection("players")
+          .where("teamName", "==", equipoNombre)
+          .where(
+            "teamCategory",
+            "==",
+            document.getElementById("matchCategory").textContent
+          )
+          .get();
+
+        if (jugadoresSnapshot.empty) {
+          Swal.fire(
+            "Info",
+            "No hay jugadores registrados para este equipo",
+            "info"
+          );
+          return;
+        }
+
+        let jugadoresOptions = "";
+        jugadoresSnapshot.forEach((doc) => {
+          const jugador = doc.data();
+          jugadoresOptions += `<option value="${jugador.numeroJugador}">#${jugador.numeroJugador}</option>`;
+        });
+
+        const contenidoHTML = `
+              <div class="tarjeta-entry mb-3">
+                  <div class="input-group">
+                      <select class="form-select" required>
+                          <option value="">Seleccionar Jugador</option>
+                          ${jugadoresOptions}
+                      </select>
+                      <input type="text" class="form-control" placeholder="Motivo de la tarjeta" required>
+                      <button class="btn btn-outline-danger" onclick="this.closest('.tarjeta-entry').remove()">
+                          <i class="fas fa-trash"></i>
+                      </button>
+                  </div>
+              </div>
+          `;
+
+        const container = document.getElementById(`tarjetas${tipo}s${equipo}`);
+        container.insertAdjacentHTML("afterbegin", contenidoHTML);
+      }
+
+      function guardarVocalia() {
+        // Aquí puedes agregar la lógica para guardar la información del árbitro
+        // incluyendo las tarjetas y el informe general
+
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "Vocalía guardada correctamente",
+          icon: "success",
+          confirmButtonText: "Aceptar",
+        }).then(() => {
+          const vocaliaCompletaModal = bootstrap.Modal.getInstance(
+            document.getElementById("vocaliaCompletaModal")
+          );
+          vocaliaCompletaModal.hide();
+        });
+      }
+
+      // Variables para controlar el número de jugadores y cambios
+      let contadoresJugadores = {
+        Local: 0,
+        Visitante: 0,
+      };
+
+      let contadoresCambios = {
+        Local: 0,
+        Visitante: 0,
+      };
+
+      // Función para agregar jugador
+      async function agregarJugador(tipo) {
+        const equipoNombre =
+          tipo === "Local"
+            ? document.getElementById("equipoLocalNombre").textContent
+            : document.getElementById("equipoVisitanteNombre").textContent;
+        const categoria = document.getElementById("matchCategory").textContent;
+
+        try {
+          const jugadoresSnapshot = await db
+            .collection("players")
+            .where("teamName", "==", equipoNombre)
+            .where("teamCategory", "==", categoria)
+            .get();
+
+          if (jugadoresSnapshot.empty) {
+            Swal.fire(
+              "Info",
+              "No hay jugadores registrados para este equipo en esta categoría",
+              "info"
+            );
+            return;
+          }
+
+          let contenidoHTML =
+            '<div class="d-flex flex-wrap justify-content-center gap-3 p-3">';
+          jugadoresSnapshot.forEach((doc) => {
+            const jugador = doc.data();
+            contenidoHTML += `
+        <div class="carnet-jugador" 
+             onclick="seleccionarJugador('${tipo}', ${JSON.stringify(
+              jugador
+            ).replace(/"/g, "&quot;")})">
+          <div class="carnet-container">
+            <div class="carnet-header">
+              <h6 class="mb-1" >LIGA BARRIAL ARGELIA ALTA</h6>
+              <small>CAMPEONATO 2025</small>
+            </div>
+            <div class="carnet-content">
+              <div class="foto-container">
+                <img src="${
+                  jugador.playerPhoto || "img/default-player.png"
+                }" alt="Foto">
+                <div class="numero">${jugador.numeroJugador}</div>
+              </div>
+              <div class="info-container">
+                <div class="equipo">${equipoNombre}</div>
+                <div class="categoria"><strong>CATEGORIA:</strong> ${categoria}</div>
+                <div class="nombre"><strong>NOM:</strong> ${
+                  jugador.nombres || ""
+                }</div>
+                <div class="apellido"><strong>APELL:</strong> ${
+                  jugador.apellidos || ""
+                }</div>
+                <div class="fecha"><strong>FECHA NAC:</strong> ${
+                  jugador.fechaNacimiento || ""
+                }</div>
+                <div class="cedula"><strong>CI:</strong> ${
+                  jugador.cedula || ""
+                }</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+          });
+          contenidoHTML += "</div>";
+
+          // Agregar estilos específicos para el carnet
+          const estilosCarnet = `
+     
+    `;
+
+          Swal.fire({
+            title: `Seleccionar Jugador - ${equipoNombre}`,
+            html: estilosCarnet + contenidoHTML,
+            width: "80%",
+            showCloseButton: true,
+            showConfirmButton: false,
+          });
+        } catch (error) {
+          console.error("Error al cargar jugadores:", error);
+          Swal.fire("Error", "No se pudieron cargar los jugadores", "error");
+        }
+      }
+
+      function seleccionarJugador(tipo, jugador) {
+        if (contadoresJugadores[tipo] >= 9) {
+          Swal.fire(
+            "Límite alcanzado",
+            "No se pueden agregar más de 9 jugadores",
+            "warning"
+          );
+          return;
+        }
+
+        const tbody = document.getElementById(`jugadores${tipo}`);
+
+        // Verificar si el jugador ya está agregado
+        const jugadoresExistentes = tbody.getElementsByTagName("tr");
+        for (let tr of jugadoresExistentes) {
+          if (tr.getAttribute("data-cedula") === jugador.cedula) {
+            Swal.fire("Info", "Este jugador ya está agregado al acta", "info");
+            return;
+          }
+        }
+
+        // Obtener primer nombre y primer apellido
+        const primerNombre = jugador.nombres.split(" ")[0];
+        const primerApellido = jugador.apellidos.split(" ")[0];
+
+        const tr = document.createElement("tr");
+        tr.setAttribute("data-cedula", jugador.cedula);
+        tr.setAttribute("data-amarillas", "0");
+        tr.setAttribute("data-roja", "0");
+        tr.innerHTML = `
+            <td>${jugador.numeroJugador}</td>
+            <td>${primerNombre} ${primerApellido}</td>
+            <td><input type="number" class="form-control form-control-sm" value="0" min="0"></td>
+           <td class="text-center">
+  <div class="d-flex align-items-center justify-content-center gap-2">
+    <button class="btn btn-warning"
+            onclick="toggleTarjeta(this, 'amarilla')"
+            style="width: 60px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center;">
+      <i class="fas fa-square" style="font-size: 12px;"></i>
+    </button>
+    <div class="tarjetas-amarillas d-flex gap-1"></div>
+  </div>
+</td>
+<td class="text-center">
+  <div class="d-flex align-items-center justify-content-center gap-2">
+    <button class="btn btn-danger"
+            onclick="toggleTarjeta(this, 'roja')"
+            style="width: 60px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center;">
+      <i class="fas fa-square" style="font-size: 12px;"></i>
+    </button>
+    <div class="tarjeta-roja"></div>
+  </div>
+</td>
+<td>
+  <button class="btn btn-danger"
+          onclick="eliminarJugador(this, '${tipo}')"
+          style="width: 50px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center;">
+    <i class="fas fa-trash" style="font-size: 12px;"></i>
+  </button>
+</td>
+
+        `;
+
+        tbody.appendChild(tr);
+        contadoresJugadores[tipo]++;
+
+        Swal.close();
+      }
+
+      function eliminarJugador(btn, tipo) {
+        Swal.fire({
+          title: "¿Estás seguro?",
+          text: "Se eliminará el jugador del acta",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const fila = btn.closest("tr");
+            fila.remove();
+            contadoresJugadores[tipo]--;
+            Swal.fire(
+              "Eliminado",
+              "El jugador ha sido eliminado del acta",
+              "success"
+            );
+          }
+        });
+      }
+
+      // Modificación de la función agregarCambio
+      async function agregarCambio(tipo) {
+        if (contadoresCambios[tipo] >= 5) {
+          Swal.fire(
+            "Límite alcanzado",
+            "No se pueden agregar más de 5 cambios",
+            "warning"
+          );
+          return;
+        }
+
+        const equipoNombre =
+          tipo === "Local"
+            ? document.getElementById("equipoLocalNombre").textContent
+            : document.getElementById("equipoVisitanteNombre").textContent;
+        const categoria = document.getElementById("matchCategory").textContent;
+
+        try {
+          const jugadoresSnapshot = await db
+            .collection("players")
+            .where("teamName", "==", equipoNombre)
+            .where("teamCategory", "==", categoria)
+            .get();
+
+          if (jugadoresSnapshot.empty) {
+            Swal.fire(
+              "Info",
+              "No hay jugadores registrados para este equipo en esta categoría",
+              "info"
+            );
+            return;
+          }
+
+          // Obtener los jugadores ya registrados en la vocalía
+          const jugadoresRegistrados = Array.from(
+            document
+              .getElementById(`jugadores${tipo}`)
+              .getElementsByTagName("tr")
+          ).map((tr) => tr.getAttribute("data-cedula"));
+
+          let contenidoHTML = `
+                <div class="mb-4">
+                    <h5 class="text-danger mb-3">Seleccione jugador que sale:</h5>
+                    <div class="d-flex flex-wrap justify-content-center gap-3 p-3">`;
+
+          // Mostrar solo los jugadores que están en la vocalía para salir
+          jugadoresSnapshot.forEach((doc) => {
+            const jugador = doc.data();
+            if (jugadoresRegistrados.includes(jugador.cedula)) {
+              const primerNombre = jugador.nombres.split(" ")[0];
+              const primerApellido = jugador.apellidos.split(" ")[0];
+              contenidoHTML += `
+                        <div class="jugador-card" 
+                             style="width:85%; 
+                                    text-align: center; 
+                                    cursor: pointer;
+                                    transition: transform 0.2s;
+                                    border: 2px solid #dc3545;"
+                             onmouseover="this.style.transform='scale(1.1)'"
+                             onmouseout="this.style.transform='scale(1)'"
+                             onclick="seleccionarJugadorSaliente('${tipo}', ${JSON.stringify(
+                jugador
+              ).replace(/"/g, "&quot;")})">
+                             <div class="carnet-container">
+            <div class="carnet-header">
+              <h6 class="mb-1" >LIGA BARRIAL ARGELIA ALTA</h6>
+              <small>CAMPEONATO 2025</small>
+            </div>
+            <div class="carnet-content">
+              <div class="foto-container">
+                <img src="${
+                  jugador.playerPhoto || "img/default-player.png"
+                }" alt="Foto">
+                <div class="numero">${jugador.numeroJugador}</div>
+              </div>
+              <div class="info-container">
+                <div class="equipo">${equipoNombre}</div>
+                <div class="categoria"><strong>CATEGORIA:</strong> ${categoria}</div>
+                <div class="nombre"><strong>NOM:</strong> ${
+                  jugador.nombres || ""
+                }</div>
+                <div class="apellido"><strong>APELL:</strong> ${
+                  jugador.apellidos || ""
+                }</div>
+                <div class="fecha"><strong>FECHA NAC:</strong> ${
+                  jugador.fechaNacimiento || ""
+                }</div>
+                <div class="cedula"><strong>CI:</strong> ${
+                  jugador.cedula || ""
+                }</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+            }
+          });
+
+          contenidoHTML += `
+                </div>
+            </div>
+            <div>
+                <h5 class="text-primary mb-3">Seleccione jugador que entra:</h5>
+                <div class="d-flex flex-wrap justify-content-center gap-3 p-3">`;
+
+          // Mostrar solo los jugadores que NO están en la vocalía para entrar
+          jugadoresSnapshot.forEach((doc) => {
+            const jugador = doc.data();
+            if (!jugadoresRegistrados.includes(jugador.cedula)) {
+              const primerNombre = jugador.nombres.split(" ")[0];
+              const primerApellido = jugador.apellidos.split(" ")[0];
+              contenidoHTML += `
+                        <div class="jugador-card" 
+                             style="width:85%; 
+                                    text-align: center; 
+                                    cursor: pointer;
+                                    transition: transform 0.2s;
+                                    border: 2px solid #007bff;"
+                             onmouseover="this.style.transform='scale(1.1)'"
+                             onmouseout="this.style.transform='scale(1)'"
+                             onclick="seleccionarJugadorEntrante('${tipo}', ${JSON.stringify(
+                jugador
+              ).replace(/"/g, "&quot;")})">
+                                                    <div class="carnet-container">
+            <div class="carnet-header">
+              <h6 class="mb-1" >LIGA BARRIAL ARGELIA ALTA</h6>
+              <small>CAMPEONATO 2025</small>
+            </div>
+            <div class="carnet-content">
+              <div class="foto-container">
+                <img src="${
+                  jugador.playerPhoto || "img/default-player.png"
+                }" alt="Foto">
+                <div class="numero">${jugador.numeroJugador}</div>
+              </div>
+              <div class="info-container">
+                <div class="equipo">${equipoNombre}</div>
+                <div class="categoria"><strong>CATEGORIA:</strong> ${categoria}</div>
+                <div class="nombre"><strong>NOM:</strong> ${
+                  jugador.nombres || ""
+                }</div>
+                <div class="apellido"><strong>APELL:</strong> ${
+                  jugador.apellidos || ""
+                }</div>
+                <div class="fecha"><strong>FECHA NAC:</strong> ${
+                  jugador.fechaNacimiento || ""
+                }</div>
+                <div class="cedula"><strong>CI:</strong> ${
+                  jugador.cedula || ""
+                }</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+            }
+          });
+
+          contenidoHTML += `
+                    </div>
+                </div>`;
+
+          window.jugadorSaliente = null;
+          window.jugadorEntrante = null;
+
+          Swal.fire({
+            title: `Registrar Cambio - ${equipoNombre}`,
+            html: contenidoHTML,
+            width: "80%",
+            showCloseButton: true,
+            showConfirmButton: true,
+            confirmButtonText: "Confirmar Cambio",
+            showCancelButton: true,
+            cancelButtonText: "Cancelar",
+            confirmButtonColor: "#28a745",
+            allowOutsideClick: false,
+            preConfirm: () => {
+              if (!window.jugadorSaliente || !window.jugadorEntrante) {
+                Swal.showValidationMessage("Debe seleccionar ambos jugadores");
+                return false;
+              }
+              return {
+                saliente: window.jugadorSaliente,
+                entrante: window.jugadorEntrante,
+              };
+            },
+          }).then((result) => {
+            if (result.isConfirmed) {
+              registrarCambio(
+                tipo,
+                result.value.saliente,
+                result.value.entrante
+              );
+            }
+          });
+        } catch (error) {
+          console.error("Error al cargar jugadores:", error);
+          Swal.fire("Error", "No se pudieron cargar los jugadores", "error");
+        }
+      }
+
+      function registrarCambio(tipo, jugadorSaliente, jugadorEntrante) {
+        const tbody = document.getElementById(`cambios${tipo}`);
+        const tr = document.createElement("tr");
+        tr.setAttribute("data-cedula-entrante", jugadorEntrante.cedula);
+        tr.setAttribute("data-cedula-saliente", jugadorSaliente.cedula);
+        tr.setAttribute("data-amarillas", "0");
+        tr.setAttribute("data-roja", "0");
+
+        const primerNombreEntrante = jugadorEntrante.nombres.split(" ")[0];
+        const primerApellidoEntrante = jugadorEntrante.apellidos.split(" ")[0];
+        const primerNombreSaliente = jugadorSaliente.nombres.split(" ")[0];
+        const primerApellidoSaliente = jugadorSaliente.apellidos.split(" ")[0];
+
+        tr.innerHTML = `
+            <td>
+                ${primerNombreEntrante} ${primerApellidoEntrante} (${jugadorEntrante.numeroJugador})
+            </td>
+            <td>
+                ${primerNombreSaliente} ${primerApellidoSaliente}
+            </td>
+            <td><input type="number" class="form-control form-control-sm" value="0" min="0"></td>
+         <td class="text-center">
+  <div class="d-flex align-items-center justify-content-center gap-2">
+    <button class="btn btn-warning"
+            onclick="toggleTarjeta(this, 'amarilla')"
+            style="width: 50px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center;">
+      <i class="fas fa-square" style="font-size: 12px;"></i>
+    </button>
+    <div class="tarjetas-amarillas d-flex gap-1"></div>
+  </div>
+</td>
+<td class="text-center">
+  <div class="d-flex align-items-center justify-content-center gap-2">
+    <button class="btn btn-danger"
+            onclick="toggleTarjeta(this, 'roja')"
+            style="width: 50px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center;">
+      <i class="fas fa-square" style="font-size: 12px;"></i>
+    </button>
+    <div class="tarjeta-roja"></div>
+  </div>
+</td>
+<td>
+  <button class="btn btn-danger"
+          onclick="eliminarJugador(this, '${tipo}')"
+          style="width: 45px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center;">
+    <i class="fas fa-trash" style="font-size: 12px;"></i>
+  </button>
+</td>
+
+        `;
+
+        tbody.appendChild(tr);
+        contadoresCambios[tipo]++;
+      }
+
+      function eliminarCambio(btn, tipo) {
+        Swal.fire({
+          title: "¿Estás seguro?",
+          text: "Se eliminará el cambio del acta",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const fila = btn.closest("tr");
+            fila.remove();
+            contadoresCambios[tipo]--;
+          }
+        });
+      }
+      // Modificar la función mostrarVocaliaVirtual para reiniciar contadores
+      function mostrarVocaliaVirtual() {
+        const vocaliaModal = bootstrap.Modal.getInstance(
+          document.getElementById("vocaliaModal")
+        );
+        vocaliaModal.hide();
+
+        // Reiniciar contadores
+        contadoresJugadores = {
+          Local: 0,
+          Visitante: 0,
+        };
+
+        contadoresCambios = {
+          Local: 0,
+          Visitante: 0,
+        };
+
+        const vocaliaCompletaModal = new bootstrap.Modal(
+          document.getElementById("vocaliaCompletaModal")
+        );
+        document.getElementById("numeroVocalia").textContent =
+          generarNumeroVocalia();
+        document.getElementById("equipoLocalNombre").textContent =
+          document.getElementById("localTeamName").textContent;
+        document.getElementById("equipoVisitanteNombre").textContent =
+          document.getElementById("visitorTeamName").textContent;
+
+        // Actualizar títulos de las secciones de tarjetas
+        document.getElementById("equipoLocalTarjetasTitle").textContent =
+          document.getElementById("equipoLocalNombre").textContent;
+        document.getElementById("equipoVisitanteTarjetasTitle").textContent =
+          document.getElementById("equipoVisitanteNombre").textContent;
+
+        // Limpiar las tablas
+        document.getElementById("jugadoresLocal").innerHTML = "";
+        document.getElementById("jugadoresVisitante").innerHTML = "";
+        document.getElementById("cambiosLocal").innerHTML = "";
+        document.getElementById("cambiosVisitante").innerHTML = "";
+
+        vocaliaCompletaModal.show();
+      }
+
+      function seleccionarJugadorSaliente(tipo, jugador) {
+        window.jugadorSaliente = jugador;
+        const cards = document.querySelectorAll(".jugador-card");
+        cards.forEach((card) => (card.style.border = "2px solid transparent"));
+        event.currentTarget.style.border = "2px solid #dc3545";
+      }
+
+      function seleccionarJugadorEntrante(tipo, jugador) {
+        window.jugadorEntrante = jugador;
+        const cards = document.querySelectorAll(".jugador-card");
+        cards.forEach((card) => {
+          if (
+            card !== event.currentTarget &&
+            card.style.border !== "2px solid #dc3545"
+          ) {
+            card.style.border = "2px solid transparent";
+          }
+        });
+        event.currentTarget.style.border = "2px solid #007bff";
+      }
+
+      function toggleTarjeta(btn, tipo, esCambio = false) {
+        const fila = btn.closest("tr");
+        const contenedorTarjetas =
+          tipo === "amarilla"
+            ? fila.querySelector(".tarjetas-amarillas")
+            : fila.querySelector(".tarjeta-roja");
+
+        if (tipo === "amarilla") {
+          const tarjetasActuales = parseInt(
+            fila.getAttribute("data-amarillas") || "0"
+          );
+
+          if (tarjetasActuales < 2) {
+            const nuevaTarjeta = document.createElement("div");
+            nuevaTarjeta.style.width = "15px";
+            nuevaTarjeta.style.height = "20px";
+            nuevaTarjeta.style.backgroundColor = "#ffc107";
+            nuevaTarjeta.style.cursor = "pointer";
+            nuevaTarjeta.onclick = function () {
+              this.remove();
+              const tarjetasRestantes =
+                parseInt(fila.getAttribute("data-amarillas")) - 1;
+              fila.setAttribute("data-amarillas", tarjetasRestantes);
+
+              // Si hay tarjeta roja por doble amarilla, eliminarla también
+              if (
+                tarjetasRestantes < 2 &&
+                fila.getAttribute("data-roja") === "1"
+              ) {
+                const tarjetaRoja = fila.querySelector(".tarjeta-roja div");
+                if (tarjetaRoja) {
+                  tarjetaRoja.remove();
+                  fila.setAttribute("data-roja", "0");
+                }
+              }
+            };
+            contenedorTarjetas.appendChild(nuevaTarjeta);
+
+            fila.setAttribute("data-amarillas", tarjetasActuales + 1);
+
+            if (tarjetasActuales + 1 === 2) {
+              // Automáticamente agregar tarjeta roja por doble amarilla
+              toggleTarjeta(
+                btn.parentElement.parentElement.nextElementSibling.querySelector(
+                  ".btn-danger"
+                ),
+                "roja",
+                esCambio
+              );
+              Swal.fire({
+                title: "¡Expulsión!",
+                text: "Jugador expulsado por doble amarilla",
+                icon: "warning",
+                confirmButtonText: "Aceptar",
+              });
+            }
+          }
+        } else if (tipo === "roja") {
+          if (fila.getAttribute("data-roja") === "0") {
+            const tarjetaRoja = document.createElement("div");
+            tarjetaRoja.style.width = "15px";
+            tarjetaRoja.style.height = "20px";
+            tarjetaRoja.style.backgroundColor = "#dc3545";
+            tarjetaRoja.style.cursor = "pointer";
+            tarjetaRoja.onclick = function () {
+              this.remove();
+              fila.setAttribute("data-roja", "0");
+            };
+            contenedorTarjetas.appendChild(tarjetaRoja);
+
+            fila.setAttribute("data-roja", "1");
+
+            if (
+              fila.getAttribute("data-roja") === "1" &&
+              parseInt(fila.getAttribute("data-amarillas")) < 2
+            ) {
+              Swal.fire({
+                title: "¡Expulsión!",
+                text: "Jugador expulsado por tarjeta roja directa",
+                icon: "warning",
+                confirmButtonText: "Aceptar",
+              });
+            }
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
+<style>
+  .match-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    border-radius: 15px;
+    background: linear-gradient(145deg, #ffffff, #f5f5f5);
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  .match-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 20px rgba(40, 167, 69, 0.2);
+  }
+  .team-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+
+  .modal-body .team-logo {
+    width: 35px;
+    height: 35px;
+  }
+
+  .match-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+  }
+
+  .team-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .match-details {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .match-time-info {
+    text-align: center;
+  }
+  .match-card:hover .team-logo {
+    transform: scale(1.1);
+  }
+  .modal-content {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  .modal-header {
+    background: linear-gradient(135deg, #28a745, #218838);
+    border: none;
+    padding: 1.5rem;
+  }
+  .modal-body {
+    padding: 2rem;
+  }
+  .team-info {
+    padding: 1.5rem;
+    border-radius: 15px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+  }
+  .team-info:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+  .badge {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+  }
+  .btn {
+    border-radius: 50px;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.3s ease;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  .card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+  }
+  .card-header {
+    background: linear-gradient(135deg, #28a745, #218838);
+    border: none;
+    padding: 1rem 1.5rem;
+  }
+  .table {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .table th {
+    background-color: #f8f9fa;
+    border: none;
+  }
+
+  .carnet-jugador {
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .carnet-jugador:hover {
+    transform: translateY(-5px);
+  }
+
+  .carnet-container {
+    background: var(
+        --carnet-background,
+        url("https://img.freepik.com/vector-premium/fondo-futbol-abstracto-jugador-futbol-pateando-pelota-otros-simbolos-deportivos-colores-verdes_444390-23654.jpg")
+      )
+      no-repeat center center;
+    background-size: cover;
+    border-radius: 16px;
+    padding: 5px 15px 12px 10px;
+    color: #222;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 18px rgba(40, 167, 69, 0.1);
+    width: 7.55cm;
+    height: 5.2cm;
+    margin: 0 auto 24px;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    border: 1.5px solid #e0e0e0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .carnet-header {
+    text-align: center;
+    margin-bottom: 8px;
+    position: relative;
+    width: 100%;
+    border-bottom: 1.5px solid #080404;
+    padding-bottom: 4px;
+    font-family: "Times New Roman", Times, serif;
+  }
+
+  .carnet-header h6 {
+    font-size: 0.9rem;
+    margin: 0;
+    color: #0c0303;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+  }
+
+  .carnet-header small {
+    font-size: 0.8rem;
+    color: #000;
+    margin: 2px 0 0 0;
+    font-weight: 500;
+    display: block;
+  }
+
+  .carnet-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+    min-width: 0;
+    font-size: 12pt;
+    font-family: "Times New Roman", Times, serif;
+  }
+
+  .foto-container {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-right: 18px;
+    margin-top: 0;
+    position: relative;
+  }
+
+  .foto-container img {
+    width: 70px;
+    height: 90px;
+    border-radius: 10px;
+    border: 2.5px solid #28a745;
+    box-shadow: 0 2px 10px rgba(40, 167, 69, 0.1);
+    object-fit: cover;
+  }
+
+  .numero {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #000;
+    margin-top: 12px;
+    letter-spacing: 1.2px;
+    text-shadow: 0 1px 2px #e0e0e0;
+  }
+
+  .info-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    background: transparent;
+    font-size: 0.72rem;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.6;
+    margin-bottom: 0;
+  }
+
+  .info-container div {
+    margin: 0 0 2px 0;
+    font-size: 0.7rem;
+    line-height: 1.6;
+    color: #000;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+  }
+
+  .equipo {
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    margin-bottom: 4px !important;
+  }
+
+  @media print {
+    .carnet-container {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      background-color: #ffffff !important;
+      background-image: var(--carnet-background) !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+  }
+  .d-flex.flex-wrap.justify-content-center.gap-3.p-3 {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(7.55cm, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    width: 100%;
+  }
+
+  .carnet-jugador {
+    width: 100%;
+    max-width: 7.55cm;
+    margin: 0 auto;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .carnet-jugador:hover {
+    transform: scale(1.05);
+    z-index: 1;
+  }
+
+  .carnet-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+</style>

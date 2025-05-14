@@ -112,6 +112,13 @@
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="text-dark">🏆 Equipos Registrados</h3>
         <button
+          class="btn btn-success shadow me-2"
+          data-bs-toggle="modal"
+          data-bs-target="#modalProgramarPartido"
+        >
+          📅 Programar Partido
+        </button>
+        <button
           class="btn btn-success shadow"
           data-bs-toggle="modal"
           data-bs-target="#addTeamModal"
@@ -193,6 +200,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+
+      
       // Configuración de Firebase
       const firebaseConfig = {
         apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
@@ -457,6 +466,295 @@
           }
         });
       }
+    </script>
+  </body>
+</html>
+
+<!-- Modal para programar partido -->
+<div class="modal fade" id="modalProgramarPartido" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="modalLabel">Programar Partido</h5>
+        <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formProgramarPartido">
+          <div class="mb-3">
+            <label for="categorySelect" class="form-label">Categoría</label>
+            <select class="form-select" id="categorySelect" required>
+              <option value="">Selecciona una categoría</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="localTeamSelect" class="form-label">Equipo Local</label>
+            <select class="form-select" id="localTeamSelect" required disabled>
+              <option value="">Selecciona el equipo local</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="visitorTeamSelect" class="form-label">Equipo Visitante</label>
+            <select class="form-select" id="visitorTeamSelect" required disabled>
+              <option value="">Selecciona el equipo visitante</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="fechaPartido" class="form-label">Fecha del Partido</label>
+            <input type="date" class="form-control" id="fechaPartido" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="horaPartido" class="form-label">Hora del Partido</label>
+            <input type="time" class="form-control" id="horaPartido" required>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-success">Programar Partido</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<body>
+    <div id="loading-overlay" class="position-fixed w-100 h-100 d-flex justify-content-center align-items-center bg-white" style="z-index: 9999;">
+        <div class="spinner-border text-success" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</body>
+
+<script>
+// db is already declared in the previous script tag
+
+  const localSelect = document.getElementById("localTeamSelect");
+  const visitorSelect = document.getElementById("visitorTeamSelect");
+  const categorySelect = document.getElementById("categorySelect");
+
+  function loadCategories() {
+    db.collection("teams").get().then((querySnapshot) => {
+      const categories = new Set();
+      querySnapshot.forEach((doc) => {
+        const team = doc.data();
+        if (team.category) {
+          categories.add(team.category);
+        }
+      });
+  
+      categorySelect.innerHTML = '<option value="">Selecciona una categoría</option>';
+      categories.forEach(cat => {
+        const option = document.createElement("option");
+        option.value = cat;
+        option.textContent = cat;
+        categorySelect.appendChild(option);
+      });
+    }).catch((error) => {
+      console.error("Error al cargar categorías:", error);
+      Swal.fire('Error', 'No se pudieron cargar las categorías', 'error');
+    });
+  }
+
+  function loadTeamsByCategory(category) {
+    // Limpiar selects
+    localSelect.innerHTML = '<option value="">Selecciona el equipo local</option>';
+    visitorSelect.innerHTML = '<option value="">Selecciona el equipo visitante</option>';
+    
+    // Habilitar/deshabilitar selects según si hay categoría seleccionada
+    const disabled = !category;
+    localSelect.disabled = disabled;
+    visitorSelect.disabled = disabled;
+  
+    if (!category) return;
+  
+    db.collection("teams")
+      .where("category", "==", category)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const team = doc.data();
+          
+          // Agregar equipo a select local
+          const optionLocal = document.createElement("option");
+          optionLocal.value = team.name;
+          optionLocal.textContent = team.name;
+          localSelect.appendChild(optionLocal);
+  
+          // Agregar equipo a select visitante
+          const optionVisitor = document.createElement("option");
+          optionVisitor.value = team.name;
+          optionVisitor.textContent = team.name;
+          visitorSelect.appendChild(optionVisitor);
+        });
+      })
+      .catch((error) => {
+        console.error("Error al cargar equipos:", error);
+        Swal.fire('Error', 'No se pudieron cargar los equipos', 'error');
+      });
+  }
+
+  // Evento para cuando cambia la categoría
+  categorySelect.addEventListener('change', (e) => {
+    loadTeamsByCategory(e.target.value);
+  });
+
+  // Cargar categorías cuando se abre el modal
+  document.getElementById('modalProgramarPartido').addEventListener('show.bs.modal', () => {
+    loadCategories();
+    // Resetear y deshabilitar selects de equipos
+    loadTeamsByCategory('');
+  });
+
+  // Validación y envío del formulario
+  document.getElementById("formProgramarPartido").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const matchData = {
+        localTeamName: localSelect.value,
+        visitorTeamName: visitorSelect.value,
+        date: document.getElementById("fechaPartido").value,
+        time: document.getElementById("horaPartido").value,
+        category: categorySelect.value,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    // Obtener los logos de los equipos
+    db.collection("teams").where("name", "==", matchData.localTeamName).get()
+        .then(querySnapshot => {
+            if (!querySnapshot.empty) {
+                matchData.localTeamLogo = querySnapshot.docs[0].data().logo;
+                return db.collection("teams").where("name", "==", matchData.visitorTeamName).get();
+            }
+        })
+        .then(querySnapshot => {
+            if (!querySnapshot.empty) {
+                matchData.visitorTeamLogo = querySnapshot.docs[0].data().logo;
+                return db.collection("matches").add(matchData);
+            }
+        })
+        .then(() => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById("modalProgramarPartido"));
+            modal.hide();
+            Swal.fire({
+                title: 'Éxito',
+                text: 'Partido programado correctamente',
+                icon: 'success',
+                confirmButtonColor: '#28a745'
+            });
+            document.getElementById("formProgramarPartido").reset();
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            Swal.fire('Error', 'No se pudo programar el partido', 'error');
+        });
+});
+</script>
+
+<script>
+  // Función para cargar equipos en los selectores del modal de programación
+  function loadTeamsForScheduling() {
+    const localSelect = document.getElementById("localTeam");
+    const visitorSelect = document.getElementById("visitorTeam");
+    const categorySelect = document.getElementById("matchCategory");
+    
+    // Limpiar opciones existentes
+    localSelect.innerHTML = '<option value="">Selecciona el equipo local</option>';
+    visitorSelect.innerHTML = '<option value="">Selecciona el equipo visitante</option>';
+    
+    // Función para cargar equipos según la categoría
+    function loadTeamsByCategory(category) {
+      console.log('Cargando equipos de categoría:', category);
+      db.collection("teams")
+        .where("category", "==", category)
+        .get()
+        .then((querySnapshot) => {
+          console.log('Equipos encontrados:', querySnapshot.size);
+          
+          // Limpiar opciones existentes
+          localSelect.innerHTML = '<option value="">Selecciona el equipo local</option>';
+          visitorSelect.innerHTML = '<option value="">Selecciona el equipo visitante</option>';
+          
+          querySnapshot.forEach((doc) => {
+            const team = doc.data();
+            team.id = doc.id;
+            console.log('Equipo encontrado:', team.name);
+            const option = `<option value="${team.id}" data-logo="${team.logo}" data-name="${team.name}">${team.name}</option>`;
+            localSelect.insertAdjacentHTML('beforeend', option);
+            visitorSelect.insertAdjacentHTML('beforeend', option);
+          });
+        })
+        .catch((error) => {
+          console.error("Error al cargar equipos:", error);
+          Swal.fire('Error', 'No se pudieron cargar los equipos', 'error');
+        });
+    }
+
+    // Escuchar cambios en la categoría
+    categorySelect.addEventListener('change', function() {
+      const selectedCategory = this.value;
+      console.log('Categoría seleccionada:', selectedCategory);
+      if (selectedCategory) {
+        loadTeamsByCategory(selectedCategory);
+      } else {
+        // Si no hay categoría seleccionada, limpiar los selectores
+        localSelect.innerHTML = '<option value="">Selecciona el equipo local</option>';
+        visitorSelect.innerHTML = '<option value="">Selecciona el equipo visitante</option>';
+      }
+    });
+  }
+
+  // Inicializar el modal cuando se abre
+  document.getElementById("scheduleMatchModal").addEventListener("show.bs.modal", function() {
+    console.log('Modal abierto - Inicializando...');
+    loadTeamsForScheduling();
+  });
+
+  
+
+  // Manejar el envío del formulario de programación de partido
+  document.getElementById("matchForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    
+    const localTeamSelect = document.getElementById("localTeam");
+    const visitorTeamSelect = document.getElementById("visitorTeam");
+    const localTeam = localTeamSelect.options[localTeamSelect.selectedIndex];
+    const visitorTeam = visitorTeamSelect.options[visitorTeamSelect.selectedIndex];
+    
+    const matchData = {
+      localTeamId: localTeam.value,
+      localTeamName: localTeam.getAttribute('data-name'),
+      localTeamLogo: localTeam.getAttribute('data-logo'),
+      visitorTeamId: visitorTeam.value,
+      visitorTeamName: visitorTeam.getAttribute('data-name'),
+      visitorTeamLogo: visitorTeam.getAttribute('data-logo'),
+      date: document.getElementById("matchDate").value,
+      time: document.getElementById("matchTime").value,
+      category: document.getElementById("matchCategory").value,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    db.collection("matches").add(matchData)
+      .then(() => {
+        const modal = bootstrap.Modal.getInstance(document.getElementById("scheduleMatchModal"));
+        modal.hide();
+        this.reset();
+        Swal.fire({
+          title: 'Éxito',
+          text: 'Partido programado correctamente',
+          icon: 'success',
+          confirmButtonColor: '#28a745'
+        });
+      })
+      .catch((error) => {
+        console.error("Error al programar partido:", error);
+        Swal.fire('Error', 'No se pudo programar el partido', 'error');
+      });
+  });
+
     </script>
   </body>
 </html>
