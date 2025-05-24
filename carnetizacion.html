@@ -117,7 +117,7 @@
                 clearInterval(interval);
                 countdownDiv.innerHTML = `
                   <div style="color: red; font-weight: bold; font-size: 1.2rem;">
-                    ⛔ La fecha de carnetización ha terminado.
+                    ⛔ La fecha de carnetización ha terminado , Ahora solo el administrador puede ingresar.
                   </div>`;
                 carnetizacionFinalizada = true;
                 resolve(); // continuar con la carga
@@ -216,7 +216,7 @@
           const card = document.createElement("div");
           card.className = "col-md-4 mb-4";
           const buttonHtml = carnetizacionFinalizada
-            ? '<button class="btn btn-danger btn-sm" disabled>Carnetización finalizada</button>'
+            ? `<button class="btn btn-danger btn-sm" onclick="entrarEquipo('${team.id}', '${team.name}')">Carnetización finalizada</button>`
             : `<button class="btn btn-success btn-sm" onclick="entrarEquipo('${team.id}', '${team.name}')">Entrar</button>`;
 
           card.innerHTML = `
@@ -232,8 +232,31 @@
           teamCardsContainer.appendChild(card);
         }
 
-        window.entrarEquipo = function (teamId, teamName) {
-          if (carnetizacionFinalizada) return;
+        function entrarEquipo(teamId, teamName) {
+          if (carnetizacionFinalizada) {
+            Swal.fire({
+              title: "Acceso Administrativo",
+              input: "password",
+              inputPlaceholder: "Ingrese la clave administrativa",
+              showCancelButton: true,
+              confirmButtonText: "Acceder",
+              cancelButtonText: "Cancelar",
+              showLoaderOnConfirm: true,
+              preConfirm: (clave) => {
+                if (clave === 'admin2025') {
+                  return true;
+                } else {
+                  Swal.showValidationMessage('Clave incorrecta');
+                  return false;
+                }
+              }
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.location.href = `registro-jugador.html?teamId=${teamId}`;
+              }
+            });
+            return;
+          }
 
           Swal.fire({
             title: "¿Entrar al equipo?",
@@ -249,7 +272,7 @@
               window.location.href = `registro-jugador.html?teamId=${teamId}`;
             }
           });
-        };
+        }
       } catch (error) {
         console.error("Error al inicializar Firebase:", error);
         Swal.fire("Error", "No se pudo inicializar la aplicación.", "error");
