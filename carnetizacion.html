@@ -101,7 +101,7 @@
 
         function mostrarCuentaRegresiva() {
           return new Promise((resolve) => {
-            const deadline = new Date("2025-06-03T23:59:00").getTime();
+            const deadline = new Date("2025-06-10T23:59:00").getTime();
             const countdownDiv = document.createElement("div");
 
             countdownDiv.style.fontSize = "1rem";
@@ -131,7 +131,7 @@
 
               countdownDiv.innerHTML = `
                 <div style="font-size: 1.1rem; margin-top: -2px;">
-                  ⏳ Tienes hasta el <strong>03 de junio</strong> para completar la carnetización.
+                  ⏳ Tienes hasta el <strong>10 de junio</strong> para completar la carnetización.
                 </div>
                 <div style="margin-top: 8px; font-weight: bold; font-size: 1.2rem;">
                   Tiempo restante: <span style="color: #28a745;">${days}d ${hours}h ${minutes}m ${seconds}s</span>
