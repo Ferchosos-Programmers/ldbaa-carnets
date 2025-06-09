@@ -1,339 +1,1003 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dashboard | Liga Barrial</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="css/responsive.css" />
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 -->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard | Liga Barrial</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/responsive.css" />
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 -->
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
 
-    <style>
-      body {
-        background-color: #f1f1f1;
-        font-family: 'Times New Roman', Times, serif;
-      }
-      .navbar {
-        background-color: #000;
-      }
-      .navbar-brand {
-        font-weight: bold;
-        font-size: 1.5rem;
-        color: #fff !important;
-      }
-      .logout-btn {
-        background-color: #28a745;
-        border: none;
-        color: white;
-        padding: 6px 16px;
-        border-radius: 5px;
-        transition: background-color 0.3s ease;
-      }
-      .logout-btn:hover {
-        background-color: #28a745;
-      }
-      .btn-success {
-        background-color: #28a745;
-        border-color: #28a745;
-      }
-      .btn-success:hover {
-        background-color: #28a745;
-      }
-      .card {
-        transition: transform 0.2s ease-in-out;
-        border-radius: 1rem;
-      }
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      }
-      .card-title {
-        color: #28a745;
-        font-weight: 600;
-      }
-      .modal-header {
-        background-color: #28a745;
-        color: white;
-        border-top-left-radius: 0.5rem;
-        border-top-right-radius: 0.5rem;
-      }
-      .btn-primary {
-        background-color: #28a745;
-        border-color: #28a745;
-      }
-      .btn-primary:hover {
-        background-color: #28a745;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Header -->
-    <nav
-      class="navbar navbar-expand-lg shadow-sm px-4"
-      style="background-color: #28a745"
-    >
-      <div class="container-fluid">
-        <a
-          class="navbar-brand text-white fw-bold d-flex align-items-center"
-          href="#"
-        >
-          <img
-            src="img/logo.png"
-            alt="Logo"
-            width="30"
-            height="30"
-            class="me-2"
-          />
-          LIGA BARRIAL ARGELIA ALTA
-        </a>
-        <button
-          class="btn btn-xs btn-danger ms-auto text-white fw-semibold"
-          onclick="logout()"
-          style="border-radius: 50px"
-        >
-          <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
-        </button>
-      </div>
-    </nav>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
-    <div class="container mt-4">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="text-dark">🏆 Equipos Registrados</h3>
-        <button
-          class="btn btn-success shadow me-2"
-          data-bs-toggle="modal"
-          data-bs-target="#modalProgramarPartido"
-        >
-          📅 Programar Partido
-        </button>
-        <button
-          class="btn btn-success shadow"
-          data-bs-toggle="modal"
-          data-bs-target="#addTeamModal"
-        >
-          + Agregar Equipo
-        </button>
-      </div>
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif;
+    }
 
-      <!-- Contenedor de tarjetas -->
-      <div class="row" id="teamCardsContainer">
-        <!-- Se cargan dinámicamente -->
-      </div>
+    .navbar {
+      background-color: #000;
+    }
+
+    .navbar-brand {
+      font-weight: bold;
+      font-size: 1.5rem;
+      color: #fff !important;
+    }
+
+    .logout-btn {
+      background-color: #28a745;
+      border: none;
+      color: white;
+      padding: 6px 16px;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: #28a745;
+    }
+
+    .btn-success {
+      background-color: #28a745;
+      border-color: #28a745;
+    }
+
+    .btn-success:hover {
+      background-color: #28a745;
+    }
+
+    .card {
+      transition: transform 0.2s ease-in-out;
+      border-radius: 1rem;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-title {
+      color: #28a745;
+      font-weight: 600;
+    }
+
+    .modal-header {
+      background-color: #28a745;
+      color: white;
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+    }
+
+    .btn-primary {
+      background-color: #28a745;
+      border-color: #28a745;
+    }
+
+    .btn-primary:hover {
+      background-color: #28a745;
+    }
+
+    .articulos-container {
+      margin-top: 20px;
+    }
+
+    .articulo-card {
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 5px;
+    }
+
+    .articulo-card h5 {
+      color: #28a745;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg shadow-sm px-4" style="background-color: #28a745">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white fw-bold d-flex align-items-center" href="#">
+        <img src="img/logo.png" alt="Logo" width="30" height="30" class="me-2" />
+        LIGA BARRIAL ARGELIA ALTA
+      </a>
+      <button class="btn btn-xs btn-danger ms-auto text-white fw-semibold" onclick="logout()"
+        style="border-radius: 50px">
+        <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
+      </button>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="text-dark">🏆 Equipos Registrados</h3>
+      <button class="btn btn-success shadow me-2" data-bs-toggle="modal" data-bs-target="#modalProgramarPartido">
+        📅 Programar Partido
+      </button>
+      <button class="btn btn-success shadow" data-bs-toggle="modal" data-bs-target="#addTeamModal">
+        + Agregar Equipo
+      </button>
     </div>
 
-    <!-- Modal para agregar equipo -->
-    <div
-      class="modal fade"
-      id="addTeamModal"
-      tabindex="-1"
-      aria-labelledby="addTeamModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content shadow">
-          <form id="teamForm">
-            <div class="modal-header">
-              <h5 class="modal-title" id="addTeamModalLabel">
-                Registrar Nuevo Equipo
-              </h5>
-              <button
-                type="button"
-                class="btn-close btn-close-white"
-                data-bs-dismiss="modal"
-              ></button>
+    <!-- Contenedor de tarjetas -->
+    <div class="row" id="teamCardsContainer">
+      <!-- Se cargan dinámicamente -->
+    </div>
+  </div>
+
+  <!-- Modal para agregar equipo -->
+  <div class="modal fade" id="addTeamModal" tabindex="-1" aria-labelledby="addTeamModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content shadow">
+        <form id="teamForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addTeamModalLabel">
+              Registrar Nuevo Equipo
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="teamLogo" class="form-label">Logo del Equipo</label>
+              <input type="file" class="form-control" id="teamLogo" accept="image/*" required />
             </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label for="teamLogo" class="form-label">Logo del Equipo</label>
-                <input
-                  type="file"
-                  class="form-control"
-                  id="teamLogo"
-                  accept="image/*"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label for="teamName" class="form-label"
-                  >Nombre del Equipo</label
-                >
-                <input
-                  type="text"
-                  class="form-control"
-                  id="teamName"
-                  required
-                />
-              </div>
-              <div class="mb-3">
-                <label for="teamCategory" class="form-label">Categoría</label>
-                <select class="form-select" id="teamCategory" required>
-                  <option value="">Selecciona una categoría</option>
-                  <option value="MÁXIMA">MÁXIMA</option>
-                  <option value="PRIMERA">PRIMERA</option>
-                  <option value="FEMENINO">FEMENINO</option>
-                </select>
-              </div>
+            <div class="mb-3">
+              <label for="teamName" class="form-label">Nombre del Equipo</label>
+              <input type="text" class="form-control" id="teamName" required />
             </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-primary w-100">
-                Guardar Equipo
-              </button>
+            <div class="mb-3">
+              <label for="teamCategory" class="form-label">Categoría</label>
+              <select class="form-select" id="teamCategory" required>
+                <option value="">Selecciona una categoría</option>
+                <option value="MÁXIMA">MÁXIMA</option>
+                <option value="PRIMERA">PRIMERA</option>
+                <option value="FEMENINO">FEMENINO</option>
+              </select>
             </div>
-          </form>
-        </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary w-100">
+              Guardar Equipo
+            </button>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
+  <script>
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
+      authDomain: "ldbaa-calificaciones.firebaseapp.com",
+      projectId: "ldbaa-calificaciones",
+      storageBucket: "ldbaa-calificaciones.firebasestorage.app",
+      messagingSenderId: "277579489603",
+      appId: "1:277579489603:web:bc93c22fea5f5f6b63cff6",
+    };
 
-      
-      // Configuración de Firebase
-      const firebaseConfig = {
-        apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
-        authDomain: "ldbaa-calificaciones.firebaseapp.com",
-        projectId: "ldbaa-calificaciones",
-        storageBucket: "ldbaa-calificaciones.firebasestorage.app",
-        messagingSenderId: "277579489603",
-        appId: "1:277579489603:web:bc93c22fea5f5f6b63cff6",
-      };
+    // Inicializar Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
 
-      // Inicializar Firebase
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      
-      const db = firebase.firestore();
-      const auth = firebase.auth();
-      const form = document.getElementById("teamForm");
-      const teamCardsContainer = document.getElementById("teamCardsContainer");
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const form = document.getElementById("teamForm");
+    const teamCardsContainer = document.getElementById("teamCardsContainer");
 
-      // Configurar Firestore
-      db.settings({
-        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
-      });
-
-      // Habilitar persistencia offline
-      db.enablePersistence()
-        .catch((err) => {
-          if (err.code == 'failed-precondition') {
-            console.warn('La persistencia falló: múltiples pestañas abiertas');
-          } else if (err.code == 'unimplemented') {
-            console.warn('El navegador no soporta persistencia');
-          }
-        });
-
-      // Verificar estado de autenticación
-      auth.onAuthStateChanged((user) => {
-        if (!user) {
-          console.log('Usuario no autenticado, redirigiendo...');
-          window.location.href = 'login.html';
-          return;
+    function mostrarDetallesSancion(jugadorId, tipo, cantidadTarjetas) {
+      if (tipo === 'amarilla') {
+        let mensaje = '';
+        if (cantidadTarjetas < 4) {
+          mensaje = `El jugador tiene ${cantidadTarjetas} tarjeta(s) amarilla(s).\nNecesita 4 tarjetas para recibir una fecha de sanción.`;
+        } else {
+          const fechaFinalizacion = new Date();
+          fechaFinalizacion.setDate(fechaFinalizacion.getDate() + 7); // Suma 7 días (próximo martes)
+          mensaje = `Sanción por acumulación de ${cantidadTarjetas} tarjetas amarillas.\nPartidos de sanción restantes: 1\nFecha estimada de finalización: ${fechaFinalizacion.toLocaleDateString()}`;
         }
-        console.log('Usuario autenticado:', user.email);
+        Swal.fire({
+          title: 'Detalles de Tarjetas Amarillas 🟨',
+          text: mensaje,
+          icon: 'info'
+        });
+      } else {
+        // Para tarjetas rojas
+        db.collection('sanciones')
+          .where('jugadorId', '==', jugadorId)
+          .where('tipo', '==', 'roja')
+          .where('estado', '==', 'activa')
+          .get()
+          .then((snapshot) => {
+            if (!snapshot.empty) {
+              const sancion = snapshot.docs[snapshot.docs.length - 1].data();
+              const partidosSancion = {
+                '124': 1,
+                '125': 2,
+                '126': 3,
+                '127': 4,
+                '128': 6,
+                '129': 52 // 1 año aproximadamente en semanas
+              };
+
+              const partidosRestantes = partidosSancion[sancion.articulo] || 0;
+              const fechaFinalizacion = new Date();
+
+              // Encontrar el próximo martes
+              while (fechaFinalizacion.getDay() !== 2) { // 2 representa el martes (0 = domingo, 1 = lunes, etc.)
+                fechaFinalizacion.setDate(fechaFinalizacion.getDate() + 1);
+              }
+
+              // Agregar los martes necesarios según los partidos restantes
+              if (partidosRestantes > 1) {
+                fechaFinalizacion.setDate(fechaFinalizacion.getDate() + ((partidosRestantes - 1) * 7));
+              }
+
+              const fechaSancion = new Date(); // Fecha actual
+
+              Swal.fire({
+                title: 'Detalles de Tarjeta Roja 🟥',
+                html: `
+                <p>Artículo: ${sancion.articulo}</p>
+                <p>Literal: ${sancion.literal}</p>
+                <p>Partidos de sanción restantes: <strong>${partidosRestantes}</strong></p>
+                <p>Fecha de sanción: <strong> ${fechaSancion.toLocaleDateString()}</strong></p>
+    <p>Fecha estimada de finalización: <strong>${fechaFinalizacion.toLocaleDateString()}</strong></p>
+  `,
+                icon: 'info'
+              });
+            } else {
+              Swal.fire({
+                title: 'Sin Tarjeta Roja Activa',
+                text: 'El jugador no tiene sanciones activas con tarjeta roja.',
+                icon: 'info'
+              });
+            }
+          });
+      }
+    }
+
+    // Configurar Firestore
+    db.settings({
+      cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+    });
+
+    // Habilitar persistencia offline
+    db.enablePersistence()
+      .catch((err) => {
+        if (err.code == 'failed-precondition') {
+          console.warn('La persistencia falló: múltiples pestañas abiertas');
+        } else if (err.code == 'unimplemented') {
+          console.warn('El navegador no soporta persistencia');
+        }
+      });
+
+    // Verificar estado de autenticación
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        console.log('Usuario no autenticado, redirigiendo...');
+        window.location.href = 'login.html';
+        return;
+      }
+      console.log('Usuario autenticado:', user.email);
+
+      // Verificar el tipo de usuario por su email
+      if (user.email === 'sanciones@gmail.com') {
+        // Ocultar botones de programar partido y agregar equipo
+        document.querySelector('[data-bs-target="#modalProgramarPartido"]').style.display = 'none';
+        document.querySelector('[data-bs-target="#addTeamModal"]').style.display = 'none';
+
+        // Cambiar el título y agregar filtros
+        const container = document.querySelector('.container .d-flex');
+        container.innerHTML = `
+            <div class="w-100">
+              <h3 class="text-dark mb-3">🏆 Comisión de Sanciones</h3>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <input type="text" class="form-control" id="searchByName" placeholder="Buscar por nombre..." onkeyup="filterTeams()">
+                </div>
+                <div class="col-md-6">
+                  <select class="form-select" id="filterByCategory" onchange="filterTeams()">
+                    <option value="">Todas las categorías</option>
+                    <option value="MÁXIMA">MÁXIMA</option>
+                    <option value="PRIMERA">PRIMERA</option>
+                    <option value="FEMENINO">FEMENINO</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          `;
+
+        // Cargar equipos para la vista de sanciones
+        loadTeams();
+      } else {
+        // Para admin@gmail.com y otros usuarios, mostrar la interfaz normal
         loadTeams(); // Cargar equipos cuando el usuario está autenticado
-      });
+      }
+    });
 
-      // Ocultar el overlay de carga cuando la página esté lista
-      window.addEventListener('load', function() {
-        document.getElementById('loading-overlay').style.display = 'none';
-      });
+    // Ocultar el overlay de carga cuando la página esté lista
+    window.addEventListener('load', function () {
+      document.getElementById('loading-overlay').style.display = 'none';
+    });
 
-      function setupRealtimeUpdates() {
-        console.log('Configurando actualizaciones en tiempo real...');
-        // Escuchar cambios en la colección teams
-        db.collection("teams").onSnapshot((snapshot) => {
+    function setupRealtimeUpdates() {
+      console.log('Configurando actualizaciones en tiempo real...');
+      // Escuchar cambios en la colección teams
+      db.collection("teams").onSnapshot((snapshot) => {
+        teamCardsContainer.innerHTML = ''; // Limpiar contenedor
+        if (snapshot.empty) {
+          teamCardsContainer.innerHTML = '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
+        } else {
+          snapshot.forEach((doc) => {
+            const teamData = doc.data();
+            teamData.id = doc.id; // Agregar el ID del documento
+            createTeamCard(teamData);
+          });
+        }
+      }, (error) => {
+        console.error("Error al escuchar cambios:", error);
+        Swal.fire('Error', 'Error al actualizar los equipos en tiempo real', 'error');
+      });
+    }
+
+    function loadTeams() {
+      console.log('Iniciando carga de equipos...');
+      db.collection("teams").get()
+        .then((querySnapshot) => {
+          console.log('Equipos cargados exitosamente');
           teamCardsContainer.innerHTML = ''; // Limpiar contenedor
-          if (snapshot.empty) {
+          if (querySnapshot.empty) {
             teamCardsContainer.innerHTML = '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
           } else {
-            snapshot.forEach((doc) => {
+            querySnapshot.forEach((doc) => {
               const teamData = doc.data();
               teamData.id = doc.id; // Agregar el ID del documento
               createTeamCard(teamData);
             });
           }
-        }, (error) => {
-          console.error("Error al escuchar cambios:", error);
-          Swal.fire('Error', 'Error al actualizar los equipos en tiempo real', 'error');
+        })
+        .catch((error) => {
+          console.error("Error al cargar equipos:", error);
+          let mensaje = 'Error al cargar los equipos. ';
+          if (error.code === 'permission-denied') {
+            mensaje += 'No tienes permisos para ver los equipos.';
+          } else if (error.code === 'unavailable') {
+            mensaje += 'El servicio no está disponible en este momento.';
+          } else {
+            mensaje += 'Por favor, intenta de nuevo.';
+          }
+          Swal.fire('Error', mensaje, 'error');
         });
-      }
+    }
 
-      function loadTeams() {
-        console.log('Iniciando carga de equipos...');
-        db.collection("teams").get()
-          .then((querySnapshot) => {
-            console.log('Equipos cargados exitosamente');
-            teamCardsContainer.innerHTML = ''; // Limpiar contenedor
-            if (querySnapshot.empty) {
-              teamCardsContainer.innerHTML = '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
-            } else {
-              querySnapshot.forEach((doc) => {
-                const teamData = doc.data();
-                teamData.id = doc.id; // Agregar el ID del documento
-                createTeamCard(teamData);
-              });
-            }
+    function filterTeams() {
+      const searchText = document.getElementById('searchByName').value.toUpperCase();
+      const selectedCategory = document.getElementById('filterByCategory').value;
+      const cards = document.querySelectorAll('.col-md-4');
+
+      cards.forEach(card => {
+        const teamName = card.querySelector('.card-title').textContent.toUpperCase();
+        const teamCategory = card.querySelector('.card-text').textContent.split(':')[1].trim();
+
+        const nameMatch = teamName.includes(searchText);
+        const categoryMatch = !selectedCategory || teamCategory === selectedCategory;
+
+        card.style.display = nameMatch && categoryMatch ? '' : 'none';
+      });
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      console.log('Iniciando proceso de agregar equipo...');
+
+      // Obtener los valores del formulario y convertirlos a mayúsculas
+      const name = document.getElementById("teamName").value.toUpperCase();  // Convertir nombre a mayúsculas
+      const category = document.getElementById("teamCategory").value.toUpperCase();  // Convertir categoría a mayúsculas
+      const logoInput = document.getElementById("teamLogo");
+      const reader = new FileReader();
+
+      reader.onload = function () {
+        const logoURL = reader.result;
+        const teamData = {
+          name,
+          category,
+          logo: logoURL,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        console.log('Guardando equipo en Firestore...');
+        db.collection("teams").add(teamData)
+          .then(() => {
+            console.log('Equipo guardado exitosamente');
+            form.reset();
+            const modal = bootstrap.Modal.getInstance(
+              document.getElementById("addTeamModal")
+            );
+            modal.hide();
+            Swal.fire({
+              title: 'Éxito',
+              text: 'Equipo agregado correctamente',
+              icon: 'success',
+              confirmButtonColor: '#28a745'
+            }).then(() => {
+              location.reload();
+            });
           })
           .catch((error) => {
-            console.error("Error al cargar equipos:", error);
-            let mensaje = 'Error al cargar los equipos. ';
+            console.error("Error al agregar equipo:", error);
+            let mensaje = 'Error al agregar el equipo. ';
             if (error.code === 'permission-denied') {
-              mensaje += 'No tienes permisos para ver los equipos.';
-            } else if (error.code === 'unavailable') {
-              mensaje += 'El servicio no está disponible en este momento.';
+              mensaje += 'No tienes permisos para agregar equipos.';
             } else {
               mensaje += 'Por favor, intenta de nuevo.';
             }
             Swal.fire('Error', mensaje, 'error');
           });
+      };
+
+      reader.readAsDataURL(logoInput.files[0]);
+    });
+
+    function createTeamCard(team) {
+      const card = document.createElement("div");
+      card.className = "col-md-4 mb-4";
+
+      // Verificar si el usuario es de sanciones para mostrar botones diferentes
+      const currentUser = auth.currentUser;
+      const isSancionesUser = currentUser && currentUser.email === 'sanciones@gmail.com';
+
+      card.innerHTML = `
+          <div class="card shadow-sm border-0 h-100">
+            <img src="${team.logo}" class="card-img-top p-3" alt="Logo del equipo" style="height: 200px; object-fit: contain;">
+            <div class="card-body text-center">
+              <h5 class="card-title">${team.name}</h5>
+              <p class="card-text"><strong>Categoría:</strong> ${team.category}</p>
+              ${isSancionesUser ? `
+                <button class="btn btn-warning btn-sm w-100" onclick="gestionarSanciones('${team.id}')">
+                  <i class="fas fa-gavel"></i> Gestionar Sanciones
+                </button>
+              ` : `
+                <div class="btn-group">
+                  <button class="btn btn-warning btn-sm me-2" onclick="resetAdminKey('${team.id}')">
+                    <i class="fas fa-key"></i> Resetear Clave
+                  </button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteTeam('${team.id}')">
+                    <i class="fas fa-trash"></i> Eliminar
+                  </button>
+                </div>
+              `}
+            </div>
+          </div>
+        `;
+      teamCardsContainer.appendChild(card);
+    }
+
+    // Agregar el modal de sanciones después del modal de programar partido
+    const modalSanciones = `
+      <div class="modal fade" id="modalSanciones" tabindex="-1" aria-labelledby="modalSancionesLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+              <h5 class="modal-title" id="modalSancionesLabel">Gestionar Sanciones</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <div id="jugadoresList" class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Nombre</th>
+                      <th>Sanciones</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="jugadoresTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      `;
+
+    // Agregar el modal al body cuando se carga el documento
+    document.body.insertAdjacentHTML('beforeend', modalSanciones);
+
+    // Modificar la función gestionarSanciones
+    function gestionarSanciones(teamId) {
+      const modalSanciones = new bootstrap.Modal(document.getElementById('modalSanciones'));
+      const jugadoresTableBody = document.getElementById('jugadoresTableBody');
+
+      jugadoresTableBody.innerHTML = '';
+
+      // Obtener los jugadores y sus sanciones
+      db.collection('players')
+        .where('teamId', '==', teamId)
+        .get()
+        .then((snapshot) => {
+          if (snapshot.empty) {
+            jugadoresTableBody.innerHTML = '<tr><td colspan="4" class="text-center">No hay jugadores registrados</td></tr>';
+          } else {
+            snapshot.forEach((doc) => {
+              const jugador = doc.data();
+              // Obtener sanciones del jugador
+              db.collection('sanciones')
+                .where('jugadorId', '==', doc.id)
+                .get()
+                .then((sancionesSnapshot) => {
+                  let tarjetasAmarillas = 0;
+                  let tarjetasRojas = 0;
+                  let sancionesActivas = [];
+
+                  sancionesSnapshot.forEach((sancionDoc) => {
+                    const sancion = sancionDoc.data();
+                    if (sancion.tipo === 'amarilla') {
+                      tarjetasAmarillas++;
+                    } else if (sancion.tipo === 'roja') {
+                      tarjetasRojas++;
+                      sancionesActivas.push(`Art. ${sancion.articulo} Lit. ${sancion.literal}`);
+                    }
+                  });
+
+                  const row = `
+                    <tr style="font-size: 13.5px;">
+  <td>${jugador.numeroJugador || 'N/A'}</td>
+  <td>${jugador.nombres.split(' ')[0]} ${jugador.apellidos.split(' ')[0]}</td>
+<td>
+    <span class="badge bg-warning text-dark" style="cursor: pointer" onclick="mostrarDetallesSancion('${doc.id}', 'amarilla', ${tarjetasAmarillas})">${tarjetasAmarillas} 🟨</span>
+    <span class="badge bg-danger" style="cursor: pointer" onclick="mostrarDetallesSancion('${doc.id}', 'roja', ${tarjetasRojas})">${tarjetasRojas} 🟥</span>
+  </td>
+  <td>
+    <button class="btn btn-warning btn-sm" onclick="gestionarSancionJugador('${teamId}', '${doc.id}')">
+      <i class="fas fa-gavel"></i>
+    </button>
+  </td>
+</tr>
+
+
+                    `;
+                  jugadoresTableBody.insertAdjacentHTML('beforeend', row);
+                });
+            });
+          }
+          modalSanciones.show();
+        })
+        .catch((error) => {
+          console.error('Error al cargar jugadores:', error);
+          Swal.fire('Error', 'No se pudieron cargar los jugadores. Por favor, intenta de nuevo.', 'error');
+        });
+    }
+
+    function gestionarSancionJugador(teamId, jugadorId) {
+      Swal.fire({
+        title: 'Seleccionar Sanción',
+        html: `
+      <div class="d-grid gap-3">
+        <button class="btn btn-warning w-100" onclick="Swal.clickConfirm()" data-tipo="amarilla">
+          🟨 Tarjeta Amarilla
+        </button>
+        <button class="btn btn-danger w-100" onclick="Swal.clickConfirm()" data-tipo="roja">
+          🟥 Tarjeta Roja
+        </button>
+      </div>
+    `,
+        showCancelButton: true,
+        showConfirmButton: false,
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+          const selectedButton = document.querySelector('.btn[data-tipo]:hover');
+          return selectedButton ? selectedButton.dataset.tipo : null;
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const tipoSancion = result.value;
+
+          if (tipoSancion === 'amarilla') {
+            // Obtener las tarjetas amarillas actuales del jugador
+            db.collection('sanciones')
+              .where('jugadorId', '==', jugadorId)
+              .where('tipo', '==', 'amarilla')
+              .where('estado', '==', 'activa')
+              .get()
+              .then((snapshot) => {
+                const tarjetasAmarillas = snapshot.size;
+                // Guardar la nueva tarjeta amarilla
+                guardarSancion(jugadorId, 'amarilla');
+              });
+          } else if (tipoSancion === 'roja') {
+            // Para tarjeta roja, mostrar modal de selección de artículo y literal
+            Swal.fire({
+              title: 'Seleccionar Artículo y Literal',
+              html: `
+            <div class="form-group mb-3">
+              <label for="articulo" class="form-label">Artículo:</label>
+              <select class="form-select" id="articulo" onchange="actualizarLiterales()">
+                <option value="">Seleccione un artículo</option>
+                <option value="124">Art. 124 - Suspensión de 1 partido</option>
+                <option value="125">Art. 125 - Suspensión de 2 partidos</option>
+                <option value="126">Art. 126 - Suspensión de 3 partidos</option>
+                <option value="127">Art. 127 - Suspensión de 4 partidos</option>
+                <option value="128">Art. 128 - Suspensión de 6 partidos</option>
+                <option value="129">Art. 129 - Suspensión de 1 año calendario</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="literal" class="form-label">Literal:</label>
+              <select class="form-select" id="literal">
+                <option value="">Seleccione primero un artículo</option>
+              </select>
+            </div>
+          `,
+              showCancelButton: true,
+              confirmButtonText: 'Guardar',
+              cancelButtonText: 'Cancelar',
+              didOpen: () => {
+                // Agregar el script para actualizar literales
+                window.actualizarLiterales = function () {
+                  const articulo = document.getElementById('articulo').value;
+                  const literalSelect = document.getElementById('literal');
+                  literalSelect.innerHTML = '<option value="">Seleccione un literal</option>';
+
+                  const literales = {
+                    '124': {
+                      'a': 'Acumular cuatro tarjetas amarillas',
+                      'b': 'Acumular dos tarjetas amarillas y ser expulsado',
+                      'c': 'Lanzar la camiseta al piso antes de terminar el encuentro',
+                      'd': 'Sacarse la camiseta dentro del campo de juego',
+                      'e': 'Ser excluido por aliento a licor o estado etílico',
+                      'f': 'Acumulación de 5 tarjetas amarillas'
+                    },
+                    '125': {
+                      'a': 'Realizar necesidades biológicas dentro del perímetro de la cancha',
+                      'b': 'Juego Brusco (J.B.) golpear a un rival en disputa del balón',
+                      'c': 'Provocar a las barras con palabras soeces o mímicas obscenas',
+                      'd': 'Lanzar el balón sin estar en juego',
+                      'e': 'Suplantar identidad',
+                      'f': 'Jugar estando suspendido',
+                      'g': 'Rayar o escribir en la vocalía de Juego',
+                      'h': 'Insultar después de expulsado'
+                    },
+                    '126': {
+                      'a': 'Juego Brusco Grave (J.B.G.)',
+                      'b': 'Insultar a vocales, veedores o jueces',
+                      'c': 'Lanzar el balón e impactar en alguien por la espalda',
+                      'd': 'Reincidencia'
+                    },
+                    '127': {
+                      'a': 'Mímicas o gestos obscenos',
+                      'b': 'Conducta Violenta (C.V.)',
+                      'c': 'Reincidencia'
+                    },
+                    '128': {
+                      'a': 'Epítetos de racismo o escupitajo',
+                      'b': 'Intento de agresión a árbitro, vocal o veedor',
+                      'c': 'Reincidencia'
+                    },
+                    '129': {
+                      'a': 'Lanzar balón e impactar en rostro causando lesión',
+                      'b': 'Lanzar tierra e impactar de frente',
+                      'c': 'Conducta violenta que cause daño o lesión',
+                      'd': 'Adulterar documentos',
+                      'e': 'Suplantación de identidad (dirigente)',
+                      'f': 'Escupitajo de frente',
+                      'g': 'Intentar agredir a Directivos',
+                      'h': 'Agresión consumada',
+                      'i': 'Incitar a la agresión',
+                      'k': 'Jugador condicionado con pérdida de garantía',
+                      'l': 'Jugadores condicionados suspendidos',
+                      'm': 'Participación en múltiples ligas'
+                    }
+                  };
+
+                  if (literales[articulo]) {
+                    Object.entries(literales[articulo]).forEach(([key, value]) => {
+                      const option = document.createElement('option');
+                      option.value = key;
+                      option.textContent = `${key}) ${value}`;
+                      literalSelect.appendChild(option);
+                    });
+                  }
+                };
+              },
+              preConfirm: () => {
+                const articulo = document.getElementById('articulo').value;
+                const literal = document.getElementById('literal').value;
+                if (!articulo || !literal) {
+                  Swal.showValidationMessage('Por favor seleccione artículo y literal');
+                  return false;
+                }
+                return { articulo, literal };
+              }
+            }).then((result) => {
+              if (result.isConfirmed) {
+                guardarSancion(jugadorId, 'roja', result.value.articulo, result.value.literal);
+              }
+            });
+          }
+        }
+      });
+    }
+
+    function guardarSancion(jugadorId, tipo, articulo = null, literal = null) {
+      const sancion = {
+        jugadorId,
+        tipo,
+        fecha: firebase.firestore.Timestamp.now(),
+        estado: 'activa'
+      };
+
+      if (articulo && literal) {
+        sancion.articulo = articulo;
+        sancion.literal = literal;
       }
 
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        console.log('Iniciando proceso de agregar equipo...');
+      db.collection('sanciones').add(sancion)
+        .then(() => {
+          Swal.fire({
+            title: 'Éxito',
+            text: 'Sanción registrada correctamente',
+            icon: 'success',
+            confirmButtonColor: '#28a745'
+          }).then(() => {
+            // Recargar la lista de jugadores
+            const modalSanciones = bootstrap.Modal.getInstance(document.getElementById('modalSanciones'));
+            modalSanciones.hide();
+            setTimeout(() => {
+              document.querySelector('[data-bs-target="#modalSanciones"]').click();
+            }, 500);
+          });
+        })
+        .catch((error) => {
+          console.error('Error al guardar sanción:', error);
+          Swal.fire('Error', 'No se pudo guardar la sanción', 'error');
+        });
+    }
 
-        // Obtener los valores del formulario y convertirlos a mayúsculas
-        const name = document.getElementById("teamName").value.toUpperCase();  // Convertir nombre a mayúsculas
-        const category = document.getElementById("teamCategory").value.toUpperCase();  // Convertir categoría a mayúsculas
-        const logoInput = document.getElementById("teamLogo");
-        const reader = new FileReader();
+    function verReporteSanciones() {
+      const modalReporte = new bootstrap.Modal(document.getElementById('modalReporteSanciones'));
+      const reporteBody = document.getElementById('reporteSancionesBody');
 
-        reader.onload = function () {
-          const logoURL = reader.result;
-          const teamData = { 
-            name, 
-            category, 
-            logo: logoURL,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          };
+      reporteBody.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div><p>Cargando sanciones...</p></div>';
 
-          console.log('Guardando equipo en Firestore...');
-          db.collection("teams").add(teamData)
+      // Obtener todas las sanciones activas
+      db.collection('sanciones')
+        .where('estado', '==', 'activa')
+        .where('tipo', '==', 'roja')
+        .get()
+        .then(async (snapshot) => {
+          if (snapshot.empty) {
+            reporteBody.innerHTML = '<div class="alert alert-info">No hay sanciones activas</div>';
+            return;
+          }
+
+          let reporteHTML = `
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                  <tr>
+                    <th>JUGADOR</th>
+                    <th>FECHA DE SANCIÓN</th>
+                    <th>TARJETA</th>
+                    <th>ARTÍCULO</th>
+                    <th>LITERAL</th>
+                    <th>PARTIDOS SUSPENDIDOS</th>
+                  </tr>
+                </thead>
+                <tbody>
+          `;
+
+          // Procesar cada sanción
+          const promesas = snapshot.docs.map(async (doc) => {
+            const sancion = doc.data();
+
+            // Obtener datos del jugador
+            const jugadorDoc = await db.collection('players').doc(sancion.jugadorId).get();
+            const jugador = jugadorDoc.data();
+
+            // Obtener datos del equipo
+            const equipoDoc = await db.collection('teams').doc(sancion.teamId).get();
+            const equipo = equipoDoc.data();
+
+            return `
+              <tr>
+                <td>${jugador.nombres} ${jugador.apellidos}<br><small class="text-muted">${equipo.name}</small></td>
+                <td>${sancion.fecha}</td>
+                <td><span class="badge bg-danger">ROJA 🟥</span></td>
+                <td>${sancion.articulo || '-'}</td>
+                <td>${sancion.literal || '-'}</td>
+                <td>${sancion.partidosSuspendidos || '-'}</td>
+              </tr>
+            `;
+          });
+
+          const filas = await Promise.all(promesas);
+          reporteHTML += filas.join('') + '</tbody></table></div>';
+          reporteBody.innerHTML = reporteHTML;
+        })
+        .catch((error) => {
+          console.error('Error al cargar sanciones:', error);
+          reporteBody.innerHTML = '<div class="alert alert-danger">Error al cargar las sanciones</div>';
+        });
+
+      modalReporte.show();
+    }
+
+    function mostrarModalTarjetaRoja(teamId, jugadorId) {
+      Swal.fire({
+        title: 'Tarjeta Roja',
+        html: `
+            <form id="formTarjetaRoja" class="text-start">
+              <div class="mb-3">
+                <label class="form-label">Artículo:</label>
+                <select class="form-select" id="articulo" required onchange="actualizarLiterales()">
+                  <option value="">Seleccione un artículo...</option>
+                  <option value="124">Art. 124 - Suspensión de 1 partido</option>
+                  <option value="125">Art. 125 - Suspensión de 2 partidos</option>
+                  <option value="126">Art. 126 - Suspensión de 3 partidos</option>
+                  <option value="127">Art. 127 - Suspensión de 4 partidos</option>
+                  <option value="128">Art. 128 - Suspensión de 6 partidos</option>
+                  <option value="129">Art. 129 - Suspensión de 1 año calendario</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Literal:</label>
+                <select class="form-select" id="literal" required>
+                  <option value="">Seleccione primero un artículo</option>
+                </select>
+              </div>
+            </form>
+          `,
+        confirmButtonText: 'Aplicar Sanción',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        didOpen: () => {
+          // Inicializar el select de literales
+          document.getElementById('articulo').addEventListener('change', actualizarLiterales);
+        },
+        preConfirm: () => {
+          const articulo = document.getElementById('articulo').value;
+          const literal = document.getElementById('literal').value;
+          if (!articulo || !literal) {
+            Swal.showValidationMessage('Por favor seleccione artículo y literal');
+            return false;
+          }
+          return { articulo, literal };
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          aplicarSancion(teamId, jugadorId, 'roja', result.value);
+        }
+      });
+    }
+
+    function actualizarLiterales() {
+      const articulo = document.getElementById('articulo').value;
+      const literalSelect = document.getElementById('literal');
+      const literales = {
+        '124': [
+          { valor: 'a', texto: 'Acumulación de 4 tarjetas amarillas' },
+          { valor: 'b', texto: 'Acumulación de 2 amarillas y expulsión por reclamos' },
+          { valor: 'c', texto: 'Lanzar camiseta al piso antes de terminar' },
+          { valor: 'd', texto: 'Sacarse la camiseta dentro del campo' },
+          { valor: 'e', texto: 'Exclusión por aliento a licor' },
+          { valor: 'f', texto: 'Acumulación de 5 tarjetas amarillas' }
+        ],
+        '125': [
+          { valor: 'a', texto: 'Necesidades biológicas en el perímetro' },
+          { valor: 'b', texto: 'Juego Brusco en disputa del balón' },
+          { valor: 'c', texto: 'Provocar a las barras' },
+          { valor: 'd', texto: 'Lanzar balón sin estar en juego' },
+          { valor: 'e', texto: 'Suplantación de identidad' },
+          { valor: 'f', texto: 'Jugar estando suspendido' },
+          { valor: 'g', texto: 'Rayar vocalía de juego' },
+          { valor: 'h', texto: 'Insultar después de expulsado' }
+        ],
+        '126': [
+          { valor: 'a', texto: 'Juego Brusco Grave' },
+          { valor: 'b', texto: 'Insultos a vocales/veedores/jueces' },
+          { valor: 'c', texto: 'Lanzar balón e impactar por la espalda' },
+          { valor: 'd', texto: 'Reincidencia (sanción duplicada)' }
+        ],
+        '127': [
+          { valor: 'a', texto: 'Mímicas/gestos obscenos' },
+          { valor: 'b', texto: 'Conducta Violenta sin disputa de balón' },
+          { valor: 'c', texto: 'Reincidencia (sanción duplicada)' }
+        ],
+        '128': [
+          { valor: 'a', texto: 'Racismo/lanzar tierra/escupir' },
+          { valor: 'b', texto: 'Intento de agresión a árbitro/vocal/veedor' },
+          { valor: 'c', texto: 'Reincidencia (sanción duplicada)' }
+        ],
+        '129': [
+          { valor: 'a', texto: 'Impacto de balón en rostro con lesión' },
+          { valor: 'b', texto: 'Impacto de tierra en rostro' },
+          { valor: 'c', texto: 'Conducta violenta con lesión' },
+          { valor: 'd', texto: 'Adulteración de documentos' },
+          { valor: 'e', texto: 'Suplantación de identidad (dirigente)' },
+          { valor: 'f', texto: 'Escupir de frente' },
+          { valor: 'g', texto: 'Intento de agresión a Directivos' },
+          { valor: 'h', texto: 'Agresión consumada' },
+          { valor: 'i', texto: 'Incitar a la agresión/batalla campal' }
+        ]
+      };
+
+      literalSelect.innerHTML = '<option value="">Seleccione un literal</option>';
+      if (literales[articulo]) {
+        literales[articulo].forEach(literal => {
+          literalSelect.add(new Option(`${literal.valor}) ${literal.texto}`, literal.valor));
+        });
+      }
+    }
+
+    function aplicarSancion(teamId, jugadorId, tipo, detalles = null) {
+      const fechaInicio = new Date();
+      // Ajustar a martes si no es martes
+      const diasHastaMartes = (2 - fechaInicio.getDay() + 7) % 7;
+      fechaInicio.setDate(fechaInicio.getDate() + diasHastaMartes);
+
+      // Calcular fecha de finalización (siguiente martes)
+      const fechaFin = new Date(fechaInicio);
+      fechaFin.setDate(fechaFin.getDate() + 7);
+
+      const sancion = {
+        tipo,
+        jugadorId,
+        teamId,
+        fechaInicio: firebase.firestore.Timestamp.fromDate(fechaInicio),
+        fechaFin: firebase.firestore.Timestamp.fromDate(fechaFin),
+        estado: 'activa'
+      };
+
+      if (detalles) {
+        sancion.articulo = detalles.articulo;
+        sancion.literal = detalles.literal;
+      }
+
+      db.collection('sanciones').add(sancion)
+        .then(() => {
+          Swal.fire({
+            title: 'Sanción Aplicada',
+            text: `La sanción estará vigente hasta el ${fechaFin.toLocaleDateString()}`,
+            icon: 'success'
+          });
+          // Recargar la lista de jugadores para mostrar la nueva sanción
+          gestionarSanciones(teamId);
+        })
+        .catch((error) => {
+          console.error('Error al aplicar sanción:', error);
+          Swal.fire('Error', 'No se pudo aplicar la sanción. Por favor, intenta de nuevo.', 'error');
+        });
+    }
+    function deleteTeam(teamId) {
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Este equipo será eliminado permanentemente.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then(result => {
+        if (result.isConfirmed) {
+          db.collection("teams").doc(teamId).delete()
             .then(() => {
-              console.log('Equipo guardado exitosamente');
-              form.reset();
-              const modal = bootstrap.Modal.getInstance(
-                document.getElementById("addTeamModal")
-              );
-              modal.hide();
               Swal.fire({
-                title: 'Éxito',
-                text: 'Equipo agregado correctamente',
+                title: 'Eliminado',
+                text: 'El equipo ha sido eliminado.',
                 icon: 'success',
                 confirmButtonColor: '#28a745'
               }).then(() => {
@@ -341,133 +1005,173 @@
               });
             })
             .catch((error) => {
-              console.error("Error al agregar equipo:", error);
-              let mensaje = 'Error al agregar el equipo. ';
-              if (error.code === 'permission-denied') {
-                mensaje += 'No tienes permisos para agregar equipos.';
-              } else {
-                mensaje += 'Por favor, intenta de nuevo.';
-              }
-              Swal.fire('Error', mensaje, 'error');
+              console.error("Error al eliminar equipo:", error);
+              Swal.fire('Error', 'No se pudo eliminar el equipo. Por favor, intenta de nuevo.', 'error');
             });
-        };
-
-        reader.readAsDataURL(logoInput.files[0]);
+        }
       });
+    }
 
-      function createTeamCard(team) {
-        const card = document.createElement("div");
-        card.className = "col-md-4 mb-4";
-        card.innerHTML = `
-        <div class="card shadow-sm border-0 h-100">
-          <img src="${team.logo}" class="card-img-top p-3" alt="Logo del equipo" style="height: 200px; object-fit: contain;">
-          <div class="card-body text-center">
-            <h5 class="card-title">${team.name}</h5>
-            <p class="card-text"><strong>Categoría:</strong> ${team.category}</p>
-            <div class="btn-group">
-              <button class="btn btn-warning btn-sm me-2" onclick="resetAdminKey('${team.id}')">
-                <i class="fas fa-key"></i> Resetear Clave
-              </button>
-              <button class="btn btn-danger btn-sm" onclick="deleteTeam('${team.id}')">
-                <i class="fas fa-trash"></i> Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-        teamCardsContainer.appendChild(card);
-      }
+    // Función para resetear la clave de administrador
+    function resetAdminKey(teamId) {
+      Swal.fire({
+        title: '¿Resetear la clave?',
+        text: "Se eliminará la clave actual y se deberá establecer una nueva la próxima vez que se acceda al registro de jugadores.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, resetear',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          db.collection("teams").doc(teamId).update({
+            adminKey: null
+          }).then(() => {
+            Swal.fire({
+              title: '¡Clave reseteada!',
+              text: 'La clave ha sido eliminada. Se solicitará una nueva clave la próxima vez que se acceda al registro de jugadores.',
+              icon: 'success',
+              confirmButtonColor: '#28a745'
+            });
+          }).catch((error) => {
+            console.error("Error al resetear la clave:", error);
+            Swal.fire('Error', 'No se pudo resetear la clave. Por favor, intenta de nuevo.', 'error');
+          });
+        }
+      });
+    }
 
-      function deleteTeam(teamId) {
-        Swal.fire({
-          title: '¿Estás seguro?',
-          text: "Este equipo será eliminado permanentemente.",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Sí, eliminar',
-          cancelButtonText: 'Cancelar'
-        }).then(result => {
-          if (result.isConfirmed) {
-            db.collection("teams").doc(teamId).delete()
-              .then(() => {
-                Swal.fire({
-                  title: 'Eliminado',
-                  text: 'El equipo ha sido eliminado.',
-                  icon: 'success',
-                  confirmButtonColor: '#28a745'
-                }).then(() => {
-                  location.reload();
-                });
-              })
-              .catch((error) => {
-                console.error("Error al eliminar equipo:", error);
-                Swal.fire('Error', 'No se pudo eliminar el equipo. Por favor, intenta de nuevo.', 'error');
-              });
-          }
-        });
-      }
-
-      // Función para resetear la clave de administrador
-      function resetAdminKey(teamId) {
-        Swal.fire({
-          title: '¿Resetear la clave?',
-          text: "Se eliminará la clave actual y se deberá establecer una nueva la próxima vez que se acceda al registro de jugadores.",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#28a745',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Sí, resetear',
-          cancelButtonText: 'Cancelar'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            db.collection("teams").doc(teamId).update({
-              adminKey: null
+    // Función para cerrar sesión con SweetAlert2
+    function logout() {
+      Swal.fire({
+        title: '¿Cerrar sesión?',
+        text: "¿Estás seguro de que deseas salir?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, salir',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          auth.signOut().then(() => {
+            Swal.fire({
+              title: '¡Sesión cerrada!',
+              text: 'Has cerrado sesión correctamente.',
+              icon: 'success',
+              confirmButtonColor: '#28a745'
             }).then(() => {
-              Swal.fire({
-                title: '¡Clave reseteada!',
-                text: 'La clave ha sido eliminada. Se solicitará una nueva clave la próxima vez que se acceda al registro de jugadores.',
-                icon: 'success',
-                confirmButtonColor: '#28a745'
-              });
-            }).catch((error) => {
-              console.error("Error al resetear la clave:", error);
-              Swal.fire('Error', 'No se pudo resetear la clave. Por favor, intenta de nuevo.', 'error');
+              window.location.href = "login.html";
             });
-          }
-        });
+          }).catch((error) => {
+            console.error("Error al cerrar sesión:", error);
+            Swal.fire('Error', 'No se pudo cerrar la sesión. Por favor, intenta de nuevo.', 'error');
+          });
+        }
+      });
+    }
+    function aplicarSancion(jugadorId, tipo, articulo = null, literal = null) {
+      const fechaInicio = new Date();
+      const partidosPendientes = tipo === 'roja' ? 1 : 0; // 1 partido para tarjeta roja
+
+      // Calcular próximos martes hasta cumplir los partidos pendientes
+      const fechaFin = new Date(fechaInicio);
+      const diasHastaMartes = (2 - fechaFin.getDay() + 7) % 7;
+      fechaFin.setDate(fechaFin.getDate() + diasHastaMartes);
+
+      const sancionData = {
+        jugadorId,
+        tipo,
+        fechaInicio: firebase.firestore.Timestamp.fromDate(fechaInicio),
+        fechaFin: firebase.firestore.Timestamp.fromDate(fechaFin),
+        partidosPendientes,
+        estado: 'activa'
+      };
+
+      if (tipo === 'roja') {
+        sancionData.articulo = articulo;
+        sancionData.literal = literal;
       }
 
-      // Función para cerrar sesión con SweetAlert2
-      function logout() {
-        Swal.fire({
-          title: '¿Cerrar sesión?',
-          text: "¿Estás seguro de que deseas salir?",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#28a745',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Sí, salir',
-          cancelButtonText: 'Cancelar'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            auth.signOut().then(() => {
-              Swal.fire({
-                title: '¡Sesión cerrada!',
-                text: 'Has cerrado sesión correctamente.',
-                icon: 'success',
-                confirmButtonColor: '#28a745'
-              }).then(() => {
-                window.location.href = "login.html";
-              });
-            }).catch((error) => {
-              console.error("Error al cerrar sesión:", error);
-              Swal.fire('Error', 'No se pudo cerrar la sesión. Por favor, intenta de nuevo.', 'error');
-            });
-          }
+      db.collection('sanciones').add(sancionData)
+        .then(() => {
+          Swal.fire({
+            title: 'Sanción Aplicada',
+            text: `La sanción estará vigente hasta el próximo martes ${fechaFin.toLocaleDateString()}`,
+            icon: 'success'
+          });
         });
-      }
-    </script>
-  </body>
+    }
+
+    function verificarSancionesVencidas() {
+      const ahora = new Date();
+      const esMartes = ahora.getDay() === 2; // 0 es domingo, 2 es martes
+
+      if (!esMartes) return; // Solo verificar los martes
+
+      db.collection('sanciones')
+        .where('estado', '==', 'activa')
+        .get()
+        .then((snapshot) => {
+          snapshot.forEach((doc) => {
+            const sancion = doc.data();
+            const fechaFin = sancion.fechaFin.toDate();
+
+            if (ahora >= fechaFin) {
+              // Actualizar estado de la sanción
+              doc.ref.update({ estado: 'cumplida' })
+                .then(() => {
+                  // Obtener datos del jugador
+                  db.collection('players').doc(sancion.jugadorId).get()
+                    .then((jugadorDoc) => {
+                      const jugador = jugadorDoc.data();
+                      Swal.fire({
+                        title: 'Jugador Habilitado',
+                        text: `${jugador.nombres} ${jugador.apellidos} ha cumplido su sanción y está habilitado para jugar`,
+                        icon: 'info'
+                      });
+                    });
+                });
+            }
+          });
+        });
+    }
+
+    // Ejecutar verificación cada hora
+    setInterval(verificarSancionesVencidas, 3600000);
+
+    // Ejecutar verificación al cargar la página 
+    document.addEventListener('DOMContentLoaded', verificarSancionesVencidas);
+
+    function cargarSanciones() {
+      const tbody = document.querySelector("#tablaSanciones tbody");
+      tbody.innerHTML = ""; // Limpiar
+
+      db.collection("sanciones").get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const sancion = doc.data();
+          // Aquí deberías obtener también los datos del jugador (nombre, carnet, etc.)
+          const fila = `
+            <tr>
+              <td>
+                <img src="${sancion.carnetUrl}" alt="Carnet" style="width:80px;"><br>
+                ${sancion.nombreJugador}
+              </td>
+              <td>${sancion.fechaSancion}</td>
+              <td>${sancion.tarjeta}</td>
+              <td>${sancion.articulo}</td>
+              <td>${sancion.literal}</td>
+              <td>${sancion.partidosSuspendidos}</td>
+            </tr>
+          `;
+          tbody.insertAdjacentHTML('beforeend', fila);
+        });
+      });
+    }
+  </script>
+</body>
+
 </html>
 
 <!-- Modal para programar partido -->
@@ -480,12 +1184,12 @@
       </div>
       <div class="modal-body">
         <form id="formProgramarPartido">
-          
+
           <div class="mb-3">
             <label for="numeroFecha" class="form-label">Número de Fecha</label>
             <input type="number" class="form-control" id="numeroFecha" required min="1" placeholder="Ejemplo: 1">
           </div>
-          
+
           <div class="mb-3">
             <label for="categorySelect" class="form-label">Categoría</label>
             <select class="form-select" id="categorySelect" required>
@@ -526,17 +1230,37 @@
   </div>
 </div>
 
+<!-- Modal para reporte de sanciones -->
+<div class="modal fade" id="modalReporteSanciones" tabindex="-1" aria-labelledby="modalReporteSancionesLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="modalReporteSancionesLabel">CLIB DEPORTIVO - REPORTE DE SANCIONES</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body" id="reporteSancionesBody">
+        <!-- Contenido dinámico -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" onclick="window.print()">Imprimir</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <body>
-    <div id="loading-overlay" class="position-fixed w-100 h-100 d-flex justify-content-center align-items-center bg-white" style="z-index: 9999;">
-        <div class="spinner-border text-success" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
+  <div id="loading-overlay" class="position-fixed w-100 h-100 d-flex justify-content-center align-items-center bg-white"
+    style="z-index: 9999;">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Loading...</span>
     </div>
+  </div>
 </body>
 
 <script>
-// db is already declared in the previous script tag
+  // db is already declared in the previous script tag
 
   const localSelect = document.getElementById("localTeamSelect");
   const visitorSelect = document.getElementById("visitorTeamSelect");
@@ -551,7 +1275,7 @@
           categories.add(team.category);
         }
       });
-  
+
       categorySelect.innerHTML = '<option value="">Selecciona una categoría</option>';
       categories.forEach(cat => {
         const option = document.createElement("option");
@@ -569,27 +1293,27 @@
     // Limpiar selects
     localSelect.innerHTML = '<option value="">Selecciona el equipo local</option>';
     visitorSelect.innerHTML = '<option value="">Selecciona el equipo visitante</option>';
-    
+
     // Habilitar/deshabilitar selects según si hay categoría seleccionada
     const disabled = !category;
     localSelect.disabled = disabled;
     visitorSelect.disabled = disabled;
-  
+
     if (!category) return;
-  
+
     db.collection("teams")
       .where("category", "==", category)
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
           const team = doc.data();
-          
+
           // Agregar equipo a select local
           const optionLocal = document.createElement("option");
           optionLocal.value = team.name;
           optionLocal.textContent = team.name;
           localSelect.appendChild(optionLocal);
-  
+
           // Agregar equipo a select visitante
           const optionVisitor = document.createElement("option");
           optionVisitor.value = team.name;
@@ -616,48 +1340,48 @@
   });
 
   // Validación y envío del formulario
-  document.getElementById("formProgramarPartido").addEventListener("submit", function(e) {
+  document.getElementById("formProgramarPartido").addEventListener("submit", function (e) {
     e.preventDefault();
 
     const matchData = {
-        localTeamName: localSelect.value,
-        visitorTeamName: visitorSelect.value,
-        date: document.getElementById("fechaPartido").value,
-        time: document.getElementById("horaPartido").value,
-        category: categorySelect.value,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      localTeamName: localSelect.value,
+      visitorTeamName: visitorSelect.value,
+      date: document.getElementById("fechaPartido").value,
+      time: document.getElementById("horaPartido").value,
+      category: categorySelect.value,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
     // Obtener los logos de los equipos
     db.collection("teams").where("name", "==", matchData.localTeamName).get()
-        .then(querySnapshot => {
-            if (!querySnapshot.empty) {
-                matchData.localTeamLogo = querySnapshot.docs[0].data().logo;
-                return db.collection("teams").where("name", "==", matchData.visitorTeamName).get();
-            }
-        })
-        .then(querySnapshot => {
-            if (!querySnapshot.empty) {
-                matchData.visitorTeamLogo = querySnapshot.docs[0].data().logo;
-                return db.collection("matches").add(matchData);
-            }
-        })
-        .then(() => {
-            const modal = bootstrap.Modal.getInstance(document.getElementById("modalProgramarPartido"));
-            modal.hide();
-            Swal.fire({
-                title: 'Éxito',
-                text: 'Partido programado correctamente',
-                icon: 'success',
-                confirmButtonColor: '#28a745'
-            });
-            document.getElementById("formProgramarPartido").reset();
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            Swal.fire('Error', 'No se pudo programar el partido', 'error');
+      .then(querySnapshot => {
+        if (!querySnapshot.empty) {
+          matchData.localTeamLogo = querySnapshot.docs[0].data().logo;
+          return db.collection("teams").where("name", "==", matchData.visitorTeamName).get();
+        }
+      })
+      .then(querySnapshot => {
+        if (!querySnapshot.empty) {
+          matchData.visitorTeamLogo = querySnapshot.docs[0].data().logo;
+          return db.collection("matches").add(matchData);
+        }
+      })
+      .then(() => {
+        const modal = bootstrap.Modal.getInstance(document.getElementById("modalProgramarPartido"));
+        modal.hide();
+        Swal.fire({
+          title: 'Éxito',
+          text: 'Partido programado correctamente',
+          icon: 'success',
+          confirmButtonColor: '#28a745'
         });
-});
+        document.getElementById("formProgramarPartido").reset();
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        Swal.fire('Error', 'No se pudo programar el partido', 'error');
+      });
+  });
 </script>
 
 <script>
@@ -666,11 +1390,11 @@
     const localSelect = document.getElementById("localTeam");
     const visitorSelect = document.getElementById("visitorTeam");
     const categorySelect = document.getElementById("matchCategory");
-    
+
     // Limpiar opciones existentes
     localSelect.innerHTML = '<option value="">Selecciona el equipo local</option>';
     visitorSelect.innerHTML = '<option value="">Selecciona el equipo visitante</option>';
-    
+
     // Función para cargar equipos según la categoría
     function loadTeamsByCategory(category) {
       console.log('Cargando equipos de categoría:', category);
@@ -679,11 +1403,11 @@
         .get()
         .then((querySnapshot) => {
           console.log('Equipos encontrados:', querySnapshot.size);
-          
+
           // Limpiar opciones existentes
           localSelect.innerHTML = '<option value="">Selecciona el equipo local</option>';
           visitorSelect.innerHTML = '<option value="">Selecciona el equipo visitante</option>';
-          
+
           querySnapshot.forEach((doc) => {
             const team = doc.data();
             team.id = doc.id;
@@ -700,7 +1424,7 @@
     }
 
     // Escuchar cambios en la categoría
-    categorySelect.addEventListener('change', function() {
+    categorySelect.addEventListener('change', function () {
       const selectedCategory = this.value;
       console.log('Categoría seleccionada:', selectedCategory);
       if (selectedCategory) {
@@ -714,22 +1438,22 @@
   }
 
   // Inicializar el modal cuando se abre
-  document.getElementById("scheduleMatchModal").addEventListener("show.bs.modal", function() {
+  document.getElementById("scheduleMatchModal").addEventListener("show.bs.modal", function () {
     console.log('Modal abierto - Inicializando...');
     loadTeamsForScheduling();
   });
 
-  
+
 
   // Manejar el envío del formulario de programación de partido
-  document.getElementById("matchForm").addEventListener("submit", function(e) {
+  document.getElementById("matchForm").addEventListener("submit", function (e) {
     e.preventDefault();
-    
+
     const localTeamSelect = document.getElementById("localTeam");
     const visitorTeamSelect = document.getElementById("visitorTeam");
     const localTeam = localTeamSelect.options[localTeamSelect.selectedIndex];
     const visitorTeam = visitorTeamSelect.options[visitorTeamSelect.selectedIndex];
-    
+
     const matchData = {
       localTeamId: localTeam.value,
       localTeamName: localTeam.getAttribute('data-name'),
@@ -742,7 +1466,7 @@
       category: document.getElementById("matchCategory").value,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
-    
+
     db.collection("matches").add(matchData)
       .then(() => {
         const modal = bootstrap.Modal.getInstance(document.getElementById("scheduleMatchModal"));
@@ -761,6 +1485,139 @@
       });
   });
 
-    </script>
-  </body>
+  function aplicarSancion(jugadorId, tipo, articulo = null, literal = null) {
+    const fechaInicio = new Date();
+    const partidosPendientes = tipo === 'roja' ? 1 : 0; // 1 partido para tarjeta roja
+
+    // Calcular próximos martes hasta cumplir los partidos pendientes
+    const fechaFin = new Date(fechaInicio);
+    const diasHastaMartes = (2 - fechaFin.getDay() + 7) % 7;
+    fechaFin.setDate(fechaFin.getDate() + diasHastaMartes);
+
+    const sancionData = {
+      jugadorId,
+      tipo,
+      fechaInicio: firebase.firestore.Timestamp.fromDate(fechaInicio),
+      fechaFin: firebase.firestore.Timestamp.fromDate(fechaFin),
+      partidosPendientes,
+      estado: 'activa'
+    };
+
+    if (tipo === 'roja') {
+      sancionData.articulo = articulo;
+      sancionData.literal = literal;
+    }
+
+    db.collection('sanciones').add(sancionData)
+      .then(() => {
+        Swal.fire({
+          title: 'Sanción Aplicada',
+          text: `La sanción estará vigente hasta el próximo martes ${fechaFin.toLocaleDateString()}`,
+          icon: 'success'
+        });
+      });
+  }
+
+  function mostrarDetallesSancion(jugadorId, tipo, cantidadTarjetas) {
+    if (tipo === 'amarilla') {
+      let mensaje = '';
+      if (cantidadTarjetas < 4) {
+        mensaje = `El jugador tiene ${cantidadTarjetas} tarjeta(s) amarilla(s).\nNecesita 4 tarjetas para recibir una fecha de sanción.`;
+      } else {
+        const fechaFinalizacion = new Date();
+        fechaFinalizacion.setDate(fechaFinalizacion.getDate() + 7); // Suma 7 días (próximo martes)
+        mensaje = `Sanción por acumulación de ${cantidadTarjetas} tarjetas amarillas.\nPartidos de sanción restantes: 1\nFecha estimada de finalización: ${fechaFinalizacion.toLocaleDateString()}`;
+      }
+      Swal.fire({
+        title: 'Detalles de Tarjetas Amarillas 🟨',
+        text: mensaje,
+        icon: 'info'
+      });
+    } else {
+      // Para tarjetas rojas
+      db.collection('sanciones')
+        .where('jugadorId', '==', jugadorId)
+        .where('tipo', '==', 'roja')
+        .where('estado', '==', 'activa')
+        .get()
+        .then((snapshot) => {
+          if (!snapshot.empty) {
+            const sancion = snapshot.docs[snapshot.docs.length - 1].data();
+            const partidosSancion = {
+              '124': 1,
+              '125': 2,
+              '126': 3,
+              '127': 4,
+              '128': 6,
+              '129': 52 // 1 año aproximadamente en semanas
+            };
+
+            const partidosRestantes = partidosSancion[sancion.articulo] || 0;
+            const fechaFinalizacion = new Date();
+            fechaFinalizacion.setDate(fechaFinalizacion.getDate() + (partidosRestantes * 7));
+
+            Swal.fire({
+              title: 'Detalles de Tarjeta Roja 🟥',
+              html: `
+              <p>Artículo: ${sancion.articulo}</p>
+              <p>Literal: ${sancion.literal}</p>
+              <p>Partidos de sanción restantes: <strong>${partidosRestantes}</strong></p>
+              <p>Fecha estimada de finalización: <strong>${fechaFinalizacion.toLocaleDateString()}</strong></p>
+              <small>(Considerando que cada martes es un partido jugado)</small>
+            `,
+              icon: 'info'
+            });
+          } else {
+            Swal.fire({
+              title: 'Sin Tarjeta Roja Activa',
+              text: 'El jugador no tiene sanciones activas con tarjeta roja.',
+              icon: 'info'
+            });
+          }
+        });
+    }
+  }
+
+  function verificarSancionesVencidas() {
+    const ahora = new Date();
+    const esMartes = ahora.getDay() === 2; // 0 es domingo, 2 es martes
+
+    if (!esMartes) return; // Solo verificar los martes
+
+    db.collection('sanciones')
+      .where('estado', '==', 'activa')
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const sancion = doc.data();
+          const fechaFin = sancion.fechaFin.toDate();
+
+          if (ahora >= fechaFin) {
+            // Actualizar estado de la sanción
+            doc.ref.update({ estado: 'cumplida' })
+              .then(() => {
+                // Obtener datos del jugador
+                db.collection('players').doc(sancion.jugadorId).get()
+                  .then((jugadorDoc) => {
+                    const jugador = jugadorDoc.data();
+                    Swal.fire({
+                      title: 'Jugador Habilitado',
+                      text: `${jugador.nombres} ${jugador.apellidos} ha cumplido su sanción y está habilitado para jugar`,
+                      icon: 'info'
+                    });
+                  });
+              });
+          }
+        });
+      });
+  }
+
+  // Ejecutar verificación cada hora
+  setInterval(verificarSancionesVencidas, 3600000);
+
+  // Ejecutar verificación al cargar la página 
+  document.addEventListener('DOMContentLoaded', verificarSancionesVencidas);
+</script>
+</body>
+
 </html>
