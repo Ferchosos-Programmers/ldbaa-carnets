@@ -181,88 +181,88 @@
 
   <script>
     // Agregar el icono de notificaciones en el navbar
-const navbarRight = document.querySelector('.navbar .container-fluid');
-const notificationButton = document.createElement('button');
-notificationButton.className = 'btn btn-link position-relative me-3';
-notificationButton.innerHTML = `
+    const navbarRight = document.querySelector('.navbar .container-fluid');
+    const notificationButton = document.createElement('button');
+    notificationButton.className = 'btn btn-link position-relative me-3';
+    notificationButton.innerHTML = `
   <i class="fas fa-bell text-white fs-5"></i>
   <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationCount">
     0
   </span>
 `;
-navbarRight.insertBefore(notificationButton, navbarRight.lastElementChild);
+    navbarRight.insertBefore(notificationButton, navbarRight.lastElementChild);
 
-// Función para verificar sanciones próximas a finalizar
-async function checkProximasSanciones() {
-  try {
-    const snapshot = await db.collection('sanciones')
-      .where('estado', '==', 'activa')
-      .get();
+    // Función para verificar sanciones próximas a finalizar
+    async function checkProximasSanciones() {
+      try {
+        const snapshot = await db.collection('sanciones')
+          .where('estado', '==', 'activa')
+          .get();
 
-    const notificaciones = [];
-    
-    for (const doc of snapshot.docs) {
-      const sancion = doc.data();
-      const jugadorDoc = await db.collection('players').doc(sancion.jugadorId).get();
-      
-      if (jugadorDoc.exists) {
-        const jugador = jugadorDoc.data();
-        const equipoDoc = await db.collection('teams').doc(jugador.teamId).get();
-        
-        if (equipoDoc.exists) {
-          const equipo = equipoDoc.data();
+        const notificaciones = [];
 
-          if (sancion.tipo === 'roja') {
-            const partidosSancion = {
-              '124': 1, '125': 2, '126': 3, '127': 4, '128': 6, '129': 52
-            };
-            const partidosRestantes = partidosSancion[sancion.articulo] || 0;
-            
-            // Obtener la fecha de sanción
-            const fechaSancion = sancion.fechaSancion ? new Date(sancion.fechaSancion.toDate()) : new Date();
-            
-            // Calcular el martes más cercano como fecha de inicio
-            const fechaInicioSancion = new Date(fechaSancion);
-            const dia = fechaInicioSancion.getDay();
-            const diasHastaMartes = (2 - dia + 7) % 7;
-            fechaInicioSancion.setDate(fechaInicioSancion.getDate() + diasHastaMartes);
-            
-            // Agregar una semana adicional para que coincida con el 17
-            fechaInicioSancion.setDate(fechaInicioSancion.getDate() + 7);
-            
-            // Calcular la fecha de finalización
-            const fechaFinalizacion = new Date(fechaInicioSancion);
-            if (partidosRestantes > 1) {
-              fechaFinalizacion.setDate(fechaFinalizacion.getDate() + ((partidosRestantes - 1) * 7));
-            }
+        for (const doc of snapshot.docs) {
+          const sancion = doc.data();
+          const jugadorDoc = await db.collection('players').doc(sancion.jugadorId).get();
 
-            // Calcular la fecha actual más 3 días
-            const fechaLimite = new Date();
-            fechaLimite.setDate(fechaLimite.getDate() + 3);
+          if (jugadorDoc.exists) {
+            const jugador = jugadorDoc.data();
+            const equipoDoc = await db.collection('teams').doc(jugador.teamId).get();
 
-            // Si la fecha de finalización está dentro de los próximos 3 días
-            if (fechaFinalizacion <= fechaLimite) {
-              notificaciones.push({
-                jugador: `${jugador.nombres} ${jugador.apellidos}`,
-                equipo: equipo.name,
-                tipo: sancion.tipo,
-                inicioSancion: fechaInicioSancion.toLocaleDateString(),
-                finalizacion: fechaFinalizacion.toLocaleDateString()
-              });
+            if (equipoDoc.exists) {
+              const equipo = equipoDoc.data();
+
+              if (sancion.tipo === 'roja') {
+                const partidosSancion = {
+                  '124': 1, '125': 2, '126': 3, '127': 4, '128': 6, '129': 52
+                };
+                const partidosRestantes = partidosSancion[sancion.articulo] || 0;
+
+                // Obtener la fecha de sanción
+                const fechaSancion = sancion.fechaSancion ? new Date(sancion.fechaSancion.toDate()) : new Date();
+
+                // Calcular el martes más cercano como fecha de inicio
+                const fechaInicioSancion = new Date(fechaSancion);
+                const dia = fechaInicioSancion.getDay();
+                const diasHastaMartes = (2 - dia + 7) % 7;
+                fechaInicioSancion.setDate(fechaInicioSancion.getDate() + diasHastaMartes);
+
+                // Agregar una semana adicional para que coincida con el 17
+                fechaInicioSancion.setDate(fechaInicioSancion.getDate() + 7);
+
+                // Calcular la fecha de finalización
+                const fechaFinalizacion = new Date(fechaInicioSancion);
+                if (partidosRestantes > 1) {
+                  fechaFinalizacion.setDate(fechaFinalizacion.getDate() + ((partidosRestantes - 1) * 7));
+                }
+
+                // Calcular la fecha actual más 3 días
+                const fechaLimite = new Date();
+                fechaLimite.setDate(fechaLimite.getDate() + 3);
+
+                // Si la fecha de finalización está dentro de los próximos 3 días
+                if (fechaFinalizacion <= fechaLimite) {
+                  notificaciones.push({
+                    jugador: `${jugador.nombres} ${jugador.apellidos}`,
+                    equipo: equipo.name,
+                    tipo: sancion.tipo,
+                    inicioSancion: fechaInicioSancion.toLocaleDateString(),
+                    finalizacion: fechaFinalizacion.toLocaleDateString()
+                  });
+                }
+              }
             }
           }
         }
-      }
-    }
 
-    // Actualizar contador de notificaciones
-    const notificationCount = document.getElementById('notificationCount');
-    notificationCount.textContent = notificaciones.length;
+        // Actualizar contador de notificaciones
+        const notificationCount = document.getElementById('notificationCount');
+        notificationCount.textContent = notificaciones.length;
 
-    // Agregar evento click al botón de notificaciones
-    notificationButton.onclick = () => {
-      if (notificaciones.length > 0) {
-        const notificacionesHTML = notificaciones.map(n => `
+        // Agregar evento click al botón de notificaciones
+        notificationButton.onclick = () => {
+          if (notificaciones.length > 0) {
+            const notificacionesHTML = notificaciones.map(n => `
           <div class="mb-3 p-2 border-bottom">
             <h6 class="text-success mb-1">Equipo: ${n.equipo}</h6>
             <p class="mb-1">Jugador: ${n.jugador}</p>
@@ -271,30 +271,30 @@ async function checkProximasSanciones() {
           </div>
         `).join('');
 
-        Swal.fire({
-          title: 'Sanciones próximas a finalizar',
-          html: notificacionesHTML,
-          icon: 'info',
-          width: '400px'
-        });
-      } else {
-        Swal.fire({
-          title: 'No hay notificaciones',
-          text: 'No hay sanciones que finalicen en los próximos 3 días',
-          icon: 'info'
-        });
+            Swal.fire({
+              title: 'Sanciones próximas a finalizar',
+              html: notificacionesHTML,
+              icon: 'info',
+              width: '400px'
+            });
+          } else {
+            Swal.fire({
+              title: 'No hay notificaciones',
+              text: 'No hay sanciones que finalicen en los próximos 3 días',
+              icon: 'info'
+            });
+          }
+        };
+      } catch (error) {
+        console.error('Error al verificar sanciones:', error);
       }
-    };
-  } catch (error) {
-    console.error('Error al verificar sanciones:', error);
-  }
-}
+    }
 
-// Llamar a la función cuando se carga la página y cada 5 minutos
-checkProximasSanciones();
-setInterval(checkProximasSanciones, 60000);
+    // Llamar a la función cuando se carga la página y cada 5 minutos
+    checkProximasSanciones();
+    setInterval(checkProximasSanciones, 60000);
 
-// Configuración de Firebase
+    // Configuración de Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
       authDomain: "ldbaa-calificaciones.firebaseapp.com",
@@ -349,17 +349,17 @@ setInterval(checkProximasSanciones, 60000);
               };
 
               const partidosRestantes = partidosSancion[sancion.articulo] || 0;
-              
+
               // Obtener la fecha de sanción del documento o usar la fecha actual
               const fechaSancion = sancion.fechaSancion ? new Date(sancion.fechaSancion.toDate()) : new Date();
-              
+
               // Encontrar el próximo martes después de la fecha de sanción
               const fechaInicioSancion = new Date(fechaSancion);
               while (fechaInicioSancion.getDay() !== 2) {
                 fechaInicioSancion.setDate(fechaInicioSancion.getDate() + 1);
               }
               fechaInicioSancion.setDate(fechaInicioSancion.getDate() + 7); // Agregar una semana más
-              
+
               // Calcular la fecha de finalización
               const fechaFinalizacion = new Date(fechaInicioSancion);
               if (partidosRestantes > 1) {
@@ -413,6 +413,10 @@ setInterval(checkProximasSanciones, 60000);
       }
       console.log('Usuario autenticado:', user.email);
 
+      if (user.email === 'admin@gmail.com') {
+        notificationButton.style.display = 'none';
+      }
+
       // Verificar el tipo de usuario por su email
       const userEmail = user.email;
       let categoriaFiltro = '';
@@ -447,17 +451,17 @@ setInterval(checkProximasSanciones, 60000);
       }
 
       // Modificar la función loadTeams para filtrar por categoría
-      window.loadTeams = function() {
+      window.loadTeams = function () {
         console.log('Iniciando carga de equipos...');
         checkProximasSanciones();
-        
+
         let query = db.collection("teams");
-        
+
         // Aplicar filtro de categoría si corresponde
         if (categoriaFiltro) {
           query = query.where("category", "==", categoriaFiltro);
         }
-        
+
         query.get()
           .then((querySnapshot) => {
             console.log('Equipos cargados exitosamente');
@@ -516,36 +520,36 @@ setInterval(checkProximasSanciones, 60000);
     }
 
     function loadTeams() {
-  console.log('Iniciando carga de equipos...');
-  // Ejecutar checkProximasSanciones al cargar los equipos
-  checkProximasSanciones();
-  
-  db.collection("teams").get()
-    .then((querySnapshot) => {
-      console.log('Equipos cargados exitosamente');
-      teamCardsContainer.innerHTML = ''; // Limpiar contenedor
-      if (querySnapshot.empty) {
-        teamCardsContainer.innerHTML = '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
-      } else {
-        querySnapshot.forEach((doc) => {
-          const teamData = doc.data();
-          teamData.id = doc.id; // Agregar el ID del documento
-          createTeamCard(teamData);
+      console.log('Iniciando carga de equipos...');
+      // Ejecutar checkProximasSanciones al cargar los equipos
+      checkProximasSanciones();
+
+      db.collection("teams").get()
+        .then((querySnapshot) => {
+          console.log('Equipos cargados exitosamente');
+          teamCardsContainer.innerHTML = ''; // Limpiar contenedor
+          if (querySnapshot.empty) {
+            teamCardsContainer.innerHTML = '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
+          } else {
+            querySnapshot.forEach((doc) => {
+              const teamData = doc.data();
+              teamData.id = doc.id; // Agregar el ID del documento
+              createTeamCard(teamData);
+            });
+          }
+        })
+        .catch((error) => {
+          console.error("Error al cargar equipos:", error);
+          let mensaje = 'Error al cargar los equipos. ';
+          if (error.code === 'permission-denied') {
+            mensaje += 'No tienes permisos para ver los equipos.';
+          } else if (error.code === 'unavailable') {
+            mensaje += 'El servicio no está disponible en este momento.';
+          } else {
+            mensaje += 'Por favor, intenta de nuevo.';
+          }
+          Swal.fire('Error', mensaje, 'error');
         });
-      }
-    })
-    .catch((error) => {
-      console.error("Error al cargar equipos:", error);
-      let mensaje = 'Error al cargar los equipos. ';
-      if (error.code === 'permission-denied') {
-        mensaje += 'No tienes permisos para ver los equipos.';
-      } else if (error.code === 'unavailable') {
-        mensaje += 'El servicio no está disponible en este momento.';
-      } else {
-        mensaje += 'Por favor, intenta de nuevo.';
-      }
-      Swal.fire('Error', mensaje, 'error');
-    });
     }
 
     function filterTeams() {
