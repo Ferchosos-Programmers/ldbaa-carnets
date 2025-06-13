@@ -60,6 +60,9 @@
     </nav>
 
     <div class="container mt-4">
+      <a href="dashboard.html" class="btn btn-success mb-3">
+        <i class="fas fa-arrow-left"></i> Volver al Dashboard
+      </a>
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h3 class="text-dark mb-0" id="championshipTitle">Equipos del Campeonato</h3>
@@ -149,6 +152,21 @@
       </div>
     </div>
 
+    <!-- Modal para ver PDF -->
+    <div class="modal fade" id="viewPdfModal" tabindex="-1" aria-labelledby="viewPdfModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="height: 90vh;">
+          <div class="modal-header">
+            <h5 class="modal-title" id="viewPdfModalLabel">Ver Archivo PDF</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body p-0" style="height: 80vh;">
+            <iframe id="pdfViewerFrame" src="" style="width:100%;height:100%;" frameborder="0"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -164,7 +182,7 @@
         apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
         authDomain: "ldbaa-calificaciones.firebaseapp.com",
         projectId: "ldbaa-calificaciones",
-        storageBucket: "ldbaa-calificaciones.firebasestorage.app",
+        storageBucket: "ldbaa-calificaciones.appspot.com",
         messagingSenderId: "277579489603",
         appId: "1:277579489603:web:bc93c22fea5f5f6b63cff6",
       };
@@ -380,31 +398,26 @@
             return;
           }
 
-          // Crear una referencia única para el archivo
-          const storageRef = firebase.storage().ref();
-          const fileRef = storageRef.child(`teamFiles/${teamId}/${Date.now()}_${file.name}`);
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            const base64PDF = event.target.result; // PDF en base64
 
-          // Subir el archivo a Firebase Storage
-          fileRef.put(file).then((snapshot) => {
-            // Obtener la URL de descarga
-            return snapshot.ref.getDownloadURL();
-          }).then((downloadURL) => {
-            // Guardar la referencia en Firestore
-            return db.collection('teamFiles').add({
+            db.collection('teamFiles').add({
               teamId: teamId,
               fileName: file.name,
               fileType: fileType,
-              fileUrl: downloadURL,
+              fileBase64: base64PDF,
               uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+              Swal.fire('Éxito', 'Archivo subido correctamente', 'success');
+              document.getElementById('fileUploadForm').reset();
+              loadTeamFiles(teamId); // Recarga la lista de archivos
+            }).catch((error) => {
+              console.error("Error al subir archivo:", error);
+              Swal.fire('Error', 'No se pudo subir el archivo', 'error');
             });
-          }).then(() => {
-            Swal.fire('Éxito', 'Archivo subido correctamente', 'success');
-            document.getElementById('fileUploadForm').reset();
-            loadTeamFiles(teamId);
-          }).catch((error) => {
-            console.error("Error al subir archivo:", error);
-            Swal.fire('Error', 'No se pudo subir el archivo', 'error');
-          });
+          };
+          reader.readAsDataURL(file); // Convierte el PDF a base64
         };
 
         modal.show();
@@ -437,10 +450,10 @@
                   <small class="text-muted">Tipo: ${file.fileType.replace('_', ' ').toUpperCase()}</small>
                 </div>
                 <div>
-                  <a href="${file.fileUrl}" target="_blank" class="btn btn-info btn-sm me-2">
+                  <button class="btn btn-info btn-sm me-2" onclick="verArchivo('${file.fileBase64}')">
                     <i class="fas fa-eye"></i> Ver
-                  </a>
-                  <button class="btn btn-danger btn-sm" onclick="deleteFile('${doc.id}', '${teamId}', '${file.fileUrl}')">
+                  </button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteFile('${doc.id}', '${teamId}')">
                     <i class="fas fa-trash"></i>
                   </button>
                 </div>
@@ -455,7 +468,7 @@
       }
 
       // Función para eliminar archivo
-      function deleteFile(fileId, teamId, fileUrl) {
+      function deleteFile(fileId, teamId) {
         Swal.fire({
           title: '¿Eliminar archivo?',
           text: "Esta acción no se puede deshacer",
@@ -468,7 +481,7 @@
         }).then((result) => {
           if (result.isConfirmed) {
             // Eliminar el archivo de Storage
-            const storageRef = firebase.storage().refFromURL(fileUrl);
+            const storageRef = firebase.storage().refFromURL(file.fileUrl);
             storageRef.delete().then(() => {
               // Eliminar la referencia de Firestore
               return db.collection('teamFiles').doc(fileId).delete();
@@ -481,6 +494,21 @@
             });
           }
         });
+      }
+
+      // Función para ver el archivo PDF
+      function verArchivo(base64PDF) {
+        // Cierra el modal de gestionar archivos si está abierto
+        const manageFilesModal = bootstrap.Modal.getInstance(document.getElementById('manageFilesModal'));
+        if (manageFilesModal) {
+          manageFilesModal.hide();
+        }
+
+        // Establece el src del iframe al PDF en base64
+        document.getElementById('pdfViewerFrame').src = base64PDF;
+        // Muestra el modal de ver PDF
+        const pdfModal = new bootstrap.Modal(document.getElementById('viewPdfModal'));
+        pdfModal.show();
       }
 
       // Función para cerrar sesión
@@ -505,6 +533,12 @@
           }
         });
       }
+
+      document.getElementById('viewPdfModal').addEventListener('hidden.bs.modal', function () {
+        // Reabrir el modal de gestionar archivos si lo deseas
+        const manageFilesModal = new bootstrap.Modal(document.getElementById('manageFilesModal'));
+        manageFilesModal.show();
+      });
     </script>
   </body>
 </html> 

@@ -256,58 +256,6 @@
           });
       }
 
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        console.log('Iniciando proceso de agregar equipo...');
-
-        // Obtener los valores del formulario y convertirlos a mayúsculas
-        const name = document.getElementById("teamName").value.toUpperCase();  // Convertir nombre a mayúsculas
-        const category = document.getElementById("teamCategory").value.toUpperCase();  // Convertir categoría a mayúsculas
-        const logoInput = document.getElementById("teamLogo");
-        const reader = new FileReader();
-
-        reader.onload = function () {
-          const logoURL = reader.result;
-          const teamData = { 
-            name, 
-            category, 
-            logo: logoURL,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          };
-
-          console.log('Guardando equipo en Firestore...');
-          db.collection("teams").add(teamData)
-            .then(() => {
-              console.log('Equipo guardado exitosamente');
-              form.reset();
-              const modal = bootstrap.Modal.getInstance(
-                document.getElementById("addTeamModal")
-              );
-              modal.hide();
-              Swal.fire({
-                title: 'Éxito',
-                text: 'Equipo agregado correctamente',
-                icon: 'success',
-                confirmButtonColor: '#28a745'
-              }).then(() => {
-                location.reload();
-              });
-            })
-            .catch((error) => {
-              console.error("Error al agregar equipo:", error);
-              let mensaje = 'Error al agregar el equipo. ';
-              if (error.code === 'permission-denied') {
-                mensaje += 'No tienes permisos para agregar equipos.';
-              } else {
-                mensaje += 'Por favor, intenta de nuevo.';
-              }
-              Swal.fire('Error', mensaje, 'error');
-            });
-        };
-
-        reader.readAsDataURL(logoInput.files[0]);
-      });
-
       function createTeamCard(team) {
         const card = document.createElement("div");
         card.className = "col-md-4 mb-4";
@@ -479,77 +427,77 @@
           });
       }
 
-      // Manejar el envío del formulario de archivos
-      document.getElementById('formGestionarArchivos').addEventListener('submit', function(e) {
-        e.preventDefault();
+      // // Manejar el envío del formulario de archivos
+      // document.getElementById('formGestionarArchivos').addEventListener('submit', function(e) {
+      //   e.preventDefault();
         
-        const teamId = document.getElementById('teamIdArchivos').value;
-        const tipoArchivo = document.getElementById('tipoArchivo').value;
-        const archivoInput = document.getElementById('archivoPDF');
+      //   const teamId = document.getElementById('teamIdArchivos').value;
+      //   const tipoArchivo = document.getElementById('tipoArchivo').value;
+      //   const archivoInput = document.getElementById('archivoPDF');
         
-        if (!archivoInput.files[0]) {
-          Swal.fire('Error', 'Por favor selecciona un archivo', 'error');
-          return;
-        }
+      //   if (!archivoInput.files[0]) {
+      //     Swal.fire('Error', 'Por favor selecciona un archivo', 'error');
+      //     return;
+      //   }
 
-        const archivo = archivoInput.files[0];
-        const storageRef = firebase.storage().ref();
-        const archivoRef = storageRef.child(`archivos/${teamId}/${tipoArchivo}_${Date.now()}.pdf`);
+      //   const archivo = archivoInput.files[0];
+      //   const storageRef = firebase.storage().ref();
+      //   const archivoRef = storageRef.child(`archivos/${teamId}/${tipoArchivo}_${Date.now()}.pdf`);
 
-        archivoRef.put(archivo)
-          .then((snapshot) => {
-            return snapshot.ref.getDownloadURL();
-          })
-          .then((downloadURL) => {
-            return db.collection('archivos').add({
-              teamId: teamId,
-              tipo: tipoArchivo,
-              url: downloadURL,
-              nombre: archivo.name,
-              fechaSubida: firebase.firestore.FieldValue.serverTimestamp()
-            });
-          })
-          .then(() => {
-            Swal.fire({
-              title: 'Éxito',
-              text: 'Archivo subido correctamente',
-              icon: 'success',
-              confirmButtonColor: '#28a745'
-            });
-            document.getElementById('formGestionarArchivos').reset();
-            cargarArchivos(teamId);
-          })
-          .catch((error) => {
-            console.error("Error al subir archivo:", error);
-            Swal.fire('Error', 'No se pudo subir el archivo', 'error');
-          });
-      });
+      //   archivoRef.put(archivo)
+      //     .then((snapshot) => {
+      //       return snapshot.ref.getDownloadURL();
+      //     })
+      //     .then((downloadURL) => {
+      //       return db.collection('archivos').add({
+      //         teamId: teamId,
+      //         tipo: tipoArchivo,
+      //         url: downloadURL,
+      //         nombre: archivo.name,
+      //         fechaSubida: firebase.firestore.FieldValue.serverTimestamp()
+      //       });
+      //     })
+      //     .then(() => {
+      //       Swal.fire({
+      //         title: 'Éxito',
+      //         text: 'Archivo subido correctamente',
+      //         icon: 'success',
+      //         confirmButtonColor: '#28a745'
+      //       });
+      //       document.getElementById('formGestionarArchivos').reset();
+      //       cargarArchivos(teamId);
+      //     })
+      //     .catch((error) => {
+      //       console.error("Error al subir archivo:", error);
+      //       Swal.fire('Error', 'No se pudo subir el archivo', 'error');
+      //     });
+      // });
 
-      // Función para eliminar archivo
-      function eliminarArchivo(archivoId) {
-        Swal.fire({
-          title: '¿Estás seguro?',
-          text: "Este archivo será eliminado permanentemente",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#d33',
-          cancelButtonColor: '#3085d6',
-          confirmButtonText: 'Sí, eliminar',
-          cancelButtonText: 'Cancelar'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            db.collection('archivos').doc(archivoId).delete()
-              .then(() => {
-                Swal.fire('Eliminado', 'El archivo ha sido eliminado', 'success');
-                cargarArchivos(document.getElementById('teamIdArchivos').value);
-              })
-              .catch((error) => {
-                console.error("Error al eliminar archivo:", error);
-                Swal.fire('Error', 'No se pudo eliminar el archivo', 'error');
-              });
-          }
-        });
-      }
+      // // Función para eliminar archivo
+      // function eliminarArchivo(archivoId) {
+      //   Swal.fire({
+      //     title: '¿Estás seguro?',
+      //     text: "Este archivo será eliminado permanentemente",
+      //     icon: 'warning',
+      //     showCancelButton: true,
+      //     confirmButtonColor: '#d33',
+      //     cancelButtonColor: '#3085d6',
+      //     confirmButtonText: 'Sí, eliminar',
+      //     cancelButtonText: 'Cancelar'
+      //   }).then((result) => {
+      //     if (result.isConfirmed) {
+      //       db.collection('archivos').doc(archivoId).delete()
+      //         .then(() => {
+      //           Swal.fire('Eliminado', 'El archivo ha sido eliminado', 'success');
+      //           cargarArchivos(document.getElementById('teamIdArchivos').value);
+      //         })
+      //         .catch((error) => {
+      //           console.error("Error al eliminar archivo:", error);
+      //           Swal.fire('Error', 'No se pudo eliminar el archivo', 'error');
+      //         });
+      //     }
+      //   });
+      // }
 
       // Función para crear o asegurar el campeonato Renacer 2025 y asignar equipos
       async function ensureRenacer2025AndAssignTeams() {
