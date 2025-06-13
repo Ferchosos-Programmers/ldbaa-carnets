@@ -37,31 +37,20 @@
     </nav>
 
     <div class="container mt-4">
-      <h3 class="text-dark">🏆 Equipos Registrados</h3>
+      <h3 class="text-dark">🏆 Campeonatos Disponibles</h3>
 
       <!-- Filtros -->
       <div class="row mb-4">
         <div class="col-md-6">
           <div class="input-group shadow-sm">
             <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-            <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre del equipo..." />
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="input-group shadow-sm">
-            <span class="input-group-text bg-white"><i class="fas fa-filter text-muted"></i></span>
-            <select id="categoryFilter" class="form-select">
-              <option value="">Todas las categorías</option>
-              <option value="MÁXIMA">MÁXIMA</option>
-              <option value="PRIMERA">PRIMERA</option>
-              <option value="FEMENINO">FEMENINO</option>
-            </select>
+            <input type="text" id="searchInput" class="form-control" placeholder="Buscar campeonato..." />
           </div>
         </div>
       </div>
 
-      <!-- Tarjetas -->
-      <div class="row" id="teamCardsContainer">
+      <!-- Tarjetas de Campeonatos -->
+      <div class="row" id="championshipsContainer">
         <!-- Se cargan dinámicamente -->
       </div>
     </div>
@@ -70,11 +59,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      const teamCardsContainer = document.getElementById("teamCardsContainer");
+      const championshipsContainer = document.getElementById("championshipsContainer");
       const searchInput = document.getElementById("searchInput");
-      const categoryFilter = document.getElementById("categoryFilter");
-      let allTeams = [];
-      let carnetizacionFinalizada = false;
+      let allChampionships = [];
 
       const firebaseConfig = {
         apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
@@ -93,186 +80,68 @@
           cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
         });
 
-        mostrarCuentaRegresiva().then(() => {
-          loadTeams();
-        });
+        loadChampionships();
+        searchInput.addEventListener("input", filterChampionships);
 
-        searchInput.addEventListener("input", filterTeams);
-        categoryFilter.addEventListener("change", filterTeams);
-
-        function mostrarCuentaRegresiva() {
-          return new Promise((resolve) => {
-            const deadline = new Date("2025-06-10T23:59:00").getTime();
-            const countdownDiv = document.createElement("div");
-
-            countdownDiv.style.fontSize = "1rem";
-            countdownDiv.style.fontWeight = "normal";
-            countdownDiv.style.textAlign = "center";
-            countdownDiv.style.color = "#333";
-
-            const interval = setInterval(() => {
-              const now = new Date().getTime();
-              const distance = deadline - now;
-
-              if (distance < 0) {
-                clearInterval(interval);
-                countdownDiv.innerHTML = `
-                  <div style="color: red; font-weight: bold; font-size: 1.2rem;">
-                    ⛔ La fecha de carnetización ha terminado , Ahora solo el administrador puede ingresar.
-                  </div>`;
-                carnetizacionFinalizada = true;
-                resolve(); // continuar con la carga
-                return;
-              }
-
-              const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-              const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-              const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-              const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-              countdownDiv.innerHTML = `
-                <div style="font-size: 1.1rem; margin-top: -2px;">
-                  ⏳ Tienes hasta el <strong>10 de junio</strong> para completar la carnetización.
-                </div>
-                <div style="margin-top: 8px; font-weight: bold; font-size: 1.2rem;">
-                  Tiempo restante: <span style="color: #28a745;">${days}d ${hours}h ${minutes}m ${seconds}s</span>
-                </div>
-              `;
-            }, 1000);
-
-            Swal.fire({
-              title:
-                '<img src="img/logo.png" alt="Logo" width="60" style="margin-bottom: 5px;"><br><span style="font-size: 1.4rem;">Aviso Importante</span>',
-              html: countdownDiv,
-              confirmButtonText: "Entendido",
-              allowOutsideClick: false,
-              showCloseButton: true,
-              customClass: {
-                confirmButton: "btn btn-success px-4",
-                popup: "shadow-lg rounded",
-                title: "mb-3",
-              },
-              buttonsStyling: false,
-              didOpen: () => {
-                Swal.getContent().appendChild(countdownDiv);
-              },
-            }).then(() => {
-              clearInterval(interval);
-              resolve();
-            });
-          });
-        }
-
-        function loadTeams() {
-          db.collection("teams")
+        function loadChampionships() {
+          db.collection("championships")
             .get()
             .then((querySnapshot) => {
-              teamCardsContainer.innerHTML = "";
-              allTeams = [];
+              championshipsContainer.innerHTML = "";
+              allChampionships = [];
 
               if (querySnapshot.empty) {
-                teamCardsContainer.innerHTML =
-                  '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
+                championshipsContainer.innerHTML = '<div class="col-12 text-center"><p>No hay campeonatos registrados</p></div>';
               } else {
                 querySnapshot.forEach((doc) => {
-                  const teamData = doc.data();
-                  teamData.id = doc.id;
-                  allTeams.push(teamData);
+                  const championshipData = doc.data();
+                  championshipData.id = doc.id;
+                  allChampionships.push(championshipData);
                 });
-                displayTeams(allTeams);
+                displayChampionships(allChampionships);
               }
             })
             .catch((error) => {
-              console.error("Error al cargar equipos:", error);
-              Swal.fire("Error", "No se pudieron cargar los equipos.", "error");
+              console.error("Error al cargar campeonatos:", error);
+              Swal.fire("Error", "No se pudieron cargar los campeonatos.", "error");
             });
         }
 
-        function filterTeams() {
+        function filterChampionships() {
           const searchTerm = searchInput.value.toLowerCase();
-          const selectedCategory = categoryFilter.value;
-
-          const filteredTeams = allTeams.filter((team) => {
-            const nameMatch = team.name.toLowerCase().includes(searchTerm);
-            const categoryMatch = selectedCategory === "" || team.category === selectedCategory;
-            return nameMatch && categoryMatch;
-          });
-
-          displayTeams(filteredTeams);
+          const filteredChampionships = allChampionships.filter((championship) => 
+            championship.name.toLowerCase().includes(searchTerm)
+          );
+          displayChampionships(filteredChampionships);
         }
 
-        function displayTeams(teams) {
-          teamCardsContainer.innerHTML = "";
-          if (teams.length === 0) {
-            teamCardsContainer.innerHTML =
-              '<div class="col-12 text-center"><p>No se encontraron equipos que coincidan con los filtros</p></div>';
+        function displayChampionships(championships) {
+          championshipsContainer.innerHTML = "";
+          if (championships.length === 0) {
+            championshipsContainer.innerHTML = '<div class="col-12 text-center"><p>No se encontraron campeonatos que coincidan con la búsqueda</p></div>';
           } else {
-            teams.forEach((team) => {
-              createTeamCard(team);
+            championships.forEach((championship) => {
+              createChampionshipCard(championship);
             });
           }
         }
 
-        function createTeamCard(team) {
+        function createChampionshipCard(championship) {
           const card = document.createElement("div");
           card.className = "col-md-4 mb-4";
-          const buttonHtml = carnetizacionFinalizada
-            ? `<button class="btn btn-danger btn-sm" onclick="entrarEquipo('${team.id}', '${team.name}')">Carnetización finalizada</button>`
-            : `<button class="btn btn-success btn-sm" onclick="entrarEquipo('${team.id}', '${team.name}')">Entrar</button>`;
-
+          
           card.innerHTML = `
             <div class="card shadow-sm border-0 h-100">
-              <img src="${team.logo}" class="card-img-top p-3" alt="Logo del equipo" style="height: 200px; object-fit: contain;">
               <div class="card-body text-center">
-                <h5 class="card-title">${team.name}</h5>
-                <p class="card-text"><strong>Categoría:</strong> ${team.category}</p>
-                ${buttonHtml}
+                <img src="${championship.logo || 'img/logo.png'}" class="mb-3" alt="Logo del campeonato" style="height: 100px; object-fit: contain;">
+                <h5 class="card-title">${championship.name}</h5>
+                <button class="btn btn-success" onclick="window.location.href='equipos-campeonato.html?championshipId=${championship.id}&championshipName=${encodeURIComponent(championship.name)}'">
+                  Ingresar
+                </button>
               </div>
             </div>
           `;
-          teamCardsContainer.appendChild(card);
-        }
-
-        function entrarEquipo(teamId, teamName) {
-          if (carnetizacionFinalizada) {
-            Swal.fire({
-              title: "Acceso Administrativo",
-              input: "password",
-              inputPlaceholder: "Ingrese la clave administrativa",
-              showCancelButton: true,
-              confirmButtonText: "Acceder",
-              cancelButtonText: "Cancelar",
-              showLoaderOnConfirm: true,
-              preConfirm: (clave) => {
-                if (clave === 'admin2025') {
-                  return true;
-                } else {
-                  Swal.showValidationMessage('Clave incorrecta');
-                  return false;
-                }
-              }
-            }).then((result) => {
-              if (result.isConfirmed) {
-                window.location.href = `registro-jugador.html?teamId=${teamId}`;
-              }
-            });
-            return;
-          }
-
-          Swal.fire({
-            title: "¿Entrar al equipo?",
-            text: `¿Deseas entrar al equipo ${teamName}?`,
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonColor: "#28a745",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Sí, entrar",
-            cancelButtonText: "Cancelar",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              window.location.href = `registro-jugador.html?teamId=${teamId}`;
-            }
-          });
+          championshipsContainer.appendChild(card);
         }
       } catch (error) {
         console.error("Error al inicializar Firebase:", error);
