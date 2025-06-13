@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Equipos del Campeonato | Liga Barrial</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+    <style>
+      body {
+        background-color: #f1f1f1;
+        font-family: 'Times New Roman', Times, serif;
+      }
+      .navbar {
+        background-color: #28a745;
+      }
+      .navbar-brand {
+        font-weight: bold;
+        font-size: 1.5rem;
+        color: #fff !important;
+      }
+      .card {
+        transition: transform 0.2s ease-in-out;
+        border-radius: 1rem;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      }
+      .card-title {
+        color: #28a745;
+        font-weight: 600;
+      }
+      .modal-header {
+        background-color: #28a745;
+        color: white;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg shadow-sm px-4">
+      <div class="container-fluid">
+        <a class="navbar-brand text-white fw-bold d-flex align-items-center" href="dashboard.html">
+          <img src="img/logo.png" alt="Logo" width="30" height="30" class="me-2" />
+          LIGA BARRIAL ARGELIA ALTA
+        </a>
+        <button class="btn btn-xs btn-danger ms-auto text-white fw-semibold" onclick="logout()" style="border-radius: 50px">
+          <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
+        </button>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h3 class="text-dark mb-0" id="championshipTitle">Equipos del Campeonato</h3>
+          <p class="text-muted" id="championshipDescription"></p>
+        </div>
+        <button class="btn btn-success shadow" data-bs-toggle="modal" data-bs-target="#addTeamModal">
+          + Agregar Equipo
+        </button>
+      </div>
+
+      <!-- Contenedor de tarjetas -->
+      <div class="row" id="teamCardsContainer">
+        <!-- Se cargan dinámicamente -->
+      </div>
+    </div>
+
+    <!-- Modal para agregar equipo -->
+    <div class="modal fade" id="addTeamModal" tabindex="-1" aria-labelledby="addTeamModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content shadow">
+          <form id="teamForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="addTeamModalLabel">Registrar Nuevo Equipo</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="teamLogo" class="form-label">Logo del Equipo</label>
+                <input type="file" class="form-control" id="teamLogo" accept="image/*" required />
+              </div>
+              <div class="mb-3">
+                <label for="teamName" class="form-label">Nombre del Equipo</label>
+                <input type="text" class="form-control" id="teamName" required />
+              </div>
+              <div class="mb-3">
+                <label for="teamCategory" class="form-label">Categoría</label>
+                <select class="form-select" id="teamCategory" required>
+                  <option value="">Selecciona una categoría</option>
+                  <option value="MÁXIMA">MÁXIMA</option>
+                  <option value="PRIMERA">PRIMERA</option>
+                  <option value="FEMENINO">FEMENINO</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-success w-100">Guardar Equipo</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para gestionar archivos -->
+    <div class="modal fade" id="manageFilesModal" tabindex="-1" aria-labelledby="manageFilesModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content shadow">
+          <div class="modal-header">
+            <h5 class="modal-title" id="manageFilesModalLabel">Gestionar Archivos del Equipo</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="fileUploadForm">
+              <div class="mb-3">
+                <label for="fileType" class="form-label">Tipo de Documento</label>
+                <select class="form-select" id="fileType" required>
+                  <option value="">Selecciona el tipo de documento</option>
+                  <option value="carta_pase">Carta de Pase</option>
+                  <option value="autorizacion">Autorización</option>
+                  <option value="otro">Otro Documento</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="fileUpload" class="form-label">Archivo PDF</label>
+                <input type="file" class="form-control" id="fileUpload" accept=".pdf" required />
+              </div>
+              <button type="submit" class="btn btn-success w-100">Subir Archivo</button>
+            </form>
+
+            <hr class="my-4">
+
+            <h6>Archivos Subidos</h6>
+            <div id="filesList" class="list-group">
+              <!-- Los archivos se cargarán dinámicamente aquí -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-storage.js"></script>
+
+    <script>
+      // Configuración de Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
+        authDomain: "ldbaa-calificaciones.firebaseapp.com",
+        projectId: "ldbaa-calificaciones",
+        storageBucket: "ldbaa-calificaciones.firebasestorage.app",
+        messagingSenderId: "277579489603",
+        appId: "1:277579489603:web:bc93c22fea5f5f6b63cff6",
+      };
+
+      // Inicializar Firebase
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+
+      const db = firebase.firestore();
+      const auth = firebase.auth();
+      let championshipId = null;
+
+      // Verificar estado de autenticación
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          window.location.href = 'login.html';
+          return;
+        }
+        // Obtener el ID del campeonato de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        championshipId = urlParams.get('id');
+        if (!championshipId) {
+          window.location.href = 'dashboard.html';
+          return;
+        }
+        loadChampionshipInfo();
+        loadTeams();
+      });
+
+      // Cargar información del campeonato
+      function loadChampionshipInfo() {
+        db.collection('championships').doc(championshipId).get()
+          .then((doc) => {
+            if (doc.exists) {
+              const championship = doc.data();
+              document.getElementById('championshipTitle').textContent = championship.name;
+              document.getElementById('championshipDescription').textContent = championship.description || '';
+            }
+          })
+          .catch((error) => {
+            console.error("Error al cargar información del campeonato:", error);
+            Swal.fire('Error', 'No se pudo cargar la información del campeonato', 'error');
+          });
+      }
+
+      // Cargar equipos
+      function loadTeams() {
+        const container = document.getElementById('teamCardsContainer');
+        container.innerHTML = '<div class="col-12 text-center"><div class="spinner-border text-success" role="status"></div></div>';
+
+        db.collection('teams')
+          .where('championshipId', '==', championshipId)
+          .get()
+          .then((querySnapshot) => {
+            container.innerHTML = '';
+            if (querySnapshot.empty) {
+              container.innerHTML = '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
+              return;
+            }
+
+            querySnapshot.forEach((doc) => {
+              const team = doc.data();
+              createTeamCard(doc.id, team);
+            });
+          })
+          .catch((error) => {
+            console.error("Error al cargar equipos:", error);
+            Swal.fire('Error', 'No se pudieron cargar los equipos', 'error');
+          });
+      }
+
+      // Crear tarjeta de equipo
+      function createTeamCard(id, team) {
+        const card = document.createElement('div');
+        card.className = 'col-md-4 mb-4';
+        card.innerHTML = `
+          <div class="card shadow-sm border-0 h-100">
+            <img src="${team.logo}" class="card-img-top p-3" alt="Logo del equipo" style="height: 200px; object-fit: contain;">
+            <div class="card-body text-center">
+              <h5 class="card-title">${team.name}</h5>
+              <p class="card-text"><strong>Categoría:</strong> ${team.category}</p>
+              <div class="btn-group">
+                <button class="btn btn-info btn-sm me-2" onclick="gestionarArchivos('${id}', '${team.name}')">
+                  <i class="fas fa-file-alt"></i> Gestionar Archivos
+                </button>
+                <button class="btn btn-warning btn-sm me-2" onclick="resetAdminKey('${id}')">
+                  <i class="fas fa-key"></i> Resetear Clave
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="deleteTeam('${id}')">
+                  <i class="fas fa-trash"></i> Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        document.getElementById('teamCardsContainer').appendChild(card);
+      }
+
+      // Manejar el envío del formulario de equipo
+      document.getElementById('teamForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('teamName').value.toUpperCase();
+        const category = document.getElementById('teamCategory').value.toUpperCase();
+        const logoInput = document.getElementById('teamLogo');
+        const reader = new FileReader();
+
+        reader.onload = function() {
+          const logoURL = reader.result;
+          const teamData = {
+            name,
+            category,
+            logo: logoURL,
+            championshipId,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+
+          db.collection('teams').add(teamData)
+            .then(() => {
+              Swal.fire({
+                title: 'Éxito',
+                text: 'Equipo agregado correctamente',
+                icon: 'success',
+                confirmButtonColor: '#28a745'
+              });
+              document.getElementById('teamForm').reset();
+              const modal = bootstrap.Modal.getInstance(document.getElementById('addTeamModal'));
+              modal.hide();
+              loadTeams();
+            })
+            .catch((error) => {
+              console.error("Error al agregar equipo:", error);
+              Swal.fire('Error', 'No se pudo agregar el equipo', 'error');
+            });
+        };
+
+        reader.readAsDataURL(logoInput.files[0]);
+      });
+
+      // Función para eliminar equipo
+      function deleteTeam(teamId) {
+        Swal.fire({
+          title: '¿Estás seguro?',
+          text: "Este equipo será eliminado permanentemente",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            db.collection('teams').doc(teamId).delete()
+              .then(() => {
+                Swal.fire('Eliminado', 'El equipo ha sido eliminado', 'success');
+                loadTeams();
+              })
+              .catch((error) => {
+                console.error("Error al eliminar equipo:", error);
+                Swal.fire('Error', 'No se pudo eliminar el equipo', 'error');
+              });
+          }
+        });
+      }
+
+      // Función para resetear la clave de administrador
+      function resetAdminKey(teamId) {
+        Swal.fire({
+          title: '¿Resetear la clave?',
+          text: "Se eliminará la clave actual y se deberá establecer una nueva la próxima vez que se acceda al registro de jugadores.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#28a745',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Sí, resetear',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            db.collection('teams').doc(teamId).update({
+              adminKey: null
+            }).then(() => {
+              Swal.fire({
+                title: '¡Clave reseteada!',
+                text: 'La clave ha sido eliminada. Se solicitará una nueva clave la próxima vez que se acceda al registro de jugadores.',
+                icon: 'success',
+                confirmButtonColor: '#28a745'
+              });
+            }).catch((error) => {
+              console.error("Error al resetear la clave:", error);
+              Swal.fire('Error', 'No se pudo resetear la clave', 'error');
+            });
+          }
+        });
+      }
+
+      // Función para gestionar archivos
+      function gestionarArchivos(teamId, teamName) {
+        const modal = new bootstrap.Modal(document.getElementById('manageFilesModal'));
+        document.getElementById('manageFilesModalLabel').textContent = `Gestionar Archivos - ${teamName}`;
+        
+        // Cargar archivos existentes
+        loadTeamFiles(teamId);
+        
+        // Manejar el envío del formulario
+        document.getElementById('fileUploadForm').onsubmit = function(e) {
+          e.preventDefault();
+          const fileType = document.getElementById('fileType').value;
+          const file = document.getElementById('fileUpload').files[0];
+          
+          if (!file || !fileType) {
+            Swal.fire('Error', 'Por favor selecciona un tipo de documento y un archivo', 'error');
+            return;
+          }
+
+          // Crear una referencia única para el archivo
+          const storageRef = firebase.storage().ref();
+          const fileRef = storageRef.child(`teamFiles/${teamId}/${Date.now()}_${file.name}`);
+
+          // Subir el archivo a Firebase Storage
+          fileRef.put(file).then((snapshot) => {
+            // Obtener la URL de descarga
+            return snapshot.ref.getDownloadURL();
+          }).then((downloadURL) => {
+            // Guardar la referencia en Firestore
+            return db.collection('teamFiles').add({
+              teamId: teamId,
+              fileName: file.name,
+              fileType: fileType,
+              fileUrl: downloadURL,
+              uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }).then(() => {
+            Swal.fire('Éxito', 'Archivo subido correctamente', 'success');
+            document.getElementById('fileUploadForm').reset();
+            loadTeamFiles(teamId);
+          }).catch((error) => {
+            console.error("Error al subir archivo:", error);
+            Swal.fire('Error', 'No se pudo subir el archivo', 'error');
+          });
+        };
+
+        modal.show();
+      }
+
+      // Función para cargar archivos del equipo
+      function loadTeamFiles(teamId) {
+        const filesList = document.getElementById('filesList');
+        filesList.innerHTML = '<div class="text-center"><div class="spinner-border text-success" role="status"></div></div>';
+
+        db.collection('teamFiles')
+          .where('teamId', '==', teamId)
+          .orderBy('uploadedAt', 'desc')
+          .get()
+          .then((querySnapshot) => {
+            filesList.innerHTML = '';
+            if (querySnapshot.empty) {
+              filesList.innerHTML = '<p class="text-center">No hay archivos subidos</p>';
+              return;
+            }
+
+            querySnapshot.forEach((doc) => {
+              const file = doc.data();
+              const fileItem = document.createElement('div');
+              fileItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+              fileItem.innerHTML = `
+                <div>
+                  <strong>${file.fileName}</strong>
+                  <br>
+                  <small class="text-muted">Tipo: ${file.fileType.replace('_', ' ').toUpperCase()}</small>
+                </div>
+                <div>
+                  <a href="${file.fileUrl}" target="_blank" class="btn btn-info btn-sm me-2">
+                    <i class="fas fa-eye"></i> Ver
+                  </a>
+                  <button class="btn btn-danger btn-sm" onclick="deleteFile('${doc.id}', '${teamId}', '${file.fileUrl}')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              `;
+              filesList.appendChild(fileItem);
+            });
+          })
+          .catch((error) => {
+            console.error("Error al cargar archivos:", error);
+            filesList.innerHTML = '<p class="text-center text-danger">Error al cargar los archivos</p>';
+          });
+      }
+
+      // Función para eliminar archivo
+      function deleteFile(fileId, teamId, fileUrl) {
+        Swal.fire({
+          title: '¿Eliminar archivo?',
+          text: "Esta acción no se puede deshacer",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Eliminar el archivo de Storage
+            const storageRef = firebase.storage().refFromURL(fileUrl);
+            storageRef.delete().then(() => {
+              // Eliminar la referencia de Firestore
+              return db.collection('teamFiles').doc(fileId).delete();
+            }).then(() => {
+              Swal.fire('Eliminado', 'El archivo ha sido eliminado', 'success');
+              loadTeamFiles(teamId);
+            }).catch((error) => {
+              console.error("Error al eliminar archivo:", error);
+              Swal.fire('Error', 'No se pudo eliminar el archivo', 'error');
+            });
+          }
+        });
+      }
+
+      // Función para cerrar sesión
+      function logout() {
+        Swal.fire({
+          title: '¿Cerrar sesión?',
+          text: "¿Estás seguro de que deseas salir?",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#28a745',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Sí, salir',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            auth.signOut().then(() => {
+              window.location.href = 'login.html';
+            }).catch((error) => {
+              console.error("Error al cerrar sesión:", error);
+              Swal.fire('Error', 'No se pudo cerrar la sesión', 'error');
+            });
+          }
+        });
+      }
+    </script>
+  </body>
+</html> 
