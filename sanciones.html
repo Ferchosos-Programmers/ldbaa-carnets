@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Sanciones | Liga Barrial</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        .navbar {
+            background-color: #28a745;
+        }
+        .card {
+            transition: transform 0.2s;
+            border-radius: 10px;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="img/logo.png" alt="Logo" width="30" height="30" class="me-2">
+                LIGA BARRIAL ARGELIA ALTA - Sanciones
+            </a>
+            <button class="btn btn-danger ms-auto" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </button>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h3><i class="fas fa-gavel"></i> Gestión de Sanciones</h3>
+            </div>
+            <div class="col-md-6">
+                <!-- Los filtros se moverán a secciones específicas -->
+            </div>
+        </div>
+
+        <!-- Sección de Campeonatos -->
+        <div id="campeonatosSection" class="row">
+            <!-- Se llena dinámicamente -->
+        </div>
+
+        <!-- Sección de Equipos (inicialmente oculta) -->
+        <div id="equiposSection" class="row" style="display: none;">
+            <div class="col-12 mb-3">
+                <button class="btn btn-success" onclick="volverACampeonatos()">
+                    <i class="fas fa-arrow-left"></i> Volver a Campeonatos
+                </button>
+                <h4 class="mt-3" id="equiposTitulo"></h4>
+            </div>
+            <div class="col-12 mb-3">
+                <div class="input-group">
+                    <input type="text" id="searchEquipoInput" class="form-control" placeholder="Buscar equipo...">
+                    <select id="categoryEquipoFilter" class="form-select" style="max-width: 150px;">
+                        <option value="">Todas las categorías</option>
+                        <option value="MÁXIMA">MÁXIMA</option>
+                        <option value="PRIMERA">PRIMERA</option>
+                        <option value="FEMENINO">FEMENINO</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="row" id="equiposLista">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Jugadores (inicialmente oculta) -->
+        <div id="jugadoresSection" class="row" style="display: none;">
+            <div class="col-12 mb-3">
+                <button class="btn btn-secondary" onclick="volverAEquipos()">
+                    <i class="fas fa-arrow-left"></i> Volver a Equipos
+                </button>
+                <h4 class="mt-3" id="jugadoresTitulo"></h4>
+            </div>
+            <div class="col-12 mb-3">
+                <div class="input-group">
+                    <input type="text" id="searchJugadorInput" class="form-control" placeholder="Buscar jugador...">
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Jugador</th>
+                                <th>Tarjetas</th>
+                                <th>Sanciones Activas</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jugadoresTableBody">
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Aplicar Sanción -->
+    <div class="modal fade" id="sancionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title">Aplicar Sanción</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="sancionForm">
+                        <input type="hidden" id="jugadorId">
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Sanción</label>
+                            <select class="form-select" id="tipoSancion" required>
+                                <option value="">Seleccione tipo</option>
+                                <option value="amarilla">Tarjeta Amarilla</option>
+                                <option value="roja">Tarjeta Roja</option>
+                            </select>
+                        </div>
+                        <div id="articuloLiteralContainer" style="display: none;">
+                            <div class="mb-3">
+                                <label class="form-label">Artículo</label>
+                                <select class="form-select" id="articulo" onchange="actualizarLiterales()">
+                                    <option value="">Seleccione artículo</option>
+                                    <option value="124">Art. 124 - 1 partido</option>
+                                    <option value="125">Art. 125 - 2 partidos</option>
+                                    <option value="126">Art. 126 - 3 partidos</option>
+                                    <option value="127">Art. 127 - 4 partidos</option>
+                                    <option value="128">Art. 128 - 6 partidos</option>
+                                    <option value="129">Art. 129 - 1 año</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Literal</label>
+                                <select class="form-select" id="literal">
+                                    <option value="">Seleccione primero un artículo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" onclick="aplicarSancion()">Aplicar Sanción</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap y Firebase -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
+            authDomain: "ldbaa-calificaciones.firebaseapp.com",
+            projectId: "ldbaa-calificaciones",
+            storageBucket: "ldbaa-calificaciones.firebasestorage.app",
+            messagingSenderId: "277579489603",
+            appId: "1:277579489603:web:bc93c22fea5f5f6b63cff6"
+        };
+
+        // Inicializar Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Variables globales para mantener el estado
+        let campeonatoActual = null;
+        let equipoActual = null;
+
+        // Cargar campeonatos al iniciar
+        auth.onAuthStateChanged((user) => {
+            if (!user || user.email !== 'sanciones@gmail.com') {
+                window.location.href = 'login.html';
+                return;
+            }
+            cargarCampeonatos();
+        });
+
+        // Cargar campeonatos
+        function cargarCampeonatos() {
+            const campeonatosSection = document.getElementById('campeonatosSection');
+            campeonatosSection.innerHTML = '<div class="col-12 text-center"><div class="spinner-border text-success" role="status"></div></div>';
+
+            db.collection('championships').get()
+                .then((snapshot) => {
+                    campeonatosSection.innerHTML = '';
+                    if (snapshot.empty) {
+                        campeonatosSection.innerHTML = '<div class="col-12 text-center">No hay campeonatos activos</div>';
+                        return;
+                    }
+
+                    snapshot.forEach((doc) => {
+                        const campeonato = doc.data();
+                        const card = `
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 shadow-sm text-center" style="cursor: pointer; padding: 20px;" onclick="mostrarEquipos('${doc.id}', '${campeonato.name}')">
+                                    <div class="card-body d-flex flex-column justify-content-between">
+                                        <div>
+                                            <img src="img/logo.png" alt="Logo Liga Barrial" class="mb-3" style="width: 100px; height: 100px; object-fit: contain;">
+                                            <h4 class="card-title text-success mb-4">${campeonato.name}</h4>
+                                        </div>
+                                        <button class="btn btn-success btn-sm mt-auto">Ingresar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        campeonatosSection.insertAdjacentHTML('beforeend', card);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error al cargar campeonatos:", error);
+                    campeonatosSection.innerHTML = '<div class="col-12 text-center text-danger">Error al cargar los campeonatos</div>';
+                });
+        }
+
+        // Mostrar equipos de un campeonato
+        function mostrarEquipos(campeonatoId, campeonatoNombre) {
+            campeonatoActual = campeonatoId;
+            document.getElementById('campeonatosSection').style.display = 'none';
+            document.getElementById('equiposSection').style.display = 'block';
+            document.getElementById('jugadoresSection').style.display = 'none';
+            document.getElementById('equiposTitulo').textContent = `Equipos - ${campeonatoNombre}`;
+
+            const equiposLista = document.getElementById('equiposLista');
+            equiposLista.innerHTML = '<div class="col-12 text-center"><div class="spinner-border text-success" role="status"></div></div>';
+
+            db.collection('teams').where('championshipId', '==', campeonatoId).get()
+                .then((snapshot) => {
+                    equiposLista.innerHTML = '';
+                    if (snapshot.empty) {
+                        equiposLista.innerHTML = '<div class="col-12 text-center">No hay equipos registrados</div>';
+                        return;
+                    }
+
+                    snapshot.forEach((doc) => {
+                        const equipo = doc.data();
+                        const card = `
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 shadow-sm text-center" style="cursor: pointer; padding: 20px;" onclick="mostrarJugadores('${doc.id}', '${equipo.name}')">
+                                    <div class="card-body d-flex flex-column justify-content-between">
+                                        <div>
+                                            <img src="${equipo.logo ? equipo.logo : 'img/logo.png'}" alt="Logo Equipo" class="mb-3" style="width: 100px; height: 100px; object-fit: contain;">
+                                            <h4 class="card-title text-success mb-4">${equipo.name}</h4>
+                                            <p class="card-text">Categoría: <span class="text-dark">${equipo.category}</span></p>
+                                        </div>
+                                        <button class="btn btn-warning btn-sm mt-auto"><i class="fas fa-gavel"></i> Sancionar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        equiposLista.insertAdjacentHTML('beforeend', card);
+                    });
+                    filtrarEquipos();
+                })
+                .catch(error => {
+                    console.error("Error al cargar equipos:", error);
+                    equiposLista.innerHTML = '<div class="col-12 text-center text-danger">Error al cargar los equipos</div>';
+                });
+        }
+
+        // Mostrar jugadores de un equipo
+        function mostrarJugadores(equipoId, equipoNombre) {
+            equipoActual = equipoId;
+            document.getElementById('equiposSection').style.display = 'none';
+            document.getElementById('jugadoresSection').style.display = 'block';
+            document.getElementById('jugadoresTitulo').textContent = `Jugadores - ${equipoNombre}`;
+
+            const tbody = document.getElementById('jugadoresTableBody');
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center"><div class="spinner-border text-success" role="status"></div></td></tr>';
+
+            db.collection('players').where('teamId', '==', equipoId).get()
+                .then(async (snapshot) => {
+                    tbody.innerHTML = '';
+                    if (snapshot.empty) {
+                        tbody.innerHTML = '<tr><td colspan="4" class="text-center">No hay jugadores registrados</td></tr>';
+                        return;
+                    }
+
+                    for (const doc of snapshot.docs) {
+                        const jugador = doc.data();
+                        const sancionesSnapshot = await db.collection('sanciones')
+                            .where('jugadorId', '==', doc.id)
+                            .where('estado', '==', 'activa')
+                            .get();
+
+                        let tarjetasAmarillas = 0;
+                        let tarjetasRojas = 0;
+                        let sancionesActivas = [];
+
+                        sancionesSnapshot.forEach(sancion => {
+                            const data = sancion.data();
+                            if (data.tipo === 'amarilla') {
+                                tarjetasAmarillas++;
+                            } else if (data.tipo === 'roja') {
+                                tarjetasRojas++;
+                                sancionesActivas.push(`Art. ${data.articulo} Lit. ${data.literal}`);
+                            }
+                        });
+
+                        const row = `
+                            <tr>
+                                <td>${jugador.numeroJugador ? jugador.numeroJugador : 'N/A'}</td>
+                                <td>${jugador.nombres} ${jugador.apellidos}</td>
+                                <td>
+                                    <span class="badge bg-warning text-dark" style="cursor: pointer" onclick="mostrarDetallesSancion('${doc.id}', 'amarilla', ${tarjetasAmarillas})">
+                                        ${tarjetasAmarillas} 🟨
+                                    </span>
+                                    <span class="badge bg-danger" style="cursor: pointer" onclick="mostrarDetallesSancion('${doc.id}', 'roja', ${tarjetasRojas})">
+                                        ${tarjetasRojas} 🟥
+                                    </span>
+                                </td>
+                                <td>${sancionesActivas.join('<br>') || 'Ninguna'}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="abrirModalSancion('${doc.id}')">
+                                        <i class="fas fa-gavel"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.insertAdjacentHTML('beforeend', row);
+                    }
+                    filtrarJugadores();
+                })
+                .catch(error => {
+                    console.error("Error al cargar jugadores:", error);
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error al cargar los jugadores</td></tr>';
+                });
+        }
+
+        // Funciones de navegación
+        function volverACampeonatos() {
+            document.getElementById('campeonatosSection').style.display = 'block';
+            document.getElementById('equiposSection').style.display = 'none';
+            document.getElementById('jugadoresSection').style.display = 'none';
+            campeonatoActual = null;
+            equipoActual = null;
+        }
+
+        function volverAEquipos() {
+            if (campeonatoActual) {
+                mostrarEquipos(campeonatoActual, document.getElementById('equiposTitulo').textContent.replace('Equipos - ', ''));
+            }
+        }
+
+        // Función para abrir modal de sanción
+        function abrirModalSancion(jugadorId) {
+            document.getElementById('jugadorId').value = jugadorId;
+            document.getElementById('tipoSancion').value = '';
+            document.getElementById('articuloLiteralContainer').style.display = 'none';
+            const modal = new bootstrap.Modal(document.getElementById('sancionModal'));
+            modal.show();
+        }
+
+        // Actualizar literales según artículo
+        function actualizarLiterales() {
+            const articulo = document.getElementById('articulo').value;
+            const literalSelect = document.getElementById('literal');
+            literalSelect.innerHTML = '<option value="">Seleccione un literal</option>';
+
+            const literales = {
+                '124': {
+                    'a': 'Acumular cuatro tarjetas amarillas',
+                    'b': 'Acumular dos tarjetas amarillas y ser expulsado',
+                    'c': 'Lanzar la camiseta al piso antes de terminar el encuentro',
+                    'd': 'Sacarse la camiseta dentro del campo de juego',
+                    'e': 'Ser excluido por aliento a licor o estado etílico',
+                    'f': 'Acumulación de 5 tarjetas amarillas'
+                },
+                '125': {
+                    'a': 'Realizar necesidades biológicas dentro del perímetro de la cancha',
+                    'b': 'Juego Brusco (J.B.) golpear a un rival en disputa del balón',
+                    'c': 'Provocar a las barras con palabras soeces o mímicas obscenas',
+                    'd': 'Lanzar el balón sin estar en juego',
+                    'e': 'Suplantar identidad',
+                    'f': 'Jugar estando suspendido',
+                    'g': 'Rayar o escribir en la vocalía de Juego',
+                    'h': 'Insultar después de expulsado'
+                },
+                '126': {
+                    'a': 'Juego Brusco Grave (J.B.G.)',
+                    'b': 'Insultar a vocales, veedores o jueces',
+                    'c': 'Lanzar el balón e impactar en alguien por la espalda',
+                    'd': 'Reincidencia'
+                },
+                '127': {
+                    'a': 'Mímicas o gestos obscenos',
+                    'b': 'Conducta Violenta (C.V.)',
+                    'c': 'Reincidencia'
+                },
+                '128': {
+                    'a': 'Epítetos de racismo o escupitajo',
+                    'b': 'Intento de agresión a árbitro, vocal o veedor',
+                    'c': 'Reincidencia'
+                },
+                '129': {
+                    'a': 'Lanzar balón e impactar en rostro causando lesión',
+                    'b': 'Lanzar tierra e impactar de frente',
+                    'c': 'Conducta violenta que cause daño o lesión',
+                    'd': 'Adulterar documentos',
+                    'e': 'Suplantación de identidad (dirigente)',
+                    'f': 'Escupitajo de frente',
+                    'g': 'Intentar agredir a Directivos',
+                    'h': 'Agresión consumada',
+                    'i': 'Incitar a la agresión',
+                    'k': 'Jugador condicionado con pérdida de garantía',
+                    'l': 'Jugadores condicionados suspendidos',
+                    'm': 'Participación en múltiples ligas'
+                }
+            };
+
+            if (literales[articulo]) {
+                Object.entries(literales[articulo]).forEach(([key, value]) => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = `${key}) ${value}`;
+                    literalSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Mostrar/ocultar campos de artículo y literal
+        document.getElementById('tipoSancion').addEventListener('change', function() {
+            const articuloLiteralContainer = document.getElementById('articuloLiteralContainer');
+            articuloLiteralContainer.style.display = this.value === 'roja' ? 'block' : 'none';
+        });
+
+        // Función para obtener el próximo martes
+        function obtenerProximoTuesday() {
+            const hoy = new Date();
+            const diasHastaMartes = (2 - hoy.getDay() + 7) % 7;
+            const proximoTuesday = new Date(hoy);
+            proximoTuesday.setDate(hoy.getDate() + diasHastaMartes);
+            proximoTuesday.setHours(0, 0, 0, 0);
+            return proximoTuesday;
+        }
+
+        // Función para obtener la fecha final de sanción
+        function obtenerFechaFinalSancion(partidosSancion) {
+            const fechaInicio = obtenerProximoTuesday();
+            const fechaFinal = new Date(fechaInicio);
+            fechaFinal.setDate(fechaInicio.getDate() + (partidosSancion * 7));
+            return fechaFinal;
+        }
+
+        // Mostrar detalles de sanción
+        function mostrarDetallesSancion(jugadorId, tipo, cantidadTarjetas) {
+            if (tipo === 'amarilla') {
+                let mensaje = '';
+                if (cantidadTarjetas < 4) {
+                    mensaje = `El jugador tiene ${cantidadTarjetas} tarjeta(s) amarilla(s).\nNecesita 4 tarjetas para recibir una fecha de sanción.`;
+                } else {
+                    const fechaInicio = obtenerProximoTuesday();
+                    const fechaFinal = obtenerFechaFinalSancion(1);
+                    mensaje = `Sanción por acumulación de ${cantidadTarjetas} tarjetas amarillas.\nPartidos de sanción restantes: 1\nFecha de inicio: ${fechaInicio.toLocaleDateString()}\nFecha de finalización: ${fechaFinal.toLocaleDateString()}`;
+                }
+                Swal.fire({
+                    title: 'Detalles de Tarjetas Amarillas 🟨',
+                    text: mensaje,
+                    icon: 'info'
+                });
+            } else {
+                db.collection('sanciones')
+                    .where('jugadorId', '==', jugadorId)
+                    .where('tipo', '==', 'roja')
+                    .where('estado', '==', 'activa')
+                    .get()
+                    .then((snapshot) => {
+                        if (!snapshot.empty) {
+                            const sancion = snapshot.docs[snapshot.docs.length - 1].data();
+                            const partidosSancion = {
+                                '124': 1,
+                                '125': 2,
+                                '126': 3,
+                                '127': 4,
+                                '128': 6,
+                                '129': 52
+                            };
+
+                            const partidosRestantes = partidosSancion[sancion.articulo] || 0;
+                            const fechaInicio = obtenerProximoTuesday();
+                            const fechaFinal = obtenerFechaFinalSancion(partidosRestantes);
+
+                            Swal.fire({
+                                title: 'Detalles de Tarjeta Roja 🟥',
+                                html: `
+                                    <p>Artículo: ${sancion.articulo}</p>
+                                    <p>Literal: ${sancion.literal}</p>
+                                    <p>Partidos de sanción restantes: <strong>${partidosRestantes}</strong></p>
+                                    <p>Fecha de inicio: <strong>${fechaInicio.toLocaleDateString()}</strong></p>
+                                    <p>Fecha de finalización: <strong>${fechaFinal.toLocaleDateString()}</strong></p>
+                                `,
+                                icon: 'info'
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Sin Tarjeta Roja Activa',
+                                text: 'El jugador no tiene sanciones activas con tarjeta roja.',
+                                icon: 'info'
+                            });
+                        }
+                    });
+            }
+        }
+
+        // Aplicar sanción
+        function aplicarSancion() {
+            const jugadorId = document.getElementById('jugadorId').value;
+            const tipo = document.getElementById('tipoSancion').value;
+            const articulo = document.getElementById('articulo').value;
+            const literal = document.getElementById('literal').value;
+
+            if (!tipo) {
+                Swal.fire('Error', 'Seleccione el tipo de sanción', 'error');
+                return;
+            }
+
+            if (tipo === 'roja' && (!articulo || !literal)) {
+                Swal.fire('Error', 'Seleccione artículo y literal', 'error');
+                return;
+            }
+
+            const fechaInicio = obtenerProximoTuesday();
+            const partidosSancion = tipo === 'roja' ? {
+                '124': 1,
+                '125': 2,
+                '126': 3,
+                '127': 4,
+                '128': 6,
+                '129': 52
+            }[articulo] || 0 : 1;
+
+            const fechaFinal = obtenerFechaFinalSancion(partidosSancion);
+
+            const sancion = {
+                jugadorId,
+                tipo,
+                fechaInicio: firebase.firestore.Timestamp.fromDate(fechaInicio),
+                fechaFinal: firebase.firestore.Timestamp.fromDate(fechaFinal),
+                partidosSancion,
+                fecha: firebase.firestore.Timestamp.now(),
+                estado: 'activa',
+                campeonatoId: campeonatoActual,
+                equipoId: equipoActual
+            };
+
+            if (tipo === 'roja') {
+                sancion.articulo = articulo;
+                sancion.literal = literal;
+            }
+
+            db.collection('sanciones').add(sancion)
+                .then(() => {
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: 'Sanción aplicada correctamente',
+                        icon: 'success'
+                    });
+                    bootstrap.Modal.getInstance(document.getElementById('sancionModal')).hide();
+                    mostrarJugadores(equipoActual, document.getElementById('jugadoresTitulo').textContent.replace('Jugadores - ', ''));
+                })
+                .catch(error => {
+                    console.error('Error al aplicar sanción:', error);
+                    Swal.fire('Error', 'No se pudo aplicar la sanción', 'error');
+                });
+        }
+
+        // Función para cerrar sesión
+        function logout() {
+            Swal.fire({
+                title: '¿Cerrar sesión?',
+                text: "¿Estás seguro de que deseas salir?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, salir',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    auth.signOut().then(() => {
+                        window.location.href = 'login.html';
+                    }).catch((error) => {
+                        console.error("Error al cerrar sesión:", error);
+                        Swal.fire('Error', 'No se pudo cerrar la sesión', 'error');
+                    });
+                }
+            });
+        }
+
+        // Filtros de búsqueda
+        document.getElementById('searchEquipoInput').addEventListener('input', filtrarEquipos);
+        document.getElementById('categoryEquipoFilter').addEventListener('change', filtrarEquipos);
+        document.getElementById('searchJugadorInput').addEventListener('input', filtrarJugadores);
+
+        function filtrarEquipos() {
+            const searchText = document.getElementById('searchEquipoInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryEquipoFilter').value;
+            const teamCards = document.querySelectorAll('#equiposLista .col-md-4');
+
+            console.log('--- Filtrando Equipos ---');
+            console.log('Texto de búsqueda (equipos):', searchText);
+            console.log('Filtro de categoría (equipos):', categoryFilter);
+            console.log('Total de tarjetas de equipo encontradas:', teamCards.length);
+
+            teamCards.forEach(card => {
+                const teamNameElement = card.querySelector('.card-title');
+                const teamCategoryElement = card.querySelector('.card-text span.text-dark');
+
+                if (teamNameElement && teamCategoryElement) {
+                    const teamName = teamNameElement.textContent.toLowerCase().trim();
+                    const teamCategory = teamCategoryElement.textContent.trim().toUpperCase();
+
+                    const matchesSearch = teamName.includes(searchText);
+                    const matchesCategory = !categoryFilter || teamCategory === categoryFilter.toUpperCase();
+
+                    console.log(`Equipo: ${teamName}, Categoría: ${teamCategory}, Coincide búsqueda: ${matchesSearch}, Coincide categoría: ${matchesCategory}`);
+
+                    card.style.display = matchesSearch && matchesCategory ? '' : 'none';
+                } else {
+                    console.log('Advertencia: Elementos de nombre o categoría no encontrados para una tarjeta de equipo.', card);
+                }
+            });
+            console.log('-------------------------');
+        }
+
+        function filtrarJugadores() {
+            const searchText = document.getElementById('searchJugadorInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#jugadoresTableBody tr');
+
+            console.log('--- Filtrando Jugadores ---');
+            console.log('Texto de búsqueda (jugadores):', searchText);
+            console.log('Total de filas de jugadores encontradas:', rows.length);
+
+            rows.forEach(row => {
+                // Asegurarse de que row.cells[0] y row.cells[1] existan antes de acceder a textContent
+                const playerNumber = row.cells[0] ? row.cells[0].textContent.toLowerCase().trim() : '';
+                const playerName = row.cells[1] ? row.cells[1].textContent.toLowerCase().trim() : '';
+                
+                const matchesSearch = playerName.includes(searchText) || playerNumber.includes(searchText); // Buscar por nombre o número
+
+                console.log(`Número: ${playerNumber}, Jugador: ${playerName}, Coincide búsqueda: ${matchesSearch}`);
+
+                row.style.display = matchesSearch ? '' : 'none';
+            });
+            console.log('-------------------------');
+        }
+    </script>
+</body>
+</html> 

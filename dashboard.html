@@ -259,6 +259,14 @@
           return;
         }
         console.log('Usuario autenticado:', user.email);
+        
+        // Verificar si el usuario es de sanciones
+        if (user.email === 'sanciones@gmail.com') {
+          // Redirigir a la sección de sanciones
+          window.location.href = 'sanciones.html';
+          return;
+        }
+        
         loadInitialAndChampionships(); // Cargar campeonatos y asegurar Renacer 2025
       });
 
