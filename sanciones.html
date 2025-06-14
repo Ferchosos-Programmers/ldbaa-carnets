@@ -109,8 +109,8 @@
                                 <th>#</th>
                                 <th>Jugador</th>
                                 <th>Tarjetas</th>
-                                <th>Sanciones Activas</th>
-                                <th>Acciones</th>
+                                <th>Sanciones</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody id="jugadoresTableBody">
@@ -330,10 +330,14 @@
                             }
                         });
 
+                        // Obtener solo el primer nombre y el primer apellido
+                        const primerNombre = jugador.nombres ? jugador.nombres.split(' ')[0] : '';
+                        const primerApellido = jugador.apellidos ? jugador.apellidos.split(' ')[0] : '';
+
                         const row = `
                             <tr>
                                 <td>${jugador.numeroJugador ? jugador.numeroJugador : 'N/A'}</td>
-                                <td>${jugador.nombres} ${jugador.apellidos}</td>
+                                <td>${primerNombre} ${primerApellido}</td>
                                 <td>
                                     <span class="badge bg-warning text-dark" style="cursor: pointer" onclick="mostrarDetallesSancion('${doc.id}', 'amarilla', ${tarjetasAmarillas})">
                                         ${tarjetasAmarillas} 🟨
