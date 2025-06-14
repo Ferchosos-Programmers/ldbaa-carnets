@@ -45,7 +45,7 @@
         </a>
         <button
           class="btn btn-outline-light"
-          onclick="window.location.href='carnetizacion.html'"
+          onclick="window.history.back()"
         >
           <i class="fas fa-arrow-left me-2"></i>Regresar
         </button>
@@ -58,127 +58,111 @@
         <div class="col-md-6">
           <div class="card">
             <div class="card-body">
-              <h4 class="card-title mb-4">Registro de Jugador</h4>
+              <h4 class="card-title mb-4" id="formTitle">Registro de Jugador</h4>
               <form id="playerForm">
-                <div class="mb-3">
-                  <label for="teamName" class="form-label">Equipo</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="teamName"
-                    readonly
-                  />
-                </div>
-                <div class="mb-3">
-                  <label for="playerPhoto" class="form-label"
-                    >Foto del Jugador (Tamaño Carnet)</label
-                  >
-                  <input
-                    type="file"
-                    class="form-control"
-                    id="playerPhoto"
-                    accept="image/*"
-                    required
-                  />
-                  <div class="photo-dimensions">
-                    Dimensiones recomendadas: 300x400 píxeles
-                  </div>
-                  <div class="preview-container mt-2">
-                    <img
-                      id="playerPhotoPreview"
-                      class="preview-image carnet-photo d-none"
-                      alt="Vista previa de la foto"
-                    />
-                    <p class="text-muted mb-0" id="playerPhotoText">
-                      Vista previa de la foto
-                    </p>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label for="nombres" class="form-label">Nombres</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="nombres"
-                    required
-                  />
-                </div>
-                <div class="mb-3">
-                  <label for="apellidos" class="form-label">Apellidos</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="apellidos"
-                    required
-                  />
-                </div>
-                <div class="mb-3">
-                  <label for="cedula" class="form-label"
-                    >Número de Cédula</label
-                  >
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="cedula"
-                    required
-                  />
-                </div>
-                <div class="mb-3">
-                  <label for="fechaNacimiento" class="form-label"
-                    >Fecha de Nacimiento</label
-                  >
-                  <input
-                    type="date"
-                    class="form-control"
-                    id="fechaNacimiento"
-                    required
-                  />
-                </div>
-                <div class="mb-3">
-                  <label for="numeroJugador" class="form-label"
-                    >Número de Jugador</label
-                  >
-                  <input
-                    type="number"
-                    class="form-control"
-                    id="numeroJugador"
-                    required
-                  />
-                </div>
-                <div class="mb-3">
-                  <label for="cedulaPhoto" class="form-label"
-                    >Foto de la Cédula</label
-                  >
-                  <input
-                    type="file"
-                    class="form-control"
-                    id="cedulaPhoto"
-                    accept="image/*"
-                    required
-                  />
-                  <div class="photo-dimensions">
-                    Dimensiones recomendadas: 400x250 píxeles
-                  </div>
-                  <div class="preview-container mt-2">
-                    <img
-                      id="cedulaPhotoPreview"
-                      class="preview-image cedula-photo d-none"
-                      alt="Vista previa de la cédula"
-                    />
-                    <p class="text-muted mb-0" id="cedulaPhotoText">
-                      Vista previa de la cédula
-                    </p>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label for="campeonato" class="form-label">Campeonato</label>
-                  <select class="form-select" id="campeonato" required>
-                    <option value="">Seleccione un campeonato</option>
+                <div id="playerSelectorContainer" class="mb-3" style="display: none;">
+                  <label for="playerSelector" class="form-label">Seleccionar Jugador a Recalificar</label>
+                  <select class="form-select" id="playerSelector">
+                    <option value="">Seleccione un jugador</option>
                   </select>
                 </div>
-                <button type="submit" class="btn btn-success w-100">
-                  Registrar Jugador
-                </button>
+
+                <!-- Formulario del jugador actual -->
+                <div id="currentPlayerForm" style="display: none;">
+                  <h5 class="mb-3">Datos del Jugador Actual</h5>
+                  <div class="mb-3">
+                    <label for="currentTeamName" class="form-label">Equipo</label>
+                    <input type="text" class="form-control" id="currentTeamName" readonly />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Foto del Jugador</label>
+                    <div class="preview-container mt-2">
+                      <img id="currentPlayerPhotoPreview" class="preview-image carnet-photo" alt="Foto del jugador actual" style="max-width: 120px; height: 190px" />
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="currentNombres" class="form-label">Nombres</label>
+                    <input type="text" class="form-control" id="currentNombres" readonly />
+                  </div>
+                  <div class="mb-3">
+                    <label for="currentApellidos" class="form-label">Apellidos</label>
+                    <input type="text" class="form-control" id="currentApellidos" readonly />
+                  </div>
+                  <div class="mb-3">
+                    <label for="currentCedula" class="form-label">Número de Cédula</label>
+                    <input type="text" class="form-control" id="currentCedula" readonly />
+                  </div>
+                  <div class="mb-3">
+                    <label for="currentFechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+                    <input type="date" class="form-control" id="currentFechaNacimiento" readonly />
+                  </div>
+                  <div class="mb-3">
+                    <label for="currentNumeroJugador" class="form-label">Número de Jugador</label>
+                    <input type="number" class="form-control" id="currentNumeroJugador" readonly />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Foto de la Cédula</label>
+                    <div class="preview-container mt-2">
+                      <img id="currentCedulaPhotoPreview" class="preview-image cedula-photo" alt="Foto de la cédula actual" style="max-height: 250px" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Formulario del nuevo jugador -->
+                <div id="newPlayerForm" style="display: none;">
+                  <h5 class="mb-3 mt-4">Datos del Nuevo Jugador</h5>
+                  <div class="mb-3">
+                    <label for="teamName" class="form-label">Equipo</label>
+                    <input type="text" class="form-control" id="teamName" readonly />
+                  </div>
+                  <div class="mb-3">
+                    <label for="playerPhoto" class="form-label">Foto del Jugador (Tamaño Carnet)</label>
+                    <input type="file" class="form-control" id="playerPhoto" accept="image/*" required />
+                    <div class="photo-dimensions">Dimensiones recomendadas: 300x400 píxeles</div>
+                    <div class="preview-container mt-2">
+                      <img id="playerPhotoPreview" class="preview-image carnet-photo d-none" alt="Vista previa de la foto" />
+                      <p class="text-muted mb-0" id="playerPhotoText">Vista previa de la foto</p>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="nombres" class="form-label">Nombres</label>
+                    <input type="text" class="form-control" id="nombres" required />
+                  </div>
+                  <div class="mb-3">
+                    <label for="apellidos" class="form-label">Apellidos</label>
+                    <input type="text" class="form-control" id="apellidos" required />
+                  </div>
+                  <div class="mb-3">
+                    <label for="cedula" class="form-label">Número de Cédula</label>
+                    <input type="text" class="form-control" id="cedula" required />
+                  </div>
+                  <div class="mb-3">
+                    <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+                    <input type="date" class="form-control" id="fechaNacimiento" required />
+                  </div>
+                  <div class="mb-3">
+                    <label for="numeroJugador" class="form-label">Número de Jugador</label>
+                    <input type="number" class="form-control" id="numeroJugador" required />
+                  </div>
+                  <div class="mb-3">
+                    <label for="cedulaPhoto" class="form-label">Foto de la Cédula</label>
+                    <input type="file" class="form-control" id="cedulaPhoto" accept="image/*" required />
+                    <div class="photo-dimensions">Dimensiones recomendadas: 400x250 píxeles</div>
+                    <div class="preview-container mt-2">
+                      <img id="cedulaPhotoPreview" class="preview-image cedula-photo d-none" alt="Vista previa de la cédula" />
+                      <p class="text-muted mb-0" id="cedulaPhotoText">Vista previa de la cédula</p>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="campeonato" class="form-label">Campeonato</label>
+                    <select class="form-select" id="campeonato">
+                      <option value="">Seleccione un campeonato</option>
+                    </select>
+                  </div>
+                  <button type="submit" class="btn btn-success w-100" id="submitButton">
+                    Registrar Nuevo Jugador
+                  </button>
+                </div>
               </form>
             </div>
           </div>
@@ -394,9 +378,32 @@
       }
       const db = firebase.firestore();
 
-      // Obtener el ID del equipo de la URL
+      let currentChampionshipId = null; // Variable para almacenar el ID del campeonato actual
+
+      // Obtener el ID del equipo y el tipo de acción de la URL
       const urlParams = new URLSearchParams(window.location.search);
       const teamId = urlParams.get("teamId");
+      const mode = urlParams.get("mode"); // Cambiado de action a mode
+
+      // Actualizar el título según la acción
+      if (mode === "reclassify") {
+        document.title = "Recalificación de Jugador | Liga Barrial";
+        document.getElementById("formTitle").textContent = "Recalificación de Jugador";
+        document.getElementById("playerSelectorContainer").style.display = "block";
+        document.getElementById("playerSelector").setAttribute("required", "");
+        document.getElementById("submitButton").textContent = "Recalificar Jugador";
+        document.getElementById("campeonato").closest(".mb-3").style.display = "none"; // Ocultar el campo de campeonato
+        loadPlayersForRecalification();
+      } else {
+        document.title = "Registro de Jugador | Liga Barrial";
+        document.getElementById("formTitle").textContent = "Registro de Jugador";
+        document.getElementById("playerSelectorContainer").style.display = "none";
+        document.getElementById("playerSelector").removeAttribute("required"); // Asegurarse de que no sea requerido en modo registro
+        document.getElementById("submitButton").textContent = "Registrar Jugador";
+        document.getElementById("campeonato").closest(".mb-3").style.display = "block"; // Mostrar el campo de campeonato
+        document.getElementById("currentPlayerForm").style.display = "none"; // Ocultar formulario del jugador actual
+        document.getElementById("newPlayerForm").style.display = "block"; // Mostrar formulario del nuevo jugador
+      }
 
       // Función para solicitar la clave de administrador
       function solicitarClaveAdmin() {
@@ -492,7 +499,7 @@
         db.collection("teams")
           .doc(teamId)
           .get()
-          .then((doc) => {
+          .then(async (doc) => {
             if (doc.exists) {
               const teamData = doc.data();
               document.getElementById("teamName").value = teamData.name;
@@ -579,7 +586,29 @@
       // Cargar jugadores y campeonatos al iniciar
       document.addEventListener("DOMContentLoaded", () => {
         loadPlayers();
+        loadCampeonatos();
       });
+
+      // Función para cargar los campeonatos
+      function loadCampeonatos() {
+        db.collection("championships")
+          .get()
+          .then((querySnapshot) => {
+            const campeonatoSelect = document.getElementById("campeonato");
+            campeonatoSelect.innerHTML = '<option value="">Seleccione un campeonato</option>';
+            querySnapshot.forEach((doc) => {
+              const campeonato = doc.data();
+              const option = document.createElement("option");
+              option.value = doc.id;
+              option.textContent = campeonato.name;
+              campeonatoSelect.appendChild(option);
+            });
+          })
+          .catch((error) => {
+            console.error("Error al cargar campeonatos:", error);
+            Swal.fire("Error", "No se pudieron cargar los campeonatos", "error");
+          });
+      }
 
       // Función para eliminar un jugador
       function deletePlayer(playerId) {
@@ -606,38 +635,25 @@
           },
         }).then((result) => {
           if (result.isConfirmed) {
-            Swal.fire({
-              title: "¿Estás seguro?",
-              text: "¡No podrás deshacer esta acción!",
-              icon: "warning",
-              showCancelButton: true,
-              confirmButtonColor: "#d33",
-              cancelButtonColor: "#3085d6",
-              confirmButtonText: "Sí, eliminar",
-              cancelButtonText: "Cancelar",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                db.collection("players")
-                  .doc(playerId)
-                  .delete()
-                  .then(() => {
-                    Swal.fire(
-                      "Eliminado!",
-                      "El jugador ha sido eliminado correctamente.",
-                      "success"
-                    );
-                    loadPlayers();
-                  })
-                  .catch((error) => {
-                    console.error("Error al eliminar jugador:", error);
-                    Swal.fire(
-                      "Error",
-                      "No se pudo eliminar el jugador. Por favor, intenta de nuevo.",
-                      "error"
-                    );
-                  });
-              }
-            });
+            db.collection("players")
+              .doc(playerId)
+              .delete()
+              .then(() => {
+                Swal.fire(
+                  "Eliminado!",
+                  "El jugador ha sido eliminado correctamente.",
+                  "success"
+                );
+                loadPlayers();
+              })
+              .catch((error) => {
+                console.error("Error al eliminar jugador:", error);
+                Swal.fire(
+                  "Error",
+                  "No se pudo eliminar el jugador. Por favor, intenta de nuevo.",
+                  "error"
+                );
+              });
           }
         });
       }
@@ -701,106 +717,133 @@
       );
 
       // Manejar el envío del formulario
-      document.getElementById("playerForm").addEventListener("submit", function (e) {
+      document.getElementById("playerForm").addEventListener("submit", async function (e) {
         e.preventDefault();
 
-        const campeonatoId = document.getElementById("campeonato").value;
-        if (!campeonatoId) {
-          Swal.fire("Error", "Por favor seleccione un campeonato", "error");
-          return;
+        let campeonatoId = document.getElementById("campeonato").value;
+        let teamData = {}; // Inicializamos teamData
+
+        try {
+            const teamDoc = await db.collection("teams").doc(teamId).get();
+            if (teamDoc.exists) {
+                teamData = teamDoc.data();
+                // Si estamos en modo recalificar, obtener el campeonato del jugador original o usar el determinado al cargar
+                if (mode === "reclassify") {
+                    const selectedPlayerId = document.getElementById("playerSelector").value;
+                    if (!selectedPlayerId) {
+                        Swal.fire("Error", "Por favor seleccione un jugador para recalificar", "error");
+                        return;
+                    }
+                    const oldPlayerDoc = await db.collection("players").doc(selectedPlayerId).get();
+
+                    console.log("Datos del jugador antiguo seleccionado (oldPlayerDoc.data()):", oldPlayerDoc.data());
+                    console.log("Datos del equipo (teamData):", teamData);
+
+                    if (oldPlayerDoc.exists && oldPlayerDoc.data().campeonatoId) {
+                        campeonatoId = oldPlayerDoc.data().campeonatoId;
+                    } else if (teamData.championshipId) { // ¡Corregido! Usamos championshipId
+                        campeonatoId = teamData.championshipId;
+                    } else {
+                        Swal.fire("Error", "No se pudo determinar el campeonato para la recalificación. Por favor, asegúrese de que el equipo o el jugador antiguo tengan un campeonato asociado.", "error");
+                        return;
+                    }
+                }
+            } else {
+                Swal.fire("Error", "No se pudo obtener la información del equipo", "error");
+                return;
+            }
+        } catch (error) {
+            console.error("Error al obtener información del equipo o jugador antiguo:", error);
+            Swal.fire("Error", "No se pudo obtener la información del equipo o jugador antiguo", "error");
+            return;
         }
 
-        // Obtener información del equipo
-        db.collection("teams")
-          .doc(teamId)
-          .get()
-          .then((doc) => {
-            if (doc.exists) {
-              const teamData = doc.data();
+        if (!campeonatoId && mode !== "reclassify") { // Campeonato es requerido solo en modo registro si no es recalificación
+            Swal.fire("Error", "Por favor seleccione un campeonato", "error");
+            return;
+        }
 
-              // Obtener los valores de los campos y convertir a mayúsculas
-              const nombres = document
-                .getElementById("nombres")
-                .value.toUpperCase();
-              const apellidos = document
-                .getElementById("apellidos")
-                .value.toUpperCase();
-              const cedula = document
-                .getElementById("cedula")
-                .value.toUpperCase();
-              const fechaNacimiento =
-                document.getElementById("fechaNacimiento").value;
-              const numeroJugador =
-                document.getElementById("numeroJugador").value;
+        // Obtener los valores de los campos y convertir a mayúsculas
+        const nombres = document.getElementById("nombres").value.toUpperCase();
+        const apellidos = document.getElementById("apellidos").value.toUpperCase();
+        const cedula = document.getElementById("cedula").value.toUpperCase();
+        const fechaNacimiento = document.getElementById("fechaNacimiento").value;
+        const numeroJugador = document.getElementById("numeroJugador").value;
 
-              // Crear el objeto con los datos del jugador
-              const playerData = {
-                teamId: teamId,
-                teamName: teamData.name,
-                teamCategory: teamData.category,
-                nombres: nombres,
-                apellidos: apellidos,
-                cedula: cedula,
-                fechaNacimiento: fechaNacimiento,
-                numeroJugador: numeroJugador,
-                playerPhoto:
-                  document.getElementById("playerPhotoPreview").src,
-                cedulaPhoto:
-                  document.getElementById("cedulaPhotoPreview").src,
-                campeonatoId: campeonatoId,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-              };
+        // Crear el objeto con los datos del jugador
+        const playerData = {
+            teamId: teamId,
+            teamName: teamData.name,
+            teamCategory: teamData.category,
+            nombres: nombres,
+            apellidos: apellidos,
+            cedula: cedula,
+            fechaNacimiento: fechaNacimiento,
+            numeroJugador: numeroJugador,
+            playerPhoto: document.getElementById("playerPhotoPreview").src,
+            cedulaPhoto: document.getElementById("cedulaPhotoPreview").src,
+            campeonatoId: campeonatoId,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        };
 
-              console.log("Datos del jugador a registrar:", playerData);
+        try {
+            if (mode === "reclassify") {
+                const selectedPlayerId = document.getElementById("playerSelector").value;
+                // 1. Registrar al nuevo jugador
+                const newPlayerDocRef = await db.collection("players").add(playerData);
+                console.log("Nuevo jugador registrado con ID:", newPlayerDocRef.id);
 
-              // Guardar los datos del jugador en Firestore
-              db.collection("players")
-                .add(playerData)
-                .then((docRef) => {
-                  console.log("Jugador registrado con ID:", docRef.id);
-                  Swal.fire({
+                // 2. Marcar al jugador antiguo como recalificado
+                await db.collection("players").doc(selectedPlayerId).update({
+                    status: "recalificado",
+                    recalificadoPor: newPlayerDocRef.id, // Opcional: vincular al nuevo jugador
+                    recalificacionFecha: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+                console.log("Jugador antiguo marcado como recalificado:", selectedPlayerId);
+
+                Swal.fire({
+                    title: "¡Recalificación exitosa!",
+                    text: "El jugador ha sido recalificado correctamente. El nuevo jugador ha sido registrado.",
+                    icon: "success",
+                    confirmButtonColor: "#28a745",
+                }).then(() => {
+                    loadPlayers();
+                    document.getElementById("playerForm").reset();
+                    document.getElementById("playerPhotoPreview").classList.add("d-none");
+                    document.getElementById("playerPhotoText").classList.remove("d-none");
+                    document.getElementById("cedulaPhotoPreview").classList.add("d-none");
+                    document.getElementById("cedulaPhotoText").classList.remove("d-none");
+                    document.getElementById("currentPlayerForm").style.display = "none";
+                    document.getElementById("newPlayerForm").style.display = "none";
+                    document.getElementById("playerSelector").value = ""; // Resetear el selector
+                });
+
+            } else { // Modo 'register'
+                const docRef = await db.collection("players").add(playerData);
+                console.log("Jugador registrado con ID:", docRef.id);
+                Swal.fire({
                     title: "¡Registro exitoso!",
                     text: "El jugador ha sido registrado correctamente",
                     icon: "success",
                     confirmButtonColor: "#28a745",
-                  }).then(() => {
-                    // Recargar la lista de jugadores
+                }).then(() => {
                     loadPlayers();
-                    // Limpiar el formulario
                     document.getElementById("playerForm").reset();
-                    document
-                      .getElementById("playerPhotoPreview")
-                      .classList.add("d-none");
-                    document
-                      .getElementById("playerPhotoText")
-                      .classList.remove("d-none");
-                    document
-                      .getElementById("cedulaPhotoPreview")
-                      .classList.add("d-none");
-                    document
-                      .getElementById("cedulaPhotoText")
-                      .classList.remove("d-none");
-                  });
-                })
-                .catch((error) => {
-                  console.error("Error al registrar jugador:", error);
-                  Swal.fire(
-                    "Error",
-                    "No se pudo registrar el jugador. Por favor, intenta de nuevo.",
-                    "error"
-                  );
+                    document.getElementById("playerPhotoPreview").classList.add("d-none");
+                    document.getElementById("playerPhotoText").classList.remove("d-none");
+                    document.getElementById("cedulaPhotoPreview").classList.add("d-none");
+                    document.getElementById("cedulaPhotoText").classList.remove("d-none");
                 });
             }
-          })
-          .catch((error) => {
-            console.error("Error al obtener información del equipo:", error);
+        } catch (error) {
+            console.error("Error al registrar/recalificar jugador:", error);
             Swal.fire(
-              "Error",
-              "No se pudo obtener la información del equipo",
-              "error"
+                "Error",
+                "No se pudo completar la operación. Por favor, intenta de nuevo.",
+                "error"
             );
-          });
-      });
+        }
+    });
 
       // Función para ver detalles del jugador
       window.viewPlayerDetails = function (playerId) {
@@ -864,6 +907,47 @@
                 document.getElementById("playerModal")
               );
               modal.show();
+
+              // Añadir/quitar clase de recalificado para la marca de agua
+              const carnetContainer = document.querySelector("#playerModal .carnet-container");
+              if (player.status === "recalificado") {
+                  carnetContainer.classList.add("recalificado");
+
+                  // Mostrar quién lo recalificó
+                  if (player.recalificadoPor) {
+                      db.collection("players").doc(player.recalificadoPor).get().then(newPlayerDoc => {
+                          if (newPlayerDoc.exists) {
+                              const newPlayer = newPlayerDoc.data();
+                              const recalificadoPorText = document.createElement("p");
+                              recalificadoPorText.innerHTML = `<strong>RECALIFICADO POR:</strong> <span style="color: black;">${newPlayer.nombres} ${newPlayer.apellidos}</span>`;
+                              // Buscar el contenedor de información del carnet en el modal y añadir el texto
+                              const carnetInfo = document.querySelector("#playerModal .carnet-info");
+                              if (carnetInfo) {
+                                  // Eliminar cualquier texto de recalificación existente antes de añadir uno nuevo
+                                  const existingRecalificadoText = carnetInfo.querySelector(".recalificado-por-text");
+                                  if (existingRecalificadoText) {
+                                      existingRecalificadoText.remove();
+                                  }
+                                  recalificadoPorText.classList.add("recalificado-por-text"); // Para fácil identificación
+                                  carnetInfo.appendChild(recalificadoPorText);
+                              }
+                          }
+                      }).catch(error => {
+                          console.error("Error al obtener datos del nuevo jugador para recalificación:", error);
+                      });
+                  }
+
+              } else {
+                  carnetContainer.classList.remove("recalificado");
+                  // Remover el texto de recalificación si existe
+                  const carnetInfo = document.querySelector("#playerModal .carnet-info");
+                  if (carnetInfo) {
+                      const existingRecalificadoText = carnetInfo.querySelector(".recalificado-por-text");
+                      if (existingRecalificadoText) {
+                          existingRecalificadoText.remove();
+                      }
+                  }
+              }
             }
           })
           .catch((error) => {
@@ -969,51 +1053,53 @@
 
                     querySnapshot.forEach((doc) => {
                       const player = doc.data();
+                      const isRecalificado = player.status === "recalificado";
                       const carnetHtml = `
                       <div class="col-md-6">
                         <div class="carnet-moderno">
                           <div class="carnet-header">
                             <h6>LIGA BARRIAL ARGELIA ALTA</h6>
                             <p>CAMPEONATO 2025</p>
-                            </div>
-                            <div class="carnet-content">
-                              <div class="carnet-photo-section">
-                                <div class="carnet-photo-container">
-                                  <img src="${
-                                    player.playerPhoto
-                                  }" alt="Foto del jugador">
-                                  </div>
-                                  <div class="carnet-numero-jugador">${
-                                    player.numeroJugador
-                                  }</div>
-                                  </div>
-                                  <div class="carnet-info">
-                                    <div class="team-name">${teamName}</div>
-                                    <p><strong>CATEGORIA:</strong> ${
-                                      player.teamCategory
-                                    }</p>
-                                    <p><strong>NOM:</strong> ${
-                                      player.nombres
-                                    }</p>
-                                    <p><strong>APELL:</strong> ${
-                                      player.apellidos
-                                    }</p>
-                                    <p><strong>FECHA NAC:</strong> ${formatDate(
-                                      player.fechaNacimiento
-                                    )}</p>
-<p class="d-flex justify-content-between align-items-center">
-  <strong>CI:</strong> ${player.cedula}
-  ${
-    esJuvenil(player.fechaNacimiento)
-      ? '<span class="badge bg-light text-dark ms-5">JUVENIL</span>'
-      : esMaster(player.fechaNacimiento)
-      ? '<span class="badge bg-warning text-dark ms-5">MASTER</span>'
-      : ""
-  }
-</p>
-                                  </div>
-                                </div>
+                          </div>
+                          ${isRecalificado ? '<span class="carnet-recalificado-badge">RECALIFICADO</span>' : ''}
+                          <div class="carnet-content">
+                            <div class="carnet-photo-section">
+                              <div class="carnet-photo-container">
+                                <img src="${
+                                  player.playerPhoto
+                                }" alt="Foto del jugador">
                               </div>
+                              <div class="carnet-numero-jugador">${
+                                player.numeroJugador
+                              }</div>
+                            </div>
+                            <div class="carnet-info">
+                              <div class="team-name">${teamName}</div>
+                              <p><strong>CATEGORIA:</strong> ${
+                                player.teamCategory
+                              }</p>
+                              <p><strong>NOM:</strong> ${
+                                player.nombres
+                              }</p>
+                              <p><strong>APELL:</strong> ${
+                                player.apellidos
+                              }</p>
+                              <p><strong>FECHA NAC:</strong> ${formatDate(
+                                player.fechaNacimiento
+                              )}</p>
+                              <p class="d-flex justify-content-between align-items-center">
+                                <strong>CI:</strong> ${player.cedula}
+                                ${
+                                  esJuvenil(player.fechaNacimiento)
+                                    ? '<span class="badge bg-light text-dark ms-5">JUVENIL</span>'
+                                    : esMaster(player.fechaNacimiento)
+                                    ? '<span class="badge bg-warning text-dark ms-5">MASTER</span>'
+                                    : ""
+                                }
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     `;
                       carnetsContainer.innerHTML += carnetHtml;
@@ -1110,6 +1196,89 @@
       function esMaster(fechaNacimiento) {
         return calcularEdad(fechaNacimiento) > 40;
       }
+
+      // Función para cargar jugadores para recalificación
+      function loadPlayersForRecalification() {
+        if (teamId) {
+          db.collection("players")
+            .where("teamId", "==", teamId)
+            .get()
+            .then((querySnapshot) => {
+              const playerSelector = document.getElementById("playerSelector");
+              playerSelector.innerHTML = '<option value="">Seleccione un jugador</option>';
+
+              querySnapshot.forEach((doc) => {
+                const player = doc.data();
+                const option = document.createElement("option");
+                option.value = doc.id;
+                option.textContent = `${player.nombres} ${player.apellidos} - ${player.cedula}`;
+                playerSelector.appendChild(option);
+              });
+            })
+            .catch((error) => {
+              console.error("Error al cargar jugadores:", error);
+              Swal.fire("Error", "No se pudieron cargar los jugadores", "error");
+            });
+        }
+      }
+
+      // Agregar evento para cuando se seleccione un jugador
+      document.getElementById("playerSelector").addEventListener("change", function(e) {
+        const playerId = e.target.value;
+        if (playerId) {
+          db.collection("players")
+            .doc(playerId)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                const player = doc.data();
+                // Llenar el formulario del jugador actual
+                document.getElementById("currentTeamName").value = player.teamName;
+                document.getElementById("currentNombres").value = player.nombres;
+                document.getElementById("currentApellidos").value = player.apellidos;
+                document.getElementById("currentCedula").value = player.cedula;
+                document.getElementById("currentFechaNacimiento").value = player.fechaNacimiento;
+                document.getElementById("currentNumeroJugador").value = player.numeroJugador;
+                
+                // Mostrar las imágenes del jugador actual
+                const currentPlayerPhotoPreview = document.getElementById("currentPlayerPhotoPreview");
+                const currentCedulaPhotoPreview = document.getElementById("currentCedulaPhotoPreview");
+                currentPlayerPhotoPreview.src = player.playerPhoto;
+                currentCedulaPhotoPreview.src = player.cedulaPhoto;
+
+                // Mostrar el formulario del jugador actual
+                document.getElementById("currentPlayerForm").style.display = "block";
+                document.getElementById("newPlayerForm").style.display = "block";
+
+                // Limpiar el formulario del nuevo jugador
+                document.getElementById("nombres").value = "";
+                document.getElementById("apellidos").value = "";
+                document.getElementById("cedula").value = "";
+                document.getElementById("fechaNacimiento").value = "";
+                document.getElementById("numeroJugador").value = "";
+                
+                // Ocultar las imágenes del formulario del nuevo jugador
+                document.getElementById("playerPhotoPreview").classList.add("d-none");
+                document.getElementById("playerPhotoText").classList.remove("d-none");
+                document.getElementById("cedulaPhotoPreview").classList.add("d-none");
+                document.getElementById("cedulaPhotoText").classList.remove("d-none");
+              }
+            })
+            .catch((error) => {
+              console.error("Error al cargar datos del jugador:", error);
+              Swal.fire("Error", "No se pudieron cargar los datos del jugador", "error");
+            });
+        } else {
+          // Si no hay jugador seleccionado, ocultar los formularios y resetear el formulario del nuevo jugador
+          document.getElementById("currentPlayerForm").style.display = "none";
+          document.getElementById("newPlayerForm").style.display = "none";
+          document.getElementById("playerForm").reset(); // Limpiar el formulario del nuevo jugador
+          document.getElementById("playerPhotoPreview").classList.add("d-none");
+          document.getElementById("playerPhotoText").classList.remove("d-none");
+          document.getElementById("cedulaPhotoPreview").classList.add("d-none");
+          document.getElementById("cedulaPhotoText").classList.remove("d-none");
+        }
+      });
     </script>
 
     <style>
@@ -1228,6 +1397,26 @@
         margin: 0;
       }
 
+      /* Estilos para la marca de agua de recalificado (para el modal de ver detalles) */
+      .carnet-container.recalificado {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .carnet-container.recalificado::after {
+        content: "RECALIFICADO";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 3em;
+        font-weight: bold;
+        color: rgba(255, 0, 0, 0.3);
+        pointer-events: none;
+        z-index: 10;
+        white-space: nowrap;
+      }
+
       /* Estilos para la generación de carnets */
       .carnet-moderno {
         background: var(
@@ -1252,6 +1441,22 @@
         border: 1.5px solid #e0e0e0;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+      }
+
+      /* Estilos para el badge de recalificado en carnets generados */
+      .carnet-recalificado-badge {
+        position: absolute;
+        top: 50%; /* Centrado verticalmente */
+        left: 50%; /* Centrado horizontalmente */
+        transform: translate(-50%, -50%) rotate(-45deg); /* Centrado y rotado */
+        background-color: rgba(220, 53, 69, 0.7); /* Rojo de Bootstrap con algo de transparencia */
+        color: white;
+        padding: 4px 10px; /* Ajuste el padding para un mejor aspecto */
+        border-radius: 8px;
+        font-size: 1.2em; /* Tamaño de fuente más grande para visibilidad */
+        font-weight: bold;
+        z-index: 10; /* Asegurarse de que esté visible */
+        white-space: nowrap; /* Evitar que el texto se rompa */
       }
 
       .carnet-moderno .carnet-header {

@@ -282,24 +282,34 @@
               }
             }).then((result) => {
               if (result.isConfirmed) {
-                window.location.href = `registro-jugador.html?teamId=${teamId}`;
+                window.location.href = `registro-jugador.html?teamId=${teamId}&mode=register`;
               }
             });
             return;
           }
 
           Swal.fire({
-            title: "¿Entrar al equipo?",
-            text: `¿Deseas entrar al equipo ${teamName}?`,
+            title: `¿Qué deseas hacer con el equipo ${teamName}?`,
             icon: "question",
             showCancelButton: true,
-            confirmButtonColor: "#28a745",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Sí, entrar",
+            showDenyButton: true,
+            confirmButtonText: "Calificar",
+            denyButtonText: "Recalificar",
             cancelButtonText: "Cancelar",
+            confirmButtonColor: "#28a745",
+            denyButtonColor: "#007bff",
+            cancelButtonColor: "#d33",
           }).then((result) => {
             if (result.isConfirmed) {
-              window.location.href = `registro-jugador.html?teamId=${teamId}`;
+              window.location.href = `registro-jugador.html?teamId=${teamId}&mode=register`;
+            } else if (result.isDenied) {
+              // window.location.href = `registro-jugador.html?teamId=${teamId}&mode=reclassify`;
+              Swal.fire({
+                  title: "Función no disponible",
+                  text: "La función de recalificación aún no está disponible.",
+                  icon: "info",
+                  confirmButtonColor: "#0dcaf0" // Color de info de Bootstrap
+              });
             }
           });
         };
