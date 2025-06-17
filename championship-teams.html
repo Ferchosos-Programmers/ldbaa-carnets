@@ -480,12 +480,9 @@
           cancelButtonText: 'Cancelar'
         }).then((result) => {
           if (result.isConfirmed) {
-            // Eliminar el archivo de Storage
-            const storageRef = firebase.storage().refFromURL(file.fileUrl);
-            storageRef.delete().then(() => {
-              // Eliminar la referencia de Firestore
-              return db.collection('teamFiles').doc(fileId).delete();
-            }).then(() => {
+            // Eliminar la referencia de Firestore
+            db.collection('teamFiles').doc(fileId).delete()
+            .then(() => {
               Swal.fire('Eliminado', 'El archivo ha sido eliminado', 'success');
               loadTeamFiles(teamId);
             }).catch((error) => {

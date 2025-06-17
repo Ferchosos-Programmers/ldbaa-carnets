@@ -77,7 +77,14 @@
               text: "Has iniciado sesión correctamente.",
               confirmButtonText: "Ir al Dashboard",
             }).then(() => {
-              window.location.href = "dashboard.html"; // Redirigir al dashboard
+              // Redirigir según el tipo de usuario
+              if (email === 'programacion@gmail.com') {
+                window.location.href = "programacion-dashboard.html";
+              } else if (email === 'sanciones@gmail.com') {
+                window.location.href = "sanciones.html";
+              } else {
+                window.location.href = "dashboard.html";
+              }
             });
           })
           .catch(() => {
