@@ -110,6 +110,7 @@
                                 <th>Jugador</th>
                                 <th>Tarjetas</th>
                                 <th>Sanciones</th>
+                                <th>Multas</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -154,18 +155,55 @@
                                     <option value="129">Art. 129 - 1 año</option>
                                 </select>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Literal</label>
-                                <select class="form-select" id="literal">
-                                    <option value="">Seleccione primero un artículo</option>
-                                </select>
-                            </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-warning" onclick="aplicarSancion()">Aplicar Sanción</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Aplicar Multa -->
+    <div class="modal fade" id="multaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Aplicar Multa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="multaForm">
+                        <input type="hidden" id="multaJugadorId">
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Multa</label>
+                            <select class="form-select" id="tipoMulta" required>
+                                <option value="">Seleccione tipo</option>
+                                <option value="multa_barra">Multa a la Barra</option>
+                                <option value="no_presentacion">No Presentación</option>
+                                <option value="no_vocal">No Vocal</option>
+                                <option value="no_veedor">No Veedor</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Artículo</label>
+                            <select class="form-select" id="multaArticulo" onchange="actualizarLiteralesMulta()">
+                                <option value="131">Art. 131 - Multas</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Literal</label>
+                            <select class="form-select" id="multaLiteral">
+                                <option value="">Seleccione primero un tipo de multa</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" onclick="aplicarMulta()">Aplicar Multa</button>
                 </div>
             </div>
         </div>
@@ -351,6 +389,9 @@
                                     <button class="btn btn-warning btn-sm" onclick="abrirModalSancion('${doc.id}')">
                                         <i class="fas fa-gavel"></i>
                                     </button>
+                                    <button class="btn btn-danger btn-sm" onclick="abrirModalMulta('${doc.id}')">
+                                        <i class="fas fa-dollar-sign"></i>
+                                    </button>
                                 </td>
                             </tr>
                         `;
@@ -442,7 +483,20 @@
                     'k': 'Jugador condicionado con pérdida de garantía',
                     'l': 'Jugadores condicionados suspendidos',
                     'm': 'Participación en múltiples ligas'
-                }
+                },
+                // '130': {
+                //     'a': 'Primera vez - Tarjeta amarilla a la barra ($10)',
+                //     'b': 'Primera vez - Tarjeta roja a la barra ($20)',
+                //     'c': 'Segunda vez - Tarjeta amarilla a la barra ($30)',
+                //     'd': 'Segunda vez - Tarjeta roja a la barra ($30)',
+                //     'e': 'Tercera vez en adelante - Tarjeta amarilla a la barra ($30)',
+                //     'f': 'Tercera vez en adelante - Tarjeta roja a la barra ($40)',
+                //     'g': 'No presentación ($10)',
+                //     'h': 'Primera vez - No vocal ($10)',
+                //     'i': 'Segunda vez en adelante - No vocal ($10)',
+                //     'j': 'Primera vez - No veedor ($10)',
+                //     'k': 'Segunda vez en adelante - No veedor ($10)'
+                // }
             };
 
             if (literales[articulo]) {
@@ -498,40 +552,52 @@
             } else {
                 db.collection('sanciones')
                     .where('jugadorId', '==', jugadorId)
-                    .where('tipo', '==', 'roja')
                     .where('estado', '==', 'activa')
                     .get()
                     .then((snapshot) => {
                         if (!snapshot.empty) {
-                            const sancion = snapshot.docs[snapshot.docs.length - 1].data();
-                            const partidosSancion = {
-                                '124': 1,
-                                '125': 2,
-                                '126': 3,
-                                '127': 4,
-                                '128': 6,
-                                '129': 52
-                            };
+                            const sanciones = snapshot.docs.map(doc => doc.data());
+                            let mensaje = '';
 
-                            const partidosRestantes = partidosSancion[sancion.articulo] || 0;
-                            const fechaInicio = obtenerProximoTuesday();
-                            const fechaFinal = obtenerFechaFinalSancion(partidosRestantes);
+                            sanciones.forEach(sancion => {
+                                if (sancion.tipo === 'roja') {
+                                    const partidosSancion = {
+                                        '124': 1,
+                                        '125': 2,
+                                        '126': 3,
+                                        '127': 4,
+                                        '128': 6,
+                                        '129': 52
+                                    };
+
+                                    const partidosRestantes = partidosSancion[sancion.articulo] || 0;
+                                    const fechaInicio = obtenerProximoTuesday();
+                                    const fechaFinal = obtenerFechaFinalSancion(partidosRestantes);
+
+                                    mensaje += `\n\nTarjeta Roja 🟥:\n`;
+                                    mensaje += `Artículo: ${sancion.articulo}\n`;
+                                    mensaje += `Literal: ${sancion.literal}\n`;
+                                    mensaje += `Partidos de sanción restantes: ${partidosRestantes}\n`;
+                                    mensaje += `Fecha de inicio: ${fechaInicio.toLocaleDateString()}\n`;
+                                    mensaje += `Fecha de finalización: ${fechaFinal.toLocaleDateString()}`;
+                                } else if (sancion.montoMulta) {
+                                    mensaje += `\n\nMulta:\n`;
+                                    mensaje += `Tipo: ${sancion.tipo}\n`;
+                                    mensaje += `Artículo: ${sancion.articulo}\n`;
+                                    mensaje += `Literal: ${sancion.literal}\n`;
+                                    mensaje += `Monto: $${sancion.montoMulta}`;
+                                }
+                            });
 
                             Swal.fire({
-                                title: 'Detalles de Tarjeta Roja 🟥',
-                                html: `
-                                    <p>Artículo: ${sancion.articulo}</p>
-                                    <p>Literal: ${sancion.literal}</p>
-                                    <p>Partidos de sanción restantes: <strong>${partidosRestantes}</strong></p>
-                                    <p>Fecha de inicio: <strong>${fechaInicio.toLocaleDateString()}</strong></p>
-                                    <p>Fecha de finalización: <strong>${fechaFinal.toLocaleDateString()}</strong></p>
-                                `,
+                                title: 'Detalles de Sanciones',
+                                text: mensaje,
                                 icon: 'info'
                             });
                         } else {
                             Swal.fire({
-                                title: 'Sin Tarjeta Roja Activa',
-                                text: 'El jugador no tiene sanciones activas con tarjeta roja.',
+                                title: 'Sin Sanciones Activas',
+                                text: 'El jugador no tiene sanciones activas.',
                                 icon: 'info'
                             });
                         }
@@ -551,9 +617,28 @@
                 return;
             }
 
-            if (tipo === 'roja' && (!articulo || !literal)) {
+            if ((tipo === 'roja' || tipo === 'multa_barra' || tipo === 'no_presentacion' || tipo === 'no_vocal' || tipo === 'no_veedor') && (!articulo || !literal)) {
                 Swal.fire('Error', 'Seleccione artículo y literal', 'error');
                 return;
+            }
+
+            // Obtener el monto de la multa según el tipo y literal
+            let montoMulta = 0;
+            if (tipo === 'multa_barra' || tipo === 'no_presentacion' || tipo === 'no_vocal' || tipo === 'no_veedor') {
+                const montos = {
+                    'a': 10, // Primera vez - Tarjeta amarilla a la barra
+                    'b': 20, // Primera vez - Tarjeta roja a la barra
+                    'c': 30, // Segunda vez - Tarjeta amarilla a la barra
+                    'd': 30, // Segunda vez - Tarjeta roja a la barra
+                    'e': 30, // Tercera vez en adelante - Tarjeta amarilla a la barra
+                    'f': 40, // Tercera vez en adelante - Tarjeta roja a la barra
+                    'g': 10, // No presentación
+                    'h': 10, // Primera vez - No vocal
+                    'i': 10, // Segunda vez en adelante - No vocal
+                    'j': 10, // Primera vez - No veedor
+                    'k': 10  // Segunda vez en adelante - No veedor
+                };
+                montoMulta = montos[literal] || 0;
             }
 
             const fechaInicio = obtenerProximoTuesday();
@@ -585,11 +670,21 @@
                 sancion.literal = literal;
             }
 
+            if (montoMulta > 0) {
+                sancion.montoMulta = montoMulta;
+                sancion.articulo = articulo;
+                sancion.literal = literal;
+            }
+
             db.collection('sanciones').add(sancion)
                 .then(() => {
+                    let mensaje = 'Sanción aplicada correctamente';
+                    if (montoMulta > 0) {
+                        mensaje += `\nMonto de la multa: $${montoMulta}`;
+                    }
                     Swal.fire({
                         title: 'Éxito',
-                        text: 'Sanción aplicada correctamente',
+                        text: mensaje,
                         icon: 'success'
                     });
                     bootstrap.Modal.getInstance(document.getElementById('sancionModal')).hide();
@@ -680,6 +775,119 @@
                 row.style.display = matchesSearch ? '' : 'none';
             });
             console.log('-------------------------');
+        }
+
+        // Función para abrir modal de multa
+        function abrirModalMulta(jugadorId) {
+            document.getElementById('multaJugadorId').value = jugadorId;
+            document.getElementById('tipoMulta').value = '';
+            document.getElementById('multaLiteral').innerHTML = '<option value="">Seleccione primero un tipo de multa</option>';
+            const modal = new bootstrap.Modal(document.getElementById('multaModal'));
+            modal.show();
+        }
+
+        // Actualizar literales según tipo de multa
+        function actualizarLiteralesMulta() {
+            const tipo = document.getElementById('tipoMulta').value;
+            const literalSelect = document.getElementById('multaLiteral');
+            literalSelect.innerHTML = '<option value="">Seleccione un literal</option>';
+
+            const literales = {
+                'multa_barra': {
+                    'a': 'Primera vez - Tarjeta amarilla a la barra ($10)',
+                    'b': 'Primera vez - Tarjeta roja a la barra ($20)',
+                    'c': 'Segunda vez - Tarjeta amarilla a la barra ($20)',
+                    'd': 'Segunda vez - Tarjeta roja a la barra ($30)',
+                    'e': 'Tercera vez en adelante - Tarjeta amarilla a la barra ($30)',
+                    'f': 'Tercera vez en adelante - Tarjeta roja a la barra ($40)'
+                },
+                'no_presentacion': {
+                    'g': 'No presentación ($10)'
+                },
+                'no_vocal': {
+                    'h': 'Primera vez - No vocal ($5)',
+                    'i': 'Segunda vez en adelante - No vocal ($10)'
+                },
+                'no_veedor': {
+                    'j': 'Primera vez - No veedor ($5)',
+                    'k': 'Segunda vez en adelante - No veedor ($10)'
+                }
+            };
+
+            if (literales[tipo]) {
+                Object.entries(literales[tipo]).forEach(([key, value]) => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = value;
+                    literalSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Mostrar/ocultar campos de artículo y literal para multas
+        document.getElementById('tipoMulta').addEventListener('change', function() {
+            actualizarLiteralesMulta();
+        });
+
+        // Aplicar multa
+        function aplicarMulta() {
+            const jugadorId = document.getElementById('multaJugadorId').value;
+            const tipo = document.getElementById('tipoMulta').value;
+            const articulo = document.getElementById('multaArticulo').value;
+            const literal = document.getElementById('multaLiteral').value;
+
+            if (!tipo) {
+                Swal.fire('Error', 'Seleccione el tipo de multa', 'error');
+                return;
+            }
+
+            if (!literal) {
+                Swal.fire('Error', 'Seleccione un literal', 'error');
+                return;
+            }
+
+            const montos = {
+                'a': 10, // Primera vez - Tarjeta amarilla a la barra
+                'b': 20, // Primera vez - Tarjeta roja a la barra
+                'c': 30, // Segunda vez - Tarjeta amarilla a la barra
+                'd': 30, // Segunda vez - Tarjeta roja a la barra
+                'e': 30, // Tercera vez en adelante - Tarjeta amarilla a la barra
+                'f': 40, // Tercera vez en adelante - Tarjeta roja a la barra
+                'g': 10, // No presentación
+                'h': 10, // Primera vez - No vocal
+                'i': 10, // Segunda vez en adelante - No vocal
+                'j': 10, // Primera vez - No veedor
+                'k': 10  // Segunda vez en adelante - No veedor
+            };
+
+            const montoMulta = montos[literal] || 0;
+
+            const sancion = {
+                jugadorId,
+                tipo,
+                fecha: firebase.firestore.Timestamp.now(),
+                estado: 'activa',
+                campeonatoId: campeonatoActual,
+                equipoId: equipoActual,
+                montoMulta,
+                articulo,
+                literal
+            };
+
+            db.collection('sanciones').add(sancion)
+                .then(() => {
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: `Multa aplicada correctamente\nMonto: $${montoMulta}`,
+                        icon: 'success'
+                    });
+                    bootstrap.Modal.getInstance(document.getElementById('multaModal')).hide();
+                    mostrarJugadores(equipoActual, document.getElementById('jugadoresTitulo').textContent.replace('Jugadores - ', ''));
+                })
+                .catch(error => {
+                    console.error('Error al aplicar multa:', error);
+                    Swal.fire('Error', 'No se pudo aplicar la multa', 'error');
+                });
         }
     </script>
 </body>
