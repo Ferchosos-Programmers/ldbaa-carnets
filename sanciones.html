@@ -155,6 +155,12 @@
                                     <option value="129">Art. 129 - 1 año</option>
                                 </select>
                             </div>
+                            <div class="mb-3">
+                                <label class="form-label">Literal</label>
+                                <select class="form-select" id="literal">
+                                    <option value="">Seleccione primero un artículo</option>
+                                </select>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -307,14 +313,24 @@
                         const equipo = doc.data();
                         const card = `
                             <div class="col-md-4 mb-4">
-                                <div class="card h-100 shadow-sm text-center" style="cursor: pointer; padding: 20px;" onclick="mostrarJugadores('${doc.id}', '${equipo.name}')">
+                                <div class="card h-100 shadow-sm text-center" style="padding: 20px;">
                                     <div class="card-body d-flex flex-column justify-content-between">
                                         <div>
                                             <img src="${equipo.logo ? equipo.logo : 'img/logo.png'}" alt="Logo Equipo" class="mb-3" style="width: 100px; height: 100px; object-fit: contain;">
                                             <h4 class="card-title text-success mb-4">${equipo.name}</h4>
                                             <p class="card-text">Categoría: <span class="text-dark">${equipo.category}</span></p>
                                         </div>
-                                        <button class="btn btn-warning btn-sm mt-auto"><i class="fas fa-gavel"></i> Sancionar</button>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <button class="btn btn-warning btn-sm" onclick="mostrarJugadores('${doc.id}', '${equipo.name}')">
+                                                <i class="fas fa-gavel"></i> Sancionar
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" onclick="abrirModalMulta('${doc.id}', '${equipo.name}')">
+                                                <i class="fas fa-dollar-sign"></i> Multa
+                                            </button>
+                                            <button class="btn btn-info btn-sm" onclick="verMultasEquipo('${doc.id}', '${equipo.name}')">
+                                                <i class="fas fa-list"></i> Ver Multas
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -389,9 +405,6 @@
                                     <button class="btn btn-warning btn-sm" onclick="abrirModalSancion('${doc.id}')">
                                         <i class="fas fa-gavel"></i>
                                     </button>
-                                    <button class="btn btn-danger btn-sm" onclick="abrirModalMulta('${doc.id}')">
-                                        <i class="fas fa-dollar-sign"></i>
-                                    </button>
                                 </td>
                             </tr>
                         `;
@@ -418,15 +431,6 @@
             if (campeonatoActual) {
                 mostrarEquipos(campeonatoActual, document.getElementById('equiposTitulo').textContent.replace('Equipos - ', ''));
             }
-        }
-
-        // Función para abrir modal de sanción
-        function abrirModalSancion(jugadorId) {
-            document.getElementById('jugadorId').value = jugadorId;
-            document.getElementById('tipoSancion').value = '';
-            document.getElementById('articuloLiteralContainer').style.display = 'none';
-            const modal = new bootstrap.Modal(document.getElementById('sancionModal'));
-            modal.show();
         }
 
         // Actualizar literales según artículo
@@ -483,20 +487,7 @@
                     'k': 'Jugador condicionado con pérdida de garantía',
                     'l': 'Jugadores condicionados suspendidos',
                     'm': 'Participación en múltiples ligas'
-                },
-                // '130': {
-                //     'a': 'Primera vez - Tarjeta amarilla a la barra ($10)',
-                //     'b': 'Primera vez - Tarjeta roja a la barra ($20)',
-                //     'c': 'Segunda vez - Tarjeta amarilla a la barra ($30)',
-                //     'd': 'Segunda vez - Tarjeta roja a la barra ($30)',
-                //     'e': 'Tercera vez en adelante - Tarjeta amarilla a la barra ($30)',
-                //     'f': 'Tercera vez en adelante - Tarjeta roja a la barra ($40)',
-                //     'g': 'No presentación ($10)',
-                //     'h': 'Primera vez - No vocal ($10)',
-                //     'i': 'Segunda vez en adelante - No vocal ($10)',
-                //     'j': 'Primera vez - No veedor ($10)',
-                //     'k': 'Segunda vez en adelante - No veedor ($10)'
-                // }
+                }
             };
 
             if (literales[articulo]) {
@@ -513,7 +504,24 @@
         document.getElementById('tipoSancion').addEventListener('change', function() {
             const articuloLiteralContainer = document.getElementById('articuloLiteralContainer');
             articuloLiteralContainer.style.display = this.value === 'roja' ? 'block' : 'none';
+            if (this.value === 'roja') {
+                document.getElementById('articulo').value = '';
+                document.getElementById('literal').innerHTML = '<option value="">Seleccione primero un artículo</option>';
+            }
         });
+
+        // Función para abrir modal de sanción
+        function abrirModalSancion(jugadorId) {
+            document.getElementById('jugadorId').value = jugadorId;
+            document.getElementById('tipoSancion').value = '';
+            document.getElementById('articuloLiteralContainer').style.display = 'none';
+            var articulo = document.getElementById('articulo');
+            var literal = document.getElementById('literal');
+            if (articulo) articulo.value = '';
+            if (literal) literal.innerHTML = '<option value="">Seleccione primero un artículo</option>';
+            const modal = new bootstrap.Modal(document.getElementById('sancionModal'));
+            modal.show();
+        }
 
         // Función para obtener el próximo martes
         function obtenerProximoTuesday() {
@@ -538,16 +546,18 @@
             if (tipo === 'amarilla') {
                 let mensaje = '';
                 if (cantidadTarjetas < 4) {
-                    mensaje = `El jugador tiene ${cantidadTarjetas} tarjeta(s) amarilla(s).\nNecesita 4 tarjetas para recibir una fecha de sanción.`;
+                    mensaje = `El jugador tiene ${cantidadTarjetas} tarjeta(s) amarilla(s).<br>Necesita 4 tarjetas para recibir una fecha de sanción.`;
                 } else {
                     const fechaInicio = obtenerProximoTuesday();
                     const fechaFinal = obtenerFechaFinalSancion(1);
-                    mensaje = `Sanción por acumulación de ${cantidadTarjetas} tarjetas amarillas.\nPartidos de sanción restantes: 1\nFecha de inicio: ${fechaInicio.toLocaleDateString()}\nFecha de finalización: ${fechaFinal.toLocaleDateString()}`;
+                    mensaje = `Sanción por acumulación de ${cantidadTarjetas} tarjetas amarillas.<br>Partidos de sanción restantes: 1<br>Fecha de inicio: ${fechaInicio.toLocaleDateString()}<br>Fecha de finalización: ${fechaFinal.toLocaleDateString()}`;
                 }
                 Swal.fire({
-                    title: 'Detalles de Tarjetas Amarillas 🟨',
-                    text: mensaje,
-                    icon: 'info'
+                    title: '<span style="font-size: 2rem;">Detalles de Tarjetas Amarillas 🟨</span>',
+                    html: `<div style='font-size:1.1rem;'>${mensaje}</div>`,
+                    icon: 'info',
+                    confirmButtonColor: '#28a745',
+                    customClass: {popup: 'swal-wide'}
                 });
             } else {
                 db.collection('sanciones')
@@ -556,89 +566,112 @@
                     .get()
                     .then((snapshot) => {
                         if (!snapshot.empty) {
-                            const sanciones = snapshot.docs.map(doc => doc.data());
+                            const sancionDoc = snapshot.docs[snapshot.docs.length - 1];
+                            const sancion = sancionDoc.data();
+                            const sancionId = sancionDoc.id;
                             let mensaje = '';
-
-                            sanciones.forEach(sancion => {
-                                if (sancion.tipo === 'roja') {
-                                    const partidosSancion = {
-                                        '124': 1,
-                                        '125': 2,
-                                        '126': 3,
-                                        '127': 4,
-                                        '128': 6,
-                                        '129': 52
-                                    };
-
-                                    const partidosRestantes = partidosSancion[sancion.articulo] || 0;
-                                    const fechaInicio = obtenerProximoTuesday();
-                                    const fechaFinal = obtenerFechaFinalSancion(partidosRestantes);
-
-                                    mensaje += `\n\nTarjeta Roja 🟥:\n`;
-                                    mensaje += `Artículo: ${sancion.articulo}\n`;
-                                    mensaje += `Literal: ${sancion.literal}\n`;
-                                    mensaje += `Partidos de sanción restantes: ${partidosRestantes}\n`;
-                                    mensaje += `Fecha de inicio: ${fechaInicio.toLocaleDateString()}\n`;
-                                    mensaje += `Fecha de finalización: ${fechaFinal.toLocaleDateString()}`;
-                                } else if (sancion.montoMulta) {
-                                    mensaje += `\n\nMulta:\n`;
-                                    mensaje += `Tipo: ${sancion.tipo}\n`;
-                                    mensaje += `Artículo: ${sancion.articulo}\n`;
-                                    mensaje += `Literal: ${sancion.literal}\n`;
-                                    mensaje += `Monto: $${sancion.montoMulta}`;
-                                }
-                            });
-
+                            if (sancion.tipo === 'roja') {
+                                const partidosSancion = {
+                                    '124': 1,
+                                    '125': 2,
+                                    '126': 3,
+                                    '127': 4,
+                                    '128': 6,
+                                    '129': 52
+                                };
+                                const partidosRestantes = partidosSancion[sancion.articulo] || 0;
+                                const fechaInicio = obtenerProximoTuesday();
+                                const fechaFinal = obtenerFechaFinalSancion(partidosRestantes);
+                                mensaje += `
+                                    <div style='font-size:1.1rem;line-height:1.7;'>
+                                        <span style='font-size:1.3rem;'><b>Tarjeta Roja 🟥</b></span><br>
+                                        <b>Artículo:</b> ${sancion.articulo} <b>Literal:</b> ${sancion.literal}<br>
+                                        <b>Partidos de sanción restantes:</b> ${partidosRestantes}<br>
+                                        <b>Fecha de inicio:</b> ${fechaInicio.toLocaleDateString()}<br>
+                                        <b>Fecha de finalización:</b> ${fechaFinal.toLocaleDateString()}<br>
+                                        <div style='margin-top:1rem;'>
+                                            <button class='btn btn-primary btn-sm' onclick="editarSancion('${sancionId}', '${jugadorId}')"><i class='fas fa-edit'></i> Editar</button>
+                                            <button class='btn btn-danger btn-sm' onclick="eliminarSancion('${sancionId}', '${jugadorId}')"><i class='fas fa-trash'></i> Eliminar</button>
+                                        </div>
+                                    </div>
+                                `;
+                            }
                             Swal.fire({
-                                title: 'Detalles de Sanciones',
-                                text: mensaje,
-                                icon: 'info'
+                                title: '<span style="font-size: 2rem;">Detalles de Sanciones</span>',
+                                html: mensaje,
+                                icon: 'info',
+                                confirmButtonColor: '#28a745',
+                                customClass: {popup: 'swal-wide'}
                             });
                         } else {
                             Swal.fire({
                                 title: 'Sin Sanciones Activas',
                                 text: 'El jugador no tiene sanciones activas.',
-                                icon: 'info'
+                                icon: 'info',
+                                confirmButtonColor: '#28a745'
                             });
                         }
                     });
             }
         }
 
-        // Aplicar sanción
+        // Editar sanción
+        function editarSancion(sancionId, jugadorId) {
+            Swal.close(); // Cierra el modal de detalles antes de abrir el de edición
+            db.collection('sanciones').doc(sancionId).get().then(doc => {
+                if (doc.exists) {
+                    const sancion = doc.data();
+                    document.getElementById('jugadorId').value = jugadorId;
+                    document.getElementById('tipoSancion').value = sancion.tipo;
+                    document.getElementById('articuloLiteralContainer').style.display = 'block';
+                    document.getElementById('articulo').value = sancion.articulo;
+                    actualizarLiterales();
+                    document.getElementById('literal').value = sancion.literal;
+                    document.getElementById('sancionModal').setAttribute('data-edit-id', sancionId);
+                    const modal = new bootstrap.Modal(document.getElementById('sancionModal'));
+                    modal.show();
+                }
+            });
+        }
+
+        // Eliminar sanción
+        function eliminarSancion(sancionId, jugadorId) {
+            Swal.fire({
+                title: '¿Eliminar sanción?',
+                text: 'Esta acción no se puede deshacer',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#28a745'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    db.collection('sanciones').doc(sancionId).delete().then(() => {
+                        Swal.fire('Eliminada', 'La sanción ha sido eliminada', 'success').then(() => {
+                            mostrarJugadores(equipoActual, document.getElementById('jugadoresTitulo').textContent.replace('Jugadores - ', ''));
+                        });
+                    });
+                }
+            });
+        }
+
+        // Modifico aplicarSancion para soportar edición y recargar solo la sección
         function aplicarSancion() {
             const jugadorId = document.getElementById('jugadorId').value;
             const tipo = document.getElementById('tipoSancion').value;
             const articulo = document.getElementById('articulo').value;
             const literal = document.getElementById('literal').value;
+            const editId = document.getElementById('sancionModal').getAttribute('data-edit-id');
 
             if (!tipo) {
                 Swal.fire('Error', 'Seleccione el tipo de sanción', 'error');
                 return;
             }
 
-            if ((tipo === 'roja' || tipo === 'multa_barra' || tipo === 'no_presentacion' || tipo === 'no_vocal' || tipo === 'no_veedor') && (!articulo || !literal)) {
+            if (tipo === 'roja' && (!articulo || !literal)) {
                 Swal.fire('Error', 'Seleccione artículo y literal', 'error');
                 return;
-            }
-
-            // Obtener el monto de la multa según el tipo y literal
-            let montoMulta = 0;
-            if (tipo === 'multa_barra' || tipo === 'no_presentacion' || tipo === 'no_vocal' || tipo === 'no_veedor') {
-                const montos = {
-                    'a': 10, // Primera vez - Tarjeta amarilla a la barra
-                    'b': 20, // Primera vez - Tarjeta roja a la barra
-                    'c': 30, // Segunda vez - Tarjeta amarilla a la barra
-                    'd': 30, // Segunda vez - Tarjeta roja a la barra
-                    'e': 30, // Tercera vez en adelante - Tarjeta amarilla a la barra
-                    'f': 40, // Tercera vez en adelante - Tarjeta roja a la barra
-                    'g': 10, // No presentación
-                    'h': 10, // Primera vez - No vocal
-                    'i': 10, // Segunda vez en adelante - No vocal
-                    'j': 10, // Primera vez - No veedor
-                    'k': 10  // Segunda vez en adelante - No veedor
-                };
-                montoMulta = montos[literal] || 0;
             }
 
             const fechaInicio = obtenerProximoTuesday();
@@ -670,30 +703,38 @@
                 sancion.literal = literal;
             }
 
-            if (montoMulta > 0) {
-                sancion.montoMulta = montoMulta;
-                sancion.articulo = articulo;
-                sancion.literal = literal;
-            }
-
-            db.collection('sanciones').add(sancion)
-                .then(() => {
-                    let mensaje = 'Sanción aplicada correctamente';
-                    if (montoMulta > 0) {
-                        mensaje += `\nMonto de la multa: $${montoMulta}`;
-                    }
+            const modalElement = document.getElementById('sancionModal');
+            if (editId) {
+                db.collection('sanciones').doc(editId).update(sancion).then(() => {
                     Swal.fire({
                         title: 'Éxito',
-                        text: mensaje,
-                        icon: 'success'
+                        text: 'Sanción editada correctamente',
+                        icon: 'success',
+                        confirmButtonColor: '#28a745'
+                    }).then(() => {
+                        mostrarJugadores(equipoActual, document.getElementById('jugadoresTitulo').textContent.replace('Jugadores - ', ''));
                     });
-                    bootstrap.Modal.getInstance(document.getElementById('sancionModal')).hide();
-                    mostrarJugadores(equipoActual, document.getElementById('jugadoresTitulo').textContent.replace('Jugadores - ', ''));
-                })
-                .catch(error => {
-                    console.error('Error al aplicar sanción:', error);
-                    Swal.fire('Error', 'No se pudo aplicar la sanción', 'error');
+                    modalElement.removeAttribute('data-edit-id');
+                    bootstrap.Modal.getInstance(modalElement).hide();
                 });
+            } else {
+                db.collection('sanciones').add(sancion)
+                    .then(() => {
+                        Swal.fire({
+                            title: 'Éxito',
+                            text: 'Sanción aplicada correctamente',
+                            icon: 'success',
+                            confirmButtonColor: '#28a745'
+                        }).then(() => {
+                            mostrarJugadores(equipoActual, document.getElementById('jugadoresTitulo').textContent.replace('Jugadores - ', ''));
+                        });
+                        bootstrap.Modal.getInstance(modalElement).hide();
+                    })
+                    .catch(error => {
+                        console.error('Error al aplicar sanción:', error);
+                        Swal.fire('Error', 'No se pudo aplicar la sanción', 'error');
+                    });
+            }
         }
 
         // Función para cerrar sesión
@@ -778,8 +819,8 @@
         }
 
         // Función para abrir modal de multa
-        function abrirModalMulta(jugadorId) {
-            document.getElementById('multaJugadorId').value = jugadorId;
+        function abrirModalMulta(equipoId, equipoNombre) {
+            document.getElementById('multaJugadorId').value = equipoId;
             document.getElementById('tipoMulta').value = '';
             document.getElementById('multaLiteral').innerHTML = '<option value="">Seleccione primero un tipo de multa</option>';
             const modal = new bootstrap.Modal(document.getElementById('multaModal'));
@@ -829,12 +870,98 @@
             actualizarLiteralesMulta();
         });
 
-        // Aplicar multa
+        // Función para ver multas del equipo
+        function verMultasEquipo(equipoId, equipoNombre) {
+            db.collection('sanciones')
+                .where('equipoId', '==', equipoId)
+                .where('estado', '==', 'activa')
+                .get()
+                .then((snapshot) => {
+                    let mensaje = '';
+                    let totalMultas = 0;
+
+                    if (snapshot.empty) {
+                        mensaje = 'El equipo no tiene multas activas.';
+                    } else {
+                        mensaje = `<h5>Multas activas de ${equipoNombre}</h5><br>`;
+                        snapshot.forEach((doc) => {
+                            const multa = doc.data();
+                            if (multa.montoMulta) {
+                                mensaje += `
+                                    <div class=\"mb-3\">
+                                        <strong>Tipo:</strong> ${multa.tipo}<br>
+                                        <strong>Literal:</strong> ${multa.literal}<br>
+                                        <strong>Monto:</strong> $${multa.montoMulta}<br>
+                                        <strong>Fecha:</strong> ${multa.fecha.toDate().toLocaleDateString()}<br>
+                                        <button class=\"btn btn-sm btn-primary\" onclick=\"editarMulta('${doc.id}', '${equipoId}')\"><i class='fas fa-edit'></i> Editar</button>
+                                        <button class=\"btn btn-sm btn-danger\" onclick=\"eliminarMulta('${doc.id}', '${equipoId}')\"><i class='fas fa-trash'></i> Eliminar</button>
+                                        <hr>
+                                    </div>
+                                `;
+                                totalMultas += multa.montoMulta;
+                            }
+                        });
+                        mensaje += `<br><strong>Total de multas pendientes: $${totalMultas}</strong>`;
+                    }
+
+                    Swal.fire({
+                        title: 'Multas del Equipo',
+                        html: mensaje,
+                        icon: 'info',
+                        width: '600px'
+                    });
+                })
+                .catch(error => {
+                    console.error('Error al cargar multas:', error);
+                    Swal.fire('Error', 'No se pudieron cargar las multas', 'error');
+                });
+        }
+
+        // Editar multa
+        function editarMulta(multaId, equipoId) {
+            Swal.close(); // Cierra el modal de detalles antes de abrir el de edición
+            db.collection('sanciones').doc(multaId).get().then(doc => {
+                if (doc.exists) {
+                    const multa = doc.data();
+                    document.getElementById('multaJugadorId').value = equipoId;
+                    document.getElementById('tipoMulta').value = multa.tipo;
+                    actualizarLiteralesMulta();
+                    document.getElementById('multaArticulo').value = multa.articulo;
+                    document.getElementById('multaLiteral').value = multa.literal;
+                    document.getElementById('multaModal').setAttribute('data-edit-id', multaId);
+                    const modal = new bootstrap.Modal(document.getElementById('multaModal'));
+                    modal.show();
+                }
+            });
+        }
+
+        // Eliminar multa
+        function eliminarMulta(multaId, equipoId) {
+            Swal.fire({
+                title: '¿Eliminar multa?',
+                text: 'Esta acción no se puede deshacer',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    db.collection('sanciones').doc(multaId).delete().then(() => {
+                        Swal.fire('Eliminada', 'La multa ha sido eliminada', 'success').then(() => {
+                            mostrarEquipos(campeonatoActual, document.getElementById('equiposTitulo').textContent.replace('Equipos - ', ''));
+                        });
+                    });
+                }
+            });
+        }
+
+        // Modifico aplicarMulta para soportar edición y recargar solo la sección
         function aplicarMulta() {
-            const jugadorId = document.getElementById('multaJugadorId').value;
+            const equipoId = document.getElementById('multaJugadorId').value;
             const tipo = document.getElementById('tipoMulta').value;
             const articulo = document.getElementById('multaArticulo').value;
             const literal = document.getElementById('multaLiteral').value;
+            const editId = document.getElementById('multaModal').getAttribute('data-edit-id');
 
             if (!tipo) {
                 Swal.fire('Error', 'Seleccione el tipo de multa', 'error');
@@ -849,45 +976,60 @@
             const montos = {
                 'a': 10, // Primera vez - Tarjeta amarilla a la barra
                 'b': 20, // Primera vez - Tarjeta roja a la barra
-                'c': 30, // Segunda vez - Tarjeta amarilla a la barra
+                'c': 20, // Segunda vez - Tarjeta amarilla a la barra
                 'd': 30, // Segunda vez - Tarjeta roja a la barra
                 'e': 30, // Tercera vez en adelante - Tarjeta amarilla a la barra
                 'f': 40, // Tercera vez en adelante - Tarjeta roja a la barra
                 'g': 10, // No presentación
-                'h': 10, // Primera vez - No vocal
+                'h': 5,  // Primera vez - No vocal
                 'i': 10, // Segunda vez en adelante - No vocal
-                'j': 10, // Primera vez - No veedor
+                'j': 5,  // Primera vez - No veedor
                 'k': 10  // Segunda vez en adelante - No veedor
             };
 
             const montoMulta = montos[literal] || 0;
 
             const sancion = {
-                jugadorId,
+                equipoId,
                 tipo,
                 fecha: firebase.firestore.Timestamp.now(),
                 estado: 'activa',
                 campeonatoId: campeonatoActual,
-                equipoId: equipoActual,
                 montoMulta,
                 articulo,
                 literal
             };
 
-            db.collection('sanciones').add(sancion)
-                .then(() => {
+            const modalElement = document.getElementById('multaModal');
+            if (editId) {
+                db.collection('sanciones').doc(editId).update(sancion).then(() => {
                     Swal.fire({
                         title: 'Éxito',
-                        text: `Multa aplicada correctamente\nMonto: $${montoMulta}`,
+                        text: `Multa editada correctamente\nMonto: $${montoMulta}`,
                         icon: 'success'
+                    }).then(() => {
+                        mostrarEquipos(campeonatoActual, document.getElementById('equiposTitulo').textContent.replace('Equipos - ', ''));
                     });
-                    bootstrap.Modal.getInstance(document.getElementById('multaModal')).hide();
-                    mostrarJugadores(equipoActual, document.getElementById('jugadoresTitulo').textContent.replace('Jugadores - ', ''));
-                })
-                .catch(error => {
-                    console.error('Error al aplicar multa:', error);
-                    Swal.fire('Error', 'No se pudo aplicar la multa', 'error');
+                    modalElement.removeAttribute('data-edit-id');
+                    bootstrap.Modal.getInstance(modalElement).hide();
                 });
+            } else {
+                db.collection('sanciones').add(sancion)
+                    .then(() => {
+                        Swal.fire({
+                            title: 'Éxito',
+                            text: `Multa aplicada correctamente\nMonto: $${montoMulta}`,
+                            icon: 'success'
+                        }).then(() => {
+                            mostrarEquipos(campeonatoActual, document.getElementById('equiposTitulo').textContent.replace('Equipos - ', ''));
+                        });
+                        bootstrap.Modal.getInstance(modalElement).hide();
+                    })
+                    .catch(error => {
+                        console.error('Error al aplicar multa:', error);
+                        Swal.fire('Error', 'No se pudo aplicar la multa', 'error');
+                    });
+            }
         }
     </script>
 </body>
