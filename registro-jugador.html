@@ -58,7 +58,7 @@
         <div class="col-md-6">
           <div class="card">
             <div class="card-body">
-              <h4 class="card-title mb-4" id="formTitle">Registro de Jugador</h4>
+              <h4 class="card-title mb-4" id="formTitle" style="text-align: center;">Registro de Jugador</h4>
               <form id="playerForm">
                 <div id="playerSelectorContainer" class="mb-3" style="display: none;">
                   <label for="playerSelector" class="form-label">Seleccionar Jugador a Recalificar</label>
@@ -111,6 +111,7 @@
                 <!-- Formulario del nuevo jugador -->
                 <div id="newPlayerForm" style="display: none;">
                   <h5 class="mb-3 mt-4">Datos del Nuevo Jugador</h5>
+                  
                   <div class="mb-3">
                     <label for="teamName" class="form-label">Equipo</label>
                     <input type="text" class="form-control" id="teamName" readonly />
@@ -180,6 +181,62 @@
                   <i class="fas fa-id-card me-2"></i>Generar Carnets
                 </button>
               </div>
+              
+              <!-- Contador de jugadores y cupo -->
+              <div class="cupo-info mb-4">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="cupo-card bg-light p-3 rounded">
+                      <h6 class="text-primary mb-2">
+                        <i class="fas fa-users me-2"></i>Total Jugadores
+                      </h6> 
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="h4 mb-0" id="jugadoresRegularesCount">0</span>
+                        <!-- <span class="text-muted">/ 25</span> -->
+                      </div>
+                      <div class="progress mt-2" style="height: 8px;">
+                        <div class="progress-bar bg-primary" id="jugadoresRegularesProgress" style="width: 0%"></div>
+                      </div>
+                      <small class="text-muted" id="jugadoresRegularesStatus">Cupo disponible</small>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="cupo-card bg-light p-3 rounded">
+                      <h6 class="text-success mb-2">
+                        <i class="fas fa-child me-2"></i>Cupo Especial <15
+                      </h6>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="h4 mb-0" id="jugadoresJuvenilesCount">0</span>
+                        <!-- <span class="text-muted">/ 2</span> -->
+                      </div>
+                      <div class="progress mt-2" style="height: 8px;">
+                        <div class="progress-bar bg-success" id="jugadoresJuvenilesProgress" style="width: 0%"></div>
+                      </div>
+                      <small class="text-muted" id="jugadoresJuvenilesStatus">Cupo disponible</small>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="cupo-card bg-info p-3 rounded text-white">
+                      <h6 class="mb-2">
+                        <i class="fas fa-trophy me-2"></i>Máximo Total
+                      </h6>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="h4 mb-0" id="jugadoresTotalCount">0</span>
+                        <!-- <span>/ 27</span> -->
+                      </div>
+                      <div class="progress mt-2" style="height: 8px; background-color: rgba(255,255,255,0.3);">
+                        <div class="progress-bar bg-white" id="jugadoresTotalProgress" style="width: 0%"></div>
+                      </div>
+                      <small id="jugadoresTotalStatus">Cupo disponible</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="alert alert-info mt-3" id="cupoAlert" style="display: none;">
+                  <i class="fas fa-info-circle me-2"></i>
+                  <span id="cupoAlertText"></span>
+                </div>
+              </div>
+              
               <div id="playersList" class="player-list">
                 <!-- Los jugadores se cargarán aquí dinámicamente -->
               </div>
@@ -545,11 +602,16 @@
               if (querySnapshot.empty) {
                 playersList.innerHTML =
                   '<div class="text-center text-muted">No hay jugadores registrados</div>';
+                // Actualizar contador con lista vacía
+                actualizarContadorCupo([]);
                 return;
               }
 
+              const jugadores = [];
               querySnapshot.forEach((doc) => {
                 const player = doc.data();
+                jugadores.push(player);
+                
                 const playerCard = document.createElement("div");
                 playerCard.className = "player-card mb-3";
                 playerCard.innerHTML = `
@@ -558,6 +620,7 @@
                     <div class="flex-grow-1">
                       <h6 class="mb-0">${player.nombres} ${player.apellidos}</h6>
                       <small class="text-muted">Cédula: ${player.cedula}</small>
+                      ${player.status === "recalificado" ? '<br><small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Recalificado</small>' : ''}
                     </div>
                     <div class="ms-3">
                       <button class="btn btn-sm btn-outline-primary me-2" onclick="viewPlayerDetails('${doc.id}')">
@@ -571,6 +634,9 @@
                 `;
                 playersList.appendChild(playerCard);
               });
+              
+              // Actualizar contador de cupo
+              actualizarContadorCupo(jugadores);
             })
             .catch((error) => {
               console.error("Error al cargar jugadores:", error);
@@ -612,6 +678,17 @@
 
       // Función para eliminar un jugador
       function deletePlayer(playerId) {
+        // Verificar si el cupo está completo
+        if (window.cupoCompleto) {
+          Swal.fire({
+            title: "Cupo Completo",
+            text: "Tu equipo ya tiene el máximo de 27 jugadores permitidos. No puedes eliminar jugadores.",
+            icon: "warning",
+            confirmButtonColor: "#28a745",
+          });
+          return;
+        }
+
         Swal.fire({
           title: "Ingresa la clave de administrador",
           input: "password",
@@ -719,6 +796,41 @@
       // Manejar el envío del formulario
       document.getElementById("playerForm").addEventListener("submit", async function (e) {
         e.preventDefault();
+
+        // Verificar si el cupo está completo
+        if (window.cupoCompleto) {
+          Swal.fire({
+            title: "Cupo Completo",
+            text: "Tu equipo ya tiene el máximo de 27 jugadores permitidos. No puedes registrar más jugadores.",
+            icon: "warning",
+            confirmButtonColor: "#28a745",
+          });
+          return;
+        }
+
+        // Validar el tipo de jugador antes de procesar
+        const fechaNacValidacion = document.getElementById("fechaNacimiento").value;
+        if (fechaNacValidacion) {
+          const esJuvenil = esJuvenilMenor15(fechaNacValidacion);
+          
+          if (esJuvenil && window.cupoJuvenilesCompleto && window.cupoRegularesCompleto) {
+            Swal.fire({
+              title: "Cupo Completo",
+              text: "Ya tienes el máximo de jugadores permitidos. No puedes registrar más jugadores.",
+              icon: "warning",
+              confirmButtonColor: "#28a745",
+            });
+            return;
+          } else if (!esJuvenil && window.cupoRegularesCompleto && !window.cupoJuvenilesCompleto) {
+            Swal.fire({
+              title: "Cupo Principal Completo",
+              text: "Ya tienes 25 jugadores. Solo puedes registrar jugadores menores de 15 años (cupos especiales).",
+              icon: "warning",
+              confirmButtonColor: "#28a745",
+            });
+            return;
+          }
+        }
 
         let campeonatoId = document.getElementById("campeonato").value;
         let teamData = {}; // Inicializamos teamData
@@ -960,27 +1072,106 @@
           });
       };
 
-      // Función para determinar si es juvenil (menor de 18 años)
-      function esJuvenil(fechaNacimiento) {
-        const fechaNac = new Date(fechaNacimiento);
+      // Función para calcular la edad
+      function calcularEdad(fechaNacimiento) {
         const hoy = new Date();
+        const fechaNac = new Date(fechaNacimiento);
         let edad = hoy.getFullYear() - fechaNac.getFullYear();
         const mes = hoy.getMonth() - fechaNac.getMonth();
+
         if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
           edad--;
         }
-        return edad < 18;
+
+        return edad;
+      }
+
+      // Función para verificar si es juvenil
+      function esJuvenil(fechaNacimiento) {
+        return calcularEdad(fechaNacimiento) < 18;
+      }
+
+      // Función para verificar si es juvenil menor de 15 años
+      function esJuvenilMenor15(fechaNacimiento) {
+        return calcularEdad(fechaNacimiento) < 15;
       }
 
       function esMaster(fechaNacimiento) {
-        const hoy = new Date();
-        const nacimiento = new Date(fechaNacimiento);
-        let edad = hoy.getFullYear() - nacimiento.getFullYear();
-        const mes = hoy.getMonth() - nacimiento.getMonth();
-        if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-          edad--;
+        return calcularEdad(fechaNacimiento) > 40;
+      }
+
+      // Función para actualizar el contador de cupo
+      function actualizarContadorCupo(jugadores) {
+        let jugadoresRegulares = 0;
+        let jugadoresMenor15 = 0;
+
+        jugadores.forEach(player => {
+          if (player.status !== "recalificado") { // No contar jugadores recalificados
+            if (esJuvenilMenor15(player.fechaNacimiento)) {
+              jugadoresMenor15++;
+            } else {
+              jugadoresRegulares++;
+            }
+          }
+        });
+
+        // Cupos máximos
+        const maxNormales = 25;
+        const maxEspeciales = 2;
+        const maxTotal = 27;
+
+        // Cálculo de cupos restantes
+        const faltanNormales = maxNormales - jugadoresRegulares;
+        const faltanEspeciales = maxEspeciales - jugadoresMenor15;
+        const totalActual = jugadoresRegulares + jugadoresMenor15;
+        const faltanTotal = maxTotal - totalActual;
+
+        // Actualizar contadores
+        document.getElementById("jugadoresRegularesCount").textContent = jugadoresRegulares;
+        document.getElementById("jugadoresJuvenilesCount").textContent = jugadoresMenor15;
+        document.getElementById("jugadoresTotalCount").textContent = totalActual;
+
+        // Actualizar barras de progreso
+        const progresoRegulares = (jugadoresRegulares / maxNormales) * 100;
+        const progresoJuveniles = (jugadoresMenor15 / maxEspeciales) * 100;
+        const progresoTotal = (totalActual / maxTotal) * 100;
+
+        document.getElementById("jugadoresRegularesProgress").style.width = `${Math.min(progresoRegulares, 100)}%`;
+        document.getElementById("jugadoresJuvenilesProgress").style.width = `${Math.min(progresoJuveniles, 100)}%`;
+        document.getElementById("jugadoresTotalProgress").style.width = `${Math.min(progresoTotal, 100)}%`;
+
+        // Actualizar estados y alertas
+        const cupoAlert = document.getElementById("cupoAlert");
+        const cupoAlertText = document.getElementById("cupoAlertText");
+
+        if (totalActual >= maxTotal) {
+          cupoAlert.className = "alert alert-success mt-3";
+          cupoAlertText.innerHTML = `<strong>¡Cupo completo!</strong> Tu equipo tiene el máximo de 27 jugadores permitidos. No puedes registrar más jugadores ni eliminarlos.`;
+          cupoAlert.style.display = "block";
+        } else if (faltanNormales <= 0 && faltanEspeciales <= 0) {
+          cupoAlert.className = "alert alert-success mt-3";
+          cupoAlertText.innerHTML = `<strong>¡Cupo completo!</strong> Tu equipo tiene todos los jugadores necesarios.`;
+          cupoAlert.style.display = "block";
+        } else {
+          // Mensaje claro y específico
+          let mensaje = `<strong>Progreso del cupo:</strong> Te faltan ${faltanTotal} jugador${faltanTotal > 1 ? 'es' : ''} para completar el máximo de 27 (`;
+          mensaje += `puedes registrar hasta ${faltanNormales} jugador${faltanNormales === 1 ? '' : 'es'} más de cualquier edad`;
+          if (faltanEspeciales > 0) {
+            mensaje += `, y solo ${faltanEspeciales} más puede${faltanEspeciales === 1 ? '' : 'n'} ser menor de 15 años`;
+          }
+          mensaje += ").";
+          cupoAlert.className = "alert alert-info mt-3";
+          cupoAlertText.innerHTML = mensaje;
+          cupoAlert.style.display = "block";
         }
-        return edad >= 40;
+
+        // Guardar el estado del cupo en variables globales
+        window.cupoCompleto = totalActual >= maxTotal;
+        window.cupoRegularesCompleto = jugadoresRegulares >= maxNormales;
+        window.cupoJuvenilesCompleto = jugadoresMenor15 >= maxEspeciales;
+        
+        // Manejar el estado del formulario
+        manejarEstadoFormulario();
       }
 
       // Función para cambiar el fondo del carnet
@@ -1174,29 +1365,6 @@
         return `${day}/${month}/${year}`;
       }
 
-      // Función para calcular la edad
-      function calcularEdad(fechaNacimiento) {
-        const hoy = new Date();
-        const fechaNac = new Date(fechaNacimiento);
-        let edad = hoy.getFullYear() - fechaNac.getFullYear();
-        const mes = hoy.getMonth() - fechaNac.getMonth();
-
-        if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
-          edad--;
-        }
-
-        return edad;
-      }
-
-      // Función para verificar si es juvenil
-      function esJuvenil(fechaNacimiento) {
-        return calcularEdad(fechaNacimiento) < 18;
-      }
-
-      function esMaster(fechaNacimiento) {
-        return calcularEdad(fechaNacimiento) > 40;
-      }
-
       // Función para cargar jugadores para recalificación
       function loadPlayersForRecalification() {
         if (teamId) {
@@ -1279,6 +1447,138 @@
           document.getElementById("cedulaPhotoText").classList.remove("d-none");
         }
       });
+
+      // Función para manejar el estado del formulario según el cupo
+      function manejarEstadoFormulario() {
+        const form = document.getElementById("playerForm");
+        const submitButton = document.getElementById("submitButton");
+        
+        if (window.cupoCompleto) {
+          // Deshabilitar formulario completamente si el cupo total está completo
+          form.style.pointerEvents = "none";
+          form.style.opacity = "0.6";
+          submitButton.disabled = true;
+          submitButton.textContent = "Cupo Completo";
+          
+          // Agregar overlay de cupo completo
+          let overlay = document.getElementById("cupoOverlay");
+          if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.id = "cupoOverlay";
+            overlay.style.cssText = `
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background: rgba(255, 255, 255, 0.9);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              z-index: 10;
+              border-radius: 8px;
+            `;
+            overlay.innerHTML = `
+              <div class="text-center">
+                <i class="fas fa-users-slash text-muted" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                <h5 class="text-muted">Cupo Completo</h5>
+                <p class="text-muted mb-0">Máximo 27 jugadores alcanzado</p>
+              </div>
+            `;
+            form.parentElement.style.position = "relative";
+            form.parentElement.appendChild(overlay);
+          }
+        } else {
+          // Habilitar formulario pero con validaciones específicas
+          form.style.pointerEvents = "auto";
+          form.style.opacity = "1";
+          submitButton.disabled = false;
+          submitButton.textContent = mode === "reclassify" ? "Recalificar Jugador" : "Registrar Jugador";
+          
+          // Mostrar SweetAlert con información del cupo disponible
+          if (window.cupoRegularesCompleto && !window.cupoJuvenilesCompleto) {
+            Swal.fire({
+              title: "Cupo Principal Completo",
+              text: "Solo puedes registrar jugadores menores de 15 años (2 cupos especiales).",
+              icon: "warning",
+              confirmButtonColor: "#28a745",
+              timer: 4000,
+              timerProgressBar: true
+            });
+          } else if (window.cupoJuvenilesCompleto && !window.cupoRegularesCompleto) {
+            Swal.fire({
+              title: "Cupos Especiales Completos",
+              text: "Solo puedes registrar jugadores de cualquier edad (hasta completar los 25 jugadores senior).",
+              icon: "warning",
+              confirmButtonColor: "#28a745",
+              timer: 4000,
+              timerProgressBar: true
+            });
+          } else {
+            Swal.fire({
+              title: "Cupo Disponible",
+              text: "Puedes registrar jugadores de cualquier edad (hasta completar los 25 jugadores senior) y usar 2 cupos especiales para menores de 15 años.",
+              icon: "info",
+              confirmButtonColor: "#28a745",
+              timer: 4000,
+              timerProgressBar: true
+            });
+          }
+          
+          // Remover overlay si existe
+          const overlay = document.getElementById("cupoOverlay");
+          if (overlay) {
+            overlay.remove();
+          }
+
+          // Agregar validación en tiempo real para la fecha de nacimiento
+          const fechaNacimientoInput = document.getElementById("fechaNacimiento");
+          if (fechaNacimientoInput) {
+            fechaNacimientoInput.addEventListener("change", validarFechaNacimiento);
+          }
+        }
+      }
+
+      // Función para validar la fecha de nacimiento en tiempo real
+      function validarFechaNacimiento() {
+        const fechaNacInput = document.getElementById("fechaNacimiento").value;
+        const submitButton = document.getElementById("submitButton");
+        
+        if (fechaNacInput) {
+          const esJuvenil = esJuvenilMenor15(fechaNacInput);
+          
+          if (esJuvenil && window.cupoJuvenilesCompleto && window.cupoRegularesCompleto) {
+            // Si es juvenil pero ambos cupos están completos
+            submitButton.disabled = true;
+            submitButton.textContent = "Cupo Completo";
+            Swal.fire({
+              title: "Cupo Completo",
+              text: "Ya tienes el máximo de jugadores permitidos. No puedes registrar más jugadores.",
+              icon: "warning",
+              confirmButtonColor: "#28a745",
+            });
+          } else if (esJuvenil && window.cupoJuvenilesCompleto && !window.cupoRegularesCompleto) {
+            // Si es juvenil pero el cupo especial está completo, pero aún hay espacio en el principal
+            submitButton.disabled = false;
+            submitButton.textContent = mode === "reclassify" ? "Recalificar Jugador" : "Registrar Jugador";
+            // No mostrar alerta, solo permitir el registro
+          } else if (!esJuvenil && window.cupoRegularesCompleto && !window.cupoJuvenilesCompleto) {
+            // Si es mayor de 15 pero el cupo principal está completo, solo permitir menores de 15
+            submitButton.disabled = true;
+            submitButton.textContent = "Solo Menores de 15";
+            Swal.fire({
+              title: "Cupo Principal Completo",
+              text: "Ya tienes 25 jugadores. Solo puedes registrar jugadores menores de 15 años (cupos especiales).",
+              icon: "warning",
+              confirmButtonColor: "#28a745",
+            });
+          } else {
+            // Cupo disponible para este tipo de jugador
+            submitButton.disabled = false;
+            submitButton.textContent = mode === "reclassify" ? "Recalificar Jugador" : "Registrar Jugador";
+          }
+        }
+      }
     </script>
 
     <style>
@@ -1624,6 +1924,61 @@
         display: block;
         margin-left: auto;
         margin-right: auto;
+      }
+
+      /* Estilos para el contador de cupo */
+      .cupo-card {
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+      }
+
+      .cupo-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .cupo-card h6 {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .cupo-card .h4 {
+        font-weight: bold;
+        color: #495057;
+      }
+
+      .progress {
+        background-color: #e9ecef;
+        border-radius: 10px;
+      }
+
+      .progress-bar {
+        border-radius: 10px;
+        transition: width 0.6s ease;
+      }
+
+      #cupoAlert {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      #cupoAlert.alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+      }
+
+      #cupoAlert.alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border-left: 4px solid #ffc107;
+      }
+
+      #cupoAlert.alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border-left: 4px solid #17a2b8;
       }
     </style>
   </body>
