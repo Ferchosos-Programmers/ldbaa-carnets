@@ -188,7 +188,7 @@
                   <div class="col-md-4">
                     <div class="cupo-card bg-light p-3 rounded">
                       <h6 class="text-primary mb-2">
-                        <i class="fas fa-users me-2"></i>Total Jugadores
+                        <i class="fas fa-users me-2"></i> Jugadores Senior
                       </h6> 
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="h4 mb-0" id="jugadoresRegularesCount">0</span>
@@ -203,7 +203,7 @@
                   <div class="col-md-4">
                     <div class="cupo-card bg-light p-3 rounded">
                       <h6 class="text-success mb-2">
-                        <i class="fas fa-child me-2"></i>Cupo Especial <15
+                        <i class="fas fa-child me-2"></i>Jugadores <15 
                       </h6>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="h4 mb-0" id="jugadoresJuvenilesCount">0</span>
@@ -1102,75 +1102,52 @@
 
       // Función para actualizar el contador de cupo
       function actualizarContadorCupo(jugadores) {
-        let jugadoresRegulares = 0;
-        let jugadoresMenor15 = 0;
+        let senior = 0;
+        let menores15 = 0;
 
         jugadores.forEach(player => {
-          if (player.status !== "recalificado") { // No contar jugadores recalificados
+          if (player.status !== "recalificado") {
             if (esJuvenilMenor15(player.fechaNacimiento)) {
-              jugadoresMenor15++;
+              menores15++;
             } else {
-              jugadoresRegulares++;
+              senior++;
             }
           }
         });
 
-        // Cupos máximos
-        const maxNormales = 25;
-        const maxEspeciales = 2;
         const maxTotal = 27;
-
-        // Cálculo de cupos restantes
-        const faltanNormales = maxNormales - jugadoresRegulares;
-        const faltanEspeciales = maxEspeciales - jugadoresMenor15;
-        const totalActual = jugadoresRegulares + jugadoresMenor15;
-        const faltanTotal = maxTotal - totalActual;
+        const totalJugadores = senior + menores15;
+        const faltanTotal = maxTotal - totalJugadores;
 
         // Actualizar contadores
-        document.getElementById("jugadoresRegularesCount").textContent = jugadoresRegulares;
-        document.getElementById("jugadoresJuvenilesCount").textContent = jugadoresMenor15;
-        document.getElementById("jugadoresTotalCount").textContent = totalActual;
+        document.getElementById("jugadoresRegularesCount").textContent = senior;
+        document.getElementById("jugadoresJuvenilesCount").textContent = menores15;
+        document.getElementById("jugadoresTotalCount").textContent = totalJugadores;
 
         // Actualizar barras de progreso
-        const progresoRegulares = (jugadoresRegulares / maxNormales) * 100;
-        const progresoJuveniles = (jugadoresMenor15 / maxEspeciales) * 100;
-        const progresoTotal = (totalActual / maxTotal) * 100;
-
-        document.getElementById("jugadoresRegularesProgress").style.width = `${Math.min(progresoRegulares, 100)}%`;
-        document.getElementById("jugadoresJuvenilesProgress").style.width = `${Math.min(progresoJuveniles, 100)}%`;
+        const progresoSenior = (senior / maxTotal) * 100;
+        const progresoMenores = (menores15 / maxTotal) * 100;
+        const progresoTotal = (totalJugadores / maxTotal) * 100;
+        document.getElementById("jugadoresRegularesProgress").style.width = `${Math.min(progresoSenior, 100)}%`;
+        document.getElementById("jugadoresJuvenilesProgress").style.width = `${Math.min(progresoMenores, 100)}%`;
         document.getElementById("jugadoresTotalProgress").style.width = `${Math.min(progresoTotal, 100)}%`;
 
         // Actualizar estados y alertas
         const cupoAlert = document.getElementById("cupoAlert");
         const cupoAlertText = document.getElementById("cupoAlertText");
 
-        if (totalActual >= maxTotal) {
+        if (totalJugadores >= maxTotal) {
           cupoAlert.className = "alert alert-success mt-3";
           cupoAlertText.innerHTML = `<strong>¡Cupo completo!</strong> Tu equipo tiene el máximo de 27 jugadores permitidos. No puedes registrar más jugadores ni eliminarlos.`;
           cupoAlert.style.display = "block";
-        } else if (faltanNormales <= 0 && faltanEspeciales <= 0) {
-          cupoAlert.className = "alert alert-success mt-3";
-          cupoAlertText.innerHTML = `<strong>¡Cupo completo!</strong> Tu equipo tiene todos los jugadores necesarios.`;
-          cupoAlert.style.display = "block";
         } else {
-          // Mensaje claro y específico
-          let mensaje = `<strong>Progreso del cupo:</strong> Te faltan ${faltanTotal} jugador${faltanTotal > 1 ? 'es' : ''} para completar el máximo de 27 (`;
-          mensaje += `puedes registrar hasta ${faltanNormales} jugador${faltanNormales === 1 ? '' : 'es'} más de cualquier edad`;
-          if (faltanEspeciales > 0) {
-            mensaje += `, y solo ${faltanEspeciales} más puede${faltanEspeciales === 1 ? '' : 'n'} ser menor de 15 años`;
-          }
-          mensaje += ").";
+          let mensaje = `<strong>Progreso del cupo:</strong> Tienes ${totalJugadores} jugador${totalJugadores !== 1 ? 'es' : ''} registrados: ${senior} senior y ${menores15} menor${menores15 !== 1 ? 'es' : ''} de 15 años. Te faltan ${faltanTotal} jugador${faltanTotal !== 1 ? 'es' : ''} para completar el máximo de 27.`;
           cupoAlert.className = "alert alert-info mt-3";
           cupoAlertText.innerHTML = mensaje;
           cupoAlert.style.display = "block";
         }
 
-        // Guardar el estado del cupo en variables globales
-        window.cupoCompleto = totalActual >= maxTotal;
-        window.cupoRegularesCompleto = jugadoresRegulares >= maxNormales;
-        window.cupoJuvenilesCompleto = jugadoresMenor15 >= maxEspeciales;
-        
-        // Manejar el estado del formulario
+        window.cupoCompleto = totalJugadores >= maxTotal;
         manejarEstadoFormulario();
       }
 
@@ -1496,34 +1473,14 @@
           submitButton.textContent = mode === "reclassify" ? "Recalificar Jugador" : "Registrar Jugador";
           
           // Mostrar SweetAlert con información del cupo disponible
-          if (window.cupoRegularesCompleto && !window.cupoJuvenilesCompleto) {
-            Swal.fire({
-              title: "Cupo Principal Completo",
-              text: "Solo puedes registrar jugadores menores de 15 años (2 cupos especiales).",
-              icon: "warning",
-              confirmButtonColor: "#28a745",
-              timer: 4000,
-              timerProgressBar: true
-            });
-          } else if (window.cupoJuvenilesCompleto && !window.cupoRegularesCompleto) {
-            Swal.fire({
-              title: "Cupos Especiales Completos",
-              text: "Solo puedes registrar jugadores de cualquier edad (hasta completar los 25 jugadores senior).",
-              icon: "warning",
-              confirmButtonColor: "#28a745",
-              timer: 4000,
-              timerProgressBar: true
-            });
-          } else {
-            Swal.fire({
-              title: "Cupo Disponible",
-              text: "Puedes registrar jugadores de cualquier edad (hasta completar los 25 jugadores senior) y usar 2 cupos especiales para menores de 15 años.",
-              icon: "info",
-              confirmButtonColor: "#28a745",
-              timer: 4000,
-              timerProgressBar: true
-            });
-          }
+          Swal.fire({
+            title: "Cupo Disponible",
+            text: "Puedes registrar jugadores de cualquier edad. El cupo máximo es de 27 jugadores en total.",
+            icon: "info",
+            confirmButtonColor: "#28a745",
+            timer: 4000,
+            timerProgressBar: true
+          });
           
           // Remover overlay si existe
           const overlay = document.getElementById("cupoOverlay");
