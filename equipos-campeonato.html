@@ -303,12 +303,12 @@
             if (result.isConfirmed) {
               window.location.href = `registro-jugador.html?teamId=${teamId}&mode=register`;
             } else if (result.isDenied) {
-              // window.location.href = `registro-jugador.html?teamId=${teamId}&mode=reclassify`;
-              Swal.fire({
-                  title: "Función no disponible",
-                  text: "La función de recalificación aún no está disponible.",
-                  icon: "info",
-                  confirmButtonColor: "#0dcaf0" // Color de info de Bootstrap
+              window.location.href = `registro-jugador.html?teamId=${teamId}&mode=reclassify`;
+              //Swal.fire({
+                  //title: "Función no disponible",
+                  //text: "La función de recalificación aún no está disponible.",
+                  //icon: "info",
+                  //confirmButtonColor: "#0dcaf0" // Color de info de Bootstrap
               });
             }
           });
