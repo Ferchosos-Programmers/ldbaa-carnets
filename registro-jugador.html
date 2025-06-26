@@ -176,7 +176,7 @@
               <div
                 class="d-flex justify-content-between align-items-center mb-4"
               >
-                <h4 class="card-title mb-0">Jugadores Registrados</h4>
+                <h4 class="card-title mb-0" id="playersListTitle">Jugadores Registrados</h4>
                 <button class="btn btn-primary" onclick="generarCarnets()">
                   <i class="fas fa-id-card me-2"></i>Generar Carnets
                 </button>
@@ -231,6 +231,61 @@
                     </div>
                   </div>
                 </div>
+                
+              
+                <!-- Contador de jugadores recalificados (solo visible en modo reclassify) -->
+                <div id="recalificadosCounter" class="mt-3" style="display: none;">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="cupo-card bg-warning p-3 rounded text-dark">
+                        <h6 class="mb-2">
+                          <i class="fas fa-exchange-alt me-2"></i>Jugadores Recalificados
+                        </h6>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <span class="h4 mb-0" id="jugadoresRecalificadosCount">0</span>
+                        </div>
+                        <div class="progress mt-2" style="height: 8px; background-color: rgba(0,0,0,0.2);">
+                          <div class="progress-bar bg-warning" id="jugadoresRecalificadosProgress" style="width: 0%"></div>
+                        </div>
+                        <small class="text-muted" id="jugadoresRecalificadosStatus">Jugadores marcados como recalificados</small>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="cupo-card bg-danger p-3 rounded text-white">
+                        <h6 class="mb-2">
+                          <i class="fas fa-user-plus me-2"></i>Nuevos Jugadores
+                        </h6>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <span class="h4 mb-0" id="jugadoresNuevosCount">0</span>
+                        </div>
+                        <div class="progress mt-2" style="height: 8px; background-color: rgba(255,255,255,0.3);">
+                          <div class="progress-bar bg-white" id="jugadoresNuevosProgress" style="width: 0%"></div>
+                        </div>
+                        <small id="jugadoresNuevosStatus">Jugadores que reemplazaron a recalificados</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                 <!-- Contador de total de jugadores registrados -->
+                 <div class="row mt-3">
+                  <div class="col-md-12">
+                    <div class="cupo-card bg-dark p-3 rounded text-white">
+                      <h6 class="mb-2">
+                        <i class="fas fa-clipboard-list me-2"></i>Total de Jugadores Registrados
+                      </h6>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="h4 mb-0" id="jugadoresRegistradosTotalCount">0</span>
+                        <span class="text-light">(Senior + <15 + Recalificados)</span>
+                      </div>
+                      <div class="progress mt-2" style="height: 8px; background-color: rgba(255,255,255,0.3);">
+                        <div class="progress-bar bg-warning" id="jugadoresRegistradosTotalProgress" style="width: 0%"></div>
+                      </div>
+                      <small id="jugadoresRegistradosTotalStatus">Total de jugadores en el equipo</small>
+                    </div>
+                  </div>
+                </div>
+                
                 <div class="alert alert-info mt-3" id="cupoAlert" style="display: none;">
                   <i class="fas fa-info-circle me-2"></i>
                   <span id="cupoAlertText"></span>
@@ -446,20 +501,24 @@
       if (mode === "reclassify") {
         document.title = "Recalificación de Jugador | Liga Barrial";
         document.getElementById("formTitle").textContent = "Recalificación de Jugador";
+        document.getElementById("playersListTitle").textContent = "Jugadores Recalificados";
         document.getElementById("playerSelectorContainer").style.display = "block";
         document.getElementById("playerSelector").setAttribute("required", "");
         document.getElementById("submitButton").textContent = "Recalificar Jugador";
         document.getElementById("campeonato").closest(".mb-3").style.display = "none"; // Ocultar el campo de campeonato
+        document.getElementById("recalificadosCounter").style.display = "block"; // Mostrar contador de recalificados
         loadPlayersForRecalification();
       } else {
         document.title = "Registro de Jugador | Liga Barrial";
         document.getElementById("formTitle").textContent = "Registro de Jugador";
+        document.getElementById("playersListTitle").textContent = "Jugadores Calificados";
         document.getElementById("playerSelectorContainer").style.display = "none";
         document.getElementById("playerSelector").removeAttribute("required"); // Asegurarse de que no sea requerido en modo registro
         document.getElementById("submitButton").textContent = "Registrar Jugador";
         document.getElementById("campeonato").closest(".mb-3").style.display = "block"; // Mostrar el campo de campeonato
         document.getElementById("currentPlayerForm").style.display = "none"; // Ocultar formulario del jugador actual
         document.getElementById("newPlayerForm").style.display = "block"; // Mostrar formulario del nuevo jugador
+        document.getElementById("recalificadosCounter").style.display = "none"; // Ocultar contador de recalificados
       }
 
       // Función para solicitar la clave de administrador
@@ -608,32 +667,143 @@
               }
 
               const jugadores = [];
+              const jugadoresFiltrados = [];
+              
               querySnapshot.forEach((doc) => {
                 const player = doc.data();
                 jugadores.push(player);
                 
-                const playerCard = document.createElement("div");
-                playerCard.className = "player-card mb-3";
-                playerCard.innerHTML = `
-                  <div class="d-flex align-items-center p-3 bg-white rounded shadow-sm">
-<img src="${player.playerPhoto}" alt="Foto del jugador" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
-                    <div class="flex-grow-1">
-                      <h6 class="mb-0">${player.nombres} ${player.apellidos}</h6>
-                      <small class="text-muted">Cédula: ${player.cedula}</small>
-                      ${player.status === "recalificado" ? '<br><small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Recalificado</small>' : ''}
-                    </div>
-                    <div class="ms-3">
-                      <button class="btn btn-sm btn-outline-primary me-2" onclick="viewPlayerDetails('${doc.id}')">
-                        <i class="fas fa-eye"></i>
-                      </button>
-                      <button class="btn btn-sm btn-outline-danger" onclick="deletePlayer('${doc.id}')">
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </div>
-                  </div>
-                `;
-                playersList.appendChild(playerCard);
+                // Filtrar jugadores según el modo
+                if (mode === "reclassify") {
+                  // En modo reclassify, solo mostrar jugadores recalificados
+                  if (player.status === "recalificado") {
+                    jugadoresFiltrados.push({...player, docId: doc.id});
+                  }
+                } else {
+                  // En modo register, mostrar todos menos los nuevos que reemplazaron a recalificados
+                  if (!player.reemplazoDe) {
+                    jugadoresFiltrados.push({...player, docId: doc.id});
+                  }
+                }
               });
+              
+              // Mostrar mensaje si no hay jugadores según el filtro
+              if (jugadoresFiltrados.length === 0) {
+                if (mode === "reclassify") {
+                  playersList.innerHTML = '<div class="text-center text-muted">No hay jugadores recalificados</div>';
+                } else {
+                  playersList.innerHTML = '<div class="text-center text-muted">No hay jugadores calificados</div>';
+                }
+                // Actualizar contador con lista vacía pero mantener todos los jugadores para el cálculo
+                actualizarContadorCupo(jugadores);
+                return;
+              }
+              
+              // Mostrar jugadores filtrados
+              if (mode === "reclassify") {
+                jugadoresFiltrados.forEach((player) => {
+                  // Buscar la jugadora nueva que reemplazó a esta recalificada
+                  const nuevaDoc = jugadores.find(j => j.reemplazoDe === player.docId);
+                  let nueva = null;
+                  if (nuevaDoc) {
+                    // Buscar el docId de la jugadora nueva en jugadoresFiltrados o en querySnapshot
+                    nueva = {...nuevaDoc};
+                    // Buscar el docId real
+                    const docMatch = querySnapshot.docs.find(d => d.data().cedula === nuevaDoc.cedula && d.data().nombres === nuevaDoc.nombres);
+                    if (docMatch) {
+                      nueva.docId = docMatch.id;
+                    }
+                  }
+                  if (nueva) {
+                    // Contenedor flex para ambas tarjetas
+                    const flexRow = document.createElement("div");
+                    flexRow.className = "d-flex gap-3 mb-3 align-items-stretch";
+                    flexRow.innerHTML = `
+                      <div class="player-card flex-fill">
+                        <div class="d-flex align-items-center p-3 bg-white rounded shadow-sm h-100">
+                          <img src="${player.playerPhoto}" alt="Foto del jugador" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                          <div class="flex-grow-1">
+                            <h6 class="mb-0">${player.nombres} ${player.apellidos}</h6>
+                            <small class="text-muted">Cédula: ${player.cedula}</small>
+                            <br><small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Recalificado</small>
+                          </div>
+                          <div class="ms-3">
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="viewPlayerDetails('${player.docId}')">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletePlayer('${player.docId}')">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="player-card flex-fill">
+                        <div class="d-flex align-items-center p-3 bg-light rounded shadow-sm border border-success h-100">
+                          <img src="${nueva.playerPhoto}" alt="Foto del jugador" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                          <div class="flex-grow-1">
+                            <h6 class="mb-0">${nueva.nombres} ${nueva.apellidos}</h6>
+                            <small class="text-muted">Cédula: ${nueva.cedula}</small>
+                            <br><small class="text-success"><i class="fas fa-user-plus me-1"></i>Nueva jugadora que reemplaza</small>
+                          </div>
+                          <div class="ms-3">
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="viewPlayerDetails('${nueva.docId || ''}')">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    `;
+                    playersList.appendChild(flexRow);
+                  } else {
+                    // Solo recalificada si no hay nueva
+                    const playerCard = document.createElement("div");
+                    playerCard.className = "player-card mb-3";
+                    playerCard.innerHTML = `
+                      <div class="d-flex align-items-center p-3 bg-white rounded shadow-sm">
+                        <img src="${player.playerPhoto}" alt="Foto del jugador" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                        <div class="flex-grow-1">
+                          <h6 class="mb-0">${player.nombres} ${player.apellidos}</h6>
+                          <small class="text-muted">Cédula: ${player.cedula}</small>
+                          <br><small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Recalificado</small>
+                        </div>
+                        <div class="ms-3">
+                          <button class="btn btn-sm btn-outline-primary me-2" onclick="viewPlayerDetails('${player.docId}')">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger" onclick="deletePlayer('${player.docId}')">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    `;
+                    playersList.appendChild(playerCard);
+                  }
+                });
+              } else {
+                jugadoresFiltrados.forEach((player) => {
+                  const playerCard = document.createElement("div");
+                  playerCard.className = "player-card mb-3";
+                  playerCard.innerHTML = `
+                    <div class="d-flex align-items-center p-3 bg-white rounded shadow-sm">
+                      <img src="${player.playerPhoto}" alt="Foto del jugador" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                      <div class="flex-grow-1">
+                        <h6 class="mb-0">${player.nombres} ${player.apellidos}</h6>
+                        <small class="text-muted">Cédula: ${player.cedula}</small>
+                        ${player.status === "recalificado" ? '<br><small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Recalificado</small>' : ''}
+                      </div>
+                      <div class="ms-3">
+                        <button class="btn btn-sm btn-outline-primary me-2" onclick="viewPlayerDetails('${player.docId}')">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deletePlayer('${player.docId}')">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  `;
+                  playersList.appendChild(playerCard);
+                });
+              }
               
               // Actualizar contador de cupo
               actualizarContadorCupo(jugadores);
@@ -901,14 +1071,19 @@
         try {
             if (mode === "reclassify") {
                 const selectedPlayerId = document.getElementById("playerSelector").value;
-                // 1. Registrar al nuevo jugador
-                const newPlayerDocRef = await db.collection("players").add(playerData);
+                // 1. Registrar al nuevo jugador con referencia al jugador que reemplazó
+                const playerDataWithReplacement = {
+                    ...playerData,
+                    reemplazoDe: selectedPlayerId, // Campo para indicar que reemplazó a un jugador
+                    fechaReemplazo: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                const newPlayerDocRef = await db.collection("players").add(playerDataWithReplacement);
                 console.log("Nuevo jugador registrado con ID:", newPlayerDocRef.id);
 
                 // 2. Marcar al jugador antiguo como recalificado
                 await db.collection("players").doc(selectedPlayerId).update({
                     status: "recalificado",
-                    recalificadoPor: newPlayerDocRef.id, // Opcional: vincular al nuevo jugador
+                    recalificadoPor: newPlayerDocRef.id, // Vincular al nuevo jugador
                     recalificacionFecha: firebase.firestore.FieldValue.serverTimestamp(),
                 });
                 console.log("Jugador antiguo marcado como recalificado:", selectedPlayerId);
@@ -1104,9 +1279,18 @@
       function actualizarContadorCupo(jugadores) {
         let senior = 0;
         let menores15 = 0;
+        let recalificados = 0;
+        let nuevosJugadores = 0;
 
         jugadores.forEach(player => {
-          if (player.status !== "recalificado") {
+          if (player.status === "recalificado") {
+            recalificados++;
+          } else {
+            // Verificar si este jugador reemplazó a un recalificado
+            if (player.reemplazoDe) {
+              nuevosJugadores++;
+            }
+            
             if (esJuvenilMenor15(player.fechaNacimiento)) {
               menores15++;
             } else {
@@ -1117,31 +1301,74 @@
 
         const maxTotal = 27;
         const totalJugadores = senior + menores15;
+        const totalRegistrados = senior + menores15 + recalificados; // Total incluyendo recalificados
         const faltanTotal = maxTotal - totalJugadores;
 
-        // Actualizar contadores
+        // Actualizar contadores principales
         document.getElementById("jugadoresRegularesCount").textContent = senior;
         document.getElementById("jugadoresJuvenilesCount").textContent = menores15;
         document.getElementById("jugadoresTotalCount").textContent = totalJugadores;
+        
+        // Actualizar contador de total de jugadores registrados
+        document.getElementById("jugadoresRegistradosTotalCount").textContent = totalRegistrados;
 
-        // Actualizar barras de progreso
+        // Actualizar contadores de recalificación (solo si estamos en modo reclassify)
+        if (mode === "reclassify") {
+          document.getElementById("jugadoresRecalificadosCount").textContent = recalificados;
+          document.getElementById("jugadoresNuevosCount").textContent = nuevosJugadores;
+          
+          // Actualizar barras de progreso para recalificados
+          const progresoRecalificados = recalificados > 0 ? 100 : 0;
+          const progresoNuevos = nuevosJugadores > 0 ? 100 : 0;
+          document.getElementById("jugadoresRecalificadosProgress").style.width = `${progresoRecalificados}%`;
+          document.getElementById("jugadoresNuevosProgress").style.width = `${progresoNuevos}%`;
+          
+          // Actualizar estados de recalificados
+          document.getElementById("jugadoresRecalificadosStatus").textContent = 
+            recalificados > 0 ? `${recalificados} jugador${recalificados !== 1 ? 'es' : ''} marcado${recalificados !== 1 ? 's' : ''} como recalificado${recalificados !== 1 ? 's' : ''}` : "No hay jugadores recalificados";
+          document.getElementById("jugadoresNuevosStatus").textContent = 
+            nuevosJugadores > 0 ? `${nuevosJugadores} jugador${nuevosJugadores !== 1 ? 'es' : ''} que reemplazó${nuevosJugadores !== 1 ? 'ron' : ''} a recalificado${nuevosJugadores !== 1 ? 's' : ''}` : "No hay nuevos jugadores";
+        }
+
+        // Actualizar barras de progreso principales
         const progresoSenior = (senior / maxTotal) * 100;
         const progresoMenores = (menores15 / maxTotal) * 100;
         const progresoTotal = (totalJugadores / maxTotal) * 100;
+        const progresoTotalRegistrados = (totalRegistrados / (maxTotal + recalificados)) * 100; // Progreso del total registrado
         document.getElementById("jugadoresRegularesProgress").style.width = `${Math.min(progresoSenior, 100)}%`;
         document.getElementById("jugadoresJuvenilesProgress").style.width = `${Math.min(progresoMenores, 100)}%`;
         document.getElementById("jugadoresTotalProgress").style.width = `${Math.min(progresoTotal, 100)}%`;
+        document.getElementById("jugadoresRegistradosTotalProgress").style.width = `${Math.min(progresoTotalRegistrados, 100)}%`;
+
+        // Actualizar estado del total de registrados
+        document.getElementById("jugadoresRegistradosTotalStatus").textContent = 
+          `Total: ${senior} senior + ${menores15} <15 + ${recalificados} recalificados = ${totalRegistrados} jugadores`;
 
         // Actualizar estados y alertas
         const cupoAlert = document.getElementById("cupoAlert");
         const cupoAlertText = document.getElementById("cupoAlertText");
 
-        if (totalJugadores >= maxTotal) {
+        if (mode === "reclassify") {
+          // Mostrar alerta especial para recalificación
+          let mensaje = "";
+          if (recalificados > 0) {
+            mensaje += `<strong>Tienes ${recalificados} jugador${recalificados !== 1 ? 'es' : ''} recalificado${recalificados !== 1 ? 's' : ''}.</strong> `;
+          } else {
+            mensaje += `<strong>No tienes jugadores recalificados.</strong> `;
+          }
+          mensaje += `En total tienes <strong>${totalRegistrados} jugador${totalRegistrados !== 1 ? 'es' : ''} registrados</strong> en el equipo (calificados y recalificados).`;
+          cupoAlert.className = "alert alert-info mt-3";
+          cupoAlertText.innerHTML = mensaje;
+          cupoAlert.style.display = "block";
+        } else if (totalJugadores >= maxTotal) {
           cupoAlert.className = "alert alert-success mt-3";
           cupoAlertText.innerHTML = `<strong>¡Cupo completo!</strong> Tu equipo tiene el máximo de 27 jugadores permitidos. No puedes registrar más jugadores ni eliminarlos.`;
           cupoAlert.style.display = "block";
         } else {
           let mensaje = `<strong>Progreso del cupo:</strong> Tienes ${totalJugadores} jugador${totalJugadores !== 1 ? 'es' : ''} registrados: ${senior} senior y ${menores15} menor${menores15 !== 1 ? 'es' : ''} de 15 años. Te faltan ${faltanTotal} jugador${faltanTotal !== 1 ? 'es' : ''} para completar el máximo de 27.`;
+          if (recalificados > 0) {
+            mensaje += ` <strong>Total de jugadores en el equipo: ${totalRegistrados} (incluyendo ${recalificados} recalificado${recalificados !== 1 ? 's' : ''}).</strong>`;
+          }
           cupoAlert.className = "alert alert-info mt-3";
           cupoAlertText.innerHTML = mensaje;
           cupoAlert.style.display = "block";
@@ -1219,8 +1446,25 @@
                   .then((teamDoc) => {
                     const teamName = teamDoc.data().name;
 
-                    querySnapshot.forEach((doc) => {
-                      const player = doc.data();
+                    // Filtrar jugadores según el modo
+                    let jugadoresFiltrados = [];
+                    if (mode === "reclassify") {
+                      querySnapshot.forEach((doc) => {
+                        const player = doc.data();
+                        if (player.reemplazoDe) {
+                          jugadoresFiltrados.push(player);
+                        }
+                      });
+                    } else {
+                      querySnapshot.forEach((doc) => {
+                        const player = doc.data();
+                        if (!player.reemplazoDe) {
+                          jugadoresFiltrados.push(player);
+                        }
+                      });
+                    }
+
+                    jugadoresFiltrados.forEach((player) => {
                       const isRecalificado = player.status === "recalificado";
                       const carnetHtml = `
                       <div class="col-md-6">
@@ -1473,14 +1717,25 @@
           submitButton.textContent = mode === "reclassify" ? "Recalificar Jugador" : "Registrar Jugador";
           
           // Mostrar SweetAlert con información del cupo disponible
-          Swal.fire({
-            title: "Cupo Disponible",
-            text: "Puedes registrar jugadores de cualquier edad. El cupo máximo es de 27 jugadores en total.",
-            icon: "info",
-            confirmButtonColor: "#28a745",
-            timer: 4000,
-            timerProgressBar: true
-          });
+          if (mode === "reclassify") {
+            Swal.fire({
+              title: "Cupo de Recalificación Disponible",
+              text: "Puedes recalificar jugadores. Los jugadores recalificados no cuentan para el cupo principal, pero sí para el total de registrados.",
+              icon: "info",
+              confirmButtonColor: "#28a745",
+              timer: 4000,
+              timerProgressBar: true
+            });
+          } else {
+            Swal.fire({
+              title: "Cupo Disponible",
+              text: "Puedes registrar jugadores de cualquier edad. El cupo máximo es de 27 jugadores en total.",
+              icon: "info",
+              confirmButtonColor: "#28a745",
+              timer: 4000,
+              timerProgressBar: true
+            });
+          }
           
           // Remover overlay si existe
           const overlay = document.getElementById("cupoOverlay");
@@ -1936,6 +2191,120 @@
         background-color: #d1ecf1;
         color: #0c5460;
         border-left: 4px solid #17a2b8;
+      }
+
+      /* Estilos específicos para contadores de recalificación */
+      #recalificadosCounter .cupo-card {
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+      }
+
+      #recalificadosCounter .cupo-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+        animation: shimmer 2s infinite;
+        pointer-events: none;
+      }
+
+      @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+      }
+
+      #recalificadosCounter .cupo-card.bg-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #ffca2c 100%) !important;
+        border-color: #e0a800;
+      }
+
+      #recalificadosCounter .cupo-card.bg-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%) !important;
+        border-color: #c82333;
+      }
+
+      #recalificadosCounter .cupo-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      #recalificadosCounter .cupo-card .h4 {
+        font-size: 2rem;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      #recalificadosCounter .cupo-card.bg-warning .h4 {
+        color: #856404;
+      }
+
+      #recalificadosCounter .cupo-card.bg-danger .h4 {
+        color: white;
+      }
+
+      #recalificadosCounter .cupo-card small {
+        font-weight: 500;
+        font-size: 0.85rem;
+      }
+
+      /* Estilos específicos para el contador de total de jugadores registrados */
+      .cupo-card.bg-dark {
+        background: linear-gradient(135deg, #343a40 0%, #495057 100%) !important;
+        border-color: #212529;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cupo-card.bg-dark::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.05) 50%, transparent 70%);
+        animation: shimmer 3s infinite;
+        pointer-events: none;
+      }
+
+      .cupo-card.bg-dark:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        background: linear-gradient(135deg, #495057 0%, #6c757d 100%) !important;
+      }
+
+      .cupo-card.bg-dark .h4 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .cupo-card.bg-dark h6 {
+        color: #f8f9fa;
+        font-weight: 600;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      .cupo-card.bg-dark small {
+        color: #dee2e6;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .cupo-card.bg-dark .text-light {
+        color: #adb5bd !important;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      .cupo-card.bg-dark .progress-bar.bg-warning {
+        background: linear-gradient(90deg, #ffc107 0%, #ffca2c 100%) !important;
+        box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
       }
     </style>
   </body>
