@@ -967,8 +967,8 @@
       document.getElementById("playerForm").addEventListener("submit", async function (e) {
         e.preventDefault();
 
-        // Verificar si el cupo está completo
-        if (window.cupoCompleto) {
+        // Solo bloquear por cupo completo en modo register
+        if (window.cupoCompleto && mode === "register") {
           Swal.fire({
             title: "Cupo Completo",
             text: "Tu equipo ya tiene el máximo de 27 jugadores permitidos. No puedes registrar más jugadores.",
@@ -1674,7 +1674,8 @@
         const form = document.getElementById("playerForm");
         const submitButton = document.getElementById("submitButton");
         
-        if (window.cupoCompleto) {
+        // Solo bloquear el formulario si el cupo está completo y estamos en modo register
+        if (window.cupoCompleto && mode === "register") {
           // Deshabilitar formulario completamente si el cupo total está completo
           form.style.pointerEvents = "none";
           form.style.opacity = "0.6";
@@ -1720,7 +1721,7 @@
           if (mode === "reclassify") {
             Swal.fire({
               title: "Cupo de Recalificación Disponible",
-              text: "Puedes recalificar jugadores. Los jugadores recalificados no cuentan para el cupo principal, pero sí para el total de registrados.",
+              text: "Puedes recalificar jugadores aunque el cupo esté completo. Los jugadores recalificados no cuentan para el cupo principal, pero sí para el total de registrados.",
               icon: "info",
               confirmButtonColor: "#28a745",
               timer: 4000,
