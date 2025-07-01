@@ -703,17 +703,13 @@
               if (mode === "reclassify") {
                 jugadoresFiltrados.forEach((player) => {
                   // Buscar la jugadora nueva que reemplazó a esta recalificada
-                  const nuevaDoc = jugadores.find(j => j.reemplazoDe === player.docId);
-                  let nueva = null;
-                  if (nuevaDoc) {
-                    // Buscar el docId de la jugadora nueva en jugadoresFiltrados o en querySnapshot
-                    nueva = {...nuevaDoc};
-                    // Buscar el docId real
-                    const docMatch = querySnapshot.docs.find(d => d.data().cedula === nuevaDoc.cedula && d.data().nombres === nuevaDoc.nombres);
-                    if (docMatch) {
-                      nueva.docId = docMatch.id;
-                    }
+                  let nueva = jugadores.find(j => j.reemplazoDe === player.docId);
+
+                  // Si no la encuentra por reemplazoDe, intenta buscar por recalificadoPor
+                  if (!nueva && player.recalificadoPor) {
+                    nueva = jugadores.find(j => j.docId === player.recalificadoPor);
                   }
+
                   if (nueva) {
                     // Contenedor flex para ambas tarjetas
                     const flexRow = document.createElement("div");
@@ -731,9 +727,6 @@
                             <button class="btn btn-sm btn-outline-primary me-2" onclick="viewPlayerDetails('${player.docId}')">
                               <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deletePlayer('${player.docId}')">
-                              <i class="fas fa-trash"></i>
-                            </button>
                           </div>
                         </div>
                       </div>
@@ -743,10 +736,10 @@
                           <div class="flex-grow-1">
                             <h6 class="mb-0">${nueva.nombres} ${nueva.apellidos}</h6>
                             <small class="text-muted">Cédula: ${nueva.cedula}</small>
-                            <br><small class="text-success"><i class="fas fa-user-plus me-1"></i>Nueva jugadora que reemplaza</small>
+                            <br><small class="text-success"><i class="fas fa-user-plus me-1"></i>Nuevo jugador que reemplaza</small>
                           </div>
                           <div class="ms-3">
-                            <button class="btn btn-sm btn-outline-primary me-2" onclick="viewPlayerDetails('${nueva.docId || ''}')">
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="viewPlayerDetails('${nueva.docId}')">
                               <i class="fas fa-eye"></i>
                             </button>
                           </div>
@@ -755,7 +748,7 @@
                     `;
                     playersList.appendChild(flexRow);
                   } else {
-                    // Solo recalificada si no hay nueva
+                    // Solo recalificado si no hay nuevo
                     const playerCard = document.createElement("div");
                     playerCard.className = "player-card mb-3";
                     playerCard.innerHTML = `
@@ -770,9 +763,9 @@
                           <button class="btn btn-sm btn-outline-primary me-2" onclick="viewPlayerDetails('${player.docId}')">
                             <i class="fas fa-eye"></i>
                           </button>
-                          <button class="btn btn-sm btn-outline-danger" onclick="deletePlayer('${player.docId}')">
+                          ${player.status !== "recalificado" ? `<button class="btn btn-sm btn-outline-danger" onclick="deletePlayer('${player.docId}')">
                             <i class="fas fa-trash"></i>
-                          </button>
+                          </button>` : ''}
                         </div>
                       </div>
                     `;
@@ -795,9 +788,9 @@
                         <button class="btn btn-sm btn-outline-primary me-2" onclick="viewPlayerDetails('${player.docId}')">
                           <i class="fas fa-eye"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deletePlayer('${player.docId}')">
+                        ${player.status !== "recalificado" ? `<button class="btn btn-sm btn-outline-danger" onclick="deletePlayer('${player.docId}')">
                           <i class="fas fa-trash"></i>
-                        </button>
+                        </button>` : ''}
                       </div>
                     </div>
                   `;

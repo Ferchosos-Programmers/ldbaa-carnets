@@ -44,8 +44,51 @@
         border-top-right-radius: 0.5rem;
       }
     </style>
+    <style>
+      /* Toast flotante */
+      #newPlayersToast {
+        position: fixed;
+        top: 30px;
+        right: 30px;
+        min-width: 320px;
+        z-index: 9999;
+        background: #fff;
+        border: 1px solid #28a745;
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(40,167,69,0.15);
+        padding: 18px 24px 18px 18px;
+        display: none;
+        animation: fadeIn 0.7s;
+      }
+      #newPlayersToast .toast-title {
+        font-weight: bold;
+        color: #28a745;
+        margin-bottom: 8px;
+      }
+      #newPlayersToast .toast-close {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        color: #888;
+        cursor: pointer;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
   </head>
   <body>
+    <!-- Toast de nuevos jugadores -->
+    <div id="newPlayersToast">
+      <button class="toast-close" onclick="document.getElementById('newPlayersToast').style.display='none'">&times;</button>
+      <div class="toast-title">Nuevos registros de jugadores</div>
+      <div id="newPlayersToastBody"></div>
+    </div>
+
     <!-- Header -->
     <nav class="navbar navbar-expand-lg shadow-sm px-4">
       <div class="container-fluid">
@@ -211,6 +254,10 @@
         }
         loadChampionshipInfo();
         loadTeams();
+        // Mostrar toast solo a admin
+        if (user.email === 'admin@gmail.com') {
+          showNewPlayersToast();
+        }
       });
 
       // Cargar información del campeonato
@@ -536,6 +583,60 @@
         const manageFilesModal = new bootstrap.Modal(document.getElementById('manageFilesModal'));
         manageFilesModal.show();
       });
+
+      // Toast de nuevos jugadores registrados
+      async function showNewPlayersToast() {
+        try {
+          // Obtener la fecha límite del campeonato
+          const champDoc = await db.collection('championships').doc(championshipId).get();
+          if (!champDoc.exists) return;
+          const championship = champDoc.data();
+          if (!championship.deadline) return;
+          const deadline = new Date(championship.deadline);
+          // Considerar 30 días antes de la fecha límite
+          const startDate = new Date(deadline.getTime() - (30 * 24 * 60 * 60 * 1000));
+
+          // Consultar jugadores registrados en ese periodo y campeonato
+          const playersSnapshot = await db.collection('players')
+            .where('campeonatoId', '==', championshipId)
+            .where('createdAt', '>=', startDate)
+            .where('createdAt', '<=', deadline)
+            .get();
+
+          if (playersSnapshot.empty) return;
+
+          // Agrupar por equipo
+          const teamMap = {};
+          playersSnapshot.forEach(doc => {
+            const player = doc.data();
+            if (!player.teamName) return;
+            if (!teamMap[player.teamName]) {
+              teamMap[player.teamName] = 0;
+            }
+            teamMap[player.teamName]++;
+          });
+
+          // Si no hay equipos con jugadores nuevos, no mostrar
+          const teamNames = Object.keys(teamMap);
+          if (teamNames.length === 0) return;
+
+          // Construir HTML
+          let html = '<ul style="margin-bottom:0; padding-left: 18px;">';
+          teamNames.forEach(name => {
+            html += `<li><b>${name}</b> <span class='text-muted'>(${teamMap[name]} jugador${teamMap[name]>1?'es':''})</span></li>`;
+          });
+          html += '</ul>';
+
+          document.getElementById('newPlayersToastBody').innerHTML = html;
+          document.getElementById('newPlayersToast').style.display = 'block';
+          // Ocultar automáticamente después de 10 segundos
+          setTimeout(() => {
+            document.getElementById('newPlayersToast').style.display = 'none';
+          }, 10000);
+        } catch (e) {
+          console.error('Error mostrando toast de nuevos jugadores:', e);
+        }
+      }
     </script>
   </body>
 </html> 
