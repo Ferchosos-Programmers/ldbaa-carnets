@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Programar Partidos por Categoría | Liga Barrial</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <!-- Firebase App (core) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <!-- Firestore -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <style>
+    body { background-color: #f1f1f1; font-family: 'Times New Roman', Times, serif; }
+    .navbar { background-color: #28a745; }
+    .navbar-brand { font-weight: bold; font-size: 1.5rem; color: #fff !important; }
+    .card { border-radius: 1rem; }
+    .section-title { color: #28a745; font-weight: 600; margin-top: 2rem; }
+    .form-label { font-weight: 500; }
+    .btn-success, .btn-primary, .btn-outline-success { border-radius: 2rem; }
+    .day-schedule { display: none; margin-top: 0.5rem; }
+    .day-schedule.active { display: block; }
+    .encuentro-item { display: flex; align-items: center; gap: 10px; }
+    .encuentro-item .btn { padding: 0.2em 0.7em; font-size: 0.95em; }
+    .categoria-badge { font-size: 0.95em; margin-right: 0.5em; }
+    #equiposCategoria,
+    #generarTodosBtn {
+      display: none !important;
+    }
+    #equiposCategoria { display: none !important; }
+    .table-modern {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(40,167,69,0.08);
+      font-size: 1.05em;
+    }
+    .table-modern th, .table-modern td {
+      border: none !important;
+      padding: 0.85em 1.2em !important;
+      vertical-align: middle;
+    }
+    .table-modern thead th {
+      background: #28a745;
+      color: #fff;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-align: center;
+    }
+    .table-modern tbody tr:nth-child(even) {
+      background: #f6fdf8;
+    }
+    .table-modern tbody tr:hover {
+      background: #eafbe7;
+      transition: background 0.2s;
+    }
+    .table-modern td {
+      color: #222;
+      text-align: center;
+    }
+    .table-modern td strong {
+      color: #28a745;
+    }
+    .btn-eliminar {
+      padding: 0.2em 0.6em !important;
+      font-size: 0.95em !important;
+      min-width: 28px;
+      min-height: 28px;
+      width: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .encuentro-item span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1 1 auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg shadow-sm px-4">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white fw-bold d-flex align-items-center" href="dashboard.html">
+        <img src="img/logo.png" alt="Logo" width="30" height="30" class="me-2" />
+        LIGA BARRIAL ARGELIA ALTA
+      </a>
+      <a href="programacion-dashboard.html" class="btn btn-outline-light ms-auto fw-semibold" style="border-radius: 50px">
+        <i class="fas fa-arrow-left me-1"></i> Volver al Dashboard
+      </a>
+    </div>
+  </nav>
+
+  <div class="container mt-5 mb-5">
+    <h2 class="section-title text-center mb-4">Programar Partidos por Categoría</h2>
+    <div class="row justify-content-center">
+      <div class="col-lg-12">
+        <div class="card shadow p-4">
+          <form id="encuentrosForm">
+            <div class="mb-3">
+              <label for="categoriaSelect" class="form-label">Categoría</label>
+              <select class="form-select" id="categoriaSelect" required>
+                <option value="">Selecciona una categoría</option>
+                <option value="máxima">Máxima</option>
+                <option value="primera">Primera</option>
+                <option value="femenino">Femenino</option>
+              </select>
+            </div>
+            <div class="row g-2 align-items-end mb-3">
+              <div class="col-md-5">
+                <label for="localSelect" class="form-label">Equipo local</label>
+                <select class="form-select" id="localSelect"></select>
+              </div>
+              <div class="col-md-5">
+                <label for="visitanteSelect" class="form-label">Equipo visitante</label>
+                <select class="form-select" id="visitanteSelect"></select>
+              </div>
+              <div class="col-md-2 d-grid">
+                <button type="button" class="btn btn-primary" id="agregarEncuentroBtn">
+                  <i class="fas fa-plus"></i> Agregar
+                </button>
+              </div>
+            </div>
+            <div class="mb-3">
+              <button type="button" class="btn btn-outline-success btn-sm" id="generarTodosBtn">
+                <i class="fas fa-random"></i> Generar todos contra todos
+              </button>
+            </div>
+          </form>
+          <div id="equiposCategoria" class="mb-2" style="display:none"></div>
+          <div id="listaEncuentros" class="mb-4"></div>
+          <hr>
+          <h5 class="text-success">Días de juego y horarios</h5>
+          <div class="mb-3">
+            <div class="d-flex flex-wrap gap-2 mb-2">
+              <div class="form-check">
+                <input class="form-check-input day-checkbox" type="checkbox" value="Lunes" id="diaLunes">
+                <label class="form-check-label" for="diaLunes">Lunes</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input day-checkbox" type="checkbox" value="Martes" id="diaMartes">
+                <label class="form-check-label" for="diaMartes">Martes</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input day-checkbox" type="checkbox" value="Miércoles" id="diaMiercoles">
+                <label class="form-check-label" for="diaMiercoles">Miércoles</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input day-checkbox" type="checkbox" value="Jueves" id="diaJueves">
+                <label class="form-check-label" for="diaJueves">Jueves</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input day-checkbox" type="checkbox" value="Viernes" id="diaViernes">
+                <label class="form-check-label" for="diaViernes">Viernes</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input day-checkbox" type="checkbox" value="Sábado" id="diaSabado">
+                <label class="form-check-label" for="diaSabado">Sábado</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input day-checkbox" type="checkbox" value="Domingo" id="diaDomingo">
+                <label class="form-check-label" for="diaDomingo">Domingo</label>
+              </div>
+            </div>
+            <!-- Horarios por día -->
+            <div id="horariosPorDia">
+              <div class="day-schedule" id="schedule-Lunes">
+                <div class="row g-2 align-items-end mb-2">
+                  <div class="col-md-4">
+                    <label for="horaInicio-Lunes" class="form-label">Inicio (Lunes)</label>
+                    <input type="time" class="form-control" id="horaInicio-Lunes" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="horaFin-Lunes" class="form-label">Fin (Lunes)</label>
+                    <input type="time" class="form-control" id="horaFin-Lunes" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="duracion-Lunes" class="form-label">Duración (min)</label>
+                    <input type="number" class="form-control" id="duracion-Lunes" min="10" max="180" value="100" />
+                  </div>
+                </div>
+              </div>
+              <div class="day-schedule" id="schedule-Martes">
+                <div class="row g-2 align-items-end mb-2">
+                  <div class="col-md-4">
+                    <label for="horaInicio-Martes" class="form-label">Inicio (Martes)</label>
+                    <input type="time" class="form-control" id="horaInicio-Martes" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="horaFin-Martes" class="form-label">Fin (Martes)</label>
+                    <input type="time" class="form-control" id="horaFin-Martes" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="duracion-Martes" class="form-label">Duración (min)</label>
+                    <input type="number" class="form-control" id="duracion-Martes" min="10" max="180" value="100" />
+                  </div>
+                </div>
+              </div>
+              <div class="day-schedule" id="schedule-Miércoles">
+                <div class="row g-2 align-items-end mb-2">
+                  <div class="col-md-4">
+                    <label for="horaInicio-Miércoles" class="form-label">Inicio (Miércoles)</label>
+                    <input type="time" class="form-control" id="horaInicio-Miércoles" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="horaFin-Miércoles" class="form-label">Fin (Miércoles)</label>
+                    <input type="time" class="form-control" id="horaFin-Miércoles" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="duracion-Miércoles" class="form-label">Duración (min)</label>
+                    <input type="number" class="form-control" id="duracion-Miércoles" min="10" max="180" value="100" />
+                  </div>
+                </div>
+              </div>
+              <div class="day-schedule" id="schedule-Jueves">
+                <div class="row g-2 align-items-end mb-2">
+                  <div class="col-md-4">
+                    <label for="horaInicio-Jueves" class="form-label">Inicio (Jueves)</label>
+                    <input type="time" class="form-control" id="horaInicio-Jueves" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="horaFin-Jueves" class="form-label">Fin (Jueves)</label>
+                    <input type="time" class="form-control" id="horaFin-Jueves" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="duracion-Jueves" class="form-label">Duración (min)</label>
+                    <input type="number" class="form-control" id="duracion-Jueves" min="10" max="180" value="100" />
+                  </div>
+                </div>
+              </div>
+              <div class="day-schedule" id="schedule-Viernes">
+                <div class="row g-2 align-items-end mb-2">
+                  <div class="col-md-4">
+                    <label for="horaInicio-Viernes" class="form-label">Inicio (Viernes)</label>
+                    <input type="time" class="form-control" id="horaInicio-Viernes" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="horaFin-Viernes" class="form-label">Fin (Viernes)</label>
+                    <input type="time" class="form-control" id="horaFin-Viernes" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="duracion-Viernes" class="form-label">Duración (min)</label>
+                    <input type="number" class="form-control" id="duracion-Viernes" min="10" max="180" value="100" />
+                  </div>
+                </div>
+              </div>
+              <div class="day-schedule" id="schedule-Sábado">
+                <div class="row g-2 align-items-end mb-2">
+                  <div class="col-md-4">
+                    <label for="horaInicio-Sábado" class="form-label">Inicio (Sábado)</label>
+                    <input type="time" class="form-control" id="horaInicio-Sábado" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="horaFin-Sábado" class="form-label">Fin (Sábado)</label>
+                    <input type="time" class="form-control" id="horaFin-Sábado" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="duracion-Sábado" class="form-label">Duración (min)</label>
+                    <input type="number" class="form-control" id="duracion-Sábado" min="10" max="180" value="100" />
+                  </div>
+                </div>
+              </div>
+              <div class="day-schedule" id="schedule-Domingo">
+                <div class="row g-2 align-items-end mb-2">
+                  <div class="col-md-4">
+                    <label for="horaInicio-Domingo" class="form-label">Inicio (Domingo)</label>
+                    <input type="time" class="form-control" id="horaInicio-Domingo" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="horaFin-Domingo" class="form-label">Fin (Domingo)</label>
+                    <input type="time" class="form-control" id="horaFin-Domingo" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="duracion-Domingo" class="form-label">Duración (min)</label>
+                    <input type="number" class="form-control" id="duracion-Domingo" min="10" max="180" value="100" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="d-grid gap-2 mt-4">
+            <button type="button" class="btn btn-success btn-lg" id="generarProgramacionBtn">
+              <i class="fas fa-magic me-2"></i> Programar automáticamente
+            </button>
+          </div>
+          <div id="programacionResultado" class="mt-4"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+    // Configuración de tu proyecto (reemplaza con tus datos)
+    const firebaseConfig = {
+        apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
+        authDomain: "ldbaa-calificaciones.firebaseapp.com",
+        projectId: "ldbaa-calificaciones",
+        storageBucket: "ldbaa-calificaciones.firebasestorage.app",
+        messagingSenderId: "277579489603",
+        appId: "1:277579489603:web:bc93c22fea5f5f6b63cff6"
+      };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    // Ejemplo de equipos por categoría
+    const equiposPorCategoria = {
+      maxima: ["Maxima FC", "Argelia Juniors", "Estrella Verde", "Juventud Unida"],
+      primera: ["Primera Norte", "Deportivo Sur", "Atlético Este", "Oeste Unido"],
+      femenino: ["Femenino A", "Femenino B", "Femenino C"]
+    };
+    // Estructura para guardar encuentros por categoría
+    let encuentrosPorCategoria = {
+      "máxima": [],
+      "primera": [],
+      "femenino": []
+    };
+    let equiposActuales = [];
+    // Actualizar equipos al cambiar categoría
+    document.getElementById('categoriaSelect').addEventListener('change', function() {
+      const cat = this.value;
+      if (!cat) {
+        document.getElementById('equiposCategoria').innerHTML = '<span class="text-muted">Selecciona una categoría</span>';
+        document.getElementById('localSelect').innerHTML = '';
+        document.getElementById('visitanteSelect').innerHTML = '';
+        mostrarEncuentros();
+        return;
+      }
+      // Consulta a Firestore para traer equipos de la categoría seleccionada
+      db.collection("teams").where("category", "==", cat.toUpperCase())
+        .get()
+        .then((querySnapshot) => {
+          const equipos = [];
+          querySnapshot.forEach((doc) => {
+            equipos.push(doc.data());
+          });
+          document.getElementById('equiposCategoria').innerHTML = equipos.length
+            ? equipos.map(e=>`<span class='badge bg-success categoria-badge'>${e.name}</span>`).join(' ')
+            : '<span class="text-muted">No hay equipos</span>';
+          const localSel = document.getElementById('localSelect');
+          const visSel = document.getElementById('visitanteSelect');
+          localSel.innerHTML = '<option value="">Local</option>' + equipos.map(e=>`<option value="${e.name}">${e.name}</option>`).join('');
+          visSel.innerHTML = '<option value="">Visitante</option>' + equipos.map(e=>`<option value="${e.name}">${e.name}</option>`).join('');
+          equiposActuales = equipos;
+          mostrarEncuentros();
+        });
+    });
+    // Agregar encuentro manual
+    document.getElementById('agregarEncuentroBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      const cat = document.getElementById('categoriaSelect').value;
+      const local = document.getElementById('localSelect').value.trim();
+      const visitante = document.getElementById('visitanteSelect').value.trim();
+
+      // Depuración
+      // console.log("Local:", local, "Visitante:", visitante);
+
+      if (!cat || !local || !visitante || local === visitante) {
+        Swal.fire('Error', 'Selecciona equipos diferentes', 'error');
+        return;
+      }
+      // Evitar duplicados
+      if (encuentrosPorCategoria[cat].some(e => e.local === local && e.visitante === visitante)) {
+        Swal.fire('Error', 'Ese encuentro ya existe', 'error');
+        return;
+      }
+      encuentrosPorCategoria[cat].push({ local, visitante });
+      mostrarEncuentros();
+    });
+    // Generar todos contra todos
+    document.getElementById('generarTodosBtn').addEventListener('click', function() {
+      const cat = document.getElementById('categoriaSelect').value;
+      const equipos = equiposActuales;
+      if (equipos.length < 2) {
+        Swal.fire('Error', 'Debes tener al menos dos equipos', 'error');
+        return;
+      }
+      encuentrosPorCategoria[cat] = [];
+      for (let i = 0; i < equipos.length; i++) {
+        for (let j = 0; j < equipos.length; j++) {
+          if (i !== j) encuentrosPorCategoria[cat].push({ local: equipos[i], visitante: equipos[j] });
+        }
+      }
+      mostrarEncuentros();
+    });
+    // Mostrar lista de encuentros
+    function mostrarEncuentros() {
+      const lista = document.getElementById('listaEncuentros');
+      let html = '';
+      let hayEncuentros = false;
+      Object.keys(encuentrosPorCategoria).forEach(cat => {
+        const encuentros = encuentrosPorCategoria[cat] || [];
+        if (encuentros.length) {
+          hayEncuentros = true;
+          html += `<h6><span class='badge bg-secondary'>${cat.charAt(0).toUpperCase()+cat.slice(1)}</span></h6>`;
+          html += '<ul class="list-group mb-3">';
+          encuentros.forEach((e, idx) => {
+            html += `<li class='list-group-item encuentro-item d-flex justify-content-between align-items-center'>
+              <span>${e.local} <b>vs</b> ${e.visitante}</span>
+              <button class='btn btn-danger btn-sm btn-eliminar' onclick='eliminarEncuentro("${cat}",${idx})'>
+                <i class='fas fa-trash'></i>
+              </button>
+            </li>`;
+          });
+          html += '</ul>';
+        }
+      });
+      if (!hayEncuentros) {
+        html = '<span class="text-muted">No hay encuentros para ninguna categoría.</span>';
+      }
+      lista.innerHTML = html;
+    }
+    // Eliminar encuentro
+    window.eliminarEncuentro = function(cat, idx) {
+      encuentrosPorCategoria[cat].splice(idx, 1);
+      mostrarEncuentros();
+    }
+    // Mostrar/ocultar horarios por día
+    document.querySelectorAll('.day-checkbox').forEach(cb => {
+      cb.addEventListener('change', function() {
+        const day = this.value;
+        const scheduleDiv = document.getElementById('schedule-' + day);
+        if (this.checked) {
+          scheduleDiv.classList.add('active');
+        } else {
+          scheduleDiv.classList.remove('active');
+        }
+      });
+    });
+    // Programar automáticamente
+    document.getElementById('generarProgramacionBtn').addEventListener('click', function() {
+      const fechaInicio = new Date(); // O por ejemplo: new Date('2024-05-10')
+      // Unir todos los encuentros de todas las categorías
+      let partidos = [];
+      Object.keys(encuentrosPorCategoria).forEach(cat => {
+        if (!encuentrosPorCategoria[cat]) {
+          encuentrosPorCategoria[cat] = [];
+        }
+        encuentrosPorCategoria[cat].forEach(e => partidos.push({ ...e, categoria: cat }));
+      });
+      if (!partidos.length) {
+        Swal.fire('Error', 'Agrega al menos un encuentro', 'error');
+        return;
+      }
+      // Días y horarios
+      const dias = Array.from(document.querySelectorAll('.day-checkbox'))
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+      if (!dias.length) {
+        Swal.fire('Error', 'Selecciona al menos un día de juego', 'error');
+        return;
+      }
+      // Leer horarios por día
+      const horarios = {};
+      let horariosValidos = true;
+      dias.forEach(dia => {
+        const inicio = document.getElementById('horaInicio-' + dia).value;
+        const fin = document.getElementById('horaFin-' + dia).value;
+        const duracion = parseInt(document.getElementById('duracion-' + dia).value);
+        if (!inicio || !fin || !duracion) {
+          horariosValidos = false;
+        }
+        horarios[dia] = { inicio, fin, duracion };
+      });
+      if (!horariosValidos) {
+        Swal.fire('Error', 'Completa los horarios de todos los días seleccionados', 'error');
+        return;
+      }
+      // Mezclar partidos aleatoriamente
+      partidos = partidos.sort(() => Math.random() - 0.5);
+      // Programar
+      const resultado = [];
+      let partidoIndex = 0;
+      let fechaActual = 1;
+      function sumarMinutos(hora, minutos) {
+        const [h, m] = hora.split(":").map(Number);
+        let total = h * 60 + m + minutos;
+        let nh = Math.floor(total / 60);
+        let nm = total % 60;
+        return `${nh.toString().padStart(2,'0')}:${nm.toString().padStart(2,'0')}`;
+      }
+      while (partidoIndex < partidos.length) {
+        for (let dia of dias) {
+          const { inicio, fin, duracion } = horarios[dia];
+          let hora = inicio;
+          while (hora < fin && partidoIndex < partidos.length) {
+            const fechaReal = formatearFecha(proximaFecha(dia, fechaInicio));
+            resultado.push({
+              fecha: `Fecha ${fechaActual}`,
+              fechaReal,
+              dia,
+              hora,
+              local: partidos[partidoIndex].local,
+              visitante: partidos[partidoIndex].visitante,
+              categoria: partidos[partidoIndex].categoria
+            });
+            hora = sumarMinutos(hora, duracion);
+            partidoIndex++;
+          }
+        }
+        fechaActual++;
+      }
+      // Agrupar partidos por fecha, día y ordenar por hora
+      const partidosPorFechaDia = {};
+      resultado.forEach((p, idx) => {
+        const key = `${p.fecha}_${p.dia}`;
+        if (!partidosPorFechaDia[key]) partidosPorFechaDia[key] = [];
+        partidosPorFechaDia[key].push({ ...p, idx });
+      });
+
+      // Asignar un equipo como vocal y otro como veedor (circular si impar, alternado si par)
+      Object.values(partidosPorFechaDia).forEach(partidos => {
+        // Ordenar por hora
+        partidos.sort((a, b) => a.hora.localeCompare(b.hora));
+        const n = partidos.length;
+        if (n % 2 === 1) {
+          // Impar: circular
+          for (let i = 0; i < n; i++) {
+            const siguiente = (i + 1) % n;
+            resultado[partidos[i].idx].vocal = partidos[siguiente].local;
+            resultado[partidos[i].idx].veedor = partidos[siguiente].visitante;
+          }
+        } else {
+          // Par: alternado
+          for (let i = 0; i < n; i++) {
+            if (i % 2 === 0) {
+              // Par: al siguiente
+              const siguiente = i + 1;
+              resultado[partidos[i].idx].vocal = partidos[siguiente].local;
+              resultado[partidos[i].idx].veedor = partidos[siguiente].visitante;
+            } else {
+              // Impar: al anterior
+              const anterior = i - 1;
+              resultado[partidos[i].idx].vocal = partidos[anterior].local;
+              resultado[partidos[i].idx].veedor = partidos[anterior].visitante;
+            }
+          }
+        }
+      });
+      // Mostrar resultado
+      let html = `<div class='d-flex justify-content-between align-items-center mb-2'>
+        <h5 class='text-success mb-0'>Programación generada:</h5>
+        <button class='btn btn-outline-success' id='exportarExcelBtn'><i class='fas fa-file-excel'></i> Exportar a Excel</button>
+      </div>`;
+      html += `<div class='table-responsive'><table class='table table-modern'><thead><tr>
+      <th>Fecha</th><th>Categoría</th><th>Día</th><th>Hora</th><th>Local</th><th>Visitante</th><th>Vocal</th><th>Veedor</th>
+      </tr></thead><tbody>`;
+      resultado.forEach(p => {
+        html += `<tr>
+          <td>${p.fechaReal}</td>
+          <td>${p.categoria.charAt(0).toUpperCase()+p.categoria.slice(1)}</td>
+          <td>${p.dia}</td>
+          <td>${p.hora}</td>
+          <td>${p.local}</td>
+          <td>${p.visitante}</td>
+          <td>${p.vocal || '-'}</td>
+          <td>${p.veedor || '-'}</td>
+        </tr>`;
+      });
+      html += `</tbody></table></div>`;
+      document.getElementById('programacionResultado').innerHTML = html;
+      // Evento para exportar a Excel
+      setTimeout(() => {
+        const btn = document.getElementById('exportarExcelBtn');
+        if (btn) {
+          btn.onclick = function() {
+            const tabla = document.querySelector('#programacionResultado table');
+            if (!tabla) {
+              Swal.fire('Error', 'No se encontró la tabla para exportar', 'error');
+              return;
+            }
+            if (typeof XLSX === 'undefined') {
+              Swal.fire('Error', 'No se encontró la librería XLSX', 'error');
+              return;
+            }
+            const wb = XLSX.utils.table_to_book(tabla, {sheet: 'Programación'});
+            XLSX.writeFile(wb, 'programacion-generada.xlsx');
+          };
+        }
+      }, 100);
+      Swal.fire('¡Listo!', 'La programación se generó exitosamente.', 'success');
+    });
+    // Devuelve la próxima fecha (Date) para un día de la semana a partir de una fecha base
+    function proximaFecha(diaSemana, fechaBase) {
+      // Mapear días a números (0=Domingo, 1=Lunes, ..., 6=Sábado)
+      const dias = {
+        "Domingo": 0,
+        "Lunes": 1,
+        "Martes": 2,
+        "Miércoles": 3,
+        "Jueves": 4,
+        "Viernes": 5,
+        "Sábado": 6
+      };
+      const diaObjetivo = dias[diaSemana];
+      const fecha = new Date(fechaBase);
+      const diferencia = (diaObjetivo - fecha.getDay() + 7) % 7;
+      fecha.setDate(fecha.getDate() + diferencia);
+      return fecha;
+    }
+    // Formatea una fecha Date a dd/mm/yyyy
+    function formatearFecha(fecha) {
+      const d = fecha.getDate().toString().padStart(2, '0');
+      const m = (fecha.getMonth() + 1).toString().padStart(2, '0');
+      const y = fecha.getFullYear();
+      return `${d}/${m}/${y}`;
+    }
+  </script>
+</body>
+</html> 

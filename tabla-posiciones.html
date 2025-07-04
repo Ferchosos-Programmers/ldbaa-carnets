@@ -11,10 +11,11 @@
     <link rel="stylesheet" href="css/responsive.css" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
       body {
-        background-color: #f1f1f1;
+        background: linear-gradient(135deg, #f8fafc 0%, #e9f5ee 100%);
         font-family: 'Times New Roman', Times, serif;
       }
       .navbar {
@@ -25,9 +26,9 @@
         font-size: 1.5rem;
         color: #fff !important;
       }
-      .card {
-        transition: transform 0.2s ease-in-out;
-        border-radius: 1rem;
+      .card, .modal-content {
+        border-radius: 1.5rem;
+        box-shadow: 0 8px 32px rgba(40, 167, 69, 0.10);
       }
       .card:hover {
         transform: translateY(-5px);
@@ -177,19 +178,18 @@
       /* --- BOTONES MODERNOS VERDE, BLANCO Y NEGRO --- */
       .btn, .btn-primary, .btn-success, .btn-warning, .btn-outline-success, .btn-ver-partidos {
         border-radius: 2rem !important;
-        border-width: 1.5px !important;
-        font-weight: 500;
+        font-weight: 600;
         box-shadow: 0 2px 8px rgba(40,167,69,0.08);
         transition: background 0.18s, color 0.18s, box-shadow 0.18s, border 0.18s;
-        font-size: 1.02em;
-        padding: 0.45em 1.3em;
+        font-size: 1.08em;
+        padding: 0.55em 1.5em;
       }
       .btn-primary, .btn-success, .btn-ver-partidos {
-        background: #28a745;
+        background: linear-gradient(90deg, #28a745 80%, #218838 100%);
         color: #fff;
-        border: 1.5px solid #28a745;
+        border: none;
       }
-      .btn-primary:hover, .btn-success:hover, .btn-ver-partidos:hover, .btn-primary:focus, .btn-success:focus, .btn-ver-partidos:focus {
+      .btn-primary:hover, .btn-success:hover, .btn-ver-partidos:hover {
         background: #fff;
         color: #28a745;
         border: 1.5px solid #28a745;
@@ -358,6 +358,85 @@
         color: #28a745;
         border: 1.2px solid #28a745;
       }
+      .table {
+        background: #fff;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(40, 167, 69, 0.08);
+      }
+      .table th, .table td {
+        border: none;
+        text-align: center;
+        vertical-align: middle;
+        padding: 14px 8px;
+        font-size: 1.08em;
+      }
+      .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #f3fdf7;
+      }
+      .table-hover > tbody > tr:hover {
+        background-color: #eafaf1;
+      }
+      /* BOTÓN REGRESAR MODERNO Y RESPONSIVO */
+      .btn-outline-secondary.btn-md {
+        background: #fff;
+        color: #28a745;
+        border-color: #28a745;
+        font-weight: 500;
+        transition: background 0.18s, color 0.18s, border 0.18s, box-shadow 0.18s;
+      }
+      .btn-outline-secondary.btn-md:hover, .btn-outline-secondary.btn-md:focus {
+        background: #28a745;
+        color: #fff;
+        border-color: #28a745;
+        box-shadow: 0 4px 16px rgba(40,167,69,0.13);
+      }
+      @media (max-width: 576px) {
+        .btn-outline-secondary.btn-md {
+          font-size: 0.98em;
+          padding: 0.38em 1em;
+        }
+        .row.align-items-center.mb-4.g-2 > .col-12.col-md-auto {
+          justify-content: flex-start;
+        }
+        .row.align-items-center.mb-4.g-2 > .col {
+          justify-content: center;
+        }
+      }
+      /* TABLA RESPONSIVA Y ADAPTABLE */
+      .table-responsive-custom {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 1rem;
+      }
+      @media (max-width: 576px) {
+        .table th, .table td {
+          font-size: 0.90em;
+          padding: 0.32rem 0.25rem;
+        }
+        .table {
+          min-width: 520px;
+        }
+      }
+
+      /* UNIFICAR TAMAÑO DE BOTONES DE ACCIÓN */
+      .btn-md-custom {
+        padding: 0.38em 1.3em;
+        font-size: 1.08em;
+        border-radius: 1.5rem !important;
+        font-weight: 500;
+        border-width: 1.2px;
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+      }
+      @media (max-width: 576px) {
+        .btn-md-custom {
+          font-size: 0.98em;
+          padding: 0.32em 1em;
+        }
+      }
     </style>
   </head>
   <body>
@@ -374,25 +453,308 @@
       </div>
     </nav>
 
-    <div class="container mt-5 d-flex justify-content-center align-items-center" style="min-height: 60vh;">
-      <div class="row w-100 justify-content-center">
-        <div class="col-md-5 mb-4">
-          <div class="card shadow-lg h-100" style="cursor:pointer;" onclick="window.location.href='tabla-posiciones.html'">
-            <div class="card-body text-center">
-              <i class="fas fa-list-ol fa-3x mb-3 text-success"></i>
-              <h4 class="card-title mb-3">Tabla de posiciones</h4>
-              <p class="card-text">Consulta la tabla de posiciones actualizada de cada categoría.</p>
-              <button class="btn btn-success mt-2">Ver tabla de posiciones</button>
-            </div>
+    <div class="container mt-4">
+      <div class="row align-items-center mb-4 g-2">
+        <div class="col-12 col-md-auto d-flex align-items-center mb-2 mb-md-0">
+          <button class="btn btn-outline-secondary btn-md btn-md-custom px-3 py-1 shadow-sm" onclick="window.history.back()">
+            <i class="fas fa-arrow-left" style="font-size:1.1em;"></i>
+            <span class="d-none d-sm-inline">Regresar</span>
+          </button>
+        </div>
+        <div class="col d-flex align-items-center justify-content-center justify-content-md-start">
+          <h3 class="text-dark mb-0" style="font-weight:600; letter-spacing:0.5px;">🏆 Tabla de Posiciones</h3>
+        </div>
+        <div class="col-12 col-md-auto d-flex justify-content-end mt-2 mt-md-0">
+          <button class="btn btn-primary shadow me-2 btn-md-custom" data-bs-toggle="modal" data-bs-target="#viewResultsModal">
+            <i class="fas fa-history"></i> <span class="d-none d-sm-inline">Ver Resultados</span>
+          </button>
+          <button class="btn btn-success shadow me-2 btn-md-custom" data-bs-toggle="modal" data-bs-target="#addResultModal">
+            <span class="d-none d-sm-inline">+ Registrar Resultado</span>
+            <span class="d-inline d-sm-none"><i class="fas fa-plus"></i></span>
+          </button>
+          <button class="btn btn-warning btn-md-custom" data-bs-toggle="modal" data-bs-target="#setFechasModal">
+            <span class="d-none d-sm-inline">Definir Fechas</span>
+            <span class="d-inline d-sm-none"><i class="fas fa-calendar-alt"></i></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Selector de Campeonato -->
+      <div class="mb-4">
+        <label for="championshipSelect" class="form-label">Seleccionar Campeonato:</label>
+        <select class="form-select" id="championshipSelect" onchange="onChampionshipSelected()">
+          <option value="">Cargando campeonatos...</option>
+        </select>
+      </div>
+
+      <!-- Pestañas de categorías -->
+      <ul class="nav nav-pills category-tabs" id="categoryTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="maxima-tab" data-bs-toggle="pill" data-bs-target="#maxima" type="button" role="tab">Máxima</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="primera-tab" data-bs-toggle="pill" data-bs-target="#primera" type="button" role="tab">Primera</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="femenino-tab" data-bs-toggle="pill" data-bs-target="#femenino" type="button" role="tab">Femenino</button>
+        </li>
+      </ul>
+
+      <!-- Contenido de las pestañas -->
+      <div class="tab-content" id="categoryTabContent">
+        <div class="tab-pane fade show active" id="maxima" role="tabpanel">
+          <div class="d-flex justify-content-end">
+            <button class="btn btn-outline-success mb-2" onclick="exportarTablaExcel('maxima')">
+              <i class="fas fa-file-excel"></i> Exportar a Excel
+            </button>
+          </div>
+          <div class="table-responsive-custom">
+            <table class="table table-md table-striped table-hover">
+              <thead class="table-success">
+                <tr>
+                  <th>Pos</th>
+                  <th>Equipo</th>
+                  <th>PJ</th>
+                  <th>PG</th>
+                  <th>PE</th>
+                  <th>PP</th>
+                  <th>GF</th>
+                  <th>GC</th>
+                  <th>DG</th>
+                  <th>Pts</th>
+                </tr>
+              </thead>
+              <tbody id="maximaTableBody">
+                <!-- Se llenará dinámicamente -->
+              </tbody>
+            </table>
           </div>
         </div>
-        <div class="col-md-5 mb-4">
-          <div class="card shadow-lg h-100" style="cursor:pointer;" onclick="window.location.href='programacion-fixture.html'">
-            <div class="card-body text-center">
-              <i class="fas fa-calendar-alt fa-3x mb-3 text-warning"></i>
-              <h4 class="card-title mb-3">Programación</h4>
-              <p class="card-text">Revisa la programación de partidos por fecha y categoría.</p>
-              <button class="btn btn-warning mt-2">Ver programación</button>
+        <div class="tab-pane fade" id="primera" role="tabpanel">
+          <div class="d-flex justify-content-end">
+            <button class="btn btn-outline-success mb-2" onclick="exportarTablaExcel('primera')">
+              <i class="fas fa-file-excel"></i> Exportar a Excel
+            </button>
+          </div>
+          <div class="table-responsive-custom">
+            <table class="table table-striped table-hover">
+              <thead class="table-success">
+                <tr>
+                  <th>Pos</th>
+                  <th>Equipo</th>
+                  <th>PJ</th>
+                  <th>PG</th>
+                  <th>PE</th>
+                  <th>PP</th>
+                  <th>GF</th>
+                  <th>GC</th>
+                  <th>DG</th>
+                  <th>Pts</th>
+                </tr>
+              </thead>
+              <tbody id="primeraTableBody">
+                <!-- Se llenará dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="femenino" role="tabpanel">
+          <div class="d-flex justify-content-end">
+            <button class="btn btn-outline-success mb-2" onclick="exportarTablaExcel('femenino')">
+              <i class="fas fa-file-excel"></i> Exportar a Excel
+            </button>
+          </div>
+          <div class="table-responsive-custom">
+            <table class="table table-striped table-hover">
+              <thead class="table-success">
+                <tr>
+                  <th>Pos</th>
+                  <th>Equipo</th>
+                  <th>PJ</th>
+                  <th>PG</th>
+                  <th>PE</th>
+                  <th>PP</th>
+                  <th>GF</th>
+                  <th>GC</th>
+                  <th>DG</th>
+                  <th>Pts</th>
+                </tr>
+              </thead>
+              <tbody id="femeninoTableBody">
+                <!-- Se llenará dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para registrar resultados -->
+    <div class="modal fade" id="addResultModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Registrar Resultado</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="resultForm">
+              <div class="mb-3">
+                <label for="localTeam" class="form-label">Equipo Local</label>
+                <select class="form-select" id="localTeam" required>
+                  <option value="">Seleccionar equipo local</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="awayTeam" class="form-label">Equipo Visitante</label>
+                <select class="form-select" id="awayTeam" required>
+                  <option value="">Seleccionar equipo visitante</option>
+                </select>
+              </div>
+              <div class="row">
+                <div class="col-6">
+                  <div class="mb-3">
+                    <label for="localGoals" class="form-label">Goles Local</label>
+                    <input type="number" class="form-control" id="localGoals" min="0" required>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="mb-3">
+                    <label for="awayGoals" class="form-label">Goles Visitante</label>
+                    <input type="number" class="form-control" id="awayGoals" min="0" required>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="matchDate" class="form-label">Fecha del Partido</label>
+                <select class="form-select" id="matchDate" required>
+                  <option value="">Selecciona una fecha</option>
+                  <!-- Opciones se llenan dinámicamente -->
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-success" onclick="saveResult()">Guardar Resultado</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para ver y editar resultados -->
+    <div class="modal fade" id="viewResultsModal" tabindex="-1">
+      <div class="modal-dialog modal-xl" style="max-width: 50vw;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Resultados de Partidos</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div id="fechasCardsContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para editar resultado -->
+    <div class="modal fade" id="editResultModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Editar Resultado</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="editResultForm">
+              <input type="hidden" id="editMatchId">
+              <div class="mb-3">
+                <label class="form-label">Equipo Local</label>
+                <input type="text" class="form-control" id="editLocalTeam" readonly>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Equipo Visitante</label>
+                <input type="text" class="form-control" id="editAwayTeam" readonly>
+              </div>
+              <div class="row">
+                <div class="col-6">
+                  <div class="mb-3">
+                    <label for="editLocalGoals" class="form-label">Goles Local</label>
+                    <input type="number" class="form-control" id="editLocalGoals" min="0" required>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="mb-3">
+                    <label for="editAwayGoals" class="form-label">Goles Visitante</label>
+                    <input type="number" class="form-control" id="editAwayGoals" min="0" required>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="editMatchDate" class="form-label">Fecha del Partido</label>
+                <select class="form-select" id="editMatchDate" required>
+                  <option value="">Selecciona una fecha</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-success" onclick="updateResult()">Guardar Cambios</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para definir fechas por categoría -->
+    <div class="modal fade" id="setFechasModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Definir Fechas por Categoría</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <label for="fechasCategoriaSelect" class="form-label">Categoría:</label>
+            <select id="fechasCategoriaSelect" class="form-select mb-3">
+              <option value="maxima">Máxima</option>
+              <option value="primera">Primera</option>
+              <option value="femenino">Femenino</option>
+            </select>
+            <label for="cantidadFechasInput" class="form-label">Cantidad de Fechas:</label>
+            <input type="number" id="cantidadFechasInput" class="form-control mb-3" min="1" placeholder="Ej: 10">
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button class="btn btn-warning" onclick="guardarFechasCategoria()">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para mostrar partidos de una fecha -->
+    <div class="modal fade" id="partidosPorFechaModal" tabindex="-1">
+      <div class="modal-dialog modal-xl" style="max-width: 50vw;">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title" id="partidosPorFechaTitulo"></h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="table-responsive">
+              <table class="table ">
+                <thead class="table-success">
+                  <tr>
+                    <th>Local</th>
+                    <th>Resultado</th>
+                    <th>Visitante</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="partidosPorFechaTableBody">
+                  <!-- Se llenará dinámicamente -->
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -404,6 +766,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script>
       // Configuración de Firebase
@@ -1180,6 +1543,16 @@
           }, 350);
         }
       });
+
+      function exportarTablaExcel(categoria) {
+        const tabla = document.querySelector(`#${categoria} .table`);
+        if (!tabla) {
+          Swal.fire('Error', 'No se encontró la tabla para exportar', 'error');
+          return;
+        }
+        const wb = XLSX.utils.table_to_book(tabla, {sheet: "Posiciones"});
+        XLSX.writeFile(wb, `tabla-posiciones-${categoria}.xlsx`);
+      }
     </script>
   </body>
 </html> 
