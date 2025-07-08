@@ -743,7 +743,9 @@
           
           // Usar la fecha de inicio de notificaciones si existe, sino usar 30 días antes
           let startDate;
-          if (championship.notificationStartDate) {
+          if (championship.deadlineLastChanged) {
+            startDate = new Date(championship.deadlineLastChanged.toDate());
+          } else if (championship.notificationStartDate) {
             startDate = new Date(championship.notificationStartDate);
           } else {
             // Fallback: considerar 30 días antes de la fecha límite
@@ -808,7 +810,9 @@
           
           // Usar la fecha de inicio de notificaciones si existe, sino usar 30 días antes
           let startDate;
-          if (championship.notificationStartDate) {
+          if (championship.deadlineLastChanged) {
+            startDate = new Date(championship.deadlineLastChanged.toDate());
+          } else if (championship.notificationStartDate) {
             startDate = new Date(championship.notificationStartDate);
           } else {
             // Fallback: considerar 30 días antes de la fecha límite
@@ -860,7 +864,9 @@
             if (championship.deadline) {
               const deadline = new Date(championship.deadline);
               let startDate;
-              if (championship.notificationStartDate) {
+              if (championship.deadlineLastChanged) {
+                startDate = new Date(championship.deadlineLastChanged.toDate());
+              } else if (championship.notificationStartDate) {
                 startDate = new Date(championship.notificationStartDate);
               } else {
                 startDate = new Date(deadline.getTime() - (30 * 24 * 60 * 60 * 1000));
