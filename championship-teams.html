@@ -353,6 +353,7 @@
       const auth = firebase.auth();
       let championshipId = null;
       let isAdmin = false;
+      let championshipListener = null; // Variable para almacenar el listener del campeonato
 
       // Verificar estado de autenticación
       auth.onAuthStateChanged((user) => {
@@ -376,6 +377,19 @@
           checkNewPlayers();
           // Asegúrate de mostrar el botón aunque no haya jugadores nuevos
           document.getElementById('newPlayersFloatingBtn').style.display = 'block';
+          
+          // Escuchar cambios en el campeonato para actualizar notificaciones
+          championshipListener = db.collection('championships').doc(championshipId).onSnapshot((doc) => {
+            if (doc.exists) {
+              const championship = doc.data();
+              // Si la fecha de deadline cambió, actualizar las notificaciones
+              if (championship.deadlineLastChanged) {
+                console.log('Fecha de deadline actualizada, recargando notificaciones...');
+                showNewPlayersToast();
+                checkNewPlayers();
+              }
+            }
+          });
         } else {
           document.getElementById('newPlayersFloatingBtn').style.display = 'none';
         }
@@ -689,6 +703,11 @@
           cancelButtonText: 'Cancelar'
         }).then((result) => {
           if (result.isConfirmed) {
+            // Limpiar el listener del campeonato
+            if (championshipListener) {
+              championshipListener();
+            }
+            
             auth.signOut().then(() => {
               window.location.href = 'login.html';
             }).catch((error) => {
@@ -698,6 +717,13 @@
           }
         });
       }
+
+      // Limpiar listener cuando se cierre la página
+      window.addEventListener('beforeunload', function() {
+        if (championshipListener) {
+          championshipListener();
+        }
+      });
 
       document.getElementById('viewPdfModal').addEventListener('hidden.bs.modal', function () {
         // Reabrir el modal de gestionar archivos si lo deseas
@@ -714,8 +740,15 @@
           const championship = champDoc.data();
           if (!championship.deadline) return;
           const deadline = new Date(championship.deadline);
-          // Considerar 30 días antes de la fecha límite
-          const startDate = new Date(deadline.getTime() - (30 * 24 * 60 * 60 * 1000));
+          
+          // Usar la fecha de inicio de notificaciones si existe, sino usar 30 días antes
+          let startDate;
+          if (championship.notificationStartDate) {
+            startDate = new Date(championship.notificationStartDate);
+          } else {
+            // Fallback: considerar 30 días antes de la fecha límite
+            startDate = new Date(deadline.getTime() - (30 * 24 * 60 * 60 * 1000));
+          }
 
           // Consultar jugadores registrados en ese periodo y campeonato
           const playersSnapshot = await db.collection('players')
@@ -772,12 +805,20 @@
           const championship = champDoc.data();
           if (!championship.deadline) return;
           const deadline = new Date(championship.deadline);
-          // Considerar 30 días antes de la fecha límite
-          const startDate = new Date(deadline.getTime() - (30 * 24 * 60 * 60 * 1000));
+          
+          // Usar la fecha de inicio de notificaciones si existe, sino usar 30 días antes
+          let startDate;
+          if (championship.notificationStartDate) {
+            startDate = new Date(championship.notificationStartDate);
+          } else {
+            // Fallback: considerar 30 días antes de la fecha límite
+            startDate = new Date(deadline.getTime() - (30 * 24 * 60 * 60 * 1000));
+          }
 
           // Consultar jugadores registrados en ese periodo y campeonato
           const playersSnapshot = await db.collection('players')
             .where('campeonatoId', '==', championshipId)
+            .where('createdAt', '>=', startDate)
             .where('createdAt', '<=', deadline)
             .get();
 
@@ -804,14 +845,41 @@
       }
 
       // Mostrar modal con jugadores nuevos
-      function showNewPlayersModal() {
+      async function showNewPlayersModal() {
         if (!window.newPlayersData || window.newPlayersData.length === 0) {
           Swal.fire('Info', 'No hay jugadores nuevos para mostrar', 'info');
           return;
         }
 
+        // Obtener información del campeonato para mostrar el período
+        let periodInfo = '';
+        try {
+          const champDoc = await db.collection('championships').doc(championshipId).get();
+          if (champDoc.exists) {
+            const championship = champDoc.data();
+            if (championship.deadline) {
+              const deadline = new Date(championship.deadline);
+              let startDate;
+              if (championship.notificationStartDate) {
+                startDate = new Date(championship.notificationStartDate);
+              } else {
+                startDate = new Date(deadline.getTime() - (30 * 24 * 60 * 60 * 1000));
+              }
+              
+              periodInfo = `
+                <div class="alert alert-info mb-3">
+                  <strong>Período de notificación:</strong> Desde ${startDate.toLocaleDateString('es-ES')} hasta ${deadline.toLocaleDateString('es-ES')}
+                  ${championship.deadlineLastChanged ? '<br><small class="text-muted">Fecha de finalización actualizada el ' + new Date(championship.deadlineLastChanged.toDate()).toLocaleDateString('es-ES') + '</small>' : ''}
+                </div>
+              `;
+            }
+          }
+        } catch (e) {
+          console.error('Error obteniendo información del campeonato:', e);
+        }
+
         const playersList = document.getElementById('newPlayersList');
-        let html = '';
+        let html = periodInfo;
 
         window.newPlayersData.forEach(player => {
           html += `

@@ -583,15 +583,23 @@
       document.getElementById('championshipForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
+        const deadline = document.getElementById('championshipDeadline').value;
+        
         const championshipData = {
           name: document.getElementById('championshipName').value,
           year: parseInt(document.getElementById('championshipYear').value),
           description: document.getElementById('championshipDescription').value,
-          deadline: document.getElementById('championshipDeadline').value || null, // Guardar como cadena ISO 8601
+          deadline: deadline || null, // Guardar como cadena ISO 8601
           countdownMessage: document.getElementById('championshipCountdownMessage').value || null,
           expiredMessage: document.getElementById('championshipExpiredMessage').value || null,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
+
+        // Si hay fecha de deadline, establecerla como fecha de inicio de notificaciones
+        if (deadline) {
+          championshipData.notificationStartDate = deadline;
+          championshipData.deadlineLastChanged = firebase.firestore.FieldValue.serverTimestamp();
+        }
 
         db.collection('championships').add(championshipData)
           .then(() => {
@@ -639,6 +647,9 @@
           document.getElementById('editChampionshipCountdownMessage').value = championship.countdownMessage || '';
           document.getElementById('editChampionshipExpiredMessage').value = championship.expiredMessage || '';
 
+          // Guardar la fecha original para comparar si cambió
+          window.originalDeadline = championship.deadline;
+
           const modal = new bootstrap.Modal(document.getElementById('editChampionshipModal'));
           modal.show();
 
@@ -653,20 +664,37 @@
         e.preventDefault();
 
         const id = document.getElementById('editChampionshipId').value;
+        const newDeadline = document.getElementById('editChampionshipDeadline').value;
+        const originalDeadline = window.originalDeadline;
+        
         const updatedData = {
           name: document.getElementById('editChampionshipName').value,
           year: parseInt(document.getElementById('editChampionshipYear').value),
           description: document.getElementById('editChampionshipDescription').value,
-          deadline: document.getElementById('editChampionshipDeadline').value || null,
+          deadline: newDeadline || null,
           countdownMessage: document.getElementById('editChampionshipCountdownMessage').value || null,
           expiredMessage: document.getElementById('editChampionshipExpiredMessage').value || null
         };
 
+        // Verificar si la fecha de deadline cambió
+        const deadlineChanged = originalDeadline !== newDeadline;
+        
+        if (deadlineChanged && newDeadline) {
+          // Si la fecha cambió, establecer la nueva fecha como punto de inicio para notificaciones
+          updatedData.notificationStartDate = newDeadline;
+          updatedData.deadlineLastChanged = firebase.firestore.FieldValue.serverTimestamp();
+        }
+
         db.collection('championships').doc(id).update(updatedData)
           .then(() => {
+            let message = 'Campeonato actualizado correctamente';
+            if (deadlineChanged) {
+              message += '. Las notificaciones de jugadores nuevos comenzarán desde la nueva fecha de finalización.';
+            }
+            
             Swal.fire({
               title: 'Éxito',
-              text: 'Campeonato actualizado correctamente',
+              text: message,
               icon: 'success',
               confirmButtonColor: '#28a745'
             });
