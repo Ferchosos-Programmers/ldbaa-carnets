@@ -10,7 +10,8 @@
     />
     <link rel="stylesheet" href="css/responsive.css" />
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- SweetAlert2 -->
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
@@ -19,12 +20,18 @@
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-storage.js"></script>
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+
+    <!-- SheetJS para Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
       body {
         background-color: #f1f1f1;
-        font-family: 'Times New Roman', Times, serif;
+        font-family: "Times New Roman", Times, serif;
       }
       .navbar {
         background-color: #000;
@@ -112,13 +119,21 @@
     <div class="container mt-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="text-dark">🏆 Campeonatos</h3>
-        <button
-          class="btn btn-success shadow"
-          data-bs-toggle="modal"
-          data-bs-target="#addChampionshipModal"
-        >
-          + Crear Campeonato
-        </button>
+        <div>
+          <!-- <button
+            class="btn btn-primary shadow me-2"
+            onclick="exportarJugadoresExcel()"
+          >
+            <i class="fas fa-file-excel me-2"></i>Exportar Jugadores
+          </button> -->
+          <button
+            class="btn btn-success shadow"
+            data-bs-toggle="modal"
+            data-bs-target="#addChampionshipModal"
+          >
+            + Crear Campeonato
+          </button>
+        </div>
       </div>
 
       <!-- Contenedor de tarjetas de campeonatos -->
@@ -128,42 +143,97 @@
     </div>
 
     <!-- Modal para crear campeonato -->
-    <div class="modal fade" id="addChampionshipModal" tabindex="-1" aria-labelledby="addChampionshipModalLabel" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="addChampionshipModal"
+      tabindex="-1"
+      aria-labelledby="addChampionshipModalLabel"
+      aria-hidden="true"
+    >
       <div class="modal-dialog">
         <div class="modal-content shadow">
           <form id="championshipForm">
             <div class="modal-header bg-success text-white">
-              <h5 class="modal-title" id="addChampionshipModalLabel">Crear Nuevo Campeonato</h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              <h5 class="modal-title" id="addChampionshipModalLabel">
+                Crear Nuevo Campeonato
+              </h5>
+              <button
+                type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                aria-label="Cerrar"
+              ></button>
             </div>
             <div class="modal-body">
               <div class="mb-3">
-                <label for="championshipName" class="form-label">Nombre del Campeonato</label>
-                <input type="text" class="form-control" id="championshipName" required>
+                <label for="championshipName" class="form-label"
+                  >Nombre del Campeonato</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="championshipName"
+                  required
+                />
               </div>
               <div class="mb-3">
                 <label for="championshipYear" class="form-label">Año</label>
-                <input type="number" class="form-control" id="championshipYear" required min="2024" max="2100">
+                <input
+                  type="number"
+                  class="form-control"
+                  id="championshipYear"
+                  required
+                  min="2024"
+                  max="2100"
+                />
               </div>
               <div class="mb-3">
-                <label for="championshipDescription" class="form-label">Descripción</label>
-                <textarea class="form-control" id="championshipDescription" rows="3"></textarea>
+                <label for="championshipDescription" class="form-label"
+                  >Descripción</label
+                >
+                <textarea
+                  class="form-control"
+                  id="championshipDescription"
+                  rows="3"
+                ></textarea>
               </div>
               <div class="mb-3">
-                <label for="championshipDeadline" class="form-label">Fecha Límite Carnetización</label>
-                <input type="datetime-local" class="form-control" id="championshipDeadline">
+                <label for="championshipDeadline" class="form-label"
+                  >Fecha Límite Carnetización</label
+                >
+                <input
+                  type="datetime-local"
+                  class="form-control"
+                  id="championshipDeadline"
+                />
               </div>
               <div class="mb-3">
-                <label for="championshipCountdownMessage" class="form-label">Mensaje Cuenta Regresiva</label>
-                <textarea class="form-control" id="championshipCountdownMessage" rows="2" placeholder="Ej: Tienes hasta el [fecha] para completar la carnetización."></textarea>
+                <label for="championshipCountdownMessage" class="form-label"
+                  >Mensaje Cuenta Regresiva</label
+                >
+                <textarea
+                  class="form-control"
+                  id="championshipCountdownMessage"
+                  rows="2"
+                  placeholder="Ej: Tienes hasta el [fecha] para completar la carnetización."
+                ></textarea>
               </div>
               <div class="mb-3">
-                <label for="championshipExpiredMessage" class="form-label">Mensaje de Expiración</label>
-                <textarea class="form-control" id="championshipExpiredMessage" rows="2" placeholder="Ej: La fecha de carnetización ha terminado."></textarea>
+                <label for="championshipExpiredMessage" class="form-label"
+                  >Mensaje de Expiración</label
+                >
+                <textarea
+                  class="form-control"
+                  id="championshipExpiredMessage"
+                  rows="2"
+                  placeholder="Ej: La fecha de carnetización ha terminado."
+                ></textarea>
               </div>
             </div>
             <div class="modal-footer">
-              <button type="submit" class="btn btn-success w-100">Crear Campeonato</button>
+              <button type="submit" class="btn btn-success w-100">
+                Crear Campeonato
+              </button>
             </div>
           </form>
         </div>
@@ -171,43 +241,98 @@
     </div>
 
     <!-- Modal para editar campeonato -->
-    <div class="modal fade" id="editChampionshipModal" tabindex="-1" aria-labelledby="editChampionshipModalLabel" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="editChampionshipModal"
+      tabindex="-1"
+      aria-labelledby="editChampionshipModalLabel"
+      aria-hidden="true"
+    >
       <div class="modal-dialog">
         <div class="modal-content shadow">
           <form id="editChampionshipForm">
             <div class="modal-header bg-success text-white">
-              <h5 class="modal-title" id="editChampionshipModalLabel">Editar Campeonato</h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              <h5 class="modal-title" id="editChampionshipModalLabel">
+                Editar Campeonato
+              </h5>
+              <button
+                type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                aria-label="Cerrar"
+              ></button>
             </div>
             <div class="modal-body">
-              <input type="hidden" id="editChampionshipId">
+              <input type="hidden" id="editChampionshipId" />
               <div class="mb-3">
-                <label for="editChampionshipName" class="form-label">Nombre del Campeonato</label>
-                <input type="text" class="form-control" id="editChampionshipName" required>
+                <label for="editChampionshipName" class="form-label"
+                  >Nombre del Campeonato</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editChampionshipName"
+                  required
+                />
               </div>
               <div class="mb-3">
                 <label for="editChampionshipYear" class="form-label">Año</label>
-                <input type="number" class="form-control" id="editChampionshipYear" required min="2024" max="2100">
+                <input
+                  type="number"
+                  class="form-control"
+                  id="editChampionshipYear"
+                  required
+                  min="2024"
+                  max="2100"
+                />
               </div>
               <div class="mb-3">
-                <label for="editChampionshipDescription" class="form-label">Descripción</label>
-                <textarea class="form-control" id="editChampionshipDescription" rows="3"></textarea>
+                <label for="editChampionshipDescription" class="form-label"
+                  >Descripción</label
+                >
+                <textarea
+                  class="form-control"
+                  id="editChampionshipDescription"
+                  rows="3"
+                ></textarea>
               </div>
               <div class="mb-3">
-                <label for="editChampionshipDeadline" class="form-label">Fecha Límite Carnetización</label>
-                <input type="datetime-local" class="form-control" id="editChampionshipDeadline">
+                <label for="editChampionshipDeadline" class="form-label"
+                  >Fecha Límite Carnetización</label
+                >
+                <input
+                  type="datetime-local"
+                  class="form-control"
+                  id="editChampionshipDeadline"
+                />
               </div>
               <div class="mb-3">
-                <label for="editChampionshipCountdownMessage" class="form-label">Mensaje Cuenta Regresiva</label>
-                <textarea class="form-control" id="editChampionshipCountdownMessage" rows="2" placeholder="Ej: Tienes hasta el [fecha] para completar la carnetización."></textarea>
+                <label for="editChampionshipCountdownMessage" class="form-label"
+                  >Mensaje Cuenta Regresiva</label
+                >
+                <textarea
+                  class="form-control"
+                  id="editChampionshipCountdownMessage"
+                  rows="2"
+                  placeholder="Ej: Tienes hasta el [fecha] para completar la carnetización."
+                ></textarea>
               </div>
               <div class="mb-3">
-                <label for="editChampionshipExpiredMessage" class="form-label">Mensaje de Expiración</label>
-                <textarea class="form-control" id="editChampionshipExpiredMessage" rows="2" placeholder="Ej: La fecha de carnetización ha terminado."></textarea>
+                <label for="editChampionshipExpiredMessage" class="form-label"
+                  >Mensaje de Expiración</label
+                >
+                <textarea
+                  class="form-control"
+                  id="editChampionshipExpiredMessage"
+                  rows="2"
+                  placeholder="Ej: La fecha de carnetización ha terminado."
+                ></textarea>
               </div>
             </div>
             <div class="modal-footer">
-              <button type="submit" class="btn btn-success w-100">Guardar Cambios</button>
+              <button type="submit" class="btn btn-success w-100">
+                Guardar Cambios
+              </button>
             </div>
           </form>
         </div>
@@ -232,72 +357,81 @@
       if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
       }
-      
+
       const db = firebase.firestore();
       const auth = firebase.auth();
 
       // Configurar Firestore
       db.settings({
-        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
       });
 
       // Habilitar persistencia offline
-      db.enablePersistence()
-        .catch((err) => {
-          if (err.code == 'failed-precondition') {
-            console.warn('La persistencia falló: múltiples pestañas abiertas');
-          } else if (err.code == 'unimplemented') {
-            console.warn('El navegador no soporta persistencia');
-          }
-        });
+      db.enablePersistence().catch((err) => {
+        if (err.code == "failed-precondition") {
+          console.warn("La persistencia falló: múltiples pestañas abiertas");
+        } else if (err.code == "unimplemented") {
+          console.warn("El navegador no soporta persistencia");
+        }
+      });
 
       // Verificar estado de autenticación
       auth.onAuthStateChanged((user) => {
         if (!user) {
-          console.log('Usuario no autenticado, redirigiendo...');
-          window.location.href = 'login.html';
+          console.log("Usuario no autenticado, redirigiendo...");
+          window.location.href = "login.html";
           return;
         }
-        console.log('Usuario autenticado:', user.email);
-        
+        console.log("Usuario autenticado:", user.email);
+
         // Verificar si el usuario es de sanciones
-        if (user.email === 'sanciones@gmail.com') {
+        if (user.email === "sanciones@gmail.com") {
           // Redirigir a la sección de sanciones
-          window.location.href = 'sanciones.html';
+          window.location.href = "sanciones.html";
           return;
         }
-        
+
         loadInitialAndChampionships(); // Cargar campeonatos y asegurar Renacer 2025
       });
 
       function setupRealtimeUpdates() {
-        console.log('Configurando actualizaciones en tiempo real...');
+        console.log("Configurando actualizaciones en tiempo real...");
         // Escuchar cambios en la colección teams
-        db.collection("teams").onSnapshot((snapshot) => {
-          teamCardsContainer.innerHTML = ''; // Limpiar contenedor
-          if (snapshot.empty) {
-            teamCardsContainer.innerHTML = '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
-          } else {
-            snapshot.forEach((doc) => {
-              const teamData = doc.data();
-              teamData.id = doc.id; // Agregar el ID del documento
-              createTeamCard(teamData);
-            });
+        db.collection("teams").onSnapshot(
+          (snapshot) => {
+            teamCardsContainer.innerHTML = ""; // Limpiar contenedor
+            if (snapshot.empty) {
+              teamCardsContainer.innerHTML =
+                '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
+            } else {
+              snapshot.forEach((doc) => {
+                const teamData = doc.data();
+                teamData.id = doc.id; // Agregar el ID del documento
+                createTeamCard(teamData);
+              });
+            }
+          },
+          (error) => {
+            console.error("Error al escuchar cambios:", error);
+            Swal.fire(
+              "Error",
+              "Error al actualizar los equipos en tiempo real",
+              "error"
+            );
           }
-        }, (error) => {
-          console.error("Error al escuchar cambios:", error);
-          Swal.fire('Error', 'Error al actualizar los equipos en tiempo real', 'error');
-        });
+        );
       }
 
       function loadTeams() {
-        console.log('Iniciando carga de equipos...');
-        db.collection("teams").get()
+        console.log("Iniciando carga de equipos...");
+        db.collection("teams")
+          .get()
           .then((querySnapshot) => {
-            console.log('Equipos cargados exitosamente');
-            teamCardsContainer.innerHTML = ''; // Limpiar contenedor
+            console.log("Equipos cargados exitosamente");
+            teamCardsContainer.innerHTML = ""; // Limpiar contenedor
             if (querySnapshot.empty) {
-              teamCardsContainer.innerHTML = '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
+              teamCardsContainer.innerHTML =
+                '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
             } else {
               querySnapshot.forEach((doc) => {
                 const teamData = doc.data();
@@ -308,15 +442,15 @@
           })
           .catch((error) => {
             console.error("Error al cargar equipos:", error);
-            let mensaje = 'Error al cargar los equipos. ';
-            if (error.code === 'permission-denied') {
-              mensaje += 'No tienes permisos para ver los equipos.';
-            } else if (error.code === 'unavailable') {
-              mensaje += 'El servicio no está disponible en este momento.';
+            let mensaje = "Error al cargar los equipos. ";
+            if (error.code === "permission-denied") {
+              mensaje += "No tienes permisos para ver los equipos.";
+            } else if (error.code === "unavailable") {
+              mensaje += "El servicio no está disponible en este momento.";
             } else {
-              mensaje += 'Por favor, intenta de nuevo.';
+              mensaje += "Por favor, intenta de nuevo.";
             }
-            Swal.fire('Error', mensaje, 'error');
+            Swal.fire("Error", mensaje, "error");
           });
       }
 
@@ -348,28 +482,34 @@
 
       function deleteTeam(teamId) {
         Swal.fire({
-          title: '¿Estás seguro?',
+          title: "¿Estás seguro?",
           text: "Este equipo será eliminado permanentemente.",
-          icon: 'warning',
+          icon: "warning",
           showCancelButton: true,
-          confirmButtonText: 'Sí, eliminar',
-          cancelButtonText: 'Cancelar'
-        }).then(result => {
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
+        }).then((result) => {
           if (result.isConfirmed) {
-            db.collection("teams").doc(teamId).delete()
+            db.collection("teams")
+              .doc(teamId)
+              .delete()
               .then(() => {
                 Swal.fire({
-                  title: 'Eliminado',
-                  text: 'El equipo ha sido eliminado.',
-                  icon: 'success',
-                  confirmButtonColor: '#28a745'
+                  title: "Eliminado",
+                  text: "El equipo ha sido eliminado.",
+                  icon: "success",
+                  confirmButtonColor: "#28a745",
                 }).then(() => {
                   location.reload();
                 });
               })
               .catch((error) => {
                 console.error("Error al eliminar equipo:", error);
-                Swal.fire('Error', 'No se pudo eliminar el equipo. Por favor, intenta de nuevo.', 'error');
+                Swal.fire(
+                  "Error",
+                  "No se pudo eliminar el equipo. Por favor, intenta de nuevo.",
+                  "error"
+                );
               });
           }
         });
@@ -378,29 +518,37 @@
       // Función para resetear la clave de administrador
       function resetAdminKey(teamId) {
         Swal.fire({
-          title: '¿Resetear la clave?',
+          title: "¿Resetear la clave?",
           text: "Se eliminará la clave actual y se deberá establecer una nueva la próxima vez que se acceda al registro de jugadores.",
-          icon: 'warning',
+          icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: '#28a745',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Sí, resetear',
-          cancelButtonText: 'Cancelar'
+          confirmButtonColor: "#28a745",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Sí, resetear",
+          cancelButtonText: "Cancelar",
         }).then((result) => {
           if (result.isConfirmed) {
-            db.collection("teams").doc(teamId).update({
-              adminKey: null
-            }).then(() => {
-              Swal.fire({
-                title: '¡Clave reseteada!',
-                text: 'La clave ha sido eliminada. Se solicitará una nueva clave la próxima vez que se acceda al registro de jugadores.',
-                icon: 'success',
-                confirmButtonColor: '#28a745'
+            db.collection("teams")
+              .doc(teamId)
+              .update({
+                adminKey: null,
+              })
+              .then(() => {
+                Swal.fire({
+                  title: "¡Clave reseteada!",
+                  text: "La clave ha sido eliminada. Se solicitará una nueva clave la próxima vez que se acceda al registro de jugadores.",
+                  icon: "success",
+                  confirmButtonColor: "#28a745",
+                });
+              })
+              .catch((error) => {
+                console.error("Error al resetear la clave:", error);
+                Swal.fire(
+                  "Error",
+                  "No se pudo resetear la clave. Por favor, intenta de nuevo.",
+                  "error"
+                );
               });
-            }).catch((error) => {
-              console.error("Error al resetear la clave:", error);
-              Swal.fire('Error', 'No se pudo resetear la clave. Por favor, intenta de nuevo.', 'error');
-            });
           }
         });
       }
@@ -408,29 +556,36 @@
       // Función para cerrar sesión con SweetAlert2
       function logout() {
         Swal.fire({
-          title: '¿Cerrar sesión?',
+          title: "¿Cerrar sesión?",
           text: "¿Estás seguro de que deseas salir?",
-          icon: 'warning',
+          icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: '#28a745',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Sí, salir',
-          cancelButtonText: 'Cancelar'
+          confirmButtonColor: "#28a745",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Sí, salir",
+          cancelButtonText: "Cancelar",
         }).then((result) => {
           if (result.isConfirmed) {
-            auth.signOut().then(() => {
-              Swal.fire({
-                title: '¡Sesión cerrada!',
-                text: 'Has cerrado sesión correctamente.',
-                icon: 'success',
-                confirmButtonColor: '#28a745'
-              }).then(() => {
-                window.location.href = "login.html";
+            auth
+              .signOut()
+              .then(() => {
+                Swal.fire({
+                  title: "¡Sesión cerrada!",
+                  text: "Has cerrado sesión correctamente.",
+                  icon: "success",
+                  confirmButtonColor: "#28a745",
+                }).then(() => {
+                  window.location.href = "login.html";
+                });
+              })
+              .catch((error) => {
+                console.error("Error al cerrar sesión:", error);
+                Swal.fire(
+                  "Error",
+                  "No se pudo cerrar la sesión. Por favor, intenta de nuevo.",
+                  "error"
+                );
               });
-            }).catch((error) => {
-              console.error("Error al cerrar sesión:", error);
-              Swal.fire('Error', 'No se pudo cerrar la sesión. Por favor, intenta de nuevo.', 'error');
-            });
           }
         });
       }
@@ -439,45 +594,66 @@
       function gestionarArchivos(teamId, teamName) {
         // Verificar si el usuario es admin
         auth.onAuthStateChanged((user) => {
-          if (user && user.email === 'admin@gmail.com') {
-            document.getElementById('teamIdArchivos').value = teamId;
-            document.getElementById('modalGestionarArchivosLabel').textContent = `Gestionar Archivos - ${teamName}`;
+          if (user && user.email === "admin@gmail.com") {
+            document.getElementById("teamIdArchivos").value = teamId;
+            document.getElementById(
+              "modalGestionarArchivosLabel"
+            ).textContent = `Gestionar Archivos - ${teamName}`;
             cargarArchivos(teamId);
-            const modal = new bootstrap.Modal(document.getElementById('modalGestionarArchivos'));
+            const modal = new bootstrap.Modal(
+              document.getElementById("modalGestionarArchivos")
+            );
             modal.show();
           } else {
-            Swal.fire('Error', 'No tienes permisos para gestionar archivos', 'error');
+            Swal.fire(
+              "Error",
+              "No tienes permisos para gestionar archivos",
+              "error"
+            );
           }
         });
       }
 
       // Función para cargar los archivos existentes
       function cargarArchivos(teamId) {
-        const listaArchivos = document.getElementById('listaArchivos');
-        listaArchivos.innerHTML = '<div class="text-center"><div class="spinner-border text-info" role="status"></div></div>';
+        const listaArchivos = document.getElementById("listaArchivos");
+        listaArchivos.innerHTML =
+          '<div class="text-center"><div class="spinner-border text-info" role="status"></div></div>';
 
-        db.collection('archivos').where('teamId', '==', teamId).get()
+        db.collection("archivos")
+          .where("teamId", "==", teamId)
+          .get()
           .then((querySnapshot) => {
-            listaArchivos.innerHTML = '';
+            listaArchivos.innerHTML = "";
             if (querySnapshot.empty) {
-              listaArchivos.innerHTML = '<p class="text-center text-muted">No hay archivos subidos</p>';
+              listaArchivos.innerHTML =
+                '<p class="text-center text-muted">No hay archivos subidos</p>';
               return;
             }
 
             querySnapshot.forEach((doc) => {
               const archivo = doc.data();
-              const item = document.createElement('div');
-              item.className = 'list-group-item d-flex justify-content-between align-items-center';
+              const item = document.createElement("div");
+              item.className =
+                "list-group-item d-flex justify-content-between align-items-center";
               item.innerHTML = `
                 <div>
                   <i class="fas fa-file-pdf text-danger me-2"></i>
-                  ${archivo.tipo === 'CARTA_PASE' ? 'Carta Pase' : 'Autorización'}
+                  ${
+                    archivo.tipo === "CARTA_PASE"
+                      ? "Carta Pase"
+                      : "Autorización"
+                  }
                 </div>
                 <div>
-                  <a href="${archivo.url}" target="_blank" class="btn btn-sm btn-info me-2">
+                  <a href="${
+                    archivo.url
+                  }" target="_blank" class="btn btn-sm btn-info me-2">
                     <i class="fas fa-eye"></i>
                   </a>
-                  <button onclick="eliminarArchivo('${doc.id}')" class="btn btn-sm btn-danger">
+                  <button onclick="eliminarArchivo('${
+                    doc.id
+                  }')" class="btn btn-sm btn-danger">
                     <i class="fas fa-trash"></i>
                   </button>
                 </div>
@@ -487,7 +663,8 @@
           })
           .catch((error) => {
             console.error("Error al cargar archivos:", error);
-            listaArchivos.innerHTML = '<p class="text-center text-danger">Error al cargar los archivos</p>';
+            listaArchivos.innerHTML =
+              '<p class="text-center text-danger">Error al cargar los archivos</p>';
           });
       }
 
@@ -495,27 +672,33 @@
       async function ensureRenacer2025AndAssignTeams() {
         // Buscar si existe el campeonato Renacer 2025
         let renacerId = null;
-        const renacerQuery = await db.collection('championships').where('name', '==', 'Renacer 2025').limit(1).get();
+        const renacerQuery = await db
+          .collection("championships")
+          .where("name", "==", "Renacer 2025")
+          .limit(1)
+          .get();
         if (!renacerQuery.empty) {
           renacerId = renacerQuery.docs[0].id;
         } else {
           // Crear el campeonato si no existe
-          const renacerDoc = await db.collection('championships').add({
-            name: 'Renacer 2025',
+          const renacerDoc = await db.collection("championships").add({
+            name: "Renacer 2025",
             year: 2025,
-            description: 'Campeonato principal de la temporada 2025',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            description: "Campeonato principal de la temporada 2025",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           });
           renacerId = renacerDoc.id;
         }
 
         // Asignar todos los equipos existentes a este campeonato si no tienen championshipId
-        const teamsSnapshot = await db.collection('teams').get();
+        const teamsSnapshot = await db.collection("teams").get();
         const batch = db.batch();
-        teamsSnapshot.forEach(doc => {
+        teamsSnapshot.forEach((doc) => {
           const data = doc.data();
           if (!data.championshipId || data.championshipId !== renacerId) {
-            batch.update(db.collection('teams').doc(doc.id), { championshipId: renacerId });
+            batch.update(db.collection("teams").doc(doc.id), {
+              championshipId: renacerId,
+            });
           }
         });
         if (!teamsSnapshot.empty) {
@@ -531,14 +714,17 @@
 
       // Función para cargar campeonatos
       function loadChampionships() {
-        const container = document.getElementById('championshipCardsContainer');
-        container.innerHTML = '<div class="col-12 text-center"><div class="spinner-border text-success" role="status"></div></div>';
+        const container = document.getElementById("championshipCardsContainer");
+        container.innerHTML =
+          '<div class="col-12 text-center"><div class="spinner-border text-success" role="status"></div></div>';
 
-        db.collection('championships').get()
+        db.collection("championships")
+          .get()
           .then((querySnapshot) => {
-            container.innerHTML = '';
+            container.innerHTML = "";
             if (querySnapshot.empty) {
-              container.innerHTML = '<div class="col-12 text-center"><p>No hay campeonatos registrados</p></div>';
+              container.innerHTML =
+                '<div class="col-12 text-center"><p>No hay campeonatos registrados</p></div>';
               return;
             }
 
@@ -549,19 +735,25 @@
           })
           .catch((error) => {
             console.error("Error al cargar campeonatos:", error);
-            Swal.fire('Error', 'No se pudieron cargar los campeonatos', 'error');
+            Swal.fire(
+              "Error",
+              "No se pudieron cargar los campeonatos",
+              "error"
+            );
           });
       }
 
       // Función para crear tarjeta de campeonato
       function createChampionshipCard(id, championship) {
-        const card = document.createElement('div');
-        card.className = 'col-md-4 mb-4';
+        const card = document.createElement("div");
+        card.className = "col-md-4 mb-4";
         card.innerHTML = `
           <div class="card shadow-sm border-0 h-100">
             <div class="card-body text-center">
               <h4 class="card-title mb-3">${championship.name}</h4>
-              <p class="card-text text-muted mb-3">${championship.description || 'Sin descripción'}</p>
+              <p class="card-text text-muted mb-3">${
+                championship.description || "Sin descripción"
+              }</p>
               <div class="d-grid gap-2">
                 <a href="championship-teams.html?id=${id}" class="btn btn-success">
                   <i class="fas fa-trophy me-2"></i>Abrir Campeonato
@@ -576,162 +768,292 @@
             </div>
           </div>
         `;
-        document.getElementById('championshipCardsContainer').appendChild(card);
+        document.getElementById("championshipCardsContainer").appendChild(card);
       }
 
       // Manejar el envío del formulario de campeonato
-      document.getElementById('championshipForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const deadline = document.getElementById('championshipDeadline').value;
-        
-        const championshipData = {
-          name: document.getElementById('championshipName').value,
-          year: parseInt(document.getElementById('championshipYear').value),
-          description: document.getElementById('championshipDescription').value,
-          deadline: deadline || null, // Guardar como cadena ISO 8601
-          countdownMessage: document.getElementById('championshipCountdownMessage').value || null,
-          expiredMessage: document.getElementById('championshipExpiredMessage').value || null,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
+      document
+        .getElementById("championshipForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
 
-        // Si hay fecha de deadline, establecerla como fecha de inicio de notificaciones
-        if (deadline) {
-          championshipData.notificationStartDate = deadline;
-          championshipData.deadlineLastChanged = firebase.firestore.FieldValue.serverTimestamp();
-        }
+          const deadline = document.getElementById(
+            "championshipDeadline"
+          ).value;
 
-        db.collection('championships').add(championshipData)
-          .then(() => {
-            Swal.fire({
-              title: 'Éxito',
-              text: 'Campeonato creado correctamente',
-              icon: 'success',
-              confirmButtonColor: '#28a745'
+          const championshipData = {
+            name: document.getElementById("championshipName").value,
+            year: parseInt(document.getElementById("championshipYear").value),
+            description: document.getElementById("championshipDescription")
+              .value,
+            deadline: deadline || null, // Guardar como cadena ISO 8601
+            countdownMessage:
+              document.getElementById("championshipCountdownMessage").value ||
+              null,
+            expiredMessage:
+              document.getElementById("championshipExpiredMessage").value ||
+              null,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          };
+
+          // Si hay fecha de deadline, establecerla como fecha de inicio de notificaciones
+          if (deadline) {
+            championshipData.notificationStartDate = deadline;
+            championshipData.deadlineLastChanged =
+              firebase.firestore.FieldValue.serverTimestamp();
+          }
+
+          db.collection("championships")
+            .add(championshipData)
+            .then(() => {
+              Swal.fire({
+                title: "Éxito",
+                text: "Campeonato creado correctamente",
+                icon: "success",
+                confirmButtonColor: "#28a745",
+              });
+              document.getElementById("championshipForm").reset();
+              const modal = bootstrap.Modal.getInstance(
+                document.getElementById("addChampionshipModal")
+              );
+              modal.hide();
+              loadChampionships();
+            })
+            .catch((error) => {
+              console.error("Error al crear campeonato:", error);
+              Swal.fire("Error", "No se pudo crear el campeonato", "error");
             });
-            document.getElementById('championshipForm').reset();
-            const modal = bootstrap.Modal.getInstance(document.getElementById('addChampionshipModal'));
-            modal.hide();
-            loadChampionships();
-          })
-          .catch((error) => {
-            console.error("Error al crear campeonato:", error);
-            Swal.fire('Error', 'No se pudo crear el campeonato', 'error');
-          });
-      });
+        });
 
       // Función para editar campeonato
       async function editChampionship(id) {
         try {
-          const doc = await db.collection('championships').doc(id).get();
+          const doc = await db.collection("championships").doc(id).get();
           if (!doc.exists) {
-            Swal.fire('Error', 'Campeonato no encontrado', 'error');
+            Swal.fire("Error", "Campeonato no encontrado", "error");
             return;
           }
 
           const championship = doc.data();
-          document.getElementById('editChampionshipId').value = id;
-          document.getElementById('editChampionshipName').value = championship.name;
-          document.getElementById('editChampionshipYear').value = championship.year;
-          document.getElementById('editChampionshipDescription').value = championship.description || '';
-          
+          document.getElementById("editChampionshipId").value = id;
+          document.getElementById("editChampionshipName").value =
+            championship.name;
+          document.getElementById("editChampionshipYear").value =
+            championship.year;
+          document.getElementById("editChampionshipDescription").value =
+            championship.description || "";
+
           // Formatear la fecha para el input datetime-local
           if (championship.deadline) {
             const date = new Date(championship.deadline);
             const formattedDate = date.toISOString().slice(0, 16);
-            document.getElementById('editChampionshipDeadline').value = formattedDate;
+            document.getElementById("editChampionshipDeadline").value =
+              formattedDate;
           } else {
-            document.getElementById('editChampionshipDeadline').value = '';
+            document.getElementById("editChampionshipDeadline").value = "";
           }
 
-          document.getElementById('editChampionshipCountdownMessage').value = championship.countdownMessage || '';
-          document.getElementById('editChampionshipExpiredMessage').value = championship.expiredMessage || '';
+          document.getElementById("editChampionshipCountdownMessage").value =
+            championship.countdownMessage || "";
+          document.getElementById("editChampionshipExpiredMessage").value =
+            championship.expiredMessage || "";
 
           // Guardar la fecha original para comparar si cambió
           window.originalDeadline = championship.deadline;
 
-          const modal = new bootstrap.Modal(document.getElementById('editChampionshipModal'));
+          const modal = new bootstrap.Modal(
+            document.getElementById("editChampionshipModal")
+          );
           modal.show();
-
         } catch (error) {
-          console.error("Error al cargar datos del campeonato para edición:", error);
-          Swal.fire('Error', 'No se pudieron cargar los datos del campeonato para edición', 'error');
+          console.error(
+            "Error al cargar datos del campeonato para edición:",
+            error
+          );
+          Swal.fire(
+            "Error",
+            "No se pudieron cargar los datos del campeonato para edición",
+            "error"
+          );
         }
       }
 
       // Manejar el envío del formulario de edición de campeonato
-      document.getElementById('editChampionshipForm').addEventListener('submit', function(e) {
-        e.preventDefault();
+      document
+        .getElementById("editChampionshipForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
 
-        const id = document.getElementById('editChampionshipId').value;
-        const newDeadline = document.getElementById('editChampionshipDeadline').value;
-        const originalDeadline = window.originalDeadline;
-        
-        const updatedData = {
-          name: document.getElementById('editChampionshipName').value,
-          year: parseInt(document.getElementById('editChampionshipYear').value),
-          description: document.getElementById('editChampionshipDescription').value,
-          deadline: newDeadline || null,
-          countdownMessage: document.getElementById('editChampionshipCountdownMessage').value || null,
-          expiredMessage: document.getElementById('editChampionshipExpiredMessage').value || null
-        };
+          const id = document.getElementById("editChampionshipId").value;
+          const newDeadline = document.getElementById(
+            "editChampionshipDeadline"
+          ).value;
+          const originalDeadline = window.originalDeadline;
 
-        // Verificar si la fecha de deadline cambió
-        const deadlineChanged = originalDeadline !== newDeadline;
-        
-        if (deadlineChanged && newDeadline) {
-          // Si la fecha cambió, establecer la nueva fecha como punto de inicio para notificaciones
-          updatedData.notificationStartDate = newDeadline;
-          updatedData.deadlineLastChanged = firebase.firestore.FieldValue.serverTimestamp();
-        }
+          const updatedData = {
+            name: document.getElementById("editChampionshipName").value,
+            year: parseInt(
+              document.getElementById("editChampionshipYear").value
+            ),
+            description: document.getElementById("editChampionshipDescription")
+              .value,
+            deadline: newDeadline || null,
+            countdownMessage:
+              document.getElementById("editChampionshipCountdownMessage")
+                .value || null,
+            expiredMessage:
+              document.getElementById("editChampionshipExpiredMessage").value ||
+              null,
+          };
 
-        db.collection('championships').doc(id).update(updatedData)
-          .then(() => {
-            let message = 'Campeonato actualizado correctamente';
-            if (deadlineChanged) {
-              message += '. Las notificaciones de jugadores nuevos comenzarán desde la nueva fecha de finalización.';
-            }
-            
-            Swal.fire({
-              title: 'Éxito',
-              text: message,
-              icon: 'success',
-              confirmButtonColor: '#28a745'
+          // Verificar si la fecha de deadline cambió
+          const deadlineChanged = originalDeadline !== newDeadline;
+
+          if (deadlineChanged && newDeadline) {
+            // Si la fecha cambió, establecer la nueva fecha como punto de inicio para notificaciones
+            updatedData.notificationStartDate = newDeadline;
+            updatedData.deadlineLastChanged =
+              firebase.firestore.FieldValue.serverTimestamp();
+          }
+
+          db.collection("championships")
+            .doc(id)
+            .update(updatedData)
+            .then(() => {
+              let message = "Campeonato actualizado correctamente";
+              if (deadlineChanged) {
+                message +=
+                  ". Las notificaciones de jugadores nuevos comenzarán desde la nueva fecha de finalización.";
+              }
+
+              Swal.fire({
+                title: "Éxito",
+                text: message,
+                icon: "success",
+                confirmButtonColor: "#28a745",
+              });
+              const modal = bootstrap.Modal.getInstance(
+                document.getElementById("editChampionshipModal")
+              );
+              modal.hide();
+              loadChampionships(); // Recargar la lista de campeonatos
+            })
+            .catch((error) => {
+              console.error("Error al actualizar campeonato:", error);
+              Swal.fire(
+                "Error",
+                "No se pudo actualizar el campeonato",
+                "error"
+              );
             });
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editChampionshipModal'));
-            modal.hide();
-            loadChampionships(); // Recargar la lista de campeonatos
-          })
-          .catch((error) => {
-            console.error("Error al actualizar campeonato:", error);
-            Swal.fire('Error', 'No se pudo actualizar el campeonato', 'error');
-          });
-      });
+        });
 
       // Función para eliminar campeonato
       function deleteChampionship(id) {
         Swal.fire({
-          title: '¿Estás seguro?',
+          title: "¿Estás seguro?",
           text: "Este campeonato será eliminado permanentemente",
-          icon: 'warning',
+          icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: '#d33',
-          cancelButtonColor: '#3085d6',
-          confirmButtonText: 'Sí, eliminar',
-          cancelButtonText: 'Cancelar'
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
         }).then((result) => {
           if (result.isConfirmed) {
-            db.collection('championships').doc(id).delete()
+            db.collection("championships")
+              .doc(id)
+              .delete()
               .then(() => {
-                Swal.fire('Eliminado', 'El campeonato ha sido eliminado', 'success');
+                Swal.fire(
+                  "Eliminado",
+                  "El campeonato ha sido eliminado",
+                  "success"
+                );
                 loadChampionships();
               })
               .catch((error) => {
                 console.error("Error al eliminar campeonato:", error);
-                Swal.fire('Error', 'No se pudo eliminar el campeonato', 'error');
+                Swal.fire(
+                  "Error",
+                  "No se pudo eliminar el campeonato",
+                  "error"
+                );
               });
           }
         });
+      }
+
+      // Función para exportar todos los jugadores a Excel
+      async function exportarJugadoresExcel() {
+        try {
+          Swal.fire({
+            title: "Preparando exportación...",
+            text: "Obteniendo datos de todos los jugadores registrados",
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          });
+
+          // Obtener todos los jugadores
+          const snapshot = await db.collection("players").get();
+
+          if (snapshot.empty) {
+            Swal.fire(
+              "Error",
+              "No hay jugadores registrados para exportar",
+              "error"
+            );
+            return;
+          }
+
+          const data = [];
+          snapshot.forEach((doc) => {
+            const player = doc.data();
+            data.push({
+              Número: player.numeroJugador || "S/N",
+              Nombres: player.nombres || "",
+              Apellidos: player.apellidos || "",
+              Cédula: player.cedula || "",
+              "Club/Equipo": player.teamName || "Sin asignar",
+            });
+          });
+
+          // Crear hoja de Excel
+          const ws = XLSX.utils.json_to_sheet(data);
+
+          // Ajustar ancho de columnas automáticamente
+          const colWidths = [
+            { wch: 10 }, // Número
+            { wch: 25 }, // Nombres
+            { wch: 25 }, // Apellidos
+            { wch: 15 }, // Cédula
+            { wch: 30 }, // Club
+          ];
+          ws["!cols"] = colWidths;
+
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Jugadores");
+
+          // Nombre del archivo con fecha
+          const fecha = new Date().toLocaleDateString().replace(/\//g, "-");
+          XLSX.writeFile(wb, `Reporte_Jugadores_${fecha}.xlsx`);
+
+          Swal.fire({
+            title: "¡Éxito!",
+            text: "El reporte de jugadores ha sido generado correctamente.",
+            icon: "success",
+            confirmButtonColor: "#28a745",
+          });
+        } catch (error) {
+          console.error("Error al exportar a Excel:", error);
+          Swal.fire({
+            title: "Error",
+            text: "Ocurrió un error al generar el archivo Excel. Por favor intente de nuevo.",
+            icon: "error",
+          });
+        }
       }
     </script>
   </body>
