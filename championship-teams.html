@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -106,7 +106,8 @@
         color: #fff;
         font-size: 2rem;
         font-weight: bold;
-        box-shadow: 0 8px 32px rgba(40, 167, 69, 0.18),
+        box-shadow:
+          0 8px 32px rgba(40, 167, 69, 0.18),
           0 1.5px 8px rgba(0, 0, 0, 0.18);
         z-index: 9998;
         display: none;
@@ -124,17 +125,21 @@
       }
       #newPlayersFloatingBtn:hover {
         transform: scale(1.11) translateY(-2px);
-        box-shadow: 0 12px 36px rgba(40, 167, 69, 0.28),
+        box-shadow:
+          0 12px 36px rgba(40, 167, 69, 0.28),
           0 2px 12px rgba(0, 0, 0, 0.22);
         filter: brightness(1.08);
       }
       @keyframes glow {
         0% {
-          box-shadow: 0 8px 32px rgba(40, 167, 69, 0.18),
+          box-shadow:
+            0 8px 32px rgba(40, 167, 69, 0.18),
             0 1.5px 8px rgba(0, 0, 0, 0.18);
         }
         100% {
-          box-shadow: 0 0 16px 6px #28a745cc, 0 8px 32px rgba(40, 167, 69, 0.18);
+          box-shadow:
+            0 0 16px 6px #28a745cc,
+            0 8px 32px rgba(40, 167, 69, 0.18);
         }
       }
       #newPlayersFloatingBtn .badge-count {
@@ -197,7 +202,9 @@
     <div id="newPlayersToast">
       <button
         class="toast-close"
-        onclick="document.getElementById('newPlayersToast').style.display='none'"
+        onclick="
+          document.getElementById('newPlayersToast').style.display = 'none'
+        "
       >
         &times;
       </button>
@@ -518,7 +525,7 @@
                 // Si la fecha de deadline cambió, actualizar las notificaciones
                 if (championship.deadlineLastChanged) {
                   console.log(
-                    "Fecha de deadline actualizada, recargando notificaciones..."
+                    "Fecha de deadline actualizada, recargando notificaciones...",
                   );
                   showNewPlayersToast();
                   checkNewPlayers();
@@ -550,7 +557,7 @@
             Swal.fire(
               "Error",
               "No se pudo cargar la información del campeonato",
-              "error"
+              "error",
             );
           });
       }
@@ -644,7 +651,7 @@
                 });
                 document.getElementById("teamForm").reset();
                 const modal = bootstrap.Modal.getInstance(
-                  document.getElementById("addTeamModal")
+                  document.getElementById("addTeamModal"),
                 );
                 modal.hide();
                 loadTeams();
@@ -678,7 +685,7 @@
                 Swal.fire(
                   "Eliminado",
                   "El equipo ha sido eliminado",
-                  "success"
+                  "success",
                 );
                 loadTeams();
               })
@@ -727,11 +734,10 @@
       // Función para gestionar archivos
       function gestionarArchivos(teamId, teamName) {
         const modal = new bootstrap.Modal(
-          document.getElementById("manageFilesModal")
+          document.getElementById("manageFilesModal"),
         );
-        document.getElementById(
-          "manageFilesModalLabel"
-        ).textContent = `Gestionar Archivos - ${teamName}`;
+        document.getElementById("manageFilesModalLabel").textContent =
+          `Gestionar Archivos - ${teamName}`;
 
         // Cargar archivos existentes
         loadTeamFiles(teamId);
@@ -746,7 +752,7 @@
             Swal.fire(
               "Error",
               "Por favor selecciona un tipo de documento y un archivo",
-              "error"
+              "error",
             );
             return;
           }
@@ -854,7 +860,7 @@
                 Swal.fire(
                   "Eliminado",
                   "El archivo ha sido eliminado",
-                  "success"
+                  "success",
                 );
                 loadTeamFiles(teamId);
               })
@@ -870,7 +876,7 @@
       function verArchivo(base64PDF) {
         // Cierra el modal de gestionar archivos si está abierto
         const manageFilesModal = bootstrap.Modal.getInstance(
-          document.getElementById("manageFilesModal")
+          document.getElementById("manageFilesModal"),
         );
         if (manageFilesModal) {
           manageFilesModal.hide();
@@ -880,7 +886,7 @@
         document.getElementById("pdfViewerFrame").src = base64PDF;
         // Muestra el modal de ver PDF
         const pdfModal = new bootstrap.Modal(
-          document.getElementById("viewPdfModal")
+          document.getElementById("viewPdfModal"),
         );
         pdfModal.show();
       }
@@ -928,7 +934,7 @@
         .addEventListener("hidden.bs.modal", function () {
           // Reabrir el modal de gestionar archivos si lo deseas
           const manageFilesModal = new bootstrap.Modal(
-            document.getElementById("manageFilesModal")
+            document.getElementById("manageFilesModal"),
           );
           manageFilesModal.show();
         });
@@ -1085,20 +1091,20 @@
                 startDate = new Date(championship.notificationStartDate);
               } else {
                 startDate = new Date(
-                  deadline.getTime() - 30 * 24 * 60 * 60 * 1000
+                  deadline.getTime() - 30 * 24 * 60 * 60 * 1000,
                 );
               }
 
               periodInfo = `
                 <div class="alert alert-info mb-3">
                   <strong>Período de notificación:</strong> Desde ${startDate.toLocaleDateString(
-                    "es-ES"
+                    "es-ES",
                   )} hasta ${deadline.toLocaleDateString("es-ES")}
                   ${
                     championship.deadlineLastChanged
                       ? '<br><small class="text-muted">Fecha de finalización actualizada el ' +
                         new Date(
-                          championship.deadlineLastChanged.toDate()
+                          championship.deadlineLastChanged.toDate(),
                         ).toLocaleDateString("es-ES") +
                         "</small>"
                       : ""
@@ -1122,8 +1128,8 @@
               }" alt="Foto del jugador" class="player-photo">
               <div class="player-info flex-grow-1">
                 <div class="player-name">${player.nombres} ${
-            player.apellidos
-          }</div>
+                  player.apellidos
+                }</div>
                 <div class="player-details">
                   <strong>Club:</strong> ${player.teamName || "No asignado"}<br>
                   <strong>Número:</strong> ${
@@ -1135,7 +1141,7 @@
                   <strong>Fecha de registro:</strong> ${
                     player.createdAt
                       ? new Date(player.createdAt.toDate()).toLocaleDateString(
-                          "es-ES"
+                          "es-ES",
                         )
                       : "No disponible"
                   }
@@ -1149,16 +1155,128 @@
 
         // Mostrar el modal
         const modal = new bootstrap.Modal(
-          document.getElementById("newPlayersModal")
+          document.getElementById("newPlayersModal"),
         );
         modal.show();
+      }
+
+      // Función para calcular la edad
+      function calcularEdad(fechaNacimiento) {
+        if (!fechaNacimiento) return 0;
+        const hoy = new Date();
+        const fechaNac = new Date(fechaNacimiento);
+        let edad = hoy.getFullYear() - fechaNac.getFullYear();
+        const mes = hoy.getMonth() - fechaNac.getMonth();
+
+        if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+          edad--;
+        }
+
+        return edad;
+      }
+
+      // Función para verificar si es juvenil (< 18 años)
+      function esJuvenil(fechaNacimiento) {
+        return calcularEdad(fechaNacimiento) < 18;
+      }
+
+      // Función para verificar si es master (> 40 años)
+      function esMaster(fechaNacimiento) {
+        return calcularEdad(fechaNacimiento) > 40;
       }
 
       // Función para exportar todos los jugadores del campeonato actual a Excel con Fotos
       async function exportarJugadoresCampeonatoExcel() {
         try {
+          // 1. Selección de Rango de Edad (Múltiple)
+          const { value: ageFilters } = await Swal.fire({
+            title: "Seleccionar Rango de Edad",
+            html: `
+              <div class="text-start p-2">
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" value="senior" id="age_senior" checked>
+                  <label class="form-check-label" for="age_senior">Senior (Normal)</label>
+                </div>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" value="master" id="age_master" checked>
+                  <label class="form-check-label" for="age_master">Master (> 40 años)</label>
+                </div>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" value="juvenil" id="age_juvenil" checked>
+                  <label class="form-check-label" for="age_juvenil">Juvenil (< 18 años)</label>
+                </div>
+              </div>
+            `,
+            focusConfirm: false,
+            confirmButtonText: "Siguiente",
+            confirmButtonColor: "#28a745",
+            showCancelButton: true,
+            cancelButtonText: "Cancelar",
+            preConfirm: () => {
+              const selected = [];
+              if (document.getElementById("age_senior").checked)
+                selected.push("senior");
+              if (document.getElementById("age_master").checked)
+                selected.push("master");
+              if (document.getElementById("age_juvenil").checked)
+                selected.push("juvenil");
+              if (selected.length === 0) {
+                Swal.showValidationMessage(
+                  "Debes seleccionar al menos una opción",
+                );
+              }
+              return selected;
+            },
+          });
+
+          if (!ageFilters) return;
+
+          // 2. Selección de Divisiones (Múltiple)
+          const { value: divisionFilters } = await Swal.fire({
+            title: "Seleccionar Divisiones",
+            html: `
+              <div class="text-start p-2">
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" value="MÁXIMA" id="div_maxima" checked>
+                  <label class="form-check-label" for="div_maxima">MÁXIMA</label>
+                </div>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" value="PRIMERA" id="div_primera" checked>
+                  <label class="form-check-label" for="div_primera">PRIMERA</label>
+                </div>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" value="FEMENINO" id="div_femenino" checked>
+                  <label class="form-check-label" for="div_femenino">FEMENINO</label>
+                </div>
+              </div>
+            `,
+            focusConfirm: false,
+            confirmButtonText: "Siguiente",
+            confirmButtonColor: "#28a745",
+            showCancelButton: true,
+            cancelButtonText: "Cancelar",
+            preConfirm: () => {
+              const selected = [];
+              if (document.getElementById("div_maxima").checked)
+                selected.push("MÁXIMA");
+              if (document.getElementById("div_primera").checked)
+                selected.push("PRIMERA");
+              if (document.getElementById("div_femenino").checked)
+                selected.push("FEMENINO");
+              if (selected.length === 0) {
+                Swal.showValidationMessage(
+                  "Debes seleccionar al menos una opción",
+                );
+              }
+              return selected;
+            },
+          });
+
+          if (!divisionFilters) return;
+
+          // 3. Incluir Fotografías
           const { value: incluirFotos } = await Swal.fire({
-            title: "Exportar Jugadores",
+            title: "Incluir Fotografías",
             text: "¿Deseas incluir las fotos de los jugadores en el reporte? (Esto puede tardar un poco más por el volumen de datos)",
             icon: "question",
             showCancelButton: true,
@@ -1213,21 +1331,53 @@
               teamIds.has(player.teamId) ||
               player.campeonatoId === championshipId
             ) {
-              playersToExport.push({
-                ...player,
-                clubRef: (
-                  player.teamName ||
-                  teamNamesMap[player.teamId] ||
-                  "SIN ASIGNAR"
-                ).toUpperCase(),
-                catRef: (
+              // Filtrar por Rango de Edad
+              let matchAge = false;
+              const edad = calcularEdad(player.fechaNacimiento);
+              if (ageFilters.includes("juvenil") && edad < 18) matchAge = true;
+              else if (ageFilters.includes("master") && edad > 40)
+                matchAge = true;
+              else if (
+                ageFilters.includes("senior") &&
+                edad >= 18 &&
+                edad <= 40
+              )
+                matchAge = true;
+
+              if (matchAge) {
+                // Filtrar por División de Equipo
+                const teamCat = (
                   player.teamCategory ||
                   teamCategoriesMap[player.teamId] ||
                   ""
-                ).toUpperCase(),
-              });
+                ).toUpperCase();
+                if (divisionFilters.includes(teamCat)) {
+                  playersToExport.push({
+                    ...player,
+                    clubRef: (
+                      player.teamName ||
+                      teamNamesMap[player.teamId] ||
+                      "SIN ASIGNAR"
+                    ).toUpperCase(),
+                    catRef: (
+                      player.teamCategory ||
+                      teamCategoriesMap[player.teamId] ||
+                      ""
+                    ).toUpperCase(),
+                  });
+                }
+              }
             }
           });
+
+          if (playersToExport.length === 0) {
+            Swal.fire(
+              "Atención",
+              "No se encontraron jugadores para los filtros seleccionados.",
+              "info",
+            );
+            return;
+          }
 
           // Ordenar por Equipo y luego por Categoría
           playersToExport.sort((a, b) => {
@@ -1333,11 +1483,11 @@
           const blob = new Blob([buffer], {
             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
           });
-          saveAs(blob, `Reporte_Completo_${champName}_${fecha}.xlsx`);
+          saveAs(blob, `Reporte_Filtros_${champName}_${fecha}.xlsx`);
 
           Swal.fire({
             title: "¡Éxito!",
-            text: "El reporte completo con fotografías se ha generado correctamente.",
+            text: `El reporte de jugadores se ha generado correctamente con los filtros seleccionados.`,
             icon: "success",
             confirmButtonColor: "#28a745",
           });
