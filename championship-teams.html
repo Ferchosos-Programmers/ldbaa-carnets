@@ -10,266 +10,97 @@
     />
     <link rel="stylesheet" href="css/responsive.css" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/global-swal-patch.js"></script>
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
+    <link rel="icon" href="img/logo.png" />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="stylesheet" href="css/global-theme.css" />
+    <link rel="stylesheet" href="css/championship-teams.css" />
 
     <!-- ExcelJS y FileSaver para reportes con imágenes -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-    <style>
-      body {
-        background-color: #f1f1f1;
-        font-family: "Times New Roman", Times, serif;
-      }
-      .navbar {
-        background-color: #28a745;
-      }
-      .navbar-brand {
-        font-weight: bold;
-        font-size: 1.5rem;
-        color: #fff !important;
-      }
-      .card {
-        transition: transform 0.2s ease-in-out;
-        border-radius: 1rem;
-      }
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      }
-      .card-title {
-        color: #28a745;
-        font-weight: 600;
-      }
-      .modal-header {
-        background-color: #28a745;
-        color: white;
-        border-top-left-radius: 0.5rem;
-        border-top-right-radius: 0.5rem;
-      }
-    </style>
-    <style>
-      /* Toast flotante */
-      #newPlayersToast {
-        position: fixed;
-        top: 30px;
-        right: 30px;
-        min-width: 320px;
-        z-index: 9999;
-        background: #fff;
-        border: 1px solid #28a745;
-        border-radius: 8px;
-        box-shadow: 0 4px 16px rgba(40, 167, 69, 0.15);
-        padding: 18px 24px 18px 18px;
-        display: none;
-        animation: fadeIn 0.7s;
-      }
-      #newPlayersToast .toast-title {
-        font-weight: bold;
-        color: #28a745;
-        margin-bottom: 8px;
-      }
-      #newPlayersToast .toast-close {
-        position: absolute;
-        top: 8px;
-        right: 12px;
-        background: none;
-        border: none;
-        font-size: 1.2rem;
-        color: #888;
-        cursor: pointer;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      /* Botón flotante de jugadores nuevos */
-      #newPlayersFloatingBtn {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        width: 68px;
-        height: 68px;
-        background: linear-gradient(135deg, #28a745 0%, #111 100%);
-        border: 2.5px solid #fff;
-        border-radius: 50%;
-        color: #fff;
-        font-size: 2rem;
-        font-weight: bold;
-        box-shadow:
-          0 8px 32px rgba(40, 167, 69, 0.18),
-          0 1.5px 8px rgba(0, 0, 0, 0.18);
-        z-index: 9998;
-        display: none;
-        cursor: pointer;
-        transition: all 0.22s cubic-bezier(0.4, 2, 0.6, 1);
-        animation: glow 2.5s infinite alternate;
-        overflow: visible;
-        padding: 0;
-      }
-      #newPlayersFloatingBtn i {
-        font-size: 2.1rem;
-        margin-top: 7px;
-        display: block;
-        color: #fff;
-      }
-      #newPlayersFloatingBtn:hover {
-        transform: scale(1.11) translateY(-2px);
-        box-shadow:
-          0 12px 36px rgba(40, 167, 69, 0.28),
-          0 2px 12px rgba(0, 0, 0, 0.22);
-        filter: brightness(1.08);
-      }
-      @keyframes glow {
-        0% {
-          box-shadow:
-            0 8px 32px rgba(40, 167, 69, 0.18),
-            0 1.5px 8px rgba(0, 0, 0, 0.18);
-        }
-        100% {
-          box-shadow:
-            0 0 16px 6px #28a745cc,
-            0 8px 32px rgba(40, 167, 69, 0.18);
-        }
-      }
-      #newPlayersFloatingBtn .badge-count {
-        position: absolute;
-        top: 7px;
-        right: 7px;
-        background: #111;
-        color: #28a745;
-        font-size: 1rem;
-        font-weight: bold;
-        border-radius: 50%;
-        padding: 2.5px 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.13);
-        border: 2px solid #fff;
-        min-width: 28px;
-        text-align: center;
-        pointer-events: none;
-      }
-
-      /* Modal de jugadores nuevos */
-      #newPlayersModal .modal-body {
-        max-height: 70vh;
-        overflow-y: auto;
-      }
-      .player-card {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 15px;
-        background: #f8f9fa;
-        transition: all 0.3s ease;
-      }
-      .player-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-      }
-      .player-photo {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid #28a745;
-      }
-      .player-info {
-        margin-left: 15px;
-      }
-      .player-name {
-        font-weight: bold;
-        color: #28a745;
-        font-size: 1.1rem;
-      }
-      .player-details {
-        color: #666;
-        font-size: 0.9rem;
-      }
-    </style>
   </head>
   <body>
+    <!-- Main Background -->
+    <div class="main-bg"></div>
+
     <!-- Toast de nuevos jugadores -->
-    <div id="newPlayersToast">
+    <div id="newPlayersToast" class="glass-toast">
       <button
         class="toast-close"
-        onclick="
-          document.getElementById('newPlayersToast').style.display = 'none'
-        "
+        onclick="document.getElementById('newPlayersToast').style.display = 'none'"
       >
-        &times;
+        <i class="fas fa-times"></i>
       </button>
-      <div class="toast-title">Nuevos registros de jugadores</div>
+      <div class="toast-title">
+        <i class="fas fa-bell me-2 brand-accent"></i>Registros Nuevos
+      </div>
       <div id="newPlayersToastBody"></div>
     </div>
 
     <!-- Botón flotante de jugadores nuevos -->
-    <button id="newPlayersFloatingBtn" onclick="showNewPlayersModal()">
+    <button id="newPlayersFloatingBtn" class="floating-btn-premium" onclick="showNewPlayersModal()">
       <i class="fas fa-users"></i>
       <span class="badge-count">0</span>
     </button>
 
-    <!-- Header -->
-    <nav class="navbar navbar-expand-lg shadow-sm px-4">
-      <div class="container-fluid">
-        <a
-          class="navbar-brand text-white fw-bold d-flex align-items-center"
-          href="dashboard.html"
-        >
-          <img
-            src="img/logo.png"
-            alt="Logo"
-            width="30"
-            height="30"
-            class="me-2"
-          />
-          LIGA BARRIAL ARGELIA ALTA
+    <!-- Navigation -->
+    <nav class="nav-premium shadow-sm">
+      <div class="nav-content">
+        <a href="dashboard.html" class="nav-logo">
+          <img src="img/logo.png" alt="Logo" />
+          <span>LDBAA <span class="brand-accent">ARGELIA ALTA</span></span>
         </a>
-        <button
-          class="btn btn-xs btn-danger ms-auto text-white fw-semibold"
-          onclick="logout()"
-          style="border-radius: 50px"
-        >
-          <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
+        <div class="nav-links d-none d-md-flex">
+          <a href="dashboard.html"><i class="fas fa-home me-2"></i>Dashboard</a>
+          <a href="#" class="active"><i class="fas fa-id-card me-2"></i>Equipos</a>
+        </div>
+        <button class="btn-logout-premium" onclick="logout()">
+          <i class="fas fa-sign-out-alt me-2"></i><span>Salir</span>
         </button>
       </div>
     </nav>
 
-    <div class="container mt-4">
-      <a href="dashboard.html" class="btn btn-success mb-3">
-        <i class="fas fa-arrow-left"></i> Volver al Dashboard
-      </a>
-      <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="container py-4">
+      <div class="d-flex align-items-center mb-5">
+        <a href="dashboard.html" class="btn-secondary-glass me-4" style="border-radius: 50%; width: 50px; height: 50px; padding: 0;">
+          <i class="fas fa-arrow-left"></i>
+        </a>
         <div>
-          <h3 class="text-dark mb-0" id="championshipTitle">
-            Equipos del Campeonato
-          </h3>
-          <p class="text-muted" id="championshipDescription"></p>
+          <h2 class="section-title mb-0" id="championshipTitle" style="text-align: left;">EQUIPOS DEL CAMPEONATO</h2>
+          <p class="text-white-50 mb-0" id="championshipDescription"></p>
         </div>
-        <div>
-          <button
-            class="btn btn-primary shadow me-2"
-            onclick="exportarJugadoresCampeonatoExcel()"
-          >
-            <i class="fas fa-file-excel me-2"></i>Exportar Jugadores
+        
+        <div class="ms-auto d-flex gap-3">
+          <button class="btn-secondary-glass px-4" onclick="exportarJugadoresCampeonatoExcel()">
+            <i class="fas fa-file-excel me-2"></i>Exportar Reporte
           </button>
-          <button
-            class="btn btn-success shadow"
-            data-bs-toggle="modal"
-            data-bs-target="#addTeamModal"
-          >
-            + Agregar Equipo
+          <button class="btn-premium px-4" data-bs-toggle="modal" data-bs-target="#addTeamModal">
+            <i class="fas fa-plus-circle me-2"></i>Agregar Equipo
           </button>
         </div>
+      </div>
+
+      <!-- Filter Section -->
+      <div class="filter-grid mb-5">
+        <div class="input-group-premium">
+          <i class="fas fa-search"></i>
+          <input type="text" id="teamSearchInput" class="search-input" placeholder="Buscar equipo por nombre..." oninput="filterTeamsLocal()">
+        </div>
+        
+        <select id="teamCategoryFilter" class="select-premium" onchange="filterTeamsLocal()">
+          <option value="">TODAS LAS CATEGORÍAS</option>
+          <option value="MÁXIMA">MÁXIMA</option>
+          <option value="PRIMERA">PRIMERA</option>
+          <option value="FEMENINO">FEMENINO</option>
+        </select>
       </div>
 
       <!-- Contenedor de tarjetas -->
@@ -279,51 +110,28 @@
     </div>
 
     <!-- Modal para agregar equipo -->
-    <div
-      class="modal fade"
-      id="addTeamModal"
-      tabindex="-1"
-      aria-labelledby="addTeamModalLabel"
-      aria-hidden="true"
-    >
+    <div class="modal fade" id="addTeamModal" tabindex="-1">
       <div class="modal-dialog">
-        <div class="modal-content shadow">
+        <div class="modal-content modal-premium">
           <form id="teamForm">
             <div class="modal-header">
-              <h5 class="modal-title" id="addTeamModalLabel">
-                Registrar Nuevo Equipo
+              <h5 class="modal-title">
+                <i class="fas fa-plus-circle me-2 brand-accent"></i>REGISTRAR EQUIPO
               </h5>
-              <button
-                type="button"
-                class="btn-close btn-close-white"
-                data-bs-dismiss="modal"
-              ></button>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-              <div class="mb-3">
-                <label for="teamLogo" class="form-label">Logo del Equipo</label>
-                <input
-                  type="file"
-                  class="form-control"
-                  id="teamLogo"
-                  accept="image/*"
-                  required
-                />
+              <div class="mb-4">
+                <label for="teamLogo" class="form-label">LOGO DEL EQUIPO</label>
+                <input type="file" class="input-premium" id="teamLogo" accept="image/*" required />
               </div>
-              <div class="mb-3">
-                <label for="teamName" class="form-label"
-                  >Nombre del Equipo</label
-                >
-                <input
-                  type="text"
-                  class="form-control"
-                  id="teamName"
-                  required
-                />
+              <div class="mb-4">
+                <label for="teamName" class="form-label">NOMBRE DEL EQUIPO</label>
+                <input type="text" class="input-premium" id="teamName" placeholder="Ej: Águilas Negras" required />
               </div>
-              <div class="mb-3">
-                <label for="teamCategory" class="form-label">Categoría</label>
-                <select class="form-select" id="teamCategory" required>
+              <div class="mb-4">
+                <label for="teamCategory" class="form-label">CATEGORÍA</label>
+                <select class="select-premium" id="teamCategory" required>
                   <option value="">Selecciona una categoría</option>
                   <option value="MÁXIMA">MÁXIMA</option>
                   <option value="PRIMERA">PRIMERA</option>
@@ -331,9 +139,9 @@
                 </select>
               </div>
             </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-success w-100">
-                Guardar Equipo
+            <div class="modal-footer border-0">
+              <button type="submit" class="btn-premium w-100 justify-content-center py-3">
+                <i class="fas fa-save me-2"></i> GUARDAR EQUIPO
               </button>
             </div>
           </form>
@@ -342,50 +150,32 @@
     </div>
 
     <!-- Modal para gestionar archivos -->
-    <div
-      class="modal fade"
-      id="manageFilesModal"
-      tabindex="-1"
-      aria-labelledby="manageFilesModalLabel"
-      aria-hidden="true"
-    >
+    <div class="modal fade" id="manageFilesModal" tabindex="-1">
       <div class="modal-dialog modal-lg">
-        <div class="modal-content shadow">
+        <div class="modal-content modal-premium">
           <div class="modal-header">
             <h5 class="modal-title" id="manageFilesModalLabel">
-              Gestionar Archivos del Equipo
+              <i class="fas fa-folder-open me-2 brand-accent"></i>GESTIONAR ARCHIVOS
             </h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-            ></button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <form id="fileUploadForm">
-              <div class="mb-3">
-                <label for="fileType" class="form-label"
-                  >Tipo de Documento</label
-                >
-                <select class="form-select" id="fileType" required>
+              <div class="mb-4">
+                <label for="fileType" class="form-label">TIPO DE DOCUMENTO</label>
+                <select class="select-premium" id="fileType" required>
                   <option value="">Selecciona el tipo de documento</option>
                   <option value="carta_pase">Carta de Pase</option>
                   <option value="autorizacion">Autorización</option>
                   <option value="otro">Otro Documento</option>
                 </select>
               </div>
-              <div class="mb-3">
-                <label for="fileUpload" class="form-label">Archivo PDF</label>
-                <input
-                  type="file"
-                  class="form-control"
-                  id="fileUpload"
-                  accept=".pdf"
-                  required
-                />
+              <div class="mb-4">
+                <label for="fileUpload" class="form-label">ARCHIVO PDF</label>
+                <input type="file" class="input-premium" id="fileUpload" accept=".pdf" required />
               </div>
-              <button type="submit" class="btn btn-success w-100">
-                Subir Archivo
+              <button type="submit" class="btn-premium w-100 justify-content-center py-3">
+                <i class="fas fa-upload me-2"></i> SUBIR ARCHIVO
               </button>
             </form>
 
@@ -562,27 +352,30 @@
           });
       }
 
+      let allTeamsLocal = [];
+
       // Cargar equipos
       function loadTeams() {
         const container = document.getElementById("teamCardsContainer");
-        container.innerHTML =
-          '<div class="col-12 text-center"><div class="spinner-border text-success" role="status"></div></div>';
+        container.innerHTML = '<div class="col-12 text-center"><div class="spinner-border text-success" role="status"></div></div>';
 
         db.collection("teams")
           .where("championshipId", "==", championshipId)
           .get()
           .then((querySnapshot) => {
             container.innerHTML = "";
+            allTeamsLocal = [];
             if (querySnapshot.empty) {
-              container.innerHTML =
-                '<div class="col-12 text-center"><p>No hay equipos registrados</p></div>';
+              container.innerHTML = '<div class="col-12 text-center"><p class="text-white-50">No hay equipos registrados</p></div>';
               return;
             }
 
             querySnapshot.forEach((doc) => {
               const team = doc.data();
-              createTeamCard(doc.id, team);
+              team.id = doc.id;
+              allTeamsLocal.push(team);
             });
+            renderTeams(allTeamsLocal);
           })
           .catch((error) => {
             console.error("Error al cargar equipos:", error);
@@ -590,30 +383,50 @@
           });
       }
 
+      function filterTeamsLocal() {
+        const term = document.getElementById('teamSearchInput').value.toLowerCase();
+        const cat = document.getElementById('teamCategoryFilter').value;
+        const filtered = allTeamsLocal.filter(t => {
+          const matchName = t.name.toLowerCase().includes(term);
+          const matchCat = !cat || t.category === cat;
+          return matchName && matchCat;
+        });
+        renderTeams(filtered);
+      }
+
+      function renderTeams(teams) {
+        const container = document.getElementById("teamCardsContainer");
+        container.innerHTML = "";
+        teams.forEach(team => createTeamCard(team.id, team));
+      }
+
       // Crear tarjeta de equipo
       function createTeamCard(id, team) {
         const card = document.createElement("div");
         card.className = "col-md-4 mb-4";
         card.innerHTML = `
-          <div class="card shadow-sm border-0 h-100">
-            <img src="${team.logo}" class="card-img-top p-3" alt="Logo del equipo" style="height: 200px; object-fit: contain;">
-            <div class="card-body text-center">
-              <h5 class="card-title">${team.name}</h5>
-              <p class="card-text"><strong>Categoría:</strong> ${team.category}</p>
-              <div class="btn-group">
-                <button class="btn btn-info btn-sm me-2" onclick="gestionarArchivos('${id}', '${team.name}')">
-                  <i class="fas fa-file-alt"></i> Gestionar Archivos
-                </button>
-                <button class="btn btn-warning btn-sm me-2" onclick="resetAdminKey('${id}')">
-                  <i class="fas fa-key"></i> Resetear Clave
-                </button>
-                <button class="btn btn-danger btn-sm" onclick="deleteTeam('${id}')">
-                  <i class="fas fa-trash"></i> Eliminar
-                </button>
-              </div>
+        <div class="dashboard-card h-100 p-4 text-center">
+          <div class="card-icon-wrapper mb-4" style="width: 100px; height: 100px; margin: 0 auto;">
+            <img src="${team.logo || 'img/logo.png'}" alt="Logo" style="width: 70%; height: 70%; object-fit: contain;">
+          </div>
+          <h4 class="text-white mb-2 fw-bold text-uppercase">${team.name}</h4>
+          <span class="badge badge-secondary-glass mb-4">${team.category}</span>
+          
+          <div class="d-grid gap-2 w-100 mt-auto">
+            <button class="btn btn-success-premium w-100 py-2" onclick="gestionarArchivos('${id}', '${team.name}')">
+              <i class="fas fa-folder-open me-2"></i>DOCUMENTACIÓN
+            </button>
+            <div class="d-flex gap-2">
+              <button class="btn btn-secondary-glass flex-grow-1" title="Resetear Clave" onclick="resetAdminKey('${id}')">
+                <i class="fas fa-key text-warning"></i>
+              </button>
+              <button class="btn btn-secondary-glass flex-grow-1" title="Eliminar Equipo" onclick="deleteTeam('${id}')">
+                <i class="fas fa-trash text-danger"></i>
+              </button>
             </div>
           </div>
-        `;
+        </div>
+      `;
         document.getElementById("teamCardsContainer").appendChild(card);
       }
 
@@ -647,7 +460,6 @@
                   title: "Éxito",
                   text: "Equipo agregado correctamente",
                   icon: "success",
-                  confirmButtonColor: "#28a745",
                 });
                 document.getElementById("teamForm").reset();
                 const modal = bootstrap.Modal.getInstance(
@@ -672,8 +484,6 @@
           text: "Este equipo será eliminado permanentemente",
           icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#3085d6",
           confirmButtonText: "Sí, eliminar",
           cancelButtonText: "Cancelar",
         }).then((result) => {
@@ -720,7 +530,6 @@
                   title: "¡Clave reseteada!",
                   text: "La clave ha sido eliminada. Se solicitará una nueva clave la próxima vez que se acceda al registro de jugadores.",
                   icon: "success",
-                  confirmButtonColor: "#28a745",
                 });
               })
               .catch((error) => {
@@ -846,8 +655,6 @@
           text: "Esta acción no se puede deshacer",
           icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#3085d6",
           confirmButtonText: "Sí, eliminar",
           cancelButtonText: "Cancelar",
         }).then((result) => {
@@ -898,8 +705,6 @@
           text: "¿Estás seguro de que deseas salir?",
           icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: "#28a745",
-          cancelButtonColor: "#d33",
           confirmButtonText: "Sí, salir",
           cancelButtonText: "Cancelar",
         }).then((result) => {
@@ -1209,7 +1014,6 @@
             `,
             focusConfirm: false,
             confirmButtonText: "Siguiente",
-            confirmButtonColor: "#28a745",
             showCancelButton: true,
             cancelButtonText: "Cancelar",
             preConfirm: () => {
@@ -1252,7 +1056,6 @@
             `,
             focusConfirm: false,
             confirmButtonText: "Siguiente",
-            confirmButtonColor: "#28a745",
             showCancelButton: true,
             cancelButtonText: "Cancelar",
             preConfirm: () => {
@@ -1282,8 +1085,6 @@
             showCancelButton: true,
             confirmButtonText: "Sí, incluir fotos",
             cancelButtonText: "No, solo texto",
-            confirmButtonColor: "#28a745",
-            cancelButtonColor: "#0d6efd",
           });
 
           if (incluirFotos === undefined) return; // Cancelado
@@ -1489,7 +1290,6 @@
             title: "¡Éxito!",
             text: `El reporte de jugadores se ha generado correctamente con los filtros seleccionados.`,
             icon: "success",
-            confirmButtonColor: "#28a745",
           });
         } catch (error) {
           console.error("Error al exportar a Excel:", error);
@@ -1503,3 +1303,4 @@
     </script>
   </body>
 </html>
+

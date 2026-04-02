@@ -7,284 +7,261 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="css/responsive.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/global-swal-patch.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <!-- Firebase App (core) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <!-- Firestore -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-  <style>
-    body { background-color: #f1f1f1; font-family: 'Times New Roman', Times, serif; }
-    .navbar { background-color: #28a745; }
-    .navbar-brand { font-weight: bold; font-size: 1.5rem; color: #fff !important; }
-    .card { border-radius: 1rem; }
-    .section-title { color: #28a745; font-weight: 600; margin-top: 2rem; }
-    .form-label { font-weight: 500; }
-    .btn-success, .btn-primary, .btn-outline-success { border-radius: 2rem; }
-    .day-schedule { display: none; margin-top: 0.5rem; }
-    .day-schedule.active { display: block; }
-    .encuentro-item { display: flex; align-items: center; gap: 10px; }
-    .encuentro-item .btn { padding: 0.2em 0.7em; font-size: 0.95em; }
-    .categoria-badge { font-size: 0.95em; margin-right: 0.5em; }
-    #equiposCategoria,
-    #generarTodosBtn {
-      display: none !important;
-    }
-    #equiposCategoria { display: none !important; }
-    .table-modern {
-      background: #fff;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 12px rgba(40,167,69,0.08);
-      font-size: 1.05em;
-    }
-    .table-modern th, .table-modern td {
-      border: none !important;
-      padding: 0.85em 1.2em !important;
-      vertical-align: middle;
-    }
-    .table-modern thead th {
-      background: #28a745;
-      color: #fff;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      text-align: center;
-    }
-    .table-modern tbody tr:nth-child(even) {
-      background: #f6fdf8;
-    }
-    .table-modern tbody tr:hover {
-      background: #eafbe7;
-      transition: background 0.2s;
-    }
-    .table-modern td {
-      color: #222;
-      text-align: center;
-    }
-    .table-modern td strong {
-      color: #28a745;
-    }
-    .btn-eliminar {
-      padding: 0.2em 0.6em !important;
-      font-size: 0.95em !important;
-      min-width: 28px;
-      min-height: 28px;
-      width: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .encuentro-item span {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 1 1 auto;
-    }
-  </style>
+    <link rel="stylesheet" href="css/global-theme.css" />
+    <link rel="stylesheet" href="css/tabla-posiciones.css" />
+    <style>
+      .day-schedule { display: none; margin-top: 1rem; }
+      .day-schedule.active { display: block; }
+      .encuentro-item { 
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 10px 20px;
+        margin-bottom: 10px;
+        color: white;
+      }
+      .categoria-badge { 
+        background: #2ecc71;
+        color: black;
+        font-weight: 800;
+        padding: 5px 12px;
+        border-radius: 8px;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+      }
+      #equiposCategoria, #generarTodosBtn { display: none !important; }
+    </style>
 </head>
 <body>
-  <!-- Header -->
-  <nav class="navbar navbar-expand-lg shadow-sm px-4">
-    <div class="container-fluid">
-      <a class="navbar-brand text-white fw-bold d-flex align-items-center" href="dashboard.html">
-        <img src="img/logo.png" alt="Logo" width="30" height="30" class="me-2" />
-        LIGA BARRIAL ARGELIA ALTA
+  <!-- Persistent Background -->
+  <div class="main-bg"></div>
+
+  <!-- Navigation -->
+  <nav class="nav-premium shadow-sm">
+    <div class="nav-content">
+      <a href="index.html" class="nav-logo">
+        <img src="img/logo.png" alt="Logo" />
+        <span>LDBAA <span class="brand-accent">ARGELIA ALTA</span></span>
       </a>
-      <a href="programacion-dashboard.html" class="btn btn-outline-light ms-auto fw-semibold" style="border-radius: 50px">
-        <i class="fas fa-arrow-left me-1"></i> Volver al Dashboard
+      <div class="nav-links d-none d-md-flex">
+        <a href="programacion-dashboard.html"><i class="fas fa-home me-2"></i>Dashboard</a>
+        <a href="#" class="active"><i class="fas fa-calendar-alt me-2"></i>Fixture</a>
+      </div>
+      <a href="programacion-dashboard.html" class="btn-logout-premium text-decoration-none">
+        <i class="fas fa-arrow-left me-2"></i><span>Volver</span>
       </a>
     </div>
   </nav>
 
-  <div class="container mt-5 mb-5">
-    <h2 class="section-title text-center mb-4">Programar Partidos por Categoría</h2>
+  <div class="container py-5">
+    <div class="text-center mb-5">
+      <h2 class="section-title">📅 GESTIÓN DE FIXTURE</h2>
+      <p class="text-white-50">Programar partidos y organizar fechas oficiales por categoría.</p>
+    </div>
+
     <div class="row justify-content-center">
       <div class="col-lg-12">
-        <div class="card shadow p-4">
-          <form id="encuentrosForm">
-            <div class="mb-3">
-              <label for="categoriaSelect" class="form-label">Categoría</label>
-              <select class="form-select" id="categoriaSelect" required>
-                <option value="">Selecciona una categoría</option>
-                <option value="máxima">Máxima</option>
-                <option value="primera">Primera</option>
-                <option value="femenino">Femenino</option>
-              </select>
-            </div>
-            <div class="row g-2 align-items-end mb-3">
-              <div class="col-md-5">
-                <label for="localSelect" class="form-label">Equipo local</label>
-                <select class="form-select" id="localSelect"></select>
+        <div class="dashboard-card p-5">
+          <form id="encuentrosForm" class="mb-4">
+            <div class="row g-4">
+              <div class="col-md-4">
+                <label for="categoriaSelect" class="form-label">CATEGORÍA</label>
+                <select class="select-premium" id="categoriaSelect" required>
+                  <option value="">Selecciona una categoría</option>
+                  <option value="MAXIMA">MÁXIMA</option>
+                  <option value="PRIMERA">PRIMERA</option>
+                  <option value="FEMENINO">FEMENINO</option>
+                </select>
               </div>
-              <div class="col-md-5">
-                <label for="visitanteSelect" class="form-label">Equipo visitante</label>
-                <select class="form-select" id="visitanteSelect"></select>
+              <div class="col-md-4">
+                <label for="localSelect" class="form-label">EQUIPO LOCAL</label>
+                <select class="select-premium" id="localSelect"></select>
               </div>
-              <div class="col-md-2 d-grid">
-                <button type="button" class="btn btn-primary" id="agregarEncuentroBtn">
-                  <i class="fas fa-plus"></i> Agregar
+              <div class="col-md-4">
+                <label for="visitanteSelect" class="form-label">EQUIPO VISITANTE</label>
+                <select class="select-premium" id="visitanteSelect"></select>
+              </div>
+              <div class="col-12 d-flex justify-content-end mt-4 gap-3">
+                <button type="button" class="btn-secondary-glass py-3 px-4" id="generarTodosBtn">
+                  <i class="fas fa-random me-2"></i> TODO VS TODO (TCT)
+                </button>
+                <button type="button" class="btn-premium py-3 px-5" id="agregarEncuentroBtn">
+                  <i class="fas fa-plus me-2"></i> AGREGAR ENCUENTRO
                 </button>
               </div>
             </div>
-            <div class="mb-3">
-              <button type="button" class="btn btn-outline-success btn-sm" id="generarTodosBtn">
-                <i class="fas fa-random"></i> Generar todos contra todos
-              </button>
-            </div>
           </form>
-          <div id="equiposCategoria" class="mb-2" style="display:none"></div>
-          <div id="listaEncuentros" class="mb-4"></div>
-          <hr>
-          <h5 class="text-success">Días de juego y horarios</h5>
-          <div class="mb-3">
-            <div class="d-flex flex-wrap gap-2 mb-2">
-              <div class="form-check">
+
+          <div id="listaEncuentros" class="mb-5"></div>
+          
+          <div class="divider mb-5" style="height: 1px; background: rgba(255,255,255,0.1);"></div>
+          
+          <h4 class="brand-accent mb-4 text-uppercase fw-bold"><i class="fas fa-clock me-2"></i>Días de Juego y Horarios</h4>
+          <div class="mb-5">
+            <div class="d-flex flex-wrap gap-3 mb-4">
+              <div class="form-check custom-check">
                 <input class="form-check-input day-checkbox" type="checkbox" value="Lunes" id="diaLunes">
-                <label class="form-check-label" for="diaLunes">Lunes</label>
+                <label class="form-check-label text-white" for="diaLunes">Lunes</label>
               </div>
-              <div class="form-check">
+              <div class="form-check custom-check">
                 <input class="form-check-input day-checkbox" type="checkbox" value="Martes" id="diaMartes">
-                <label class="form-check-label" for="diaMartes">Martes</label>
+                <label class="form-check-label text-white" for="diaMartes">Martes</label>
               </div>
-              <div class="form-check">
+              <div class="form-check custom-check">
                 <input class="form-check-input day-checkbox" type="checkbox" value="Miércoles" id="diaMiercoles">
-                <label class="form-check-label" for="diaMiercoles">Miércoles</label>
+                <label class="form-check-label text-white" for="diaMiercoles">Miércoles</label>
               </div>
-              <div class="form-check">
+              <div class="form-check custom-check">
                 <input class="form-check-input day-checkbox" type="checkbox" value="Jueves" id="diaJueves">
-                <label class="form-check-label" for="diaJueves">Jueves</label>
+                <label class="form-check-label text-white" for="diaJueves">Jueves</label>
               </div>
-              <div class="form-check">
+              <div class="form-check custom-check">
                 <input class="form-check-input day-checkbox" type="checkbox" value="Viernes" id="diaViernes">
-                <label class="form-check-label" for="diaViernes">Viernes</label>
+                <label class="form-check-label text-white" for="diaViernes">Viernes</label>
               </div>
-              <div class="form-check">
+              <div class="form-check custom-check">
                 <input class="form-check-input day-checkbox" type="checkbox" value="Sábado" id="diaSabado">
-                <label class="form-check-label" for="diaSabado">Sábado</label>
+                <label class="form-check-label text-white" for="diaSabado">Sábado</label>
               </div>
-              <div class="form-check">
+              <div class="form-check custom-check">
                 <input class="form-check-input day-checkbox" type="checkbox" value="Domingo" id="diaDomingo">
-                <label class="form-check-label" for="diaDomingo">Domingo</label>
+                <label class="form-check-label text-white" for="diaDomingo">Domingo</label>
               </div>
             </div>
+
             <!-- Horarios por día -->
             <div id="horariosPorDia">
+              <!-- Lunes -->
               <div class="day-schedule" id="schedule-Lunes">
-                <div class="row g-2 align-items-end mb-2">
+                <div class="row g-4 align-items-end">
                   <div class="col-md-4">
-                    <label for="horaInicio-Lunes" class="form-label">Inicio (Lunes)</label>
-                    <input type="time" class="form-control" id="horaInicio-Lunes" />
+                    <label class="form-label text-white-50">INICIO (LUNES)</label>
+                    <input type="time" class="input-premium" id="horaInicio-Lunes" value="08:00" />
                   </div>
                   <div class="col-md-4">
-                    <label for="horaFin-Lunes" class="form-label">Fin (Lunes)</label>
-                    <input type="time" class="form-control" id="horaFin-Lunes" />
+                    <label class="form-label text-white-50">FIN (LUNES)</label>
+                    <input type="time" class="input-premium" id="horaFin-Lunes" value="14:00" />
                   </div>
                   <div class="col-md-4">
-                    <label for="duracion-Lunes" class="form-label">Duración (min)</label>
-                    <input type="number" class="form-control" id="duracion-Lunes" min="10" max="180" value="100" />
+                    <label class="form-label text-white-50">DURACIÓN (MIN)</label>
+                    <input type="number" class="input-premium" id="duracion-Lunes" min="10" max="180" value="100" />
                   </div>
                 </div>
               </div>
+              <!-- Martes -->
               <div class="day-schedule" id="schedule-Martes">
-                <div class="row g-2 align-items-end mb-2">
+                <div class="row g-4 align-items-end">
                   <div class="col-md-4">
-                    <label for="horaInicio-Martes" class="form-label">Inicio (Martes)</label>
-                    <input type="time" class="form-control" id="horaInicio-Martes" />
+                    <label class="form-label text-white-50">INICIO (MARTES)</label>
+                    <input type="time" class="input-premium" id="horaInicio-Martes" value="08:00" />
                   </div>
                   <div class="col-md-4">
-                    <label for="horaFin-Martes" class="form-label">Fin (Martes)</label>
-                    <input type="time" class="form-control" id="horaFin-Martes" />
+                    <label class="form-label text-white-50">FIN (MARTES)</label>
+                    <input type="time" class="input-premium" id="horaFin-Martes" value="14:00" />
                   </div>
                   <div class="col-md-4">
-                    <label for="duracion-Martes" class="form-label">Duración (min)</label>
-                    <input type="number" class="form-control" id="duracion-Martes" min="10" max="180" value="100" />
+                    <label class="form-label text-white-50">DURACIÓN (MIN)</label>
+                    <input type="number" class="input-premium" id="duracion-Martes" min="10" max="180" value="100" />
                   </div>
                 </div>
               </div>
+              <!-- Miércoles -->
               <div class="day-schedule" id="schedule-Miércoles">
-                <div class="row g-2 align-items-end mb-2">
+                <div class="row g-4 align-items-end">
                   <div class="col-md-4">
-                    <label for="horaInicio-Miércoles" class="form-label">Inicio (Miércoles)</label>
-                    <input type="time" class="form-control" id="horaInicio-Miércoles" />
+                    <label class="form-label text-white-50">INICIO (MIÉRCOLES)</label>
+                    <input type="time" class="input-premium" id="horaInicio-Miércoles" value="08:00" />
                   </div>
                   <div class="col-md-4">
-                    <label for="horaFin-Miércoles" class="form-label">Fin (Miércoles)</label>
-                    <input type="time" class="form-control" id="horaFin-Miércoles" />
+                    <label class="form-label text-white-50">FIN (MIÉRCOLES)</label>
+                    <input type="time" class="input-premium" id="horaFin-Miércoles" value="14:00" />
                   </div>
                   <div class="col-md-4">
-                    <label for="duracion-Miércoles" class="form-label">Duración (min)</label>
-                    <input type="number" class="form-control" id="duracion-Miércoles" min="10" max="180" value="100" />
+                    <label class="form-label text-white-50">DURACIÓN (MIN)</label>
+                    <input type="number" class="input-premium" id="duracion-Miércoles" min="10" max="180" value="100" />
                   </div>
                 </div>
               </div>
+              <!-- Jueves -->
               <div class="day-schedule" id="schedule-Jueves">
-                <div class="row g-2 align-items-end mb-2">
+                <div class="row g-4 align-items-end">
                   <div class="col-md-4">
-                    <label for="horaInicio-Jueves" class="form-label">Inicio (Jueves)</label>
-                    <input type="time" class="form-control" id="horaInicio-Jueves" />
+                    <label class="form-label text-white-50">INICIO (JUEVES)</label>
+                    <input type="time" class="input-premium" id="horaInicio-Jueves" value="08:00" />
                   </div>
                   <div class="col-md-4">
-                    <label for="horaFin-Jueves" class="form-label">Fin (Jueves)</label>
-                    <input type="time" class="form-control" id="horaFin-Jueves" />
+                    <label class="form-label text-white-50">FIN (JUEVES)</label>
+                    <input type="time" class="input-premium" id="horaFin-Jueves" value="14:00" />
                   </div>
                   <div class="col-md-4">
-                    <label for="duracion-Jueves" class="form-label">Duración (min)</label>
-                    <input type="number" class="form-control" id="duracion-Jueves" min="10" max="180" value="100" />
+                    <label class="form-label text-white-50">DURACIÓN (MIN)</label>
+                    <input type="number" class="input-premium" id="duracion-Jueves" min="10" max="180" value="100" />
                   </div>
                 </div>
               </div>
+              <!-- Viernes -->
               <div class="day-schedule" id="schedule-Viernes">
-                <div class="row g-2 align-items-end mb-2">
+                <div class="row g-4 align-items-end">
                   <div class="col-md-4">
-                    <label for="horaInicio-Viernes" class="form-label">Inicio (Viernes)</label>
-                    <input type="time" class="form-control" id="horaInicio-Viernes" />
+                    <label class="form-label text-white-50">INICIO (VIERNES)</label>
+                    <input type="time" class="input-premium" id="horaInicio-Viernes" value="08:00" />
                   </div>
                   <div class="col-md-4">
-                    <label for="horaFin-Viernes" class="form-label">Fin (Viernes)</label>
-                    <input type="time" class="form-control" id="horaFin-Viernes" />
+                    <label class="form-label text-white-50">FIN (VIERNES)</label>
+                    <input type="time" class="input-premium" id="horaFin-Viernes" value="14:00" />
                   </div>
                   <div class="col-md-4">
-                    <label for="duracion-Viernes" class="form-label">Duración (min)</label>
-                    <input type="number" class="form-control" id="duracion-Viernes" min="10" max="180" value="100" />
+                    <label class="form-label text-white-50">DURACIÓN (MIN)</label>
+                    <input type="number" class="input-premium" id="duracion-Viernes" min="10" max="180" value="100" />
                   </div>
                 </div>
               </div>
+              <!-- Sábado -->
               <div class="day-schedule" id="schedule-Sábado">
-                <div class="row g-2 align-items-end mb-2">
+                <div class="row g-4 align-items-end">
                   <div class="col-md-4">
-                    <label for="horaInicio-Sábado" class="form-label">Inicio (Sábado)</label>
-                    <input type="time" class="form-control" id="horaInicio-Sábado" />
+                    <label class="form-label text-white-50">INICIO (SÁBADO)</label>
+                    <input type="time" class="input-premium" id="horaInicio-Sábado" value="08:00" />
                   </div>
                   <div class="col-md-4">
-                    <label for="horaFin-Sábado" class="form-label">Fin (Sábado)</label>
-                    <input type="time" class="form-control" id="horaFin-Sábado" />
+                    <label class="form-label text-white-50">FIN (SÁBADO)</label>
+                    <input type="time" class="input-premium" id="horaFin-Sábado" value="14:00" />
                   </div>
                   <div class="col-md-4">
-                    <label for="duracion-Sábado" class="form-label">Duración (min)</label>
-                    <input type="number" class="form-control" id="duracion-Sábado" min="10" max="180" value="100" />
+                    <label class="form-label text-white-50">DURACIÓN (MIN)</label>
+                    <input type="number" class="input-premium" id="duracion-Sábado" min="10" max="180" value="100" />
                   </div>
                 </div>
               </div>
+              <!-- Domingo -->
               <div class="day-schedule" id="schedule-Domingo">
-                <div class="row g-2 align-items-end mb-2">
+                <div class="row g-4 align-items-end">
                   <div class="col-md-4">
-                    <label for="horaInicio-Domingo" class="form-label">Inicio (Domingo)</label>
-                    <input type="time" class="form-control" id="horaInicio-Domingo" />
+                    <label class="form-label text-white-50">INICIO (DOMINGO)</label>
+                    <input type="time" class="input-premium" id="horaInicio-Domingo" value="08:00" />
                   </div>
                   <div class="col-md-4">
-                    <label for="horaFin-Domingo" class="form-label">Fin (Domingo)</label>
-                    <input type="time" class="form-control" id="horaFin-Domingo" />
+                    <label class="form-label text-white-50">FIN (DOMINGO)</label>
+                    <input type="time" class="input-premium" id="horaFin-Domingo" value="14:00" />
                   </div>
                   <div class="col-md-4">
-                    <label for="duracion-Domingo" class="form-label">Duración (min)</label>
-                    <input type="number" class="form-control" id="duracion-Domingo" min="10" max="180" value="100" />
+                    <label class="form-label text-white-50">DURACIÓN (MIN)</label>
+                    <input type="number" class="input-premium" id="duracion-Domingo" min="10" max="180" value="100" />
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="d-grid gap-2 mt-4">
-            <button type="button" class="btn btn-success btn-lg" id="generarProgramacionBtn">
-              <i class="fas fa-magic me-2"></i> Programar automáticamente
+
+          <div class="text-center mt-5">
+            <button type="button" class="btn-success-premium py-3 px-5 w-100" id="generarProgramacionBtn">
+              <i class="fas fa-magic me-2"></i> GENERAR PROGRAMACIÓN AUTOMÁTICA
             </button>
           </div>
           <div id="programacionResultado" class="mt-4"></div>
@@ -315,38 +292,68 @@
     };
     // Estructura para guardar encuentros por categoría
     let encuentrosPorCategoria = {
-      "máxima": [],
-      "primera": [],
-      "femenino": []
+      "MAXIMA": [],
+      "PRIMERA": [],
+      "FEMENINO": []
     };
     let equiposActuales = [];
     // Actualizar equipos al cambiar categoría
     document.getElementById('categoriaSelect').addEventListener('change', function() {
-      const cat = this.value;
-      if (!cat) {
-        document.getElementById('equiposCategoria').innerHTML = '<span class="text-muted">Selecciona una categoría</span>';
-        document.getElementById('localSelect').innerHTML = '';
-        document.getElementById('visitanteSelect').innerHTML = '';
-        mostrarEncuentros();
+      const selectedCategory = this.value;
+      if (!selectedCategory) {
+        document.getElementById('listaEncuentros').innerHTML = '<div class="text-center p-4 text-white-50">Selecciona una categoría para comenzar</div>';
+        document.getElementById('localSelect').innerHTML = '<option value="">Local</option>';
+        document.getElementById('visitanteSelect').innerHTML = '<option value="">Visitante</option>';
         return;
       }
-      // Consulta a Firestore para traer equipos de la categoría seleccionada
-      db.collection("teams").where("category", "==", cat.toUpperCase())
+
+      console.log('Filtrando equipos para categoría:', selectedCategory);
+      
+      // Consulta a Firestore para traer equipos
+      db.collection("teams")
         .get()
         .then((querySnapshot) => {
-          const equipos = [];
+          const allTeams = [];
           querySnapshot.forEach((doc) => {
-            equipos.push(doc.data());
+            const team = doc.data();
+            team.id = doc.id;
+            allTeams.push(team);
           });
-          document.getElementById('equiposCategoria').innerHTML = equipos.length
-            ? equipos.map(e=>`<span class='badge bg-success categoria-badge'>${e.name}</span>`).join(' ')
-            : '<span class="text-muted">No hay equipos</span>';
+
+          // Normalizar para comparación robusta (sin acentos, minúsculas)
+          const normalizeStr = (str) => str ? str.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim() : '';
+          const normalizedTarget = normalizeStr(selectedCategory);
+
+          const filteredTeams = allTeams.filter(team => normalizeStr(team.category) === normalizedTarget);
+          
+          console.log('Equipos encontrados:', filteredTeams.length);
+
           const localSel = document.getElementById('localSelect');
           const visSel = document.getElementById('visitanteSelect');
-          localSel.innerHTML = '<option value="">Local</option>' + equipos.map(e=>`<option value="${e.name}">${e.name}</option>`).join('');
-          visSel.innerHTML = '<option value="">Visitante</option>' + equipos.map(e=>`<option value="${e.name}">${e.name}</option>`).join('');
-          equiposActuales = equipos;
+          
+          if (filteredTeams.length === 0) {
+            localSel.innerHTML = '<option value="">No hay equipos en esta categoría</option>';
+            visSel.innerHTML = '<option value="">No hay equipos en esta categoría</option>';
+            Swal.fire({
+              title: 'Información',
+              text: 'No se encontraron equipos registrados en esta categoría.',
+              icon: 'info',
+              toast: true,
+              position: 'top-end',
+              timer: 3000,
+              showConfirmButton: false
+            });
+          } else {
+            const options = filteredTeams.map(e => `<option value="${e.name}">${e.name}</option>`).join('');
+            localSel.innerHTML = '<option value="">Seleccionar Local</option>' + options;
+            visSel.innerHTML = '<option value="">Seleccionar Visitante</option>' + options;
+          }
+          
+          equiposActuales = filteredTeams;
           mostrarEncuentros();
+        }).catch(error => {
+          console.error("Error al cargar equipos:", error);
+          Swal.fire('Error', 'Hubo un fallo al conectar con la base de datos', 'error');
         });
     });
     // Agregar encuentro manual
@@ -372,21 +379,46 @@
       mostrarEncuentros();
     });
     // Generar todos contra todos
-    document.getElementById('generarTodosBtn').addEventListener('click', function() {
-      const cat = document.getElementById('categoriaSelect').value;
-      const equipos = equiposActuales;
-      if (equipos.length < 2) {
-        Swal.fire('Error', 'Debes tener al menos dos equipos', 'error');
-        return;
-      }
-      encuentrosPorCategoria[cat] = [];
-      for (let i = 0; i < equipos.length; i++) {
-        for (let j = 0; j < equipos.length; j++) {
-          if (i !== j) encuentrosPorCategoria[cat].push({ local: equipos[i], visitante: equipos[j] });
+    const generarTodosBtn = document.getElementById('generarTodosBtn');
+    if (generarTodosBtn) {
+      generarTodosBtn.addEventListener('click', function() {
+        const cat = document.getElementById('categoriaSelect').value;
+        if (!cat) {
+          Swal.fire('Atención', 'Selecciona una categoría primero', 'warning');
+          return;
         }
-      }
-      mostrarEncuentros();
-    });
+        const equipos = equiposActuales;
+        if (equipos.length < 2) {
+          Swal.fire('Error', 'Debes tener al menos dos equipos en esta categoría', 'error');
+          return;
+        }
+
+        Swal.fire({
+          title: '¿Generar TCT?',
+          text: `Se crearán todos los encuentros posibles para la categoría ${cat}.`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, generar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            encuentrosPorCategoria[cat] = [];
+            for (let i = 0; i < equipos.length; i++) {
+              for (let j = 0; j < equipos.length; j++) {
+                if (i !== j) {
+                  encuentrosPorCategoria[cat].push({ 
+                    local: equipos[i].name, 
+                    visitante: equipos[j].name 
+                  });
+                }
+              }
+            }
+            mostrarEncuentros();
+            Swal.fire('Éxito', 'Encuentros generados.', 'success');
+          }
+        });
+      });
+    }
     // Mostrar lista de encuentros
     function mostrarEncuentros() {
       const lista = document.getElementById('listaEncuentros');
@@ -399,18 +431,18 @@
           html += `<h6><span class='badge bg-secondary'>${cat.charAt(0).toUpperCase()+cat.slice(1)}</span></h6>`;
           html += '<ul class="list-group mb-3">';
           encuentros.forEach((e, idx) => {
-            html += `<li class='list-group-item encuentro-item d-flex justify-content-between align-items-center'>
-              <span>${e.local} <b>vs</b> ${e.visitante}</span>
-              <button class='btn btn-danger btn-sm btn-eliminar' onclick='eliminarEncuentro("${cat}",${idx})'>
-                <i class='fas fa-trash'></i>
+            html += `<div class='encuentro-item d-flex justify-content-between align-items-center'>
+              <span class="fw-bold">${e.local} <span class="brand-accent mx-2">VS</span> ${e.visitante}</span>
+              <button class='btn btn-danger btn-sm btn-eliminar' style="border-radius: 8px; width: 32px; height: 32px;" onclick='eliminarEncuentro("${cat}",${idx})'>
+                <i class='fas fa-trash-alt'></i>
               </button>
-            </li>`;
+            </div>`;
           });
           html += '</ul>';
         }
       });
       if (!hayEncuentros) {
-        html = '<span class="text-muted">No hay encuentros para ninguna categoría.</span>';
+        html = '<div class="text-center p-4 text-white-50 border border-secondary border-opacity-25 rounded-4 border-dashed">No hay encuentros programados aún.</div>';
       }
       lista.innerHTML = html;
     }
@@ -484,11 +516,16 @@
         return `${nh.toString().padStart(2,'0')}:${nm.toString().padStart(2,'0')}`;
       }
       while (partidoIndex < partidos.length) {
+        let partidosEnEstaFecha = 0;
         for (let dia of dias) {
           const { inicio, fin, duracion } = horarios[dia];
           let hora = inicio;
           while (hora < fin && partidoIndex < partidos.length) {
-            const fechaReal = formatearFecha(proximaFecha(dia, fechaInicio));
+            // Calcular fecha para el round actual + offset de semanas
+            const baseDate = new Date(fechaInicio);
+            baseDate.setDate(baseDate.getDate() + ((fechaActual - 1) * 7));
+            const fechaReal = formatearFecha(proximaFecha(dia, baseDate));
+            
             resultado.push({
               fecha: `Fecha ${fechaActual}`,
               fechaReal,
@@ -500,7 +537,14 @@
             });
             hora = sumarMinutos(hora, duracion);
             partidoIndex++;
+            partidosEnEstaFecha++;
           }
+        }
+        
+        // Evitar bucle infinito si no se puede programar nada en una fecha
+        if (partidosEnEstaFecha === 0) {
+          Swal.fire('Atención', 'El rango de tiempo es muy corto para la duración de los partidos.', 'warning');
+          break;
         }
         fechaActual++;
       }
@@ -542,13 +586,17 @@
         }
       });
       // Mostrar resultado
-      let html = `<div class='d-flex justify-content-between align-items-center mb-2'>
-        <h5 class='text-success mb-0'>Programación generada:</h5>
-        <button class='btn btn-outline-success' id='exportarExcelBtn'><i class='fas fa-file-excel'></i> Exportar a Excel</button>
+      let html = `<div class='d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3'>
+        <h4 class='brand-accent mb-0 fw-bold'><i class="fas fa-list-check me-2"></i>PROGRAMACIÓN GENERADA</h4>
+        <button class='btn-export' id='exportarExcelBtn'><i class='fas fa-file-excel me-2'></i>Exportar a Excel</button>
       </div>`;
-      html += `<div class='table-responsive'><table class='table table-modern'><thead><tr>
-      <th>Fecha</th><th>Categoría</th><th>Día</th><th>Hora</th><th>Local</th><th>Visitante</th><th>Vocal</th><th>Veedor</th>
-      </tr></thead><tbody>`;
+      html += `<div class='table-premium-container p-0 overflow-hidden'>
+               <div class='table-responsive'>
+               <table class='table-premium mb-0'>
+               <thead>
+               <tr>
+                <th>FECHA</th><th>CATEGORÍA</th><th>DÍA</th><th>HORA</th><th>LOCAL</th><th>VISITANTE</th><th>VOCAL</th><th>VEEDOR</th>
+               </tr></thead><tbody>`;
       resultado.forEach(p => {
         html += `<tr>
           <td>${p.fechaReal}</td>

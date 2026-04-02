@@ -9,38 +9,44 @@
     />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
-    <link rel="icon" href="img/logo.png">
+    <link rel="icon" href="img/logo.png" />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="stylesheet" href="css/global-theme.css" />
+    <link rel="stylesheet" href="css/vocalias.css" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/global-swal-patch.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
   </head>
-  <body class="bg-light">
-    <nav
-      class="navbar navbar-expand-lg shadow-sm px-4"
-      style="background-color: #28a745"
-    >
-      <div class="container-fluid">
-        <a
-          class="navbar-brand text-white fw-bold d-flex align-items-center"
-          href="#"
-        >
-          <img
-            src="img/logo.png"
-            alt="Logo"
-            width="30"
-            height="30"
-            class="me-2"
-          />
-          LIGA BARRIAL ARGELIA ALTA
+    <!-- Main Background -->
+    <div class="main-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="nav-premium shadow-sm">
+      <div class="nav-content">
+        <a href="index.html" class="nav-logo">
+          <img src="img/logo.png" alt="Logo" />
+          <span>LDBAA <span class="brand-accent">ARGELIA ALTA</span></span>
         </a>
-        <a href="index.html" class="btn btn-outline-light">Volver al Inicio</a>
+        <div class="nav-links d-none d-md-flex">
+          <a href="index.html"><i class="fas fa-home me-2"></i>Inicio</a>
+          <a href="#" class="active"><i class="fas fa-whistle me-2"></i>Vocalías</a>
+        </div>
+        <a href="index.html" class="btn-logout-premium text-decoration-none">
+          <i class="fas fa-home me-2"></i><span>Volver</span>
+        </a>
       </div>
     </nav>
 
-    <div class="container mt-4">
-      <h3 class="text-center mb-4">⚽ Partidos Programados</h3>
+    <div class="container py-5">
+      <div class="text-center mb-5">
+        <h2 class="section-title">⚽ Partidos Programados</h2>
+        <p class="text-white-50">Gestiona las vocalías de los encuentros de forma digital e intuitiva.</p>
+      </div>
       <div class="row" id="matchesContainer">
         <!-- Las tarjetas de partidos se cargarán dinámicamente aquí -->
       </div>
@@ -49,17 +55,15 @@
     <!-- Modal de Vocalía Virtual -->
     <div class="modal fade" id="vocaliaModal" tabindex="-1">
       <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header bg-success text-white">
-            <h5 class="modal-title">Vocalía Virtual</h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-            ></button>
+        <div class="modal-content modal-premium">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-futbol me-2 brand-accent"></i>DETALLES DEL ENCUENTRO
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
-          <div class="modal-body">
-            <div class="match-info-row">
+          <div class="modal-body p-4">
+            <div class="match-info-row mb-4">
               <div class="team-container">
                 <img
                   src=""
@@ -91,9 +95,9 @@
               </div>
             </div>
 
-            <div class="text-center">
-              <button class="btn btn-success" onclick="mostrarVocaliaVirtual()">
-                <i class="fas fa-play me-2"></i>Comenzar
+            <div class="text-center mt-4">
+              <button class="btn-premium w-100 justify-content-center" onclick="mostrarVocaliaVirtual()">
+                <i class="fas fa-play me-2"></i>Comenzar Vocalía
               </button>
             </div>
           </div>
@@ -104,224 +108,202 @@
     <!-- Modal de Vocalía Virtual Completa -->
     <div class="modal fade" id="vocaliaCompletaModal" tabindex="-1">
       <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-header bg-success text-white">
+        <div class="modal-content modal-premium">
+          <div class="modal-header">
             <h5 class="modal-title">
-              Vocalía Virtual - Acta No. <span id="numeroVocalia"></span>
+              <i class="fas fa-file-invoice me-2 brand-accent"></i>VOCALÍA VIRTUAL - ACTA NO. <span id="numeroVocalia"></span>
             </h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-            ></button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body p-4">
             <div class="row">
               <div class="col-md-6">
-                <div class="card">
-                  <div
-                    class="card-header bg-success text-white d-flex justify-content-between align-items-center"
-                  >
-                    <h5 class="card-title mb-0" id="equipoLocalNombre"></h5>
+                <div class="vocalia-inner-card">
+                  <div class="vocalia-inner-card-header">
+                    <h5 class="mb-0 brand-accent" id="equipoLocalNombre"></h5>
                     <button
-                      class="btn btn-light btn-sm"
+                      class="btn btn-secondary-glass btn-sm"
                       onclick="agregarJugador('Local')"
                     >
-                      <i class="fas fa-plus"></i> Agregar Jugador
+                      <i class="fas fa-plus me-1"></i> Titular
                     </button>
                   </div>
-                  <div class="card-body">
+                  <div class="vocalia-inner-card-body">
                     <div class="table-responsive">
-                      <table class="table table-bordered">
+                      <table class="table-premium align-middle mb-0">
                         <thead>
-                          <tr>
-                            <th>No.</th>
-                            <th>Jugador</th>
-                            <th>Goles</th>
-                            <th>T.A</th>
-                            <th>T.R</th>
-                            <th>Opc</th>
+                          <tr class="table-premium-header">
+                            <th>#</th>
+                            <th>JUGADOR</th>
+                            <th>G</th>
+                            <th>TA</th>
+                            <th>TR</th>
+                            <th></th>
                           </tr>
                         </thead>
-                        <tbody id="jugadoresLocal">
-                          <!-- Se llenarán dinámicamente -->
-                        </tbody>
+                        <tbody id="jugadoresLocal"></tbody>
                       </table>
                     </div>
-                    <div class="mt-3">
-                      <div
-                        class="d-flex justify-content-between align-items-center"
-                      >
-                        <h6>CAMBIOS</h6>
+                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 text-white-50"><i class="fas fa-exchange-alt me-1"></i> CAMBIOS</h6>
                         <button
-                          class="btn btn-danger btn-sm"
+                          class="btn btn-secondary-glass btn-sm"
                           onclick="agregarCambio('Local')"
                           id="btnCambioLocal"
                         >
-                          <i class="fas fa-exchange-alt"></i> Agregar Cambio
+                          <i class="fas fa-plus"></i> Añadir
                         </button>
                       </div>
-                      <table class="table table-bordered mt-2">
-                        <thead>
-                          <tr>
-                            <th>Entra</th>
-                            <th>Sale</th>
-                            <th>Goles</th>
-                            <th>T.A</th>
-                            <th>T.R</th>
-                            <th>Opc</th>
-                          </tr>
-                        </thead>
-                        <tbody id="cambiosLocal">
-                          <!-- Se llenarán dinámicamente -->
-                        </tbody>
-                      </table>
+                      <div class="table-responsive">
+                        <table class="table-premium align-middle mb-0">
+                          <thead>
+                            <tr class="table-premium-header">
+                              <th>ENTRA</th>
+                              <th>SALE</th>
+                              <th>G</th>
+                              <th>TA</th>
+                              <th>TR</th>
+                              <th></th>
+                            </tr>
+                          </thead>
+                          <tbody id="cambiosLocal"></tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <!-- Repetir la misma estructura para el equipo visitante -->
+
               <div class="col-md-6">
-                <div class="card">
-                  <div
-                    class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
-                  >
-                    <h5 class="card-title mb-0" id="equipoVisitanteNombre"></h5>
+                <div class="vocalia-inner-card">
+                  <div class="vocalia-inner-card-header">
+                    <h5 class="mb-0 text-info" id="equipoVisitanteNombre"></h5>
                     <button
-                      class="btn btn-light btn-sm"
+                      class="btn btn-secondary-glass btn-sm"
                       onclick="agregarJugador('Visitante')"
                     >
-                      <i class="fas fa-plus"></i> Agregar Jugador
+                      <i class="fas fa-plus me-1"></i> Titular
                     </button>
                   </div>
-                  <div class="card-body">
+                  <div class="vocalia-inner-card-body">
                     <div class="table-responsive">
-                      <table class="table table-bordered">
+                      <table class="table-premium align-middle mb-0">
                         <thead>
-                          <tr>
-                            <th>No.</th>
-                            <th>Jugador</th>
-                            <th>Goles</th>
-                            <th>T.A</th>
-                            <th>T.R</th>
-                            <th>Opc</th>
+                          <tr class="table-premium-header">
+                            <th>#</th>
+                            <th>JUGADOR</th>
+                            <th>G</th>
+                            <th>TA</th>
+                            <th>TR</th>
+                            <th></th>
                           </tr>
                         </thead>
-                        <tbody id="jugadoresVisitante">
-                          <!-- Se llenarán dinámicamente -->
-                        </tbody>
+                        <tbody id="jugadoresVisitante"></tbody>
                       </table>
                     </div>
-                    <div class="mt-3">
-                      <div
-                        class="d-flex justify-content-between align-items-center"
-                      >
-                        <h6>CAMBIOS</h6>
+                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0 text-white-50"><i class="fas fa-exchange-alt me-1"></i> CAMBIOS</h6>
                         <button
-                          class="btn btn-danger btn-sm"
+                          class="btn btn-secondary-glass btn-sm"
                           onclick="agregarCambio('Visitante')"
                           id="btnCambioVisitante"
                         >
-                          <i class="fas fa-exchange-alt"></i> Agregar Cambio
+                          <i class="fas fa-plus"></i> Añadir
                         </button>
                       </div>
-                      <table class="table table-bordered mt-2">
-                        <thead>
-                          <tr>
-                            <th>Entra</th>
-                            <th>Sale</th>
-                            <th>Goles</th>
-                            <th>T.A</th>
-                            <th>T.R</th>
-                            <th>Opc</th>
-                          </tr>
-                        </thead>
-                        <tbody id="cambiosVisitante">
-                          <!-- Se llenarán dinámicamente -->
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row mt-3">
-                <div class="col-md-12">
-                  <div class="card">
-                    <div class="card-header bg-primary text-white">
-                      <h5 class="card-title mb-0">Novedades del Vocal</h5>
-                    </div>
-                    <div class="card-body">
-                      <div class="form-group">
-                        <textarea
-                          class="form-control"
-                          id="novedadesVocal"
-                          rows="4"
-                          placeholder="Ingrese aquí las novedades ocurridas durante el partido..."
-                        ></textarea>
+                      <div class="table-responsive">
+                        <table class="table-premium align-middle mb-0">
+                          <thead>
+                            <tr class="table-premium-header">
+                              <th>ENTRA</th>
+                              <th>SALE</th>
+                              <th>G</th>
+                              <th>TA</th>
+                              <th>TR</th>
+                              <th></th>
+                            </tr>
+                          </thead>
+                          <tbody id="cambiosVisitante"></tbody>
+                        </table>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div class="col-md-12">
-                <div class="card">
-                  <div class="card-header bg-success text-white">
-                    <h5 class="card-title mb-0">Novedades del Veedor</h5>
+              <div class="col-md-6">
+                <div class="vocalia-inner-card">
+                  <div class="vocalia-inner-card-header">
+                    <h5 class="mb-0 text-white-50"><i class="fas fa-pencil-alt me-2"></i>Novedades del Vocal</h5>
                   </div>
-                  <div class="card-body">
-                    <div class="form-group">
-                      <textarea
-                        class="form-control"
-                        id="novedadesVeedor"
-                        rows="4"
-                        placeholder="Ingrese aquí las observaciones del veedor..."
-                      ></textarea>
-                    </div>
+                  <div class="vocalia-inner-card-body">
+                    <textarea
+                      class="glass-input"
+                      id="novedadesVocal"
+                      rows="4"
+                      placeholder="Ingrese aquí las novedades ocurridas durante el partido..."
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="vocalia-inner-card">
+                  <div class="vocalia-inner-card-header">
+                    <h5 class="mb-0 text-white-50"><i class="fas fa-eye me-2"></i>Novedades del Veedor</h5>
+                  </div>
+                  <div class="vocalia-inner-card-body">
+                    <textarea
+                      class="glass-input"
+                      id="novedadesVeedor"
+                      rows="4"
+                      placeholder="Ingrese aquí las observaciones del veedor..."
+                    ></textarea>
                   </div>
                 </div>
               </div>
 
               <!-- Nueva sección para el informe del árbitro -->
               <div class="col-12 mt-2">
-                <div class="card">
-                  <div class="card-header bg-warning text-white">
-                    <h5 class="card-title mb-0">Informe del Árbitro</h5>
+                <div class="vocalia-inner-card">
+                  <div class="vocalia-inner-card-header">
+                    <h5 class="mb-0 text-warning"><i class="fas fa-id-card-clip me-2"></i>Informe del Árbitro</h5>
                   </div>
-                  <div class="card-body">
+                  <div class="vocalia-inner-card-body">
                     <div class="row">
                       <!-- Equipo Local -->
                       <div class="col-md-6">
                         <h6
-                          class="border-bottom pb-2"
+                          class="border-bottom border-secondary border-opacity-25 pb-2 mb-3 brand-accent"
                           id="equipoLocalTarjetasTitle"
                         ></h6>
-                        <div class="mb-3">
-                          <h6 class="text-warning">Tarjetas Amarillas</h6>
+                        <div class="mb-4">
+                          <h6 class="text-warning small fw-bold">Tarjetas Amarillas</h6>
                           <div
                             id="tarjetasAmarillasLocal"
-                            class="tarjetas-container"
+                            class="tarjetas-container d-flex flex-wrap gap-2 mt-2"
                           >
                             <button
-                              class="btn btn-sm btn-warning mb-2"
+                              class="btn btn-secondary-glass btn-sm"
                               onclick="agregarTarjeta('Local', 'Amarilla')"
                             >
-                              <i class="fas fa-plus"></i> Agregar TA
+                              <i class="fas fa-plus text-warning"></i>
                             </button>
                           </div>
                         </div>
                         <div class="mb-3">
-                          <h6 class="text-danger">Tarjetas Rojas</h6>
+                          <h6 class="text-danger small fw-bold">Tarjetas Rojas</h6>
                           <div
                             id="tarjetasRojasLocal"
-                            class="tarjetas-container"
+                            class="tarjetas-container d-flex flex-wrap gap-2 mt-2"
                           >
                             <button
-                              class="btn btn-sm btn-danger mb-2"
+                              class="btn btn-secondary-glass btn-sm"
                               onclick="agregarTarjeta('Local', 'Roja')"
                             >
-                              <i class="fas fa-plus"></i> Agregar TR
+                              <i class="fas fa-plus text-danger"></i>
                             </button>
                           </div>
                         </div>
@@ -330,62 +312,60 @@
                       <!-- Equipo Visitante -->
                       <div class="col-md-6">
                         <h6
-                          class="border-bottom pb-2"
+                          class="border-bottom border-secondary border-opacity-25 pb-2 mb-3 text-info"
                           id="equipoVisitanteTarjetasTitle"
                         ></h6>
-                        <div class="mb-3">
-                          <h6 class="text-warning">Tarjetas Amarillas</h6>
+                        <div class="mb-4">
+                          <h6 class="text-warning small fw-bold">Tarjetas Amarillas</h6>
                           <div
                             id="tarjetasAmarillasVisitante"
-                            class="tarjetas-container"
+                            class="tarjetas-container d-flex flex-wrap gap-2 mt-2"
                           >
                             <button
-                              class="btn btn-sm btn-warning mb-2"
+                              class="btn btn-secondary-glass btn-sm"
                               onclick="agregarTarjeta('Visitante', 'Amarilla')"
                             >
-                              <i class="fas fa-plus"></i> Agregar TA
+                              <i class="fas fa-plus text-warning"></i>
                             </button>
                           </div>
                         </div>
                         <div class="mb-3">
-                          <h6 class="text-danger">Tarjetas Rojas</h6>
+                          <h6 class="text-danger small fw-bold">Tarjetas Rojas</h6>
                           <div
                             id="tarjetasRojasVisitante"
-                            class="tarjetas-container"
+                            class="tarjetas-container d-flex flex-wrap gap-2 mt-2"
                           >
                             <button
-                              class="btn btn-sm btn-danger mb-2"
+                              class="btn btn-secondary-glass btn-sm"
                               onclick="agregarTarjeta('Visitante', 'Roja')"
                             >
-                              <i class="fas fa-plus"></i> Agregar TR
+                              <i class="fas fa-plus text-danger"></i>
                             </button>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div class="form-group mt-3">
-                      <label class="form-label"
-                        >Informe General del Árbitro:</label
-                      >
-                      <div
-                        class="border rounded p-2"
-                        style="background-color: #fff"
-                      >
-                        <textarea
-                          class="form-control border-0"
-                          id="informeArbitro"
-                          rows="6"
-                          placeholder="Ingrese aquí el informe general del partido..."
-                          style="resize: none; box-shadow: none"
-                        ></textarea>
-                        <input
-                          type="text"
-                          class="form-control border-0 border-top mt-2 pt-2"
-                          id="nombreArbitro"
-                          placeholder="Nombre del Árbitro"
-                          style="box-shadow: none"
-                        />
+                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+                      <label class="form-label text-white-50">Informe General del Árbitro</label>
+                      <textarea
+                        class="glass-input mb-3"
+                        id="informeArbitro"
+                        rows="4"
+                        placeholder="Ingrese el informe general detallado..."
+                      ></textarea>
+                      <div class="row align-items-center">
+                        <div class="col-auto">
+                          <i class="fas fa-signature text-warning"></i>
+                        </div>
+                        <div class="col">
+                          <input
+                            type="text"
+                            class="glass-input"
+                            id="nombreArbitro"
+                            placeholder="Nombre Completo del Árbitro"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -394,13 +374,13 @@
             </div>
           </div>
 
-          <div class="modal-footer">
+          <div class="modal-footer border-0">
             <button
               type="button"
-              class="btn btn-success"
+              class="btn-premium w-100 justify-content-center"
               onclick="guardarVocalia()"
             >
-              <i class="fas fa-save me-2"></i>Guardar Vocalía
+              <i class="fas fa-save me-2"></i>Guardar Acta de Vocalía
             </button>
           </div>
         </div>
@@ -461,36 +441,31 @@
         const matchDate = new Date(match.date);
 
         const card = document.createElement("div");
-        card.className = "card match-card shadow-sm";
+        card.className = "match-card";
         card.onclick = () => openVocalia(match);
 
         card.innerHTML = `
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="text-center flex-grow-1">
-                            <img src="${
-                              match.localTeamLogo
-                            }" class="team-logo" alt="Local">
-                            <h6 class="mt-2 mb-0">${match.localTeamName}</h6>
-                        </div>
-                        <div class="text-center mx-3">
-                            <h5 class="mb-0">VS</h5>
-                            <small class="text-muted">${matchDate.toLocaleDateString()}</small>
-                            <br>
-                            <small class="text-muted">${match.time}</small>
-                        </div>
-                        <div class="text-center flex-grow-1">
-                            <img src="${
-                              match.visitorTeamLogo
-                            }" class="team-logo" alt="Visitante">
-                            <h6 class="mt-2 mb-0">${match.visitorTeamName}</h6>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <span class="badge bg-success">${match.category}</span>
-                    </div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="team-container">
+                    <img src="${match.localTeamLogo}" class="team-logo" alt="Local">
+                    <h6 class="mt-2 mb-0 fw-bold text-white small">${match.localTeamName}</h6>
                 </div>
-            `;
+                <div class="match-time-info px-2">
+                    <h5 class="mb-1 text-white-50 small fw-bold">VS</h5>
+                    <div class="brand-accent fw-bold" style="font-size: 0.8rem;">
+                        ${matchDate.toLocaleDateString()}
+                    </div>
+                    <div class="text-white-50" style="font-size: 0.75rem;">${match.time}</div>
+                </div>
+                <div class="team-container">
+                    <img src="${match.visitorTeamLogo}" class="team-logo" alt="Visitante">
+                    <h6 class="mt-2 mb-0 fw-bold text-white small">${match.visitorTeamName}</h6>
+                </div>
+            </div>
+            <div class="text-center pt-2 border-top border-secondary border-opacity-25">
+                <span class="badge bg-secondary-glass text-uppercase px-3" style="font-size: 0.7rem;">${match.category}</span>
+            </div>
+        `;
 
         col.appendChild(card);
         return col;
@@ -788,8 +763,6 @@
           text: "Se eliminará el jugador del acta",
           icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#3085d6",
           confirmButtonText: "Sí, eliminar",
           cancelButtonText: "Cancelar",
         }).then((result) => {
@@ -978,7 +951,6 @@
             confirmButtonText: "Confirmar Cambio",
             showCancelButton: true,
             cancelButtonText: "Cancelar",
-            confirmButtonColor: "#28a745",
             allowOutsideClick: false,
             preConfirm: () => {
               if (!window.jugadorSaliente || !window.jugadorEntrante) {
@@ -1066,8 +1038,6 @@
           text: "Se eliminará el cambio del acta",
           icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#3085d6",
           confirmButtonText: "Sí, eliminar",
           cancelButtonText: "Cancelar",
         }).then((result) => {
@@ -1231,294 +1201,4 @@
     </script>
   </body>
 </html>
-<style>
-  .match-card {
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: none;
-    border-radius: 15px;
-    background: linear-gradient(145deg, #ffffff, #f5f5f5);
-    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
-  }
-  .match-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 20px rgba(40, 167, 69, 0.2);
-  }
-  .team-logo {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-    transition: transform 0.3s ease;
-  }
 
-  .modal-body .team-logo {
-    width: 35px;
-    height: 35px;
-  }
-
-  .match-info-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #f8f9fa;
-    padding: 1rem;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-  }
-
-  .team-container {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .match-details {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .match-time-info {
-    text-align: center;
-  }
-  .match-card:hover .team-logo {
-    transform: scale(1.1);
-  }
-  .modal-content {
-    border: none;
-    border-radius: 20px;
-    overflow: hidden;
-  }
-  .modal-header {
-    background: linear-gradient(135deg, #28a745, #218838);
-    border: none;
-    padding: 1.5rem;
-  }
-  .modal-body {
-    padding: 2rem;
-  }
-  .team-info {
-    padding: 1.5rem;
-    border-radius: 15px;
-    background: #f8f9fa;
-    transition: all 0.3s ease;
-  }
-  .team-info:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-  }
-  .badge {
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    font-size: 0.9rem;
-  }
-  .btn {
-    border-radius: 50px;
-    padding: 0.5rem 1.5rem;
-    transition: all 0.3s ease;
-  }
-  .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  }
-  .card {
-    border: none;
-    border-radius: 15px;
-    overflow: hidden;
-  }
-  .card-header {
-    background: linear-gradient(135deg, #28a745, #218838);
-    border: none;
-    padding: 1rem 1.5rem;
-  }
-  .table {
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  .table th {
-    background-color: #f8f9fa;
-    border: none;
-  }
-
-  .carnet-jugador {
-    cursor: pointer;
-    transition: transform 0.2s;
-  }
-
-  .carnet-jugador:hover {
-    transform: translateY(-5px);
-  }
-
-  .carnet-container {
-    background: var(
-        --carnet-background,
-        url("https://img.freepik.com/vector-premium/fondo-futbol-abstracto-jugador-futbol-pateando-pelota-otros-simbolos-deportivos-colores-verdes_444390-23654.jpg")
-      )
-      no-repeat center center;
-    background-size: cover;
-    border-radius: 16px;
-    padding: 5px 15px 12px 10px;
-    color: #222;
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 18px rgba(40, 167, 69, 0.1);
-    width: 7.55cm;
-    height: 5.2cm;
-    margin: 0 auto 24px;
-    font-size: 0.9rem;
-    display: flex;
-    flex-direction: column;
-    border: 1.5px solid #e0e0e0;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  .carnet-header {
-    text-align: center;
-    margin-bottom: 8px;
-    position: relative;
-    width: 100%;
-    border-bottom: 1.5px solid #080404;
-    padding-bottom: 4px;
-    font-family: "Times New Roman", Times, serif;
-  }
-
-  .carnet-header h6 {
-    font-size: 0.9rem;
-    margin: 0;
-    color: #0c0303;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-  }
-
-  .carnet-header small {
-    font-size: 0.8rem;
-    color: #000;
-    margin: 2px 0 0 0;
-    font-weight: 500;
-    display: block;
-  }
-
-  .carnet-content {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    margin: 0;
-    padding: 0;
-    background: none;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    overflow: visible;
-    min-width: 0;
-    font-size: 12pt;
-    font-family: "Times New Roman", Times, serif;
-  }
-
-  .foto-container {
-    width: 70px;
-    min-width: 70px;
-    max-width: 70px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-right: 18px;
-    margin-top: 0;
-    position: relative;
-  }
-
-  .foto-container img {
-    width: 70px;
-    height: 90px;
-    border-radius: 10px;
-    border: 2.5px solid #28a745;
-    box-shadow: 0 2px 10px rgba(40, 167, 69, 0.1);
-    object-fit: cover;
-  }
-
-  .numero {
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: #000;
-    margin-top: 12px;
-    letter-spacing: 1.2px;
-    text-shadow: 0 1px 2px #e0e0e0;
-  }
-
-  .info-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex: 1;
-    min-width: 0;
-    padding: 0;
-    background: transparent;
-    font-size: 0.72rem;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    line-height: 1.6;
-    margin-bottom: 0;
-  }
-
-  .info-container div {
-    margin: 0 0 2px 0;
-    font-size: 0.7rem;
-    line-height: 1.6;
-    color: #000;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    max-width: 100%;
-  }
-
-  .equipo {
-    font-weight: 600;
-    letter-spacing: 0.2px;
-    margin-bottom: 4px !important;
-  }
-
-  @media print {
-    .carnet-container {
-      break-inside: avoid;
-      page-break-inside: avoid;
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      background-color: #ffffff !important;
-      background-image: var(--carnet-background) !important;
-      background-size: cover !important;
-      background-position: center !important;
-      background-repeat: no-repeat !important;
-    }
-  }
-  .d-flex.flex-wrap.justify-content-center.gap-3.p-3 {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(7.55cm, 1fr));
-    gap: 1rem;
-    padding: 1rem;
-    width: 100%;
-  }
-
-  .carnet-jugador {
-    width: 100%;
-    max-width: 7.55cm;
-    margin: 0 auto;
-    cursor: pointer;
-    transition: transform 0.2s;
-  }
-
-  .carnet-jugador:hover {
-    transform: scale(1.05);
-    z-index: 1;
-  }
-
-  .carnet-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-</style>

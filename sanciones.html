@@ -1,218 +1,230 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestión de Sanciones | Liga Barrial</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link rel="icon" href="img/logo.png" />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="stylesheet" href="css/global-theme.css" />
+    <link rel="stylesheet" href="css/sanciones.css" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Times New Roman', Times, serif;
-        }
-        .navbar {
-            background-color: #28a745;
-        }
-        .card {
-            transition: transform 0.2s;
-            border-radius: 10px;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .btn-success {
-            background-color: #28a745;
-            border-color: #28a745;
-        }
-        .btn-success:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
-        }
-    </style>
-</head>
-<body>
+    <script src="js/global-swal-patch.js"></script>
+  </head>
+  <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <img src="img/logo.png" alt="Logo" width="30" height="30" class="me-2">
-                LIGA BARRIAL ARGELIA ALTA - Sanciones
-            </a>
-            <button class="btn btn-danger ms-auto" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-            </button>
+    <!-- Main Background -->
+    <div class="main-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="nav-premium shadow-sm">
+      <div class="nav-content">
+        <a href="index.html" class="nav-logo">
+          <img src="img/logo.png" alt="Logo" />
+          <span>LDBAA <span class="brand-accent">ARGELIA ALTA</span></span>
+        </a>
+        <div class="nav-links d-none d-md-flex">
+          <a href="programacion-dashboard.html"><i class="fas fa-home me-2"></i>Dashboard</a>
+          <a href="#" class="active"><i class="fas fa-gavel me-2"></i>Sanciones</a>
         </div>
+        <button class="btn-logout-premium" onclick="logout()">
+          <i class="fas fa-sign-out-alt me-2"></i><span>Salir</span>
+        </button>
+      </div>
     </nav>
 
-    <div class="container mt-4">
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <h3><i class="fas fa-gavel"></i> Gestión de Sanciones</h3>
-            </div>
-            <div class="col-md-6">
-                <!-- Los filtros se moverán a secciones específicas -->
-            </div>
-        </div>
+    <div class="container py-5">
+      <div class="text-center mb-5">
+        <h2 class="section-title">
+          <i class="fas fa-gavel me-2"></i>Gestión de Sanciones
+        </h2>
+        <p class="text-white-50">
+          Administra disciplina, tarjetas y multas de forma centralizada y
+          moderna.
+        </p>
+      </div>
 
-        <!-- Sección de Campeonatos -->
-        <div id="campeonatosSection" class="row">
+      <!-- Sección de Campeonatos -->
+      <div id="campeonatosSection" class="row">
+        <!-- Se llena dinámicamente -->
+      </div>
+
+      <div id="equiposSection" class="row" style="display: none">
+        <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+          <button class="btn-secondary-glass" onclick="volverACampeonatos()">
+            <i class="fas fa-arrow-left me-2"></i> Volver
+          </button>
+          <h4 class="mb-0 brand-accent text-uppercase fw-bold" id="equiposTitulo"></h4>
+        </div>
+        
+        <div class="col-12 mb-5">
+          <div class="filter-grid">
+            <div class="input-group-premium">
+              <i class="fas fa-search"></i>
+              <input type="text" id="searchEquipoInput" class="search-input" placeholder="Buscar equipo por nombre...">
+            </div>
+            
+            <select id="categoryEquipoFilter" class="select-premium">
+              <option value="">TODAS LAS CATEGORÍAS</option>
+              <option value="MÁXIMA">MÁXIMA</option>
+              <option value="PRIMERA">PRIMERA</option>
+              <option value="FEMENINO">FEMENINO</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="row" id="equiposLista">
             <!-- Se llena dinámicamente -->
+          </div>
         </div>
+      </div>
 
-        <!-- Sección de Equipos (inicialmente oculta) -->
-        <div id="equiposSection" class="row" style="display: none;">
-            <div class="col-12 mb-3">
-                <button class="btn btn-success" onclick="volverACampeonatos()">
-                    <i class="fas fa-arrow-left"></i> Volver a Campeonatos
-                </button>
-                <h4 class="mt-3" id="equiposTitulo"></h4>
-            </div>
-            <div class="col-12 mb-3">
-                <div class="input-group">
-                    <input type="text" id="searchEquipoInput" class="form-control" placeholder="Buscar equipo...">
-                    <select id="categoryEquipoFilter" class="form-select" style="max-width: 150px;">
-                        <option value="">Todas las categorías</option>
-                        <option value="MÁXIMA">MÁXIMA</option>
-                        <option value="PRIMERA">PRIMERA</option>
-                        <option value="FEMENINO">FEMENINO</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="row" id="equiposLista">
-                    <!-- Se llena dinámicamente -->
-                </div>
-            </div>
+      <!-- Sección de Jugadores (inicialmente oculta) -->
+      <div id="jugadoresSection" class="row" style="display: none">
+        <div
+          class="col-12 mb-4 d-flex justify-content-between align-items-center"
+        >
+          <button class="btn btn-secondary-glass" onclick="volverAEquipos()">
+            <i class="fas fa-arrow-left me-2"></i> Volver a Equipos
+          </button>
+          <h4
+            class="mb-0 text-info text-uppercase fw-bold"
+            id="jugadoresTitulo"
+          ></h4>
         </div>
-
-        <!-- Sección de Jugadores (inicialmente oculta) -->
-        <div id="jugadoresSection" class="row" style="display: none;">
-            <div class="col-12 mb-3">
-                <button class="btn btn-secondary" onclick="volverAEquipos()">
-                    <i class="fas fa-arrow-left"></i> Volver a Equipos
-                </button>
-                <h4 class="mt-3" id="jugadoresTitulo"></h4>
-            </div>
-            <div class="col-12 mb-3">
-                <div class="input-group">
-                    <input type="text" id="searchJugadorInput" class="form-control" placeholder="Buscar jugador...">
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>#</th>
-                                <th>Jugador</th>
-                                <th>Tarjetas</th>
-                                <th>Sanciones</th>
-                                <th>Multas</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="jugadoresTableBody">
-                            <!-- Se llena dinámicamente -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="col-12 mb-5">
+          <div class="input-group-premium">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchJugadorInput" class="search-input" placeholder="Buscar por nombre o número de jugador...">
+          </div>
         </div>
+        <div class="col-12">
+          <div class="glass-card p-0 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr class="table-premium-header">
+                    <th class="ps-4">#</th>
+                    <th>JUGADOR</th>
+                    <th class="text-center">TARJETAS</th>
+                    <th>SANCIONES ACTIVAS</th>
+                    <th class="text-center pe-4">ACCIONES</th>
+                  </tr>
+                </thead>
+                <tbody id="jugadoresTableBody">
+                  <!-- Se llena dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Modal para Aplicar Sanción -->
+    <!-- Modals Section -->
     <div class="modal fade" id="sancionModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-white">
-                    <h5 class="modal-title">Aplicar Sanción</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      <div class="modal-dialog">
+        <div class="modal-content modal-premium">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-gavel me-2 brand-accent"></i>APLICAR SANCIÓN
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="sancionForm">
+              <input type="hidden" id="jugadorId" />
+              <div class="mb-4">
+                <label class="form-label">TIPO DE SANCIÓN</label>
+                <select class="select-premium" id="tipoSancion" required>
+                  <option value="">Seleccione tipo</option>
+                  <option value="amarilla">TARJETA AMARILLA 🟨</option>
+                  <option value="roja">TARJETA ROJA 🟥</option>
+                </select>
+              </div>
+              <div id="articuloLiteralContainer" style="display: none">
+                <div class="mb-4">
+                  <label class="form-label">ARTÍCULO</label>
+                  <select class="select-premium" id="articulo" onchange="actualizarLiterales()">
+                    <option value="">Seleccione artículo</option>
+                    <option value="124">Art. 124 - 1 PARTIDO</option>
+                    <option value="125">Art. 125 - 2 PARTIDOS</option>
+                    <option value="126">Art. 126 - 3 PARTIDOS</option>
+                    <option value="127">Art. 127 - 4 PARTIDOS</option>
+                    <option value="128">Art. 128 - 6 PARTIDOS</option>
+                    <option value="129">Art. 129 - 1 AÑO</option>
+                  </select>
                 </div>
-                <div class="modal-body">
-                    <form id="sancionForm">
-                        <input type="hidden" id="jugadorId">
-                        <div class="mb-3">
-                            <label class="form-label">Tipo de Sanción</label>
-                            <select class="form-select" id="tipoSancion" required>
-                                <option value="">Seleccione tipo</option>
-                                <option value="amarilla">Tarjeta Amarilla</option>
-                                <option value="roja">Tarjeta Roja</option>
-                            </select>
-                        </div>
-                        <div id="articuloLiteralContainer" style="display: none;">
-                            <div class="mb-3">
-                                <label class="form-label">Artículo</label>
-                                <select class="form-select" id="articulo" onchange="actualizarLiterales()">
-                                    <option value="">Seleccione artículo</option>
-                                    <option value="124">Art. 124 - 1 partido</option>
-                                    <option value="125">Art. 125 - 2 partidos</option>
-                                    <option value="126">Art. 126 - 3 partidos</option>
-                                    <option value="127">Art. 127 - 4 partidos</option>
-                                    <option value="128">Art. 128 - 6 partidos</option>
-                                    <option value="129">Art. 129 - 1 año</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Literal</label>
-                                <select class="form-select" id="literal">
-                                    <option value="">Seleccione primero un artículo</option>
-                                </select>
-                            </div>
-                        </div>
-                    </form>
+                <div class="mb-4">
+                  <label class="form-label">LITERAL</label>
+                  <select class="select-premium" id="literal">
+                    <option value="">Seleccione primero un artículo</option>
+                  </select>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-warning" onclick="aplicarSancion()">Aplicar Sanción</button>
-                </div>
-            </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary-glass" data-bs-dismiss="modal">CANCELAR</button>
+            <button type="button" class="btn btn-success-premium" onclick="aplicarSancion()">CONFIRMAR SANCIÓN</button>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Modal para Aplicar Multa -->
     <div class="modal fade" id="multaModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">Aplicar Multa</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="multaForm">
-                        <input type="hidden" id="multaJugadorId">
-                        <div class="mb-3">
-                            <label class="form-label">Tipo de Multa</label>
-                            <select class="form-select" id="tipoMulta" required>
-                                <option value="">Seleccione tipo</option>
-                                <option value="multa_barra">Multa a la Barra</option>
-                                <option value="no_presentacion">No Presentación</option>
-                                <option value="no_vocal">No Vocal</option>
-                                <option value="no_veedor">No Veedor</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Artículo</label>
-                            <select class="form-select" id="multaArticulo" onchange="actualizarLiteralesMulta()">
-                                <option value="131">Art. 131 - Multas</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Literal</label>
-                            <select class="form-select" id="multaLiteral">
-                                <option value="">Seleccione primero un tipo de multa</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" onclick="aplicarMulta()">Aplicar Multa</button>
-                </div>
-            </div>
+      <div class="modal-dialog">
+        <div class="modal-content modal-premium">
+          <div class="modal-header">
+            <h5 class="modal-title text-danger">
+              <i class="fas fa-dollar-sign me-2"></i>APLICAR MULTA
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="multaForm">
+              <input type="hidden" id="multaJugadorId" />
+              <div class="mb-4">
+                <label class="form-label">TIPO DE MULTA</label>
+                <select class="select-premium" id="tipoMulta" required>
+                  <option value="">Seleccione tipo</option>
+                  <option value="multa_barra">MULTA A LA BARRA</option>
+                  <option value="no_presentacion">NO PRESENTACIÓN</option>
+                  <option value="no_vocal">NO VOCAL</option>
+                  <option value="no_veedor">NO VEEDOR</option>
+                </select>
+              </div>
+              <div class="mb-4">
+                <label class="form-label">ARTÍCULO</label>
+                <select class="select-premium" id="multaArticulo" onchange="actualizarLiteralesMulta()">
+                  <option value="131">Art. 131 - Multas</option>
+                </select>
+              </div>
+              <div class="mb-4">
+                <label class="form-label">LITERAL</label>
+                <select class="select-premium" id="multaLiteral">
+                  <option value="">Seleccione primero un tipo de multa</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary-glass" data-bs-dismiss="modal">CANCELAR</button>
+            <button type="button" class="btn btn-danger" onclick="aplicarMulta()">CONFIRMAR MULTA</button>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Bootstrap y Firebase -->
@@ -222,815 +234,1058 @@
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
 
     <script>
-        // Configuración de Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
-            authDomain: "ldbaa-calificaciones.firebaseapp.com",
-            projectId: "ldbaa-calificaciones",
-            storageBucket: "ldbaa-calificaciones.firebasestorage.app",
-            messagingSenderId: "277579489603",
-            appId: "1:277579489603:web:bc93c22fea5f5f6b63cff6"
-        };
+      // Configuración de Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
+        authDomain: "ldbaa-calificaciones.firebaseapp.com",
+        projectId: "ldbaa-calificaciones",
+        storageBucket: "ldbaa-calificaciones.firebasestorage.app",
+        messagingSenderId: "277579489603",
+        appId: "1:277579489603:web:bc93c22fea5f5f6b63cff6",
+      };
 
-        // Inicializar Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+      // Inicializar Firebase
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+
+      const db = firebase.firestore();
+      const auth = firebase.auth();
+
+      // Variables globales para mantener el estado
+      let campeonatoActual = null;
+      let equipoActual = null;
+
+      // Cargar campeonatos al iniciar
+      auth.onAuthStateChanged((user) => {
+        if (!user || user.email !== "sanciones@gmail.com") {
+          window.location.href = "login.html";
+          return;
         }
+        cargarCampeonatos();
+      });
 
-        const db = firebase.firestore();
-        const auth = firebase.auth();
+      // Cargar campeonatos
+      function cargarCampeonatos() {
+        const campeonatosSection =
+          document.getElementById("campeonatosSection");
+        campeonatosSection.innerHTML =
+          '<div class="col-12 text-center"><div class="spinner-border text-success" role="status"></div></div>';
 
-        // Variables globales para mantener el estado
-        let campeonatoActual = null;
-        let equipoActual = null;
-
-        // Cargar campeonatos al iniciar
-        auth.onAuthStateChanged((user) => {
-            if (!user || user.email !== 'sanciones@gmail.com') {
-                window.location.href = 'login.html';
-                return;
+        db.collection("championships")
+          .get()
+          .then((snapshot) => {
+            campeonatosSection.innerHTML = "";
+            if (snapshot.empty) {
+              campeonatosSection.innerHTML =
+                '<div class="col-12 text-center">No hay campeonatos activos</div>';
+              return;
             }
-            cargarCampeonatos();
-        });
 
-        // Cargar campeonatos
-        function cargarCampeonatos() {
-            const campeonatosSection = document.getElementById('campeonatosSection');
-            campeonatosSection.innerHTML = '<div class="col-12 text-center"><div class="spinner-border text-success" role="status"></div></div>';
-
-            db.collection('championships').get()
-                .then((snapshot) => {
-                    campeonatosSection.innerHTML = '';
-                    if (snapshot.empty) {
-                        campeonatosSection.innerHTML = '<div class="col-12 text-center">No hay campeonatos activos</div>';
-                        return;
-                    }
-
-                    snapshot.forEach((doc) => {
-                        const campeonato = doc.data();
-                        const card = `
+            snapshot.forEach((doc) => {
+              const campeonato = doc.data();
+              const card = `
                             <div class="col-md-4 mb-4">
-                                <div class="card h-100 shadow-sm text-center" style="cursor: pointer; padding: 20px;" onclick="mostrarEquipos('${doc.id}', '${campeonato.name}')">
-                                    <div class="card-body d-flex flex-column justify-content-between">
-                                        <div>
-                                            <img src="img/logo.png" alt="Logo Liga Barrial" class="mb-3" style="width: 100px; height: 100px; object-fit: contain;">
-                                            <h4 class="card-title text-success mb-4">${campeonato.name}</h4>
-                                        </div>
-                                        <button class="btn btn-success btn-sm mt-auto">Ingresar</button>
-                                    </div>
+                                <div class="campeonato-card h-100" onclick="mostrarEquipos('${doc.id}', '${campeonato.name}')">
+                                    <img src="img/logo.png" alt="Logo Liga Barrial">
+                                    <h4>${campeonato.name}</h4>
+                                    <button class="btn btn-premium btn-sm w-100 justify-content-center">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Ingresar
+                                    </button>
                                 </div>
                             </div>
                         `;
-                        campeonatosSection.insertAdjacentHTML('beforeend', card);
-                    });
-                })
-                .catch(error => {
-                    console.error("Error al cargar campeonatos:", error);
-                    campeonatosSection.innerHTML = '<div class="col-12 text-center text-danger">Error al cargar los campeonatos</div>';
-                });
-        }
+              campeonatosSection.insertAdjacentHTML("beforeend", card);
+            });
+          })
+          .catch((error) => {
+            console.error("Error al cargar campeonatos:", error);
+            campeonatosSection.innerHTML =
+              '<div class="col-12 text-center text-danger">Error al cargar los campeonatos</div>';
+          });
+      }
 
-        // Mostrar equipos de un campeonato
-        function mostrarEquipos(campeonatoId, campeonatoNombre) {
-            campeonatoActual = campeonatoId;
-            document.getElementById('campeonatosSection').style.display = 'none';
-            document.getElementById('equiposSection').style.display = 'block';
-            document.getElementById('jugadoresSection').style.display = 'none';
-            document.getElementById('equiposTitulo').textContent = `Equipos - ${campeonatoNombre}`;
+      // Mostrar equipos de un campeonato
+      function mostrarEquipos(campeonatoId, campeonatoNombre) {
+        campeonatoActual = campeonatoId;
+        document.getElementById("campeonatosSection").style.display = "none";
+        document.getElementById("equiposSection").style.display = "block";
+        document.getElementById("jugadoresSection").style.display = "none";
+        document.getElementById("equiposTitulo").textContent =
+          `Equipos - ${campeonatoNombre}`;
 
-            const equiposLista = document.getElementById('equiposLista');
-            equiposLista.innerHTML = '<div class="col-12 text-center"><div class="spinner-border text-success" role="status"></div></div>';
+        const equiposLista = document.getElementById("equiposLista");
+        equiposLista.innerHTML =
+          '<div class="col-12 text-center"><div class="spinner-border text-success" role="status"></div></div>';
 
-            db.collection('teams').where('championshipId', '==', campeonatoId).get()
-                .then((snapshot) => {
-                    equiposLista.innerHTML = '';
-                    if (snapshot.empty) {
-                        equiposLista.innerHTML = '<div class="col-12 text-center">No hay equipos registrados</div>';
-                        return;
-                    }
+        db.collection("teams")
+          .where("championshipId", "==", campeonatoId)
+          .get()
+          .then((snapshot) => {
+            equiposLista.innerHTML = "";
+            if (snapshot.empty) {
+              equiposLista.innerHTML =
+                '<div class="col-12 text-center">No hay equipos registrados</div>';
+              return;
+            }
 
-                    snapshot.forEach((doc) => {
-                        const equipo = doc.data();
-                        const card = `
+            snapshot.forEach((doc) => {
+              const equipo = doc.data();
+              const card = `
                             <div class="col-md-4 mb-4">
-                                <div class="card h-100 shadow-sm text-center" style="padding: 20px;">
-                                    <div class="card-body d-flex flex-column justify-content-between">
-                                        <div>
-                                            <img src="${equipo.logo ? equipo.logo : 'img/logo.png'}" alt="Logo Equipo" class="mb-3" style="width: 100px; height: 100px; object-fit: contain;">
-                                            <h4 class="card-title text-success mb-4">${equipo.name}</h4>
-                                            <p class="card-text">Categoría: <span class="text-dark">${equipo.category}</span></p>
-                                        </div>
-                                        <div class="d-flex justify-content-center gap-2">
-                                            <button class="btn btn-warning btn-sm" onclick="mostrarJugadores('${doc.id}', '${equipo.name}')">
-                                                <i class="fas fa-gavel"></i> Sancionar
+                                <div class="equipo-card h-100">
+                                    <img src="${equipo.logo ? equipo.logo : "img/logo.png"}" alt="Logo Equipo">
+                                    <h4>${equipo.name}</h4>
+                                    <div class="badge bg-secondary-glass mb-4 text-uppercase fw-bold" style="font-size: 0.75rem;">
+                                        ${equipo.category}
+                                    </div>
+                                    <div class="d-flex flex-column gap-2 mt-auto">
+                                        <button class="btn btn-premium btn-sm w-100 justify-content-center" onclick="mostrarJugadores('${doc.id}', '${equipo.name}')">
+                                            <i class="fas fa-gavel me-2"></i>Sancionar Jugadores
+                                        </button>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-secondary-glass btn-sm flex-grow-1" onclick="abrirModalMulta('${doc.id}', '${equipo.name}')" title="Aplicar Multa">
+                                                <i class="fas fa-dollar-sign me-1 text-danger"></i>Multa
                                             </button>
-                                            <button class="btn btn-danger btn-sm" onclick="abrirModalMulta('${doc.id}', '${equipo.name}')">
-                                                <i class="fas fa-dollar-sign"></i> Multa
-                                            </button>
-                                            <button class="btn btn-info btn-sm" onclick="verMultasEquipo('${doc.id}', '${equipo.name}')">
-                                                <i class="fas fa-list"></i> Ver Multas
+                                            <button class="btn btn-secondary-glass btn-sm flex-grow-1" onclick="verMultasEquipo('${doc.id}', '${equipo.name}')" title="Ver Historial">
+                                                <i class="fas fa-list me-1 text-info"></i>Ver
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         `;
-                        equiposLista.insertAdjacentHTML('beforeend', card);
-                    });
-                    filtrarEquipos();
-                })
-                .catch(error => {
-                    console.error("Error al cargar equipos:", error);
-                    equiposLista.innerHTML = '<div class="col-12 text-center text-danger">Error al cargar los equipos</div>';
-                });
-        }
+              equiposLista.insertAdjacentHTML("beforeend", card);
+            });
+            filtrarEquipos();
+          })
+          .catch((error) => {
+            console.error("Error al cargar equipos:", error);
+            equiposLista.innerHTML =
+              '<div class="col-12 text-center text-danger">Error al cargar los equipos</div>';
+          });
+      }
 
-        // Mostrar jugadores de un equipo
-        function mostrarJugadores(equipoId, equipoNombre) {
-            equipoActual = equipoId;
-            document.getElementById('equiposSection').style.display = 'none';
-            document.getElementById('jugadoresSection').style.display = 'block';
-            document.getElementById('jugadoresTitulo').textContent = `Jugadores - ${equipoNombre}`;
+      // Mostrar jugadores de un equipo
+      function mostrarJugadores(equipoId, equipoNombre) {
+        equipoActual = equipoId;
+        document.getElementById("equiposSection").style.display = "none";
+        document.getElementById("jugadoresSection").style.display = "block";
+        document.getElementById("jugadoresTitulo").textContent =
+          `Jugadores - ${equipoNombre}`;
 
-            const tbody = document.getElementById('jugadoresTableBody');
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center"><div class="spinner-border text-success" role="status"></div></td></tr>';
+        const tbody = document.getElementById("jugadoresTableBody");
+        tbody.innerHTML =
+          '<tr><td colspan="4" class="text-center"><div class="spinner-border text-success" role="status"></div></td></tr>';
 
-            db.collection('players').where('teamId', '==', equipoId).get()
-                .then(async (snapshot) => {
-                    tbody.innerHTML = '';
-                    if (snapshot.empty) {
-                        tbody.innerHTML = '<tr><td colspan="4" class="text-center">No hay jugadores registrados</td></tr>';
-                        return;
-                    }
+        db.collection("players")
+          .where("teamId", "==", equipoId)
+          .get()
+          .then(async (snapshot) => {
+            tbody.innerHTML = "";
+            if (snapshot.empty) {
+              tbody.innerHTML =
+                '<tr><td colspan="4" class="text-center">No hay jugadores registrados</td></tr>';
+              return;
+            }
 
-                    for (const doc of snapshot.docs) {
-                        const jugador = doc.data();
-                        const sancionesSnapshot = await db.collection('sanciones')
-                            .where('jugadorId', '==', doc.id)
-                            .where('estado', '==', 'activa')
-                            .get();
+            for (const doc of snapshot.docs) {
+              const jugador = doc.data();
+              const sancionesSnapshot = await db
+                .collection("sanciones")
+                .where("jugadorId", "==", doc.id)
+                .where("estado", "==", "activa")
+                .get();
 
-                        let tarjetasAmarillas = 0;
-                        let tarjetasRojas = 0;
-                        let sancionesActivas = [];
+              let tarjetasAmarillas = 0;
+              let tarjetasRojas = 0;
+              let sancionesActivas = [];
 
-                        sancionesSnapshot.forEach(sancion => {
-                            const data = sancion.data();
-                            if (data.tipo === 'amarilla') {
-                                tarjetasAmarillas++;
-                            } else if (data.tipo === 'roja') {
-                                tarjetasRojas++;
-                                sancionesActivas.push(`Art. ${data.articulo} Lit. ${data.literal}`);
-                            }
-                        });
+              const hoy = new Date();
+              sancionesSnapshot.forEach((sancion) => {
+                const data = sancion.data();
+                if (data.tipo === "amarilla") {
+                  const fechaFinal = data.fechaFinal ? data.fechaFinal.toDate() : null;
+                  if (fechaFinal && hoy > fechaFinal) {
+                    db.collection("sanciones").doc(sancion.id).update({ estado: "expirada" });
+                  } else {
+                    tarjetasAmarillas++;
+                  }
 
-                        // Obtener solo el primer nombre y el primer apellido
-                        const primerNombre = jugador.nombres ? jugador.nombres.split(' ')[0] : '';
-                        const primerApellido = jugador.apellidos ? jugador.apellidos.split(' ')[0] : '';
+                } else if (data.tipo === "roja") {
+                  tarjetasRojas++;
+                  sancionesActivas.push(
+                    `Art. ${data.articulo} Lit. ${data.literal}`,
+                  );
+                }
+              });
 
-                        const row = `
+              // Obtener solo el primer nombre y el primer apellido
+              const primerNombre = jugador.nombres
+                ? jugador.nombres.split(" ")[0]
+                : "";
+              const primerApellido = jugador.apellidos
+                ? jugador.apellidos.split(" ")[0]
+                : "";
+
+              const row = `
                             <tr>
-                                <td>${jugador.numeroJugador ? jugador.numeroJugador : 'N/A'}</td>
-                                <td>${primerNombre} ${primerApellido}</td>
-                                <td>
-                                    <span class="badge bg-warning text-dark" style="cursor: pointer" onclick="mostrarDetallesSancion('${doc.id}', 'amarilla', ${tarjetasAmarillas})">
-                                        ${tarjetasAmarillas} 🟨
-                                    </span>
-                                    <span class="badge bg-danger" style="cursor: pointer" onclick="mostrarDetallesSancion('${doc.id}', 'roja', ${tarjetasRojas})">
-                                        ${tarjetasRojas} 🟥
-                                    </span>
+                                <td class="ps-4 fw-bold text-white-50">${jugador.numeroJugador ? jugador.numeroJugador : "—"}</td>
+                                <td class="fw-bold text-white">${primerNombre} ${primerApellido}</td>
+                                <td class="text-center">
+                                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                                        <div class="badge bg-warning text-dark d-flex align-items-center px-3 py-2 gap-2" style="cursor: pointer; border-radius: 10px;" onclick="mostrarDetallesSancion('${doc.id}', 'amarilla', ${tarjetasAmarillas})">
+                                            <span class="fw-bold">${tarjetasAmarillas}</span>
+                                            <i class="fas fa-square" style="transform: scale(1.2);"></i>
+                                        </div>
+                                        <div class="badge bg-danger d-flex align-items-center px-3 py-2 gap-2" style="cursor: pointer; border-radius: 10px;" onclick="mostrarDetallesSancion('${doc.id}', 'roja', ${tarjetasRojas})">
+                                            <span class="fw-bold">${tarjetasRojas}</span>
+                                            <i class="fas fa-square" style="transform: scale(1.2);"></i>
+                                        </div>
+                                    </div>
                                 </td>
-                                <td>${sancionesActivas.join('<br>') || 'Ninguna'}</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm" onclick="abrirModalSancion('${doc.id}')">
-                                        <i class="fas fa-gavel"></i>
+                                <td class="small text-white-50">${sancionesActivas.join(", ") || "Sin sanciones"}</td>
+                                <td class="text-center pe-4">
+                                    <button class="btn btn-secondary-glass btn-sm" onclick="abrirModalSancion('${doc.id}')" title="Aplicar Sanción">
+                                        <i class="fas fa-gavel text-warning me-1"></i> Sancionar
                                     </button>
                                 </td>
                             </tr>
                         `;
-                        tbody.insertAdjacentHTML('beforeend', row);
-                    }
-                    filtrarJugadores();
-                })
-                .catch(error => {
-                    console.error("Error al cargar jugadores:", error);
-                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error al cargar los jugadores</td></tr>';
-                });
-        }
-
-        // Funciones de navegación
-        function volverACampeonatos() {
-            document.getElementById('campeonatosSection').style.display = 'block';
-            document.getElementById('equiposSection').style.display = 'none';
-            document.getElementById('jugadoresSection').style.display = 'none';
-            campeonatoActual = null;
-            equipoActual = null;
-        }
-
-        function volverAEquipos() {
-            if (campeonatoActual) {
-                mostrarEquipos(campeonatoActual, document.getElementById('equiposTitulo').textContent.replace('Equipos - ', ''));
+              tbody.insertAdjacentHTML("beforeend", row);
             }
+            filtrarJugadores();
+          })
+          .catch((error) => {
+            console.error("Error al cargar jugadores:", error);
+            tbody.innerHTML =
+              '<tr><td colspan="4" class="text-center text-danger">Error al cargar los jugadores</td></tr>';
+          });
+      }
+
+      // Funciones de navegación
+      function volverACampeonatos() {
+        document.getElementById("campeonatosSection").style.display = "block";
+        document.getElementById("equiposSection").style.display = "none";
+        document.getElementById("jugadoresSection").style.display = "none";
+        campeonatoActual = null;
+        equipoActual = null;
+      }
+
+      function volverAEquipos() {
+        if (campeonatoActual) {
+          mostrarEquipos(
+            campeonatoActual,
+            document
+              .getElementById("equiposTitulo")
+              .textContent.replace("Equipos - ", ""),
+          );
         }
+      }
 
-        // Actualizar literales según artículo
-        function actualizarLiterales() {
-            const articulo = document.getElementById('articulo').value;
-            const literalSelect = document.getElementById('literal');
-            literalSelect.innerHTML = '<option value="">Seleccione un literal</option>';
+      // Actualizar literales según artículo
+      function actualizarLiterales() {
+        const articulo = document.getElementById("articulo").value;
+        const literalSelect = document.getElementById("literal");
+        literalSelect.innerHTML =
+          '<option value="">Seleccione un literal</option>';
 
-            const literales = {
-                '124': {
-                    'a': 'Acumular cuatro tarjetas amarillas',
-                    'b': 'Acumular dos tarjetas amarillas y ser expulsado',
-                    'c': 'Lanzar la camiseta al piso antes de terminar el encuentro',
-                    'd': 'Sacarse la camiseta dentro del campo de juego',
-                    'e': 'Ser excluido por aliento a licor o estado etílico',
-                    'f': 'Acumulación de 5 tarjetas amarillas'
-                },
-                '125': {
-                    'a': 'Realizar necesidades biológicas dentro del perímetro de la cancha',
-                    'b': 'Juego Brusco (J.B.) golpear a un rival en disputa del balón',
-                    'c': 'Provocar a las barras con palabras soeces o mímicas obscenas',
-                    'd': 'Lanzar el balón sin estar en juego',
-                    'e': 'Suplantar identidad',
-                    'f': 'Jugar estando suspendido',
-                    'g': 'Rayar o escribir en la vocalía de Juego',
-                    'h': 'Insultar después de expulsado'
-                },
-                '126': {
-                    'a': 'Juego Brusco Grave (J.B.G.)',
-                    'b': 'Insultar a vocales, veedores o jueces',
-                    'c': 'Lanzar el balón e impactar en alguien por la espalda',
-                    'd': 'Reincidencia'
-                },
-                '127': {
-                    'a': 'Mímicas o gestos obscenos',
-                    'b': 'Conducta Violenta (C.V.)',
-                    'c': 'Reincidencia'
-                },
-                '128': {
-                    'a': 'Epítetos de racismo o escupitajo',
-                    'b': 'Intento de agresión a árbitro, vocal o veedor',
-                    'c': 'Reincidencia'
-                },
-                '129': {
-                    'a': 'Lanzar balón e impactar en rostro causando lesión',
-                    'b': 'Lanzar tierra e impactar de frente',
-                    'c': 'Conducta violenta que cause daño o lesión',
-                    'd': 'Adulterar documentos',
-                    'e': 'Suplantación de identidad (dirigente)',
-                    'f': 'Escupitajo de frente',
-                    'g': 'Intentar agredir a Directivos',
-                    'h': 'Agresión consumada',
-                    'i': 'Incitar a la agresión',
-                    'k': 'Jugador condicionado con pérdida de garantía',
-                    'l': 'Jugadores condicionados suspendidos',
-                    'm': 'Participación en múltiples ligas'
-                }
-            };
+        const literales = {
+          124: {
+            a: "Acumular cuatro tarjetas amarillas",
+            b: "Acumular dos tarjetas amarillas y ser expulsado",
+            c: "Lanzar la camiseta al piso antes de terminar el encuentro",
+            d: "Sacarse la camiseta dentro del campo de juego",
+            e: "Ser excluido por aliento a licor o estado etílico",
+            f: "Acumulación de 5 tarjetas amarillas",
+          },
+          125: {
+            a: "Realizar necesidades biológicas dentro del perímetro de la cancha",
+            b: "Juego Brusco (J.B.) golpear a un rival en disputa del balón",
+            c: "Provocar a las barras con palabras soeces o mímicas obscenas",
+            d: "Lanzar el balón sin estar en juego",
+            e: "Suplantar identidad",
+            f: "Jugar estando suspendido",
+            g: "Rayar o escribir en la vocalía de Juego",
+            h: "Insultar después de expulsado",
+          },
+          126: {
+            a: "Juego Brusco Grave (J.B.G.)",
+            b: "Insultar a vocales, veedores o jueces",
+            c: "Lanzar el balón e impactar en alguien por la espalda",
+            d: "Reincidencia",
+          },
+          127: {
+            a: "Mímicas o gestos obscenos",
+            b: "Conducta Violenta (C.V.)",
+            c: "Reincidencia",
+          },
+          128: {
+            a: "Epítetos de racismo o escupitajo",
+            b: "Intento de agresión a árbitro, vocal o veedor",
+            c: "Reincidencia",
+          },
+          129: {
+            a: "Lanzar balón e impactar en rostro causando lesión",
+            b: "Lanzar tierra e impactar de frente",
+            c: "Conducta violenta que cause daño o lesión",
+            d: "Adulterar documentos",
+            e: "Suplantación de identidad (dirigente)",
+            f: "Escupitajo de frente",
+            g: "Intentar agredir a Directivos",
+            h: "Agresión consumada",
+            i: "Incitar a la agresión",
+            k: "Jugador condicionado con pérdida de garantía",
+            l: "Jugadores condicionados suspendidos",
+            m: "Participación en múltiples ligas",
+          },
+        };
 
-            if (literales[articulo]) {
-                Object.entries(literales[articulo]).forEach(([key, value]) => {
-                    const option = document.createElement('option');
-                    option.value = key;
-                    option.textContent = `${key}) ${value}`;
-                    literalSelect.appendChild(option);
-                });
-            }
+        if (literales[articulo]) {
+          Object.entries(literales[articulo]).forEach(([key, value]) => {
+            const option = document.createElement("option");
+            option.value = key;
+            option.textContent = `${key}) ${value}`;
+            literalSelect.appendChild(option);
+          });
         }
+      }
 
-        // Mostrar/ocultar campos de artículo y literal
-        document.getElementById('tipoSancion').addEventListener('change', function() {
-            const articuloLiteralContainer = document.getElementById('articuloLiteralContainer');
-            articuloLiteralContainer.style.display = this.value === 'roja' ? 'block' : 'none';
-            if (this.value === 'roja') {
-                document.getElementById('articulo').value = '';
-                document.getElementById('literal').innerHTML = '<option value="">Seleccione primero un artículo</option>';
-            }
+      // Mostrar/ocultar campos de artículo y literal
+      document
+        .getElementById("tipoSancion")
+        .addEventListener("change", function () {
+          const articuloLiteralContainer = document.getElementById(
+            "articuloLiteralContainer",
+          );
+          articuloLiteralContainer.style.display =
+            this.value === "roja" ? "block" : "none";
+          if (this.value === "roja") {
+            document.getElementById("articulo").value = "";
+            document.getElementById("literal").innerHTML =
+              '<option value="">Seleccione primero un artículo</option>';
+          }
         });
 
-        // Función para abrir modal de sanción
-        function abrirModalSancion(jugadorId) {
-            document.getElementById('jugadorId').value = jugadorId;
-            document.getElementById('tipoSancion').value = '';
-            document.getElementById('articuloLiteralContainer').style.display = 'none';
-            var articulo = document.getElementById('articulo');
-            var literal = document.getElementById('literal');
-            if (articulo) articulo.value = '';
-            if (literal) literal.innerHTML = '<option value="">Seleccione primero un artículo</option>';
-            const modal = new bootstrap.Modal(document.getElementById('sancionModal'));
-            modal.show();
-        }
+      // Función para abrir modal de sanción
+      function abrirModalSancion(jugadorId) {
+        document.getElementById("jugadorId").value = jugadorId;
+        document.getElementById("tipoSancion").value = "";
+        document.getElementById("articuloLiteralContainer").style.display =
+          "none";
+        var articulo = document.getElementById("articulo");
+        var literal = document.getElementById("literal");
+        if (articulo) articulo.value = "";
+        if (literal)
+          literal.innerHTML =
+            '<option value="">Seleccione primero un artículo</option>';
+        const modal = new bootstrap.Modal(
+          document.getElementById("sancionModal"),
+        );
+        modal.show();
+      }
 
-        // Función para obtener el próximo martes
-        function obtenerProximoTuesday() {
-            const hoy = new Date();
-            const diasHastaMartes = (2 - hoy.getDay() + 7) % 7;
-            const proximoTuesday = new Date(hoy);
-            proximoTuesday.setDate(hoy.getDate() + diasHastaMartes);
-            proximoTuesday.setHours(0, 0, 0, 0);
-            return proximoTuesday;
-        }
+      // Función para obtener el próximo martes
+      function obtenerProximoTuesday() {
+        const hoy = new Date();
+        const diasHastaMartes = (2 - hoy.getDay() + 7) % 7;
+        const proximoTuesday = new Date(hoy);
+        proximoTuesday.setDate(hoy.getDate() + diasHastaMartes);
+        proximoTuesday.setHours(0, 0, 0, 0);
+        return proximoTuesday;
+      }
 
-        // Función para obtener la fecha final de sanción
-        function obtenerFechaFinalSancion(partidosSancion) {
+      // Función para obtener la fecha final de sanción
+      function obtenerFechaFinalSancion(partidosSancion) {
+        const fechaInicio = obtenerProximoTuesday();
+        const fechaFinal = new Date(fechaInicio);
+        fechaFinal.setDate(fechaInicio.getDate() + partidosSancion * 7);
+        return fechaFinal;
+      }
+
+      // Mostrar detalles de sanción
+      function mostrarDetallesSancion(jugadorId, tipo, cantidadTarjetas) {
+        if (tipo === "amarilla") {
+          let mensaje = "";
+          if (cantidadTarjetas < 5) {
+            mensaje = `
+                        <div class="glass-card p-4 text-center border-0" style="background: rgba(255,255,255,0.03);">
+                            <div class="display-4 text-warning mb-3">
+                                <i class="fas fa-square"></i>
+                            </div>
+                            <h4 class="text-white mb-3">${cantidadTarjetas} Tarjetas Acumuladas</h4>
+                            <p class="text-white-50">El jugador necesita 5 tarjetas para recibir una fecha de sanción automática (Art. 124f).</p>
+                            <div class="progress bg-dark-glass mt-4" style="height: 10px; border-radius: 5px;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: ${(cantidadTarjetas / 5) * 100}%"></div>
+                            </div>
+                        </div>
+                    `;
+          } else {
             const fechaInicio = obtenerProximoTuesday();
-            const fechaFinal = new Date(fechaInicio);
-            fechaFinal.setDate(fechaInicio.getDate() + (partidosSancion * 7));
-            return fechaFinal;
-        }
-
-        // Mostrar detalles de sanción
-        function mostrarDetallesSancion(jugadorId, tipo, cantidadTarjetas) {
-            if (tipo === 'amarilla') {
-                let mensaje = '';
-                if (cantidadTarjetas < 4) {
-                    mensaje = `El jugador tiene ${cantidadTarjetas} tarjeta(s) amarilla(s).<br>Necesita 4 tarjetas para recibir una fecha de sanción.`;
-                } else {
-                    const fechaInicio = obtenerProximoTuesday();
-                    const fechaFinal = obtenerFechaFinalSancion(1);
-                    mensaje = `Sanción por acumulación de ${cantidadTarjetas} tarjetas amarillas.<br>Partidos de sanción restantes: 1<br>Fecha de inicio: ${fechaInicio.toLocaleDateString()}<br>Fecha de finalización: ${fechaFinal.toLocaleDateString()}`;
-                }
-                Swal.fire({
-                    title: '<span style="font-size: 2rem;">Detalles de Tarjetas Amarillas 🟨</span>',
-                    html: `<div style='font-size:1.1rem;'>${mensaje}</div>`,
-                    icon: 'info',
-                    confirmButtonColor: '#28a745',
-                    customClass: {popup: 'swal-wide'}
-                });
-            } else {
-                db.collection('sanciones')
-                    .where('jugadorId', '==', jugadorId)
-                    .where('estado', '==', 'activa')
-                    .get()
-                    .then((snapshot) => {
-                        if (!snapshot.empty) {
-                            const sancionDoc = snapshot.docs[snapshot.docs.length - 1];
-                            const sancion = sancionDoc.data();
-                            const sancionId = sancionDoc.id;
-                            let mensaje = '';
-                            if (sancion.tipo === 'roja') {
-                                const partidosSancion = {
-                                    '124': 1,
-                                    '125': 2,
-                                    '126': 3,
-                                    '127': 4,
-                                    '128': 6,
-                                    '129': 52
-                                };
-                                const partidosRestantes = partidosSancion[sancion.articulo] || 0;
-                                const fechaInicio = obtenerProximoTuesday();
-                                const fechaFinal = obtenerFechaFinalSancion(partidosRestantes);
-                                mensaje += `
-                                    <div style='font-size:1.1rem;line-height:1.7;'>
-                                        <span style='font-size:1.3rem;'><b>Tarjeta Roja 🟥</b></span><br>
-                                        <b>Artículo:</b> ${sancion.articulo} <b>Literal:</b> ${sancion.literal}<br>
-                                        <b>Partidos de sanción restantes:</b> ${partidosRestantes}<br>
-                                        <b>Fecha de inicio:</b> ${fechaInicio.toLocaleDateString()}<br>
-                                        <b>Fecha de finalización:</b> ${fechaFinal.toLocaleDateString()}<br>
-                                        <div style='margin-top:1rem;'>
-                                            <button class='btn btn-primary btn-sm' onclick="editarSancion('${sancionId}', '${jugadorId}')"><i class='fas fa-edit'></i> Editar</button>
-                                            <button class='btn btn-danger btn-sm' onclick="eliminarSancion('${sancionId}', '${jugadorId}')"><i class='fas fa-trash'></i> Eliminar</button>
+            const fechaFinal = obtenerFechaFinalSancion(1);
+            mensaje = `
+                        <div class="glass-card p-4 border-0 text-start" style="background: rgba(255,255,255,0.03);">
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <i class="fas fa-exclamation-triangle text-warning fa-3x"></i>
+                                <div>
+                                    <h4 class="text-white mb-0">SANCIÓN ACTIVA</h4>
+                                    <span class="text-white-50 small">Acumulación de ${cantidadTarjetas} Amarillas</span>
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="text-white-50 small d-block">PARTIDOS RESTANTES</label>
+                                    <span class="text-white fw-bold">1 Fecha</span>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <label class="text-white-50 small d-block">ESTADO</label>
+                                    <span class="badge bg-danger">Suspendido</span>
+                                </div>
+                                <div class="col-12 border-top border-secondary border-opacity-25 pt-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-white-50">Inicia:</span>
+                                        <span class="text-white fw-semibold">${fechaInicio.toLocaleDateString()}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-white-50">Finaliza:</span><span class="text-white fw-semibold">${fechaFinal.toLocaleDateString()}</span></div></div><div class="col-12 mt-3 p-3 border-top border-secondary border-opacity-25"><p class="small text-white-50 mb-0">Nota: Al finalizar esta fecha de suspensión, las tarjetas se limpiarán automáticamente.</p></div></div>
+                        </div>
+                    `;
+          }
+          Swal.fire({
+            title: "Control Disciplinario",
+            html: mensaje,
+            iconHtml: '<i class="fas fa-shield-halved text-warning"></i>',
+            customClass: { popup: "swal-premium" },
+          });
+        } else {
+          db.collection("sanciones")
+            .where("jugadorId", "==", jugadorId)
+            .where("estado", "==", "activa")
+            .get()
+            .then((snapshot) => {
+              if (!snapshot.empty) {
+                const sancionDoc = snapshot.docs[snapshot.docs.length - 1];
+                const sancion = sancionDoc.data();
+                const sancionId = sancionDoc.id;
+                let mensaje = "";
+                if (sancion.tipo === "roja") {
+                  const partidosSancion = {
+                    124: 1,
+                    125: 2,
+                    126: 3,
+                    127: 4,
+                    128: 6,
+                    129: 52,
+                  };
+                  const partidosRestantes =
+                    partidosSancion[sancion.articulo] || 0;
+                  const fechaInicio = obtenerProximoTuesday();
+                  const fechaFinal =
+                    obtenerFechaFinalSancion(partidosRestantes);
+                  mensaje += `
+                                    <div class="glass-card p-4 border-0 text-start" style="background: rgba(255,255,255,0.03);">
+                                        <div class="d-flex align-items-center gap-3 mb-4">
+                                            <i class="fas fa-square text-danger fa-3x"></i>
+                                            <div>
+                                                <h4 class="text-white mb-0">TARJETA ROJA</h4>
+                                                <span class="text-white-50 small">Art. ${sancion.articulo} | Literal ${sancion.literal}</span>
+                                            </div>
+                                        </div>
+                                        <div class="row g-3 mb-4">
+                                            <div class="col-6">
+                                                <label class="text-white-50 small d-block">SANCIONADO POR</label>
+                                                <span class="text-white fw-bold">${partidosRestantes} Partidos</span>
+                                            </div>
+                                            <div class="col-6 text-end">
+                                                <label class="text-white-50 small d-block">ESTADO</label>
+                                                <span class="badge bg-danger">Suspendido</span>
+                                            </div>
+                                            <div class="col-12 border-top border-secondary border-opacity-25 pt-3">
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="text-white-50">Inicia:</span>
+                                                    <span class="text-white fw-semibold">${fechaInicio.toLocaleDateString()}</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-white-50">Finaliza:</span><span class="text-white fw-semibold">${fechaFinal.toLocaleDateString()}</span></div></div><div class="col-12 mt-3 p-3 border-top border-secondary border-opacity-25"><p class="small text-white-50 mb-0">Nota: Al finalizar esta fecha de suspensión, las tarjetas se limpiarán automáticamente.</p></div></div>
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-secondary-glass btn-sm flex-grow-1" onclick="editarSancion('${sancionId}', '${jugadorId}')">
+                                                <i class="fas fa-edit me-1 text-info"></i> Editar
+                                            </button>
+                                            <button class="btn btn-secondary-glass btn-sm" onclick="eliminarSancion('${sancionId}', '${jugadorId}')">
+                                                <i class="fas fa-trash text-danger"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 `;
-                            }
-                            Swal.fire({
-                                title: '<span style="font-size: 2rem;">Detalles de Sanciones</span>',
-                                html: mensaje,
-                                icon: 'info',
-                                confirmButtonColor: '#28a745',
-                                customClass: {popup: 'swal-wide'}
-                            });
-                        } else {
-                            Swal.fire({
-                                title: 'Sin Sanciones Activas',
-                                text: 'El jugador no tiene sanciones activas.',
-                                icon: 'info',
-                                confirmButtonColor: '#28a745'
-                            });
-                        }
-                    });
-            }
-        }
-
-        // Editar sanción
-        function editarSancion(sancionId, jugadorId) {
-            Swal.close(); // Cierra el modal de detalles antes de abrir el de edición
-            db.collection('sanciones').doc(sancionId).get().then(doc => {
-                if (doc.exists) {
-                    const sancion = doc.data();
-                    document.getElementById('jugadorId').value = jugadorId;
-                    document.getElementById('tipoSancion').value = sancion.tipo;
-                    document.getElementById('articuloLiteralContainer').style.display = 'block';
-                    document.getElementById('articulo').value = sancion.articulo;
-                    actualizarLiterales();
-                    document.getElementById('literal').value = sancion.literal;
-                    document.getElementById('sancionModal').setAttribute('data-edit-id', sancionId);
-                    const modal = new bootstrap.Modal(document.getElementById('sancionModal'));
-                    modal.show();
                 }
-            });
-        }
-
-        // Eliminar sanción
-        function eliminarSancion(sancionId, jugadorId) {
-            Swal.fire({
-                title: '¿Eliminar sanción?',
-                text: 'Esta acción no se puede deshacer',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#28a745'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    db.collection('sanciones').doc(sancionId).delete().then(() => {
-                        Swal.fire('Eliminada', 'La sanción ha sido eliminada', 'success').then(() => {
-                            mostrarJugadores(equipoActual, document.getElementById('jugadoresTitulo').textContent.replace('Jugadores - ', ''));
-                        });
-                    });
-                }
-            });
-        }
-
-        // Modifico aplicarSancion para soportar edición y recargar solo la sección
-        function aplicarSancion() {
-            const jugadorId = document.getElementById('jugadorId').value;
-            const tipo = document.getElementById('tipoSancion').value;
-            const articulo = document.getElementById('articulo').value;
-            const literal = document.getElementById('literal').value;
-            const editId = document.getElementById('sancionModal').getAttribute('data-edit-id');
-
-            if (!tipo) {
-                Swal.fire('Error', 'Seleccione el tipo de sanción', 'error');
-                return;
-            }
-
-            if (tipo === 'roja' && (!articulo || !literal)) {
-                Swal.fire('Error', 'Seleccione artículo y literal', 'error');
-                return;
-            }
-
-            const fechaInicio = obtenerProximoTuesday();
-            const partidosSancion = tipo === 'roja' ? {
-                '124': 1,
-                '125': 2,
-                '126': 3,
-                '127': 4,
-                '128': 6,
-                '129': 52
-            }[articulo] || 0 : 1;
-
-            const fechaFinal = obtenerFechaFinalSancion(partidosSancion);
-
-            const sancion = {
-                jugadorId,
-                tipo,
-                fechaInicio: firebase.firestore.Timestamp.fromDate(fechaInicio),
-                fechaFinal: firebase.firestore.Timestamp.fromDate(fechaFinal),
-                partidosSancion,
-                fecha: firebase.firestore.Timestamp.now(),
-                estado: 'activa',
-                campeonatoId: campeonatoActual,
-                equipoId: equipoActual
-            };
-
-            if (tipo === 'roja') {
-                sancion.articulo = articulo;
-                sancion.literal = literal;
-            }
-
-            const modalElement = document.getElementById('sancionModal');
-            if (editId) {
-                db.collection('sanciones').doc(editId).update(sancion).then(() => {
-                    Swal.fire({
-                        title: 'Éxito',
-                        text: 'Sanción editada correctamente',
-                        icon: 'success',
-                        confirmButtonColor: '#28a745'
-                    }).then(() => {
-                        mostrarJugadores(equipoActual, document.getElementById('jugadoresTitulo').textContent.replace('Jugadores - ', ''));
-                    });
-                    modalElement.removeAttribute('data-edit-id');
-                    bootstrap.Modal.getInstance(modalElement).hide();
+                Swal.fire({
+                  title: "Historial Disciplinario",
+                  html: mensaje,
+                  customClass: { popup: "swal-premium" },
                 });
-            } else {
-                db.collection('sanciones').add(sancion)
-                    .then(() => {
-                        Swal.fire({
-                            title: 'Éxito',
-                            text: 'Sanción aplicada correctamente',
-                            icon: 'success',
-                            confirmButtonColor: '#28a745'
-                        }).then(() => {
-                            mostrarJugadores(equipoActual, document.getElementById('jugadoresTitulo').textContent.replace('Jugadores - ', ''));
-                        });
-                        bootstrap.Modal.getInstance(modalElement).hide();
-                    })
-                    .catch(error => {
-                        console.error('Error al aplicar sanción:', error);
-                        Swal.fire('Error', 'No se pudo aplicar la sanción', 'error');
-                    });
+              } else {
+                Swal.fire({
+                  title: "Sin Sanciones Activas",
+                  text: "El jugador no tiene sanciones activas.",
+                  icon: "info",
+                });
+              }
+            });
+        }
+      }
+
+      // Editar sanción
+      function editarSancion(sancionId, jugadorId) {
+        Swal.close(); // Cierra el modal de detalles antes de abrir el de edición
+        db.collection("sanciones")
+          .doc(sancionId)
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+              const sancion = doc.data();
+              document.getElementById("jugadorId").value = jugadorId;
+              document.getElementById("tipoSancion").value = sancion.tipo;
+              document.getElementById(
+                "articuloLiteralContainer",
+              ).style.display = "block";
+              document.getElementById("articulo").value = sancion.articulo;
+              actualizarLiterales();
+              document.getElementById("literal").value = sancion.literal;
+              document
+                .getElementById("sancionModal")
+                .setAttribute("data-edit-id", sancionId);
+              const modal = new bootstrap.Modal(
+                document.getElementById("sancionModal"),
+              );
+              modal.show();
             }
+          });
+      }
+
+      // Eliminar sanción
+      function eliminarSancion(sancionId, jugadorId) {
+        Swal.fire({
+          title: "¿Eliminar sanción?",
+          text: "Esta acción no se puede deshacer",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            db.collection("sanciones")
+              .doc(sancionId)
+              .delete()
+              .then(() => {
+                Swal.fire(
+                  "Eliminada",
+                  "La sanción ha sido eliminada",
+                  "success",
+                ).then(() => {
+                  mostrarJugadores(
+                    equipoActual,
+                    document
+                      .getElementById("jugadoresTitulo")
+                      .textContent.replace("Jugadores - ", ""),
+                  );
+                });
+              });
+          }
+        });
+      }
+
+      // Modifico aplicarSancion para soportar edición y recargar solo la sección
+      function aplicarSancion() {
+        const jugadorId = document.getElementById("jugadorId").value;
+        const tipo = document.getElementById("tipoSancion").value;
+        const articulo = document.getElementById("articulo").value;
+        const literal = document.getElementById("literal").value;
+        const editId = document
+          .getElementById("sancionModal")
+          .getAttribute("data-edit-id");
+
+        if (!tipo) {
+          Swal.fire("Error", "Seleccione el tipo de sanción", "error");
+          return;
         }
 
-        // Función para cerrar sesión
-        function logout() {
-            Swal.fire({
-                title: '¿Cerrar sesión?',
-                text: "¿Estás seguro de que deseas salir?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, salir',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    auth.signOut().then(() => {
-                        window.location.href = 'login.html';
-                    }).catch((error) => {
-                        console.error("Error al cerrar sesión:", error);
-                        Swal.fire('Error', 'No se pudo cerrar la sesión', 'error');
-                    });
-                }
+        if (tipo === "roja" && (!articulo || !literal)) {
+          Swal.fire("Error", "Seleccione artículo y literal", "error");
+          return;
+        }
+
+        const fechaInicio = obtenerProximoTuesday();
+        const partidosSancion =
+          tipo === "roja"
+            ? {
+                124: 1,
+                125: 2,
+                126: 3,
+                127: 4,
+                128: 6,
+                129: 52,
+              }[articulo] || 0
+            : 1;
+
+        const fechaFinal = obtenerFechaFinalSancion(partidosSancion);
+
+        const sancion = {
+          jugadorId,
+          tipo,
+          fechaInicio: firebase.firestore.Timestamp.fromDate(fechaInicio),
+          fechaFinal: firebase.firestore.Timestamp.fromDate(fechaFinal),
+          partidosSancion,
+          fecha: firebase.firestore.Timestamp.now(),
+          estado: "activa",
+          campeonatoId: campeonatoActual,
+          equipoId: equipoActual,
+        };
+
+        if (tipo === "roja") {
+          sancion.articulo = articulo;
+          sancion.literal = literal;
+        }
+
+        const modalElement = document.getElementById("sancionModal");
+        if (editId) {
+          db.collection("sanciones")
+            .doc(editId)
+            .update(sancion)
+            .then(() => {
+              Swal.fire({
+                title: "Éxito",
+                text: "Sanción editada correctamente",
+                icon: "success",
+              }).then(() => {
+                mostrarJugadores(
+                  equipoActual,
+                  document
+                    .getElementById("jugadoresTitulo")
+                    .textContent.replace("Jugadores - ", ""),
+                );
+              });
+              modalElement.removeAttribute("data-edit-id");
+              bootstrap.Modal.getInstance(modalElement).hide();
             });
-        }
-
-        // Filtros de búsqueda
-        document.getElementById('searchEquipoInput').addEventListener('input', filtrarEquipos);
-        document.getElementById('categoryEquipoFilter').addEventListener('change', filtrarEquipos);
-        document.getElementById('searchJugadorInput').addEventListener('input', filtrarJugadores);
-
-        function filtrarEquipos() {
-            const searchText = document.getElementById('searchEquipoInput').value.toLowerCase();
-            const categoryFilter = document.getElementById('categoryEquipoFilter').value;
-            const teamCards = document.querySelectorAll('#equiposLista .col-md-4');
-
-            console.log('--- Filtrando Equipos ---');
-            console.log('Texto de búsqueda (equipos):', searchText);
-            console.log('Filtro de categoría (equipos):', categoryFilter);
-            console.log('Total de tarjetas de equipo encontradas:', teamCards.length);
-
-            teamCards.forEach(card => {
-                const teamNameElement = card.querySelector('.card-title');
-                const teamCategoryElement = card.querySelector('.card-text span.text-dark');
-
-                if (teamNameElement && teamCategoryElement) {
-                    const teamName = teamNameElement.textContent.toLowerCase().trim();
-                    const teamCategory = teamCategoryElement.textContent.trim().toUpperCase();
-
-                    const matchesSearch = teamName.includes(searchText);
-                    const matchesCategory = !categoryFilter || teamCategory === categoryFilter.toUpperCase();
-
-                    console.log(`Equipo: ${teamName}, Categoría: ${teamCategory}, Coincide búsqueda: ${matchesSearch}, Coincide categoría: ${matchesCategory}`);
-
-                    card.style.display = matchesSearch && matchesCategory ? '' : 'none';
-                } else {
-                    console.log('Advertencia: Elementos de nombre o categoría no encontrados para una tarjeta de equipo.', card);
-                }
-            });
-            console.log('-------------------------');
-        }
-
-        function filtrarJugadores() {
-            const searchText = document.getElementById('searchJugadorInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#jugadoresTableBody tr');
-
-            console.log('--- Filtrando Jugadores ---');
-            console.log('Texto de búsqueda (jugadores):', searchText);
-            console.log('Total de filas de jugadores encontradas:', rows.length);
-
-            rows.forEach(row => {
-                // Asegurarse de que row.cells[0] y row.cells[1] existan antes de acceder a textContent
-                const playerNumber = row.cells[0] ? row.cells[0].textContent.toLowerCase().trim() : '';
-                const playerName = row.cells[1] ? row.cells[1].textContent.toLowerCase().trim() : '';
+        } else {
+          db.collection("sanciones")
+            .add(sancion)
+            .then(async () => {
+              // Si es amarilla, verificar acumulacion de 5
+              if (tipo === "amarilla") {
+                const snap = await db.collection("sanciones")
+                  .where("jugadorId", "==", jugadorId)
+                  .where("tipo", "==", "amarilla")
+                  .where("estado", "==", "activa")
+                  .get();
                 
-                const matchesSearch = playerName.includes(searchText) || playerNumber.includes(searchText); // Buscar por nombre o número
-
-                console.log(`Número: ${playerNumber}, Jugador: ${playerName}, Coincide búsqueda: ${matchesSearch}`);
-
-                row.style.display = matchesSearch ? '' : 'none';
-            });
-            console.log('-------------------------');
-        }
-
-        // Función para abrir modal de multa
-        function abrirModalMulta(equipoId, equipoNombre) {
-            document.getElementById('multaJugadorId').value = equipoId;
-            document.getElementById('tipoMulta').value = '';
-            document.getElementById('multaLiteral').innerHTML = '<option value="">Seleccione primero un tipo de multa</option>';
-            const modal = new bootstrap.Modal(document.getElementById('multaModal'));
-            modal.show();
-        }
-
-        // Actualizar literales según tipo de multa
-        function actualizarLiteralesMulta() {
-            const tipo = document.getElementById('tipoMulta').value;
-            const literalSelect = document.getElementById('multaLiteral');
-            literalSelect.innerHTML = '<option value="">Seleccione un literal</option>';
-
-            const literales = {
-                'multa_barra': {
-                    'a': 'Primera vez - Tarjeta amarilla a la barra ($10)',
-                    'b': 'Primera vez - Tarjeta roja a la barra ($20)',
-                    'c': 'Segunda vez - Tarjeta amarilla a la barra ($20)',
-                    'd': 'Segunda vez - Tarjeta roja a la barra ($30)',
-                    'e': 'Tercera vez en adelante - Tarjeta amarilla a la barra ($30)',
-                    'f': 'Tercera vez en adelante - Tarjeta roja a la barra ($40)'
-                },
-                'no_presentacion': {
-                    'g': 'No presentación ($10)'
-                },
-                'no_vocal': {
-                    'h': 'Primera vez - No vocal ($5)',
-                    'i': 'Segunda vez en adelante - No vocal ($10)'
-                },
-                'no_veedor': {
-                    'j': 'Primera vez - No veedor ($5)',
-                    'k': 'Segunda vez en adelante - No veedor ($10)'
+                if (snap.size >= 5) {
+                  Swal.fire({
+                    title: "SUSPENSIÓN AUTOMÁTICA",
+                    text: "El jugador ha acumulado 5 tarjetas amarillas. Recibe 1 fecha de suspensión automática y el contador se reiniciará al finalizar la misma.",
+                    icon: "warning",
+                    confirmButtonText: "Entendido",
+                    customClass: { popup: "glass-popup" }
+                  });
+                } else {
+                  Swal.fire("Éxito", "Tarjeta aplicada correctamente", "success");
                 }
-            };
-
-            if (literales[tipo]) {
-                Object.entries(literales[tipo]).forEach(([key, value]) => {
-                    const option = document.createElement('option');
-                    option.value = key;
-                    option.textContent = value;
-                    literalSelect.appendChild(option);
-                });
-            }
+              } else {
+                Swal.fire("Éxito", "Sanción aplicada correctamente", "success");
+              }
+              mostrarJugadores(equipoActual, document.getElementById("jugadoresTitulo").textContent.replace("Jugadores - ", ""));
+              bootstrap.Modal.getInstance(modalElement).hide();
+            })
+            .catch((error) => {
+              console.error("Error al aplicar sanción:", error);
+              Swal.fire("Error", "No se pudo aplicar la sanción", "error");
+            });
         }
+      }
 
-        // Mostrar/ocultar campos de artículo y literal para multas
-        document.getElementById('tipoMulta').addEventListener('change', function() {
-            actualizarLiteralesMulta();
+      // Función para cerrar sesión
+      function logout() {
+        Swal.fire({
+          title: "¿Cerrar sesión?",
+          text: "¿Estás seguro de que deseas salir?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Sí, salir",
+          cancelButtonText: "Cancelar",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            auth
+              .signOut()
+              .then(() => {
+                window.location.href = "login.html";
+              })
+              .catch((error) => {
+                console.error("Error al cerrar sesión:", error);
+                Swal.fire("Error", "No se pudo cerrar la sesión", "error");
+              });
+          }
+        });
+      }
+
+      // Filtros de búsqueda
+      document
+        .getElementById("searchEquipoInput")
+        .addEventListener("input", filtrarEquipos);
+      document
+        .getElementById("categoryEquipoFilter")
+        .addEventListener("change", filtrarEquipos);
+      document
+        .getElementById("searchJugadorInput")
+        .addEventListener("input", filtrarJugadores);
+
+      function filtrarEquipos() {
+        const searchText = document
+          .getElementById("searchEquipoInput")
+          .value.toLowerCase();
+        const categoryFilter = document.getElementById(
+          "categoryEquipoFilter",
+        ).value;
+        const teamCards = document.querySelectorAll("#equiposLista .col-md-4");
+
+        console.log("--- Filtrando Equipos ---");
+        console.log("Texto de búsqueda (equipos):", searchText);
+        console.log("Filtro de categoría (equipos):", categoryFilter);
+        console.log(
+          "Total de tarjetas de equipo encontradas:",
+          teamCards.length,
+        );
+
+        teamCards.forEach((card) => {
+          const teamNameElement = card.querySelector("h4");
+          const teamCategoryElement = card.querySelector(".badge");
+
+          if (teamNameElement && teamCategoryElement) {
+            const teamName = teamNameElement.textContent.toLowerCase().trim();
+            const teamCategory = teamCategoryElement.textContent
+              .trim()
+              .toUpperCase();
+
+            const matchesSearch = teamName.includes(searchText);
+            const matchesCategory =
+              !categoryFilter || teamCategory === categoryFilter.toUpperCase();
+
+            console.log(
+              `Equipo: ${teamName}, Categoría: ${teamCategory}, Coincide búsqueda: ${matchesSearch}, Coincide categoría: ${matchesCategory}`,
+            );
+
+            card.style.display = matchesSearch && matchesCategory ? "" : "none";
+          } else {
+            console.log(
+              "Advertencia: Elementos de nombre o categoría no encontrados para una tarjeta de equipo.",
+              card,
+            );
+          }
+        });
+        console.log("-------------------------");
+      }
+
+      function filtrarJugadores() {
+        const searchText = document
+          .getElementById("searchJugadorInput")
+          .value.toLowerCase();
+        const rows = document.querySelectorAll("#jugadoresTableBody tr");
+
+        console.log("--- Filtrando Jugadores ---");
+        console.log("Texto de búsqueda (jugadores):", searchText);
+        console.log("Total de filas de jugadores encontradas:", rows.length);
+
+        rows.forEach((row) => {
+          // Asegurarse de que row.cells[0] y row.cells[1] existan antes de acceder a textContent
+          const playerNumber = row.cells[0]
+            ? row.cells[0].textContent.toLowerCase().trim()
+            : "";
+          const playerName = row.cells[1]
+            ? row.cells[1].textContent.toLowerCase().trim()
+            : "";
+
+          const matchesSearch =
+            playerName.includes(searchText) ||
+            playerNumber.includes(searchText); // Buscar por nombre o número
+
+          console.log(
+            `Número: ${playerNumber}, Jugador: ${playerName}, Coincide búsqueda: ${matchesSearch}`,
+          );
+
+          row.style.display = matchesSearch ? "" : "none";
+        });
+        console.log("-------------------------");
+      }
+
+      // Función para abrir modal de multa
+      function abrirModalMulta(equipoId, equipoNombre) {
+        document.getElementById("multaJugadorId").value = equipoId;
+        document.getElementById("tipoMulta").value = "";
+        document.getElementById("multaLiteral").innerHTML =
+          '<option value="">Seleccione primero un tipo de multa</option>';
+        const modal = new bootstrap.Modal(
+          document.getElementById("multaModal"),
+        );
+        modal.show();
+      }
+
+      // Actualizar literales según tipo de multa
+      function actualizarLiteralesMulta() {
+        const tipo = document.getElementById("tipoMulta").value;
+        const literalSelect = document.getElementById("multaLiteral");
+        literalSelect.innerHTML =
+          '<option value="">Seleccione un literal</option>';
+
+        const literales = {
+          multa_barra: {
+            a: "Primera vez - Tarjeta amarilla a la barra ($10)",
+            b: "Primera vez - Tarjeta roja a la barra ($20)",
+            c: "Segunda vez - Tarjeta amarilla a la barra ($20)",
+            d: "Segunda vez - Tarjeta roja a la barra ($30)",
+            e: "Tercera vez en adelante - Tarjeta amarilla a la barra ($30)",
+            f: "Tercera vez en adelante - Tarjeta roja a la barra ($40)",
+          },
+          no_presentacion: {
+            g: "No presentación ($10)",
+          },
+          no_vocal: {
+            h: "Primera vez - No vocal ($5)",
+            i: "Segunda vez en adelante - No vocal ($10)",
+          },
+          no_veedor: {
+            j: "Primera vez - No veedor ($5)",
+            k: "Segunda vez en adelante - No veedor ($10)",
+          },
+        };
+
+        if (literales[tipo]) {
+          Object.entries(literales[tipo]).forEach(([key, value]) => {
+            const option = document.createElement("option");
+            option.value = key;
+            option.textContent = value;
+            literalSelect.appendChild(option);
+          });
+        }
+      }
+
+      // Mostrar/ocultar campos de artículo y literal para multas
+      document
+        .getElementById("tipoMulta")
+        .addEventListener("change", function () {
+          actualizarLiteralesMulta();
         });
 
-        // Función para ver multas del equipo
-        function verMultasEquipo(equipoId, equipoNombre) {
-            db.collection('sanciones')
-                .where('equipoId', '==', equipoId)
-                .where('estado', '==', 'activa')
-                .get()
-                .then((snapshot) => {
-                    let mensaje = '';
-                    let totalMultas = 0;
+      // Función para ver multas del equipo
+      function verMultasEquipo(equipoId, equipoNombre) {
+        db.collection("sanciones")
+          .where("equipoId", "==", equipoId)
+          .where("estado", "==", "activa")
+          .get()
+          .then((snapshot) => {
+            let mensaje = "";
+            let totalMultas = 0;
 
-                    if (snapshot.empty) {
-                        mensaje = 'El equipo no tiene multas activas.';
-                    } else {
-                        mensaje = `<h5>Multas activas de ${equipoNombre}</h5><br>`;
-                        snapshot.forEach((doc) => {
-                            const multa = doc.data();
-                            if (multa.montoMulta) {
-                                mensaje += `
-                                    <div class=\"mb-3\">
-                                        <strong>Tipo:</strong> ${multa.tipo}<br>
-                                        <strong>Literal:</strong> ${multa.literal}<br>
-                                        <strong>Monto:</strong> $${multa.montoMulta}<br>
-                                        <strong>Fecha:</strong> ${multa.fecha.toDate().toLocaleDateString()}<br>
-                                        <button class=\"btn btn-sm btn-primary\" onclick=\"editarMulta('${doc.id}', '${equipoId}')\"><i class='fas fa-edit'></i> Editar</button>
-                                        <button class=\"btn btn-sm btn-danger\" onclick=\"eliminarMulta('${doc.id}', '${equipoId}')\"><i class='fas fa-trash'></i> Eliminar</button>
-                                        <hr>
+            if (snapshot.empty) {
+              mensaje = "El equipo no tiene multas activas.";
+            } else {
+              mensaje = `<h5>Multas activas de ${equipoNombre}</h5><br>`;
+              snapshot.forEach((doc) => {
+                const multa = doc.data();
+                if (multa.montoMulta) {
+                  mensaje += `
+                                    <div class="glass-card mb-3 p-3 text-start border-0" style="background: rgba(255,255,255,0.03);">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="badge bg-danger px-3">$${multa.montoMulta}</span>
+                                            <span class="text-white-50 small"><i class="far fa-calendar-alt me-1"></i>${multa.fecha.toDate().toLocaleDateString()}</span>
+                                        </div>
+                                        <div class="text-white mb-2">
+                                            <h6 class="mb-1 brand-accent text-uppercase small fw-bold">${multa.tipo.replace("_", " ")}</h6>
+                                            <p class="mb-2 small text-white-50">Lit. ${multa.literal}</p>
+                                        </div>
+                                        <div class="d-flex gap-2 justify-content-end">
+                                            <button class="btn btn-secondary-glass btn-sm" onclick="editarMulta('${doc.id}', '${equipoId}')">
+                                                <i class="fas fa-edit me-1 text-info"></i> Editar
+                                            </button>
+                                            <button class="btn btn-secondary-glass btn-sm" onclick="eliminarMulta('${doc.id}', '${equipoId}')">
+                                                <i class="fas fa-trash me-1 text-danger"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 `;
-                                totalMultas += multa.montoMulta;
-                            }
-                        });
-                        mensaje += `<br><strong>Total de multas pendientes: $${totalMultas}</strong>`;
-                    }
-
-                    Swal.fire({
-                        title: 'Multas del Equipo',
-                        html: mensaje,
-                        icon: 'info',
-                        width: '600px'
-                    });
-                })
-                .catch(error => {
-                    console.error('Error al cargar multas:', error);
-                    Swal.fire('Error', 'No se pudieron cargar las multas', 'error');
-                });
-        }
-
-        // Editar multa
-        function editarMulta(multaId, equipoId) {
-            Swal.close(); // Cierra el modal de detalles antes de abrir el de edición
-            db.collection('sanciones').doc(multaId).get().then(doc => {
-                if (doc.exists) {
-                    const multa = doc.data();
-                    document.getElementById('multaJugadorId').value = equipoId;
-                    document.getElementById('tipoMulta').value = multa.tipo;
-                    actualizarLiteralesMulta();
-                    document.getElementById('multaArticulo').value = multa.articulo;
-                    document.getElementById('multaLiteral').value = multa.literal;
-                    document.getElementById('multaModal').setAttribute('data-edit-id', multaId);
-                    const modal = new bootstrap.Modal(document.getElementById('multaModal'));
-                    modal.show();
+                  totalMultas += multa.montoMulta;
                 }
-            });
-        }
+              });
+              mensaje += `<div class="mt-4 p-3 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0 text-white-50 fw-bold">TOTAL PENDIENTE:</h5>
+                                        <h4 class="mb-0 text-danger fw-bold">$${totalMultas}</h4>
+                                     </div>`;
+            }
 
-        // Eliminar multa
-        function eliminarMulta(multaId, equipoId) {
             Swal.fire({
-                title: '¿Eliminar multa?',
-                text: 'Esta acción no se puede deshacer',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    db.collection('sanciones').doc(multaId).delete().then(() => {
-                        Swal.fire('Eliminada', 'La multa ha sido eliminada', 'success').then(() => {
-                            mostrarEquipos(campeonatoActual, document.getElementById('equiposTitulo').textContent.replace('Equipos - ', ''));
-                        });
-                    });
-                }
+              title: "Multas del Equipo",
+              html: `<div style="text-align: left; color: #ccc;">${mensaje}</div>`,
+              icon: "info",
+              width: "600px",
+            });
+          })
+          .catch((error) => {
+            console.error("Error al cargar multas:", error);
+            Swal.fire("Error", "No se pudieron cargar las multas", "error");
+          });
+      }
+
+      // Editar multa
+      function editarMulta(multaId, equipoId) {
+        Swal.close(); // Cierra el modal de detalles antes de abrir el de edición
+        db.collection("sanciones")
+          .doc(multaId)
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+              const multa = doc.data();
+              document.getElementById("multaJugadorId").value = equipoId;
+              document.getElementById("tipoMulta").value = multa.tipo;
+              actualizarLiteralesMulta();
+              document.getElementById("multaArticulo").value = multa.articulo;
+              document.getElementById("multaLiteral").value = multa.literal;
+              document
+                .getElementById("multaModal")
+                .setAttribute("data-edit-id", multaId);
+              const modal = new bootstrap.Modal(
+                document.getElementById("multaModal"),
+              );
+              modal.show();
+            }
+          });
+      }
+
+      // Eliminar multa
+      function eliminarMulta(multaId, equipoId) {
+        Swal.fire({
+          title: "¿Eliminar multa?",
+          text: "Esta acción no se puede deshacer",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            db.collection("sanciones")
+              .doc(multaId)
+              .delete()
+              .then(() => {
+                Swal.fire(
+                  "Eliminada",
+                  "La multa ha sido eliminada",
+                  "success",
+                ).then(() => {
+                  mostrarEquipos(
+                    campeonatoActual,
+                    document
+                      .getElementById("equiposTitulo")
+                      .textContent.replace("Equipos - ", ""),
+                  );
+                });
+              });
+          }
+        });
+      }
+
+      // Modifico aplicarMulta para soportar edición y recargar solo la sección
+      function aplicarMulta() {
+        const equipoId = document.getElementById("multaJugadorId").value;
+        const tipo = document.getElementById("tipoMulta").value;
+        const articulo = document.getElementById("multaArticulo").value;
+        const literal = document.getElementById("multaLiteral").value;
+        const editId = document
+          .getElementById("multaModal")
+          .getAttribute("data-edit-id");
+
+        if (!tipo) {
+          Swal.fire("Error", "Seleccione el tipo de multa", "error");
+          return;
+        }
+
+        if (!literal) {
+          Swal.fire("Error", "Seleccione un literal", "error");
+          return;
+        }
+
+        const montos = {
+          a: 10, // Primera vez - Tarjeta amarilla a la barra
+          b: 20, // Primera vez - Tarjeta roja a la barra
+          c: 20, // Segunda vez - Tarjeta amarilla a la barra
+          d: 30, // Segunda vez - Tarjeta roja a la barra
+          e: 30, // Tercera vez en adelante - Tarjeta amarilla a la barra
+          f: 40, // Tercera vez en adelante - Tarjeta roja a la barra
+          g: 10, // No presentación
+          h: 5, // Primera vez - No vocal
+          i: 10, // Segunda vez en adelante - No vocal
+          j: 5, // Primera vez - No veedor
+          k: 10, // Segunda vez en adelante - No veedor
+        };
+
+        const montoMulta = montos[literal] || 0;
+
+        const sancion = {
+          equipoId,
+          tipo,
+          fecha: firebase.firestore.Timestamp.now(),
+          estado: "activa",
+          campeonatoId: campeonatoActual,
+          montoMulta,
+          articulo,
+          literal,
+        };
+
+        const modalElement = document.getElementById("multaModal");
+        if (editId) {
+          db.collection("sanciones")
+            .doc(editId)
+            .update(sancion)
+            .then(() => {
+              Swal.fire({
+                title: "Éxito",
+                text: `Multa editada correctamente\nMonto: $${montoMulta}`,
+                icon: "success",
+              }).then(() => {
+                mostrarEquipos(
+                  campeonatoActual,
+                  document
+                    .getElementById("equiposTitulo")
+                    .textContent.replace("Equipos - ", ""),
+                );
+              });
+              modalElement.removeAttribute("data-edit-id");
+              bootstrap.Modal.getInstance(modalElement).hide();
+            });
+        } else {
+          db.collection("sanciones")
+            .add(sancion)
+            .then(() => {
+              Swal.fire({
+                title: "Éxito",
+                text: `Multa aplicada correctamente\nMonto: $${montoMulta}`,
+                icon: "success",
+              }).then(() => {
+                mostrarEquipos(
+                  campeonatoActual,
+                  document
+                    .getElementById("equiposTitulo")
+                    .textContent.replace("Equipos - ", ""),
+                );
+              });
+              bootstrap.Modal.getInstance(modalElement).hide();
+            })
+            .catch((error) => {
+              console.error("Error al aplicar multa:", error);
+              Swal.fire("Error", "No se pudo aplicar la multa", "error");
             });
         }
-
-        // Modifico aplicarMulta para soportar edición y recargar solo la sección
-        function aplicarMulta() {
-            const equipoId = document.getElementById('multaJugadorId').value;
-            const tipo = document.getElementById('tipoMulta').value;
-            const articulo = document.getElementById('multaArticulo').value;
-            const literal = document.getElementById('multaLiteral').value;
-            const editId = document.getElementById('multaModal').getAttribute('data-edit-id');
-
-            if (!tipo) {
-                Swal.fire('Error', 'Seleccione el tipo de multa', 'error');
-                return;
-            }
-
-            if (!literal) {
-                Swal.fire('Error', 'Seleccione un literal', 'error');
-                return;
-            }
-
-            const montos = {
-                'a': 10, // Primera vez - Tarjeta amarilla a la barra
-                'b': 20, // Primera vez - Tarjeta roja a la barra
-                'c': 20, // Segunda vez - Tarjeta amarilla a la barra
-                'd': 30, // Segunda vez - Tarjeta roja a la barra
-                'e': 30, // Tercera vez en adelante - Tarjeta amarilla a la barra
-                'f': 40, // Tercera vez en adelante - Tarjeta roja a la barra
-                'g': 10, // No presentación
-                'h': 5,  // Primera vez - No vocal
-                'i': 10, // Segunda vez en adelante - No vocal
-                'j': 5,  // Primera vez - No veedor
-                'k': 10  // Segunda vez en adelante - No veedor
-            };
-
-            const montoMulta = montos[literal] || 0;
-
-            const sancion = {
-                equipoId,
-                tipo,
-                fecha: firebase.firestore.Timestamp.now(),
-                estado: 'activa',
-                campeonatoId: campeonatoActual,
-                montoMulta,
-                articulo,
-                literal
-            };
-
-            const modalElement = document.getElementById('multaModal');
-            if (editId) {
-                db.collection('sanciones').doc(editId).update(sancion).then(() => {
-                    Swal.fire({
-                        title: 'Éxito',
-                        text: `Multa editada correctamente\nMonto: $${montoMulta}`,
-                        icon: 'success'
-                    }).then(() => {
-                        mostrarEquipos(campeonatoActual, document.getElementById('equiposTitulo').textContent.replace('Equipos - ', ''));
-                    });
-                    modalElement.removeAttribute('data-edit-id');
-                    bootstrap.Modal.getInstance(modalElement).hide();
-                });
-            } else {
-                db.collection('sanciones').add(sancion)
-                    .then(() => {
-                        Swal.fire({
-                            title: 'Éxito',
-                            text: `Multa aplicada correctamente\nMonto: $${montoMulta}`,
-                            icon: 'success'
-                        }).then(() => {
-                            mostrarEquipos(campeonatoActual, document.getElementById('equiposTitulo').textContent.replace('Equipos - ', ''));
-                        });
-                        bootstrap.Modal.getInstance(modalElement).hide();
-                    })
-                    .catch(error => {
-                        console.error('Error al aplicar multa:', error);
-                        Swal.fire('Error', 'No se pudo aplicar la multa', 'error');
-                    });
-            }
-        }
+      }
     </script>
-</body>
-</html> 
+  </body>
+</html>
+
+
+
+

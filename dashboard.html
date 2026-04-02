@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/responsive.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- SweetAlert2 -->
+    <script src="js/global-swal-patch.js"></script>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
@@ -19,119 +19,86 @@
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-storage.js"></script>
 
+    <!-- Report Exports (SheetJS) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <!-- Font Awesome -->
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
-
-    <!-- SheetJS para Excel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-    <style>
-      body {
-        background-color: #f1f1f1;
-        font-family: "Times New Roman", Times, serif;
-      }
-      .navbar {
-        background-color: #000;
-      }
-      .navbar-brand {
-        font-weight: bold;
-        font-size: 1.5rem;
-        color: #fff !important;
-      }
-      .logout-btn {
-        background-color: #28a745;
-        border: none;
-        color: white;
-        padding: 6px 16px;
-        border-radius: 5px;
-        transition: background-color 0.3s ease;
-      }
-      .logout-btn:hover {
-        background-color: #28a745;
-      }
-      .btn-success {
-        background-color: #28a745;
-        border-color: #28a745;
-      }
-      .btn-success:hover {
-        background-color: #28a745;
-      }
-      .card {
-        transition: transform 0.2s ease-in-out;
-        border-radius: 1rem;
-      }
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      }
-      .card-title {
-        color: #28a745;
-        font-weight: 600;
-      }
-      .modal-header {
-        background-color: #28a745;
-        color: white;
-        border-top-left-radius: 0.5rem;
-        border-top-right-radius: 0.5rem;
-      }
-      .btn-primary {
-        background-color: #28a745;
-        border-color: #28a745;
-      }
-      .btn-primary:hover {
-        background-color: #28a745;
-      }
-    </style>
+    <link rel="icon" href="img/logo.png" />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="stylesheet" href="css/global-theme.css" />
   </head>
   <body>
     <!-- Header -->
-    <nav
-      class="navbar navbar-expand-lg shadow-sm px-4"
-      style="background-color: #28a745"
-    >
-      <div class="container-fluid">
+    <!-- Main Background -->
+    <div class="main-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="nav-premium shadow-sm">
+      <div
+        class="container-fluid d-flex justify-content-between align-items-center"
+      >
         <a
           class="navbar-brand text-white fw-bold d-flex align-items-center"
-          href="#"
+          href="index.html"
         >
           <img
             src="img/logo.png"
             alt="Logo"
-            width="30"
-            height="30"
-            class="me-2"
+            width="40"
+            height="40"
+            class="me-3"
           />
-          LIGA BARRIAL ARGELIA ALTA
+          <div class="brand-text d-flex flex-column">
+            <span class="fs-5 lh-1">LDBAA</span>
+            <span class="brand-accent small lh-1">ARGELIA ALTA</span>
+          </div>
         </a>
-        <button
-          class="btn btn-xs btn-danger ms-auto text-white fw-semibold"
-          onclick="logout()"
-          style="border-radius: 50px"
-        >
-          <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
-        </button>
+        <div class="nav-actions d-flex gap-3 align-items-center">
+          <button
+            class="btn btn-secondary-glass d-none d-md-flex align-items-center gap-2"
+            onclick="exportarJugadoresExcel()"
+          >
+            <i class="fas fa-file-excel text-success"></i>
+            <span>Reporte Global</span>
+          </button>
+          <button class="btn btn-logout" onclick="logout()">
+            <i class="fas fa-power-off me-2"></i> <span>Salir</span>
+          </button>
+        </div>
       </div>
     </nav>
 
-    <div class="container mt-4">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="text-dark">🏆 Campeonatos</h3>
-        <div>
-          <!-- <button
-            class="btn btn-primary shadow me-2"
-            onclick="exportarJugadoresExcel()"
-          >
-            <i class="fas fa-file-excel me-2"></i>Exportar Jugadores
-          </button> -->
+    <div class="container py-5">
+      <div class="text-center mb-5 mt-4">
+        <p
+          class="text-uppercase tracking-widest text-white-50 mb-2 fw-bold"
+          style="letter-spacing: 3px; font-size: 0.8rem"
+        >
+          Panel de Administración
+        </p>
+        <h1 class="section-title">
+          Gestión de <span class="brand-accent">Campeonatos</span>
+        </h1>
+        <p
+          class="text-white-50 mx-auto"
+          style="max-width: 600px; font-size: 1.1rem"
+        >
+          Bienvenido al centro de control. Administra los torneos vigentes de la
+          liga Argelia Alta.
+        </p>
+
+        <div class="mt-5">
           <button
-            class="btn btn-success shadow"
+            class="btn-premium px-5 py-3"
             data-bs-toggle="modal"
             data-bs-target="#addChampionshipModal"
           >
-            + Crear Campeonato
+            <i class="fas fa-plus-circle fa-lg"></i> CREAR NUEVO CAMPEONATO
           </button>
         </div>
       </div>
@@ -153,9 +120,10 @@
       <div class="modal-dialog">
         <div class="modal-content shadow">
           <form id="championshipForm">
-            <div class="modal-header bg-success text-white">
+            <div class="modal-header">
               <h5 class="modal-title" id="addChampionshipModalLabel">
-                Crear Nuevo Campeonato
+                <i class="fas fa-plus-circle me-2 brand-accent"></i>Crear Nuevo
+                Campeonato
               </h5>
               <button
                 type="button"
@@ -164,15 +132,16 @@
                 aria-label="Cerrar"
               ></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
               <div class="mb-3">
                 <label for="championshipName" class="form-label"
                   >Nombre del Campeonato</label
                 >
                 <input
                   type="text"
-                  class="form-control"
+                  class="glass-input"
                   id="championshipName"
+                  placeholder="Ej: Copa Renacer"
                   required
                 />
               </div>
@@ -180,7 +149,7 @@
                 <label for="championshipYear" class="form-label">Año</label>
                 <input
                   type="number"
-                  class="form-control"
+                  class="glass-input"
                   id="championshipYear"
                   required
                   min="2024"
@@ -192,7 +161,7 @@
                   >Descripción</label
                 >
                 <textarea
-                  class="form-control"
+                  class="glass-input"
                   id="championshipDescription"
                   rows="3"
                 ></textarea>
@@ -203,7 +172,7 @@
                 >
                 <input
                   type="datetime-local"
-                  class="form-control"
+                  class="glass-input"
                   id="championshipDeadline"
                 />
               </div>
@@ -212,7 +181,7 @@
                   >Mensaje Cuenta Regresiva</label
                 >
                 <textarea
-                  class="form-control"
+                  class="glass-input"
                   id="championshipCountdownMessage"
                   rows="2"
                   placeholder="Ej: Tienes hasta el [fecha] para completar la carnetización."
@@ -223,16 +192,19 @@
                   >Mensaje de Expiración</label
                 >
                 <textarea
-                  class="form-control"
+                  class="glass-input"
                   id="championshipExpiredMessage"
                   rows="2"
                   placeholder="Ej: La fecha de carnetización ha terminado."
                 ></textarea>
               </div>
             </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-success w-100">
-                Crear Campeonato
+            <div class="modal-footer border-0">
+              <button
+                type="submit"
+                class="btn-premium w-100 justify-content-center"
+              >
+                <i class="fas fa-save"></i> Guardar Campeonato
               </button>
             </div>
           </form>
@@ -251,9 +223,9 @@
       <div class="modal-dialog">
         <div class="modal-content shadow">
           <form id="editChampionshipForm">
-            <div class="modal-header bg-success text-white">
+            <div class="modal-header">
               <h5 class="modal-title" id="editChampionshipModalLabel">
-                Editar Campeonato
+                <i class="fas fa-edit me-2 brand-accent"></i>Editar Campeonato
               </h5>
               <button
                 type="button"
@@ -262,7 +234,7 @@
                 aria-label="Cerrar"
               ></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
               <input type="hidden" id="editChampionshipId" />
               <div class="mb-3">
                 <label for="editChampionshipName" class="form-label"
@@ -270,7 +242,7 @@
                 >
                 <input
                   type="text"
-                  class="form-control"
+                  class="glass-input"
                   id="editChampionshipName"
                   required
                 />
@@ -279,7 +251,7 @@
                 <label for="editChampionshipYear" class="form-label">Año</label>
                 <input
                   type="number"
-                  class="form-control"
+                  class="glass-input"
                   id="editChampionshipYear"
                   required
                   min="2024"
@@ -291,7 +263,7 @@
                   >Descripción</label
                 >
                 <textarea
-                  class="form-control"
+                  class="glass-input"
                   id="editChampionshipDescription"
                   rows="3"
                 ></textarea>
@@ -302,7 +274,7 @@
                 >
                 <input
                   type="datetime-local"
-                  class="form-control"
+                  class="glass-input"
                   id="editChampionshipDeadline"
                 />
               </div>
@@ -311,7 +283,7 @@
                   >Mensaje Cuenta Regresiva</label
                 >
                 <textarea
-                  class="form-control"
+                  class="glass-input"
                   id="editChampionshipCountdownMessage"
                   rows="2"
                   placeholder="Ej: Tienes hasta el [fecha] para completar la carnetización."
@@ -322,16 +294,19 @@
                   >Mensaje de Expiración</label
                 >
                 <textarea
-                  class="form-control"
+                  class="glass-input"
                   id="editChampionshipExpiredMessage"
                   rows="2"
                   placeholder="Ej: La fecha de carnetización ha terminado."
                 ></textarea>
               </div>
             </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-success w-100">
-                Guardar Cambios
+            <div class="modal-footer border-0">
+              <button
+                type="submit"
+                class="btn-premium w-100 justify-content-center"
+              >
+                <i class="fas fa-save"></i> Guardar Cambios
               </button>
             </div>
           </form>
@@ -416,9 +391,9 @@
             Swal.fire(
               "Error",
               "Error al actualizar los equipos en tiempo real",
-              "error"
+              "error",
             );
-          }
+          },
         );
       }
 
@@ -458,26 +433,26 @@
         const card = document.createElement("div");
         card.className = "col-md-4 mb-4";
         card.innerHTML = `
-        <div class="card shadow-sm border-0 h-100">
-          <img src="${team.logo}" class="card-img-top p-3" alt="Logo del equipo" style="height: 200px; object-fit: contain;">
-          <div class="card-body text-center">
-            <h5 class="card-title">${team.name}</h5>
-            <p class="card-text"><strong>Categoría:</strong> ${team.category}</p>
-            <div class="btn-group">
-              <button class="btn btn-info btn-sm me-2" onclick="gestionarArchivos('${team.id}', '${team.name}')">
-                <i class="fas fa-file-alt"></i> Gestionar Archivos
+        <div class="glass-card">
+          <img src="${team.logo}" class="mb-3" alt="Logo" style="height: 120px; object-fit: contain;">
+          <h5 class="fw-bold mb-2">${team.name}</h5>
+          <p class="text-white-50 small mb-4">Categoría: ${team.category}</p>
+          <div class="d-grid gap-2 w-100">
+            <button class="btn btn-secondary-glass btn-sm" onclick="gestionarArchivos('${team.id}', '${team.name}')">
+              <i class="fas fa-file-alt"></i> Archivos
+            </button>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-warning border-0 flex-grow-1" style="background: rgba(243, 156, 18, 0.1);" onclick="resetAdminKey('${team.id}')">
+                <i class="fas fa-key"></i>
               </button>
-              <button class="btn btn-warning btn-sm me-2" onclick="resetAdminKey('${team.id}')">
-                <i class="fas fa-key"></i> Resetear Clave
-              </button>
-              <button class="btn btn-danger btn-sm" onclick="deleteTeam('${team.id}')">
-                <i class="fas fa-trash"></i> Eliminar
+              <button class="btn btn-outline-danger border-0 flex-grow-1" style="background: rgba(231, 76, 60, 0.1);" onclick="deleteTeam('${team.id}')">
+                <i class="fas fa-trash"></i>
               </button>
             </div>
           </div>
         </div>
       `;
-        teamCardsContainer.appendChild(card);
+        document.getElementById("championshipCardsContainer").appendChild(card);
       }
 
       function deleteTeam(teamId) {
@@ -498,7 +473,6 @@
                   title: "Eliminado",
                   text: "El equipo ha sido eliminado.",
                   icon: "success",
-                  confirmButtonColor: "#28a745",
                 }).then(() => {
                   location.reload();
                 });
@@ -508,7 +482,7 @@
                 Swal.fire(
                   "Error",
                   "No se pudo eliminar el equipo. Por favor, intenta de nuevo.",
-                  "error"
+                  "error",
                 );
               });
           }
@@ -538,7 +512,6 @@
                   title: "¡Clave reseteada!",
                   text: "La clave ha sido eliminada. Se solicitará una nueva clave la próxima vez que se acceda al registro de jugadores.",
                   icon: "success",
-                  confirmButtonColor: "#28a745",
                 });
               })
               .catch((error) => {
@@ -546,7 +519,7 @@
                 Swal.fire(
                   "Error",
                   "No se pudo resetear la clave. Por favor, intenta de nuevo.",
-                  "error"
+                  "error",
                 );
               });
           }
@@ -573,7 +546,6 @@
                   title: "¡Sesión cerrada!",
                   text: "Has cerrado sesión correctamente.",
                   icon: "success",
-                  confirmButtonColor: "#28a745",
                 }).then(() => {
                   window.location.href = "login.html";
                 });
@@ -583,7 +555,7 @@
                 Swal.fire(
                   "Error",
                   "No se pudo cerrar la sesión. Por favor, intenta de nuevo.",
-                  "error"
+                  "error",
                 );
               });
           }
@@ -596,19 +568,18 @@
         auth.onAuthStateChanged((user) => {
           if (user && user.email === "admin@gmail.com") {
             document.getElementById("teamIdArchivos").value = teamId;
-            document.getElementById(
-              "modalGestionarArchivosLabel"
-            ).textContent = `Gestionar Archivos - ${teamName}`;
+            document.getElementById("modalGestionarArchivosLabel").textContent =
+              `Gestionar Archivos - ${teamName}`;
             cargarArchivos(teamId);
             const modal = new bootstrap.Modal(
-              document.getElementById("modalGestionarArchivos")
+              document.getElementById("modalGestionarArchivos"),
             );
             modal.show();
           } else {
             Swal.fire(
               "Error",
               "No tienes permisos para gestionar archivos",
-              "error"
+              "error",
             );
           }
         });
@@ -738,7 +709,7 @@
             Swal.fire(
               "Error",
               "No se pudieron cargar los campeonatos",
-              "error"
+              "error",
             );
           });
       }
@@ -748,22 +719,26 @@
         const card = document.createElement("div");
         card.className = "col-md-4 mb-4";
         card.innerHTML = `
-          <div class="card shadow-sm border-0 h-100">
-            <div class="card-body text-center">
-              <h4 class="card-title mb-3">${championship.name}</h4>
-              <p class="card-text text-muted mb-3">${
-                championship.description || "Sin descripción"
-              }</p>
-              <div class="d-grid gap-2">
-                <a href="championship-teams.html?id=${id}" class="btn btn-success">
-                  <i class="fas fa-trophy me-2"></i>Abrir Campeonato
+          <div class="glass-card">
+            <div class="text-center w-100">
+              <div class="mb-4">
+                <i class="fas fa-trophy text-warning fa-4x mb-2" style="filter: drop-shadow(0 0 10px rgba(241, 196, 15, 0.3));"></i>
+              </div>
+              <h3 class="fw-bold mb-2">${championship.name}</h3>
+              <p class="text-white-50 mb-4 px-3" style="font-size: 0.95rem;">${championship.description || "Inicia tu gestión en este campeonato."}</p>
+              
+              <div class="d-grid gap-3 w-100 mt-2">
+                <a href="championship-teams.html?id=${id}" class="btn-premium justify-content-center py-3">
+                  <i class="fas fa-sign-in-alt me-2"></i> ENTRAR AL PANEL
                 </a>
-                <button class="btn btn-info" onclick="editChampionship('${id}')">
-                  <i class="fas fa-edit me-2"></i>Editar
-                </button>
-                <button class="btn btn-danger" onclick="deleteChampionship('${id}')">
-                  <i class="fas fa-trash me-2"></i>Eliminar
-                </button>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-secondary-glass flex-grow-1" onclick="editChampionship('${id}')">
+                    <i class="fas fa-cog me-1"></i> Configurar
+                  </button>
+                  <button class="btn btn-outline-danger border-0 flex-shrink-0 px-3" style="background: rgba(231, 76, 60, 0.1);" onclick="deleteChampionship('${id}')">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -778,7 +753,7 @@
           e.preventDefault();
 
           const deadline = document.getElementById(
-            "championshipDeadline"
+            "championshipDeadline",
           ).value;
 
           const championshipData = {
@@ -810,11 +785,10 @@
                 title: "Éxito",
                 text: "Campeonato creado correctamente",
                 icon: "success",
-                confirmButtonColor: "#28a745",
               });
               document.getElementById("championshipForm").reset();
               const modal = bootstrap.Modal.getInstance(
-                document.getElementById("addChampionshipModal")
+                document.getElementById("addChampionshipModal"),
               );
               modal.hide();
               loadChampionships();
@@ -862,18 +836,18 @@
           window.originalDeadline = championship.deadline;
 
           const modal = new bootstrap.Modal(
-            document.getElementById("editChampionshipModal")
+            document.getElementById("editChampionshipModal"),
           );
           modal.show();
         } catch (error) {
           console.error(
             "Error al cargar datos del campeonato para edición:",
-            error
+            error,
           );
           Swal.fire(
             "Error",
             "No se pudieron cargar los datos del campeonato para edición",
-            "error"
+            "error",
           );
         }
       }
@@ -886,14 +860,14 @@
 
           const id = document.getElementById("editChampionshipId").value;
           const newDeadline = document.getElementById(
-            "editChampionshipDeadline"
+            "editChampionshipDeadline",
           ).value;
           const originalDeadline = window.originalDeadline;
 
           const updatedData = {
             name: document.getElementById("editChampionshipName").value,
             year: parseInt(
-              document.getElementById("editChampionshipYear").value
+              document.getElementById("editChampionshipYear").value,
             ),
             description: document.getElementById("editChampionshipDescription")
               .value,
@@ -930,10 +904,9 @@
                 title: "Éxito",
                 text: message,
                 icon: "success",
-                confirmButtonColor: "#28a745",
               });
               const modal = bootstrap.Modal.getInstance(
-                document.getElementById("editChampionshipModal")
+                document.getElementById("editChampionshipModal"),
               );
               modal.hide();
               loadChampionships(); // Recargar la lista de campeonatos
@@ -943,7 +916,7 @@
               Swal.fire(
                 "Error",
                 "No se pudo actualizar el campeonato",
-                "error"
+                "error",
               );
             });
         });
@@ -955,8 +928,6 @@
           text: "Este campeonato será eliminado permanentemente",
           icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#3085d6",
           confirmButtonText: "Sí, eliminar",
           cancelButtonText: "Cancelar",
         }).then((result) => {
@@ -968,7 +939,7 @@
                 Swal.fire(
                   "Eliminado",
                   "El campeonato ha sido eliminado",
-                  "success"
+                  "success",
                 );
                 loadChampionships();
               })
@@ -977,7 +948,7 @@
                 Swal.fire(
                   "Error",
                   "No se pudo eliminar el campeonato",
-                  "error"
+                  "error",
                 );
               });
           }
@@ -1003,7 +974,7 @@
             Swal.fire(
               "Error",
               "No hay jugadores registrados para exportar",
-              "error"
+              "error",
             );
             return;
           }
@@ -1044,7 +1015,6 @@
             title: "¡Éxito!",
             text: "El reporte de jugadores ha sido generado correctamente.",
             icon: "success",
-            confirmButtonColor: "#28a745",
           });
         } catch (error) {
           console.error("Error al exportar a Excel:", error);

@@ -1,409 +1,115 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dashboard de Programación | Liga Barrial</title>
+    <title>Dashboard de Programación | Liga Barrial LDBAA</title>
+
+    <!-- Bootstrap 5 -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/responsive.css" />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    />
+
+    <link rel="icon" href="img/logo.png" />
+    <link rel="stylesheet" href="css/global-theme.css" />
+    <link rel="stylesheet" href="css/programacion-dashboard.css" />
+
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <script src="js/global-swal-patch.js"></script>
 
     <style>
+      /* Page-specific overrides */
       body {
-        background-color: #f1f1f1;
-        font-family: 'Times New Roman', Times, serif;
-      }
-      .navbar {
-        background-color: #28a745;
-      }
-      .navbar-brand {
-        font-weight: bold;
-        font-size: 1.5rem;
-        color: #fff !important;
-      }
-      .card {
-        transition: transform 0.2s ease-in-out;
-        border-radius: 1rem;
-      }
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      }
-      .card-title {
-        color: #28a745;
-        font-weight: 600;
-      }
-      .modal-header {
-        background-color: #28a745;
-        color: white;
-        border-top-left-radius: 0.5rem;
-        border-top-right-radius: 0.5rem;
-      }
-      .table-container {
-        overflow-x: auto;
-      }
-      .category-tabs {
-        margin-bottom: 20px;
-      }
-      .category-tabs .nav-link {
-        color: #28a745;
-        border: 2px solid #28a745;
-        margin-right: 10px;
-        border-radius: 20px;
-      }
-      .category-tabs .nav-link.active {
-        background-color: #28a745;
-        color: white;
-      }
-      /* Mejora el modal de resultados */
-      #viewResultsModal .modal-content {
-        border-radius: 18px;
-        box-shadow: 0 8px 32px rgba(40, 167, 69, 0.15);
-        border: 2px solid #28a745;
-      }
-
-      #viewResultsModal .modal-header {
-        background: linear-gradient(90deg, #28a745 80%, #218838 100%);
-        color: #fff;
-        border-top-left-radius: 16px;
-        border-top-right-radius: 16px;
-        border-bottom: 1px solid #e9ecef;
-      }
-
-      #viewResultsModal .table {
-        border-radius: 16px;
-        overflow: hidden;
-        background: #fff;
-        margin-bottom: 0;
-        box-shadow: 0 2px 12px rgba(40, 167, 69, 0.08);
-      }
-
-      #viewResultsModal .table th, #viewResultsModal .table td {
-        text-align: center;
-        vertical-align: middle;
-        padding: 10px 8px;
-        font-size: 1.08em;
-        border: none;
-        white-space: nowrap;
-      }
-
-      #viewResultsModal .table th {
-        background: #eafaf1;
-        color: #218838;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-      }
-
-      #viewResultsModal .table tr {
-        transition: background 0.2s;
-      }
-
-      #viewResultsModal .table tr:hover {
-        background: #f3fdf7;
-      }
-
-      #viewResultsModal .btn-primary {
-        background: linear-gradient(90deg, #007bff 80%, #0056b3 100%);
-        border: none;
-        border-radius: 20px;
-        font-weight: 500;
-        padding: 4px 18px;
-        font-size: 0.95em;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-
-      #viewResultsModal .btn-primary i {
-        font-size: 1.1em;
-      }
-
-      #fechasCardsContainer .card {
-        border-radius: 1.2rem;
-        transition: transform 0.15s, box-shadow 0.15s;
-        box-shadow: 0 4px 18px rgba(40,167,69,0.10);
-        border: none;
-        background: #fff;
-      }
-      #fechasCardsContainer .card:hover {
-        transform: translateY(-6px) scale(1.04);
-        box-shadow: 0 12px 32px rgba(40,167,69,0.18);
-      }
-      #fechasCardsContainer .card-body {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 1.5rem 1rem;
-      }
-      #fechasCardsContainer .fecha-logo {
-        width: 48px;
-        height: 48px;
-        margin-bottom: 0.7rem;
-        border-radius: 50%;
-        background: #eafaf1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2rem;
-        color: #28a745;
-      }
-      #fechasCardsContainer .card-title {
-        font-size: 1.15rem;
-        font-weight: 600;
-        color: #218838;
-        margin-bottom: 0.5rem;
-      }
-      #fechasCardsContainer .btn-ver-partidos {
-        background: linear-gradient(90deg, #28a745 80%, #218838 100%);
-        color: #fff;
-        border: none;
-        border-radius: 20px;
-        font-weight: 500;
-        padding: 6px 20px;
-        font-size: 1em;
-        margin-top: 0.7rem;
-        transition: background 0.2s;
-      }
-      #fechasCardsContainer .btn-ver-partidos:hover {
-        background: linear-gradient(90deg, #218838 80%, #28a745 100%);
-        color: #fff;
-      }
-
-      /* --- BOTONES MODERNOS VERDE, BLANCO Y NEGRO --- */
-      .btn, .btn-primary, .btn-success, .btn-warning, .btn-outline-success, .btn-ver-partidos {
-        border-radius: 2rem !important;
-        border-width: 1.5px !important;
-        font-weight: 500;
-        box-shadow: 0 2px 8px rgba(40,167,69,0.08);
-        transition: background 0.18s, color 0.18s, box-shadow 0.18s, border 0.18s;
-        font-size: 1.02em;
-        padding: 0.45em 1.3em;
-      }
-      .btn-primary, .btn-success, .btn-ver-partidos {
-        background: #28a745;
-        color: #fff;
-        border: 1.5px solid #28a745;
-      }
-      .btn-primary:hover, .btn-success:hover, .btn-ver-partidos:hover, .btn-primary:focus, .btn-success:focus, .btn-ver-partidos:focus {
-        background: #fff;
-        color: #28a745;
-        border: 1.5px solid #28a745;
-        box-shadow: 0 4px 16px rgba(40,167,69,0.13);
-      }
-      .btn-warning {
-        background: #111;
-        color: #fff;
-        border: 1.5px solid #111;
-      }
-      .btn-warning:hover, .btn-warning:focus {
-        background: #fff;
-        color: #111;
-        border: 1.5px solid #111;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.13);
-      }
-      .btn-outline-success {
-        border: 1.5px solid #28a745 !important;
-        color: #28a745 !important;
-        background: #fff !important;
-      }
-      .btn-outline-success:hover {
-        background: #28a745 !important;
-        color: #fff !important;
-        box-shadow: 0 4px 16px rgba(40,167,69,0.13);
-      }
-      .btn-close {
-        filter: grayscale(0.5) brightness(0.8);
-        opacity: 0.7;
-        transition: opacity 0.15s;
-      }
-      .btn-close:hover {
-        opacity: 1;
-      }
-
-      /* --- MODALES MODERNOS VERDE, BLANCO Y NEGRO --- */
-      .modal-content {
-        border-radius: 1.3rem !important;
-        border: 1.5px solid #28a745 !important;
-        box-shadow: 0 8px 32px rgba(40, 167, 69, 0.10) !important;
-        background: #fff !important;
-        padding: 0.5rem 0.2rem;
-      }
-      .modal-header {
-        border-top-left-radius: 1.2rem !important;
-        border-top-right-radius: 1.2rem !important;
-        border-bottom: 1px solid #e9ecef !important;
-        padding-top: 1.1rem;
-        padding-bottom: 1.1rem;
-        background: #28a745 !important;
-        color: #fff !important;
-      }
-      .modal-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        color: #111;
-      }
-      .modal-footer {
-        border-bottom-left-radius: 1.2rem !important;
-        border-bottom-right-radius: 1.2rem !important;
-        padding-top: 0.8rem;
-        padding-bottom: 0.8rem;
-        background: #f8f9fa;
-      }
-      /* Sombra sutil para modales */
-      .modal-dialog {
-        box-shadow: 0 8px 32px rgba(40, 167, 69, 0.13) !important;
-      }
-
-      /* --- RESPONSIVE SM --- */
-      @media (max-width: 576px) {
-        .btn, .btn-primary, .btn-success, .btn-warning, .btn-outline-success, .btn-ver-partidos {
-          font-size: 0.98em;
-          padding: 0.38em 1em;
-        }
-        .modal-content {
-          border-radius: 0.9rem !important;
-          padding: 0.2rem 0.05rem;
-        }
-        .modal-header, .modal-footer {
-          border-radius: 0.9rem !important;
-          padding-top: 0.7rem;
-          padding-bottom: 0.7rem;
-        }
-        .modal-title {
-          font-size: 1.08rem;
-        }
-      }
-
-      /* --- EQUIPO: LOGO ARRIBA, NOMBRE DEBAJO, ESTILO MODERNO --- */
-      .team-cell {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-width: 70px;
-        padding: 0.2em 0.1em;
-      }
-      .team-logo-table {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid #28a74533;
-        background: #fff;
-        margin-bottom: 0.18em;
-        box-shadow: 0 2px 8px rgba(40,167,69,0.08);
-        transition: transform 0.18s;
-      }
-      .team-logo-table:hover {
-        transform: scale(1.08) rotate(-2deg);
-        box-shadow: 0 4px 16px rgba(40,167,69,0.13);
-      }
-      .team-name-table {
-        font-size: 0.98em;
-        font-weight: 500;
-        color: #222;
-        text-align: center;
         margin: 0;
-        line-height: 1.1;
-        letter-spacing: 0.01em;
-        word-break: break-word;
-        max-width: 80px;
+        overflow-x: hidden;
+        background-color: #0a0a0a; /* Fallback for white screen */
       }
-      @media (max-width: 576px) {
-        .team-logo-table {
-          width: 28px;
-          height: 28px;
-        }
-        .team-name-table {
-          font-size: 0.89em;
-          max-width: 60px;
-        }
-        .team-cell {
-          min-width: 48px;
-        }
-      }
-      /* --- TABLA DE PARTIDOS MODERNA --- */
-      #partidosPorFechaModal .table th, #partidosPorFechaModal .table td {
-        vertical-align: middle;
-        font-size: 1.01em;
-        border: none;
-      }
-      #partidosPorFechaModal .table tr {
-        transition: background 0.18s;
-      }
-      #partidosPorFechaModal .table tr:hover {
-        background: #f3fdf7;
-      }
-      /* --- BOTÓN EDITAR PEQUEÑO Y MODERNO --- */
-      .btn-editar-mini {
-        background: #28a745;
-        color: #fff;
-        border-radius: 1.2rem;
-        font-size: 0.93em;
-        padding: 0.22em 0.9em;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        border: 1.2px solid #28a745;
-        transition: background 0.15s, color 0.15s;
-      }
-      .btn-editar-mini:hover, .btn-editar-mini:focus {
-        background: #fff;
-        color: #28a745;
-        border: 1.2px solid #28a745;
+
+      /* Ensure logo isn't huge if CSS fails for a second */
+      .nav-logo img {
+        height: 40px !important;
+        width: auto !important;
       }
     </style>
   </head>
   <body>
-    <!-- Header -->
-    <nav class="navbar navbar-expand-lg shadow-sm px-4">
-      <div class="container-fluid">
-        <a class="navbar-brand text-white fw-bold d-flex align-items-center" href="dashboard.html">
-          <img src="img/logo.png" alt="Logo" width="30" height="30" class="me-2" />
-          LIGA BARRIAL ARGELIA ALTA
+    <!-- Persistent Background -->
+    <div class="main-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="nav-premium shadow-sm">
+      <div class="nav-content">
+        <a
+          class="navbar-brand text-white fw-bold d-flex align-items-center"
+          href="index.html"
+        >
+          <img
+            src="img/logo.png"
+            alt="Logo"
+            width="35"
+            height="35"
+            class="me-2"
+          />
+          <span
+            >LIGA BARRIAL <span class="brand-accent">ARGELIA ALTA</span></span
+          >
         </a>
-        <button class="btn btn-xs btn-danger ms-auto text-white fw-semibold" onclick="logout()" style="border-radius: 50px">
-          <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
+        <button class="btn-logout-premium" onclick="logout()">
+          <i class="fas fa-sign-out-alt me-2"></i><span>Cerrar Sesión</span>
         </button>
       </div>
     </nav>
 
-    <div class="container mt-5 d-flex justify-content-center align-items-center" style="min-height: 60vh;">
-      <div class="row w-100 justify-content-center">
-        <div class="col-md-5 mb-4">
-          <div class="card shadow-lg h-100" style="cursor:pointer;" onclick="window.location.href='tabla-posiciones.html'">
-            <div class="card-body text-center">
-              <i class="fas fa-list-ol fa-3x mb-3 text-success"></i>
-              <h4 class="card-title mb-3">Tabla de posiciones</h4>
-              <p class="card-text">Consulta la tabla de posiciones actualizada de cada categoría.</p>
-              <button class="btn btn-success mt-2">Ver tabla de posiciones</button>
-            </div>
+    <!-- Main Content -->
+    <div class="dashboard-container">
+      <div class="dashboard-grid">
+        <!-- Card 1: Posiciones -->
+        <div
+          class="dashboard-card"
+          onclick="window.location.href = 'tabla-posiciones.html'"
+        >
+          <div class="card-icon-wrapper">
+            <i class="fas fa-list-ol"></i>
           </div>
+          <h3>Tabla de Posiciones</h3>
+          <p>
+            Consulta el progreso, puntos y estadísticas detalladas de cada
+            categoría en tiempo real.
+          </p>
+          <div class="btn-secondary-glass mt-4 px-5">Explorar Tablas</div>
         </div>
-        <div class="col-md-5 mb-4">
-          <div class="card shadow-lg h-100" style="cursor:pointer;" onclick="window.location.href='programacion-fixture.html'">
-            <div class="card-body text-center">
-              <i class="fas fa-calendar-alt fa-3x mb-3 text-warning"></i>
-              <h4 class="card-title mb-3">Programación</h4>
-              <p class="card-text">Revisa la programación de partidos por fecha y categoría.</p>
-              <button class="btn btn-warning mt-2">Ver programación</button>
-            </div>
+
+        <!-- Card 2: Programación -->
+        <div
+          class="dashboard-card"
+          onclick="window.location.href = 'programacion-fixture.html'"
+        >
+          <div class="card-icon-wrapper">
+            <i class="fas fa-calendar-check"></i>
           </div>
+          <h3>Gestión de Fixture</h3>
+          <p>
+            Organiza fechas, horarios, vocalías y revisa la programación oficial
+            de los campeonatos.
+          </p>
+          <div class="btn-secondary-glass mt-4 px-5">Gestionar Fixture</div>
         </div>
       </div>
     </div>
 
-    <!-- Bootstrap y Firebase -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Firebase SDK (v8 Namespaced) -->
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
       // Configuración de Firebase
@@ -413,773 +119,44 @@
         projectId: "ldbaa-calificaciones",
         storageBucket: "ldbaa-calificaciones.firebasestorage.app",
         messagingSenderId: "277579489603",
-        appId: "1:277579489603:web:bc93c22fea5f5f6b63cff6"
+        appId: "1:277579489603:web:01a1cc9ee1c9538163cff6",
       };
 
       // Inicializar Firebase
       if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
       }
-
       const db = firebase.firestore();
       const auth = firebase.auth();
 
-      // Verificar autenticación
+      // Protección de ruta
       auth.onAuthStateChanged((user) => {
-        if (!user || user.email !== 'programacion@gmail.com') {
-          window.location.href = 'login.html';
+        if (!user || user.email !== "programacion@gmail.com") {
+          window.location.href = "login.html";
           return;
         }
-        loadChampionships();
       });
 
-      // Variables globales
-      let currentChampionship = null;
-      let currentCategory = 'maxima';
-      let currentMatch = null;
-      let allMatchesCache = []; // Guardar todos los partidos para filtrar sin recargar
-      let modalAnterior = null;
-      let navigatingToEdit = false;
-      let isSavingResult = false;
-      let originalMatchDate = null;
-
-      // Cargar campeonatos
-      function loadChampionships() {
-        const championshipSelect = document.getElementById('championshipSelect');
-        championshipSelect.innerHTML = '<option value="">Seleccionar un campeonato...</option>';
-
-        db.collection('championships').get().then((querySnapshot) => {
-          if (querySnapshot.empty) {
-            championshipSelect.innerHTML = '<option value="">No hay campeonatos disponibles</option>';
-            return;
-          }
-          querySnapshot.forEach((doc) => {
-            const championship = doc.data();
-            championship.id = doc.id;
-            const option = document.createElement('option');
-            option.value = doc.id;
-            option.textContent = `${championship.name}`;
-            championshipSelect.appendChild(option);
-          });
-          // Seleccionar el primer campeonato por defecto si hay alguno
-          if (championshipSelect.options.length > 1) {
-            championshipSelect.value = championshipSelect.options[1].value;
-            onChampionshipSelected();
-          }
-        }).catch(error => {
-          console.error("Error al cargar campeonatos:", error);
-          championshipSelect.innerHTML = '<option value="">Error al cargar campeonatos</option>';
-        });
-      }
-
-      // Función que se ejecuta al seleccionar un campeonato
-      function onChampionshipSelected() {
-        const championshipId = document.getElementById('championshipSelect').value;
-        console.log('Campeonato seleccionado ID:', championshipId);
-
-        if (!championshipId) {
-          // Limpiar las tablas si no hay campeonato seleccionado
-          document.getElementById('maximaTableBody').innerHTML = '';
-          document.getElementById('primeraTableBody').innerHTML = '';
-          document.getElementById('femeninoTableBody').innerHTML = '';
-          currentChampionship = null;
-          return;
-        }
-
-        db.collection('championships').doc(championshipId).get().then((doc) => {
-          if (doc.exists) {
-            currentChampionship = { id: doc.id, ...doc.data() };
-            console.log('Información del campeonato actual:', currentChampionship);
-            // Cargar los equipos para la categoría actual del campeonato seleccionado
-            loadTeamsForChampionship(currentChampionship.id, currentCategory);
-          } else {
-            Swal.fire('Error', 'Campeonato no encontrado', 'error');
-            currentChampionship = null;
-          }
-        }).catch(error => {
-          console.error("Error al obtener campeonato:", error);
-          Swal.fire('Error', 'No se pudo cargar la información del campeonato', 'error');
-          currentChampionship = null;
-        });
-      }
-
-      // Cargar equipos para un campeonato y categoría específica
-      function loadTeamsForChampionship(championshipId, category) {
-        console.log(`Cargando equipos para Campeonato ID: ${championshipId} y Categoría: ${category}`);
-        // Limpiar la tabla de la categoría actual
-        document.getElementById(`${category}TableBody`).innerHTML = '';
-
-        db.collection('teams')
-          .where('championshipId', '==', championshipId)
-          .get()
-          .then((querySnapshot) => {
-            let teams = [];
-            querySnapshot.forEach((doc) => {
-              const team = doc.data();
-              team.id = doc.id;
-              teams.push(team);
-            });
-            console.log('Equipos cargados desde Firestore (antes de filtrar por categoría):', teams);
-
-            // Filtramos por categoría en JavaScript, haciendo la comparación insensible a mayúsculas/minúsculas y a acentos
-            const filteredTeams = teams.filter(team => {
-              const teamCategory = team.category ? team.category.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase() : '';
-              const selectedCategory = category.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-              console.log(`Comparando equipo: ${team.name}, Categoría del equipo (normalizada): ${teamCategory}, Categoría seleccionada (normalizada): ${selectedCategory}`);
-              return teamCategory === selectedCategory;
-            });
-            console.log('Equipos filtrados por categoría:', filteredTeams);
-
-            // Ordenar equipos por puntos y diferencia de goles
-            filteredTeams.sort((a, b) => {
-              if (b.points !== a.points) return b.points - a.points;
-              return (b.goalsFor - b.goalsAgainst) - (a.goalsFor - a.goalsAgainst);
-            });
-
-            // Actualizar la tabla correspondiente
-            updateTable(category, filteredTeams);
-          }).catch(error => {
-            console.error("Error al cargar equipos:", error);
-            Swal.fire('Error', 'No se pudieron cargar los equipos', 'error');
-          });
-      }
-
-      // Actualizar tabla de posiciones
-      function updateTable(category, teams) {
-        const tableBody = document.getElementById(`${category}TableBody`);
-        if (!tableBody) return;
-
-        tableBody.innerHTML = teams.map((team, index) => `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${team.name}</td>
-            <td>${team.played || 0}</td>
-            <td>${team.won || 0}</td>
-            <td>${team.drawn || 0}</td>
-            <td>${team.lost || 0}</td>
-            <td>${team.goalsFor || 0}</td>
-            <td>${team.goalsAgainst || 0}</td>
-            <td>${(team.goalsFor || 0) - (team.goalsAgainst || 0)}</td>
-            <td>${team.points || 0}</td>
-          </tr>
-        `).join('');
-      }
-
-      // Función para actualizar resultados
-      function updateResults(teamId, championshipId, result) {
-        const batch = db.batch();
-        const teamRef = db.collection('teams').doc(teamId);
-        const championshipRef = db.collection('championships').doc(championshipId);
-
-        // Actualizar estadísticas del equipo
-        batch.update(teamRef, {
-          played: firebase.firestore.FieldValue.increment(1),
-          won: firebase.firestore.FieldValue.increment(result.won ? 1 : 0),
-          drawn: firebase.firestore.FieldValue.increment(result.drawn ? 1 : 0),
-          lost: firebase.firestore.FieldValue.increment(result.lost ? 1 : 0),
-          goalsFor: firebase.firestore.FieldValue.increment(result.goalsFor),
-          goalsAgainst: firebase.firestore.FieldValue.increment(result.goalsAgainst),
-          points: firebase.firestore.FieldValue.increment(result.points)
-        });
-
-        return batch.commit();
-      }
-
-      // Función para cerrar sesión
       function logout() {
         Swal.fire({
-          title: '¿Cerrar sesión?',
-          text: "¿Estás seguro de que deseas salir?",
-          icon: 'warning',
+          title: "¿Cerrar sesión?",
+          text: "¿Estás seguro de que deseas salir del sistema de programación?",
+          icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: '#28a745',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Sí, salir',
-          cancelButtonText: 'Cancelar'
+          confirmButtonText: "Sí, salir",
+          cancelButtonText: "Cancelar",
+          customClass: {
+            popup: "swal-premium",
+          },
         }).then((result) => {
           if (result.isConfirmed) {
             auth.signOut().then(() => {
-              window.location.href = 'login.html';
-            }).catch((error) => {
-              console.error("Error al cerrar sesión:", error);
-              Swal.fire('Error', 'No se pudo cerrar la sesión', 'error');
+              window.location.href = "login.html";
             });
           }
         });
       }
-
-      // Cargar equipos para el modal de resultados
-      function loadTeamsForResultModal(championshipId, category) {
-        console.log(`Cargando equipos para modal de resultados - Campeonato ID: ${championshipId}, Categoría: ${category}`);
-        const localTeamSelect = document.getElementById('localTeam');
-        const awayTeamSelect = document.getElementById('awayTeam');
-        
-        // Limpiar opciones actuales
-        localTeamSelect.innerHTML = '<option value="">Seleccionar equipo local</option>';
-        awayTeamSelect.innerHTML = '<option value="">Seleccionar equipo visitante</option>';
-
-        // Cargar equipos del campeonato actual
-        db.collection('teams')
-          .where('championshipId', '==', championshipId)
-          .get()
-          .then((querySnapshot) => {
-            let teams = [];
-            querySnapshot.forEach((doc) => {
-              const team = doc.data();
-              team.id = doc.id;
-              teams.push(team);
-            });
-            console.log('Equipos para modal cargados desde Firestore (antes de filtrar por categoría):', teams);
-
-            // Filtramos por categoría en JavaScript, haciendo la comparación insensible a mayúsculas/minúsculas y a acentos
-            const filteredTeams = teams.filter(team => {
-              const teamCategory = team.category ? team.category.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase() : '';
-              const selectedCategory = category.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-              console.log(`Modal - Comparando equipo: ${team.name}, Categoría del equipo (normalizada): ${teamCategory}, Categoría seleccionada (normalizada): ${selectedCategory}`);
-              return teamCategory === selectedCategory;
-            });
-            console.log('Modal - Equipos filtrados por categoría:', filteredTeams);
-
-            if (filteredTeams.length === 0) {
-              localTeamSelect.innerHTML = '<option value="">No hay equipos en esta categoría para el campeonato actual</option>';
-              awayTeamSelect.innerHTML = '<option value="">No hay equipos en esta categoría para el campeonato actual</option>';
-              return;
-            }
-            filteredTeams.forEach((team) => {
-              const option = `<option value="${team.id}">${team.name}</option>`;
-              localTeamSelect.innerHTML += option;
-              awayTeamSelect.innerHTML += option;
-            });
-          }).catch(error => {
-            console.error("Error al cargar equipos para el modal de resultados:", error);
-            Swal.fire('Error', 'No se pudieron cargar los equipos para el formulario de resultados', 'error');
-          });
-      }
-
-      // Guardar resultado
-      function saveResult() {
-        const localTeamId = document.getElementById('localTeam').value;
-        const awayTeamId = document.getElementById('awayTeam').value;
-        const localGoals = parseInt(document.getElementById('localGoals').value);
-        const awayGoals = parseInt(document.getElementById('awayGoals').value);
-        const matchDate = document.getElementById('matchDate').value;
-
-        if (!localTeamId || !awayTeamId || localTeamId === awayTeamId) {
-          Swal.fire('Error', 'Selecciona equipos diferentes', 'error');
-          return;
-        }
-
-        // Calcular puntos y estadísticas
-        const localResult = {
-          won: localGoals > awayGoals,
-          drawn: localGoals === awayGoals,
-          lost: localGoals < awayGoals,
-          goalsFor: localGoals,
-          goalsAgainst: awayGoals,
-          points: localGoals > awayGoals ? 3 : (localGoals === awayGoals ? 1 : 0)
-        };
-
-        const awayResult = {
-          won: awayGoals > localGoals,
-          drawn: localGoals === awayGoals,
-          lost: awayGoals < localGoals,
-          goalsFor: awayGoals,
-          goalsAgainst: localGoals,
-          points: awayGoals > localGoals ? 3 : (localGoals === awayGoals ? 1 : 0)
-        };
-
-        // Actualizar resultados
-        Promise.all([
-          updateResults(localTeamId, currentChampionship.id, localResult),
-          updateResults(awayTeamId, currentChampionship.id, awayResult)
-        ]).then(() => {
-          // Guardar el partido en la colección de partidos
-          const normalizedCategory = currentCategory.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-          db.collection('matches').add({
-            championshipId: currentChampionship.id,
-            category: normalizedCategory,
-            localTeamId,
-            awayTeamId,
-            localGoals,
-            awayGoals,
-            date: matchDate,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          }).then(() => {
-            Swal.fire({
-              title: 'Éxito',
-              text: 'Resultado guardado correctamente',
-              icon: 'success'
-            });
-            document.getElementById('resultForm').reset();
-            bootstrap.Modal.getInstance(document.getElementById('addResultModal')).hide();
-            loadChampionships();
-          });
-        }).catch((error) => {
-          console.error("Error al guardar resultado:", error);
-          Swal.fire('Error', 'No se pudo guardar el resultado', 'error');
-        });
-      }
-
-      // Cambiar de categoría
-      document.querySelectorAll('.category-tabs .nav-link').forEach(tab => {
-        tab.addEventListener('click', (e) => {
-          currentCategory = e.target.id.replace('-tab', '');
-          console.log('Pestaña de categoría seleccionada:', currentCategory);
-          if (currentChampionship) {
-            loadTeamsForChampionship(currentChampionship.id, currentCategory);
-            loadTeamsForResultModal(currentChampionship.id, currentCategory);
-          }
-        });
-      });
-
-      // Asegurarse de cargar los equipos en el modal cuando se abre
-      document.getElementById('addResultModal').addEventListener('show.bs.modal', () => {
-        if (currentChampionship) {
-          loadTeamsForResultModal(currentChampionship.id, currentCategory);
-          cargarFechasEnSelect(currentCategory, 'matchDate');
-        } else {
-          Swal.fire('Información', 'Por favor, selecciona un campeonato primero.', 'info');
-        }
-      });
-
-      // Cargar resultados de partidos
-      function loadMatchResults() {
-        if (!currentChampionship) {
-          Swal.fire('Información', 'Por favor, selecciona un campeonato primero.', 'info');
-          return;
-        }
-
-        const container = document.getElementById('fechasCardsContainer');
-        container.innerHTML = '<div class="text-center">Cargando fechas...</div>';
-
-        db.collection('matches')
-          .where('championshipId', '==', currentChampionship.id)
-          .where('category', '==', currentCategory)
-          .get()
-          .then((querySnapshot) => {
-            if (querySnapshot.empty) {
-              container.innerHTML = '<div class="text-center">No hay partidos registrados</div>';
-              return;
-            }
-
-            // Agrupar partidos por fecha
-            const partidosPorFecha = {};
-            querySnapshot.forEach((doc) => {
-              const match = doc.data();
-              const fecha = match.date || 'Sin fecha';
-              if (!partidosPorFecha[fecha]) partidosPorFecha[fecha] = [];
-              partidosPorFecha[fecha].push({ ...match, id: doc.id });
-            });
-
-            // Crear cards por cada fecha
-            container.innerHTML = '';
-            Object.keys(partidosPorFecha).forEach(fecha => {
-              const partidos = partidosPorFecha[fecha];
-              const card = document.createElement('div');
-              card.className = 'col-12 col-md-6 col-lg-4';
-              card.innerHTML = `
-                <div class="card shadow-sm h-100" style="cursor:pointer;" onclick="mostrarPartidosPorFecha('${fecha.replace(/'/g, "\\'")}')">
-                  <div class="card-body text-center">
-                    <h5 class="card-title mb-2">${fecha}</h5>
-                    <p class="card-text">${partidos.length} partido(s)</p>
-                    <button class="btn btn-outline-success btn-sm mt-2">Ver partidos</button>
-                  </div>
-                </div>
-              `;
-              container.appendChild(card);
-            });
-
-            // Guardar en global para acceso rápido
-            window._partidosPorFecha = partidosPorFecha;
-          })
-          .catch((error) => {
-            container.innerHTML = '<div class="text-danger text-center">Error al cargar resultados</div>';
-            Swal.fire('Error', 'No se pudieron cargar los resultados', 'error');
-          });
-      }
-
-      // Mostrar partidos de una fecha en el modal
-      function mostrarPartidosPorFecha(fecha) {
-        if (!currentChampionship) return;
-        db.collection('matches')
-          .where('championshipId', '==', currentChampionship.id)
-          .where('category', '==', currentCategory)
-          .where('date', '==', fecha)
-          .get()
-          .then(querySnapshot => {
-            const tbody = document.getElementById('partidosPorFechaTableBody');
-            tbody.innerHTML = '';
-            if (querySnapshot.empty) {
-              const tbody = document.getElementById('partidosPorFechaTableBody');
-              tbody.innerHTML = `
-                <tr>
-                  <td colspan="4" class="text-center text-muted">
-                    <i class="fas fa-info-circle fa-2x mb-2" style="color:#17a2b8;"></i><br>
-                    <strong>Información</strong><br>
-                    Aún no hay encuentros para esta fecha.
-                  </td>
-                </tr>
-              `;
-              // Mostrar el modal igualmente
-              document.getElementById('partidosPorFechaTitulo').textContent = `Partidos de ${fecha}`;
-              const modal = new bootstrap.Modal(document.getElementById('partidosPorFechaModal'));
-              modal.show();
-              return;
-            } else {
-              querySnapshot.forEach(doc => {
-                const match = doc.data();
-                Promise.all([
-                  db.collection('teams').doc(match.localTeamId).get(),
-                  db.collection('teams').doc(match.awayTeamId).get()
-                ]).then(([localTeamDoc, awayTeamDoc]) => {
-                  const localTeam = localTeamDoc.exists ? localTeamDoc.data() : { name: 'Desconocido' };
-                  const awayTeam = awayTeamDoc.exists ? awayTeamDoc.data() : { name: 'Desconocido' };
-                  const row = document.createElement('tr');
-                  row.innerHTML = `
-                    <td class="team-cell">
-                      <img src="${localTeam.logo || 'img/logo.png'}" alt="Logo Local" class="team-logo-table" />
-                      <div class="team-name-table">${localTeam.name}</div>
-                    </td>
-                    <td>${match.localGoals ?? '-'} - ${match.awayGoals ?? '-'}</td>
-                    <td class="team-cell">
-                      <img src="${awayTeam.logo || 'img/logo.png'}" alt="Logo Visitante" class="team-logo-table" />
-                      <div class="team-name-table">${awayTeam.name}</div>
-                    </td>
-                    <td>
-                      <button class="btn-editar-mini" onclick="abrirEdicionPartido('${doc.id}', '${localTeam.name}', '${awayTeam.name}', ${match.localGoals ?? 0}, ${match.awayGoals ?? 0}, '${fecha}')">
-                        <i class="fas fa-edit"></i> Editar
-                      </button>
-                    </td>
-                  `;
-                  tbody.appendChild(row);
-                });
-              });
-              // Mostrar el modal
-              document.getElementById('partidosPorFechaTitulo').textContent = `Partidos de ${fecha}`;
-              const modal = new bootstrap.Modal(document.getElementById('partidosPorFechaModal'));
-              modal.show();
-            }
-          });
-      }
-
-      function filterResultsByDate() {
-        const filterValue = document.getElementById('filterDateInput').value.trim().toLowerCase();
-        if (!filterValue) {
-          loadMatchResults();
-          return;
-        }
-        const filtered = allMatchesCache.filter(match =>
-          (match.date || '').toLowerCase().includes(filterValue)
-        );
-        renderResultsTable(filtered);
-      }
-
-      function clearDateFilter() {
-        document.getElementById('filterDateInput').value = '';
-        loadMatchResults();
-      }
-
-      // Función para editar resultado
-      function editResult(matchId, localTeam, awayTeam, localGoals, awayGoals, matchDate) {
-        currentMatch = matchId;
-        document.getElementById('editMatchId').value = matchId;
-        document.getElementById('editLocalTeam').value = localTeam;
-        document.getElementById('editAwayTeam').value = awayTeam;
-        document.getElementById('editLocalGoals').value = localGoals;
-        document.getElementById('editAwayGoals').value = awayGoals;
-        cargarFechasEnSelect(currentCategory, 'editMatchDate');
-        setTimeout(() => {
-          document.getElementById('editMatchDate').value = matchDate;
-        }, 300); // Espera a que se carguen las opciones
-        
-        const editModal = new bootstrap.Modal(document.getElementById('editResultModal'));
-        editModal.show();
-      }
-
-      // Función para actualizar resultado
-      function updateResult() {
-        const matchId = document.getElementById('editMatchId').value;
-        const localGoals = parseInt(document.getElementById('editLocalGoals').value);
-        const awayGoals = parseInt(document.getElementById('editAwayGoals').value);
-        const matchDate = document.getElementById('editMatchDate').value;
-
-        if (!matchId || localGoals < 0 || awayGoals < 0) {
-          Swal.fire('Error', 'Por favor, completa todos los campos correctamente', 'error');
-          return;
-        }
-
-        isSavingResult = true; // Indicar que estamos en proceso de guardado
-
-        // Obtener el partido actual
-        db.collection('matches').doc(matchId).get().then((doc) => {
-          if (!doc.exists) {
-            Swal.fire('Error', 'No se encontró el partido', 'error');
-            isSavingResult = false;
-            return;
-          }
-
-          const match = doc.data();
-          // 1. Restar estadísticas anteriores
-          const oldLocalResult = {
-            played: 1,
-            won: match.localGoals > match.awayGoals ? 1 : 0,
-            drawn: match.localGoals === match.awayGoals ? 1 : 0,
-            lost: match.localGoals < match.awayGoals ? 1 : 0,
-            goalsFor: match.localGoals,
-            goalsAgainst: match.awayGoals,
-            points: match.localGoals > match.awayGoals ? 3 : (match.localGoals === match.awayGoals ? 1 : 0)
-          };
-          const oldAwayResult = {
-            played: 1,
-            won: match.awayGoals > match.localGoals ? 1 : 0,
-            drawn: match.localGoals === match.awayGoals ? 1 : 0,
-            lost: match.awayGoals < match.localGoals ? 1 : 0,
-            goalsFor: match.awayGoals,
-            goalsAgainst: match.localGoals,
-            points: match.awayGoals > match.localGoals ? 3 : (match.localGoals === match.awayGoals ? 1 : 0)
-          };
-
-          // 2. Sumar estadísticas nuevas
-          const newLocalResult = {
-            played: 1,
-            won: localGoals > awayGoals ? 1 : 0,
-            drawn: localGoals === awayGoals ? 1 : 0,
-            lost: localGoals < awayGoals ? 1 : 0,
-            goalsFor: localGoals,
-            goalsAgainst: awayGoals,
-            points: localGoals > awayGoals ? 3 : (localGoals === awayGoals ? 1 : 0)
-          };
-          const newAwayResult = {
-            played: 1,
-            won: awayGoals > localGoals ? 1 : 0,
-            drawn: localGoals === awayGoals ? 1 : 0,
-            lost: awayGoals < localGoals ? 1 : 0,
-            goalsFor: awayGoals,
-            goalsAgainst: localGoals,
-            points: awayGoals > localGoals ? 3 : (localGoals === awayGoals ? 1 : 0)
-          };
-
-          // Actualizar estadísticas: restar las viejas y sumar las nuevas
-          const batch = db.batch();
-          const localTeamRef = db.collection('teams').doc(match.localTeamId);
-          const awayTeamRef = db.collection('teams').doc(match.awayTeamId);
-
-          // Restar viejas
-          batch.update(localTeamRef, {
-            played: firebase.firestore.FieldValue.increment(-oldLocalResult.played),
-            won: firebase.firestore.FieldValue.increment(-oldLocalResult.won),
-            drawn: firebase.firestore.FieldValue.increment(-oldLocalResult.drawn),
-            lost: firebase.firestore.FieldValue.increment(-oldLocalResult.lost),
-            goalsFor: firebase.firestore.FieldValue.increment(-oldLocalResult.goalsFor),
-            goalsAgainst: firebase.firestore.FieldValue.increment(-oldLocalResult.goalsAgainst),
-            points: firebase.firestore.FieldValue.increment(-oldLocalResult.points)
-          });
-          batch.update(awayTeamRef, {
-            played: firebase.firestore.FieldValue.increment(-oldAwayResult.played),
-            won: firebase.firestore.FieldValue.increment(-oldAwayResult.won),
-            drawn: firebase.firestore.FieldValue.increment(-oldAwayResult.drawn),
-            lost: firebase.firestore.FieldValue.increment(-oldAwayResult.lost),
-            goalsFor: firebase.firestore.FieldValue.increment(-oldAwayResult.goalsFor),
-            goalsAgainst: firebase.firestore.FieldValue.increment(-oldAwayResult.goalsAgainst),
-            points: firebase.firestore.FieldValue.increment(-oldAwayResult.points)
-          });
-
-          // Sumar nuevas
-          batch.update(localTeamRef, {
-            played: firebase.firestore.FieldValue.increment(newLocalResult.played),
-            won: firebase.firestore.FieldValue.increment(newLocalResult.won),
-            drawn: firebase.firestore.FieldValue.increment(newLocalResult.drawn),
-            lost: firebase.firestore.FieldValue.increment(newLocalResult.lost),
-            goalsFor: firebase.firestore.FieldValue.increment(newLocalResult.goalsFor),
-            goalsAgainst: firebase.firestore.FieldValue.increment(newLocalResult.goalsAgainst),
-            points: firebase.firestore.FieldValue.increment(newLocalResult.points)
-          });
-          batch.update(awayTeamRef, {
-            played: firebase.firestore.FieldValue.increment(newAwayResult.played),
-            won: firebase.firestore.FieldValue.increment(newAwayResult.won),
-            drawn: firebase.firestore.FieldValue.increment(newAwayResult.drawn),
-            lost: firebase.firestore.FieldValue.increment(newAwayResult.lost),
-            goalsFor: firebase.firestore.FieldValue.increment(newAwayResult.goalsFor),
-            goalsAgainst: firebase.firestore.FieldValue.increment(newAwayResult.goalsAgainst),
-            points: firebase.firestore.FieldValue.increment(newAwayResult.points)
-          });
-
-          // Actualizar el partido
-          batch.update(db.collection('matches').doc(matchId), {
-            localGoals: localGoals,
-            awayGoals: awayGoals,
-            date: matchDate,
-            category: currentCategory
-          });
-
-          batch.commit().then(() => {
-            Swal.fire({
-              title: 'Éxito',
-              text: 'Resultado actualizado correctamente',
-              icon: 'success',
-              timer: 1500,
-              showConfirmButton: false
-            });
-            // Solo ocultamos el modal. El evento 'hidden.bs.modal' se encargará del resto.
-            const modalEdit = bootstrap.Modal.getInstance(document.getElementById('editResultModal'));
-            if (modalEdit) modalEdit.hide();
-          }).catch((error) => {
-            isSavingResult = false; // Restablecer en caso de error
-            console.error("Error al actualizar resultado:", error);
-            Swal.fire('Error', 'No se pudo actualizar el resultado', 'error');
-          });
-        });
-      }
-
-      // Evento para cargar resultados cuando se abre el modal
-      document.getElementById('viewResultsModal').addEventListener('show.bs.modal', () => {
-        loadFechasCards();
-      });
-
-      // Función para guardar fechas por categoría
-      function guardarFechasCategoria() {
-        const categoria = document.getElementById('fechasCategoriaSelect').value;
-        const cantidad = parseInt(document.getElementById('cantidadFechasInput').value);
-        if (!currentChampionship || !categoria || !cantidad || cantidad < 1) {
-          Swal.fire('Error', 'Completa todos los campos correctamente', 'error');
-          return;
-        }
-        // Generar array de fechas: ["Fecha 1", "Fecha 2", ...]
-        const fechas = Array.from({length: cantidad}, (_, i) => `Fecha ${i+1}`);
-        // Guardar en Firestore, colección: fechas, doc: `${currentChampionship.id}_${categoria}`
-        db.collection('fechas').doc(`${currentChampionship.id}_${categoria}`).set({
-          championshipId: currentChampionship.id,
-          categoria: categoria,
-          fechas: fechas
-        }).then(() => {
-          Swal.fire('Éxito', 'Fechas guardadas correctamente', 'success');
-          bootstrap.Modal.getInstance(document.getElementById('setFechasModal')).hide();
-        }).catch((error) => {
-          Swal.fire('Error', 'No se pudieron guardar las fechas', 'error');
-        });
-      }
-
-      function cargarFechasEnSelect(categoria, selectId) {
-        if (!currentChampionship) return;
-        db.collection('fechas').doc(`${currentChampionship.id}_${categoria}`).get()
-          .then(doc => {
-            const select = document.getElementById(selectId);
-            select.innerHTML = '<option value=\"\">Selecciona una fecha</option>';
-            if (doc.exists && doc.data().fechas) {
-              doc.data().fechas.forEach(fecha => {
-                const option = document.createElement('option');
-                option.value = fecha;
-                option.textContent = fecha;
-                select.appendChild(option);
-              });
-            }
-          });
-      }
-
-      function loadFechasCards() {
-        if (!currentChampionship) return;
-        db.collection('fechas').doc(`${currentChampionship.id}_${currentCategory}`).get()
-          .then(doc => {
-            const container = document.getElementById('fechasCardsContainer');
-            container.innerHTML = '';
-            if (!doc.exists || !doc.data().fechas) {
-              container.innerHTML = '<div class="text-center">No hay fechas definidas para esta categoría.</div>';
-              return;
-            }
-            const fechas = doc.data().fechas;
-            // Obtener todos los partidos de la categoría y campeonato actual para contar por fecha
-            db.collection('matches')
-              .where('championshipId', '==', currentChampionship.id)
-              .where('category', '==', currentCategory)
-              .get()
-              .then(querySnapshot => {
-                // Contar partidos por fecha
-                const partidosPorFecha = {};
-                querySnapshot.forEach(doc => {
-                  const match = doc.data();
-                  const fecha = match.date || 'Sin fecha';
-                  if (!partidosPorFecha[fecha]) partidosPorFecha[fecha] = 0;
-                  partidosPorFecha[fecha]++;
-                });
-                fechas.forEach(fecha => {
-                  const cantidad = partidosPorFecha[fecha] || 0;
-                  const card = document.createElement('div');
-                  card.className = 'col';
-                  card.innerHTML = `
-                    <div class="card shadow-sm h-100" style="cursor:pointer;">
-                      <div class="card-body text-center">
-                        <div class="fecha-logo mb-2">
-                          <img src='img/logo.png' alt='Logo' style='width:32px;height:32px;'>
-                        </div>
-                        <h5 class="card-title mb-2">${fecha}</h5>
-                        <span class="badge bg-success mb-2">${cantidad} partido(s)</span>
-                        <button class="btn btn-ver-partidos" type="button" onclick="mostrarPartidosPorFechaDesdeCard('${fecha.replace(/'/g, "\\'")}')">Ver partidos</button>
-                      </div>
-                    </div>
-                  `;
-                  container.appendChild(card);
-                });
-                window._fechasDeCategoria = fechas;
-              });
-          });
-      }
-
-      // Nueva función para cerrar el modal de resultados y abrir el de partidos por fecha
-      function mostrarPartidosPorFechaDesdeCard(fecha) {
-        // Guarda el modal anterior (resultados generales)
-        modalAnterior = bootstrap.Modal.getInstance(document.getElementById('viewResultsModal'));
-        if (modalAnterior) modalAnterior.hide();
-        setTimeout(() => {
-          mostrarPartidosPorFecha(fecha);
-        }, 350);
-      }
-
-      function abrirEdicionPartido(matchId, localTeam, awayTeam, localGoals, awayGoals, matchDate) {
-        navigatingToEdit = true;
-        originalMatchDate = matchDate; // Guardar la fecha original
-        // Oculta el modal anterior sin guardarlo, ya que lo reabriremos manualmente
-        const modalPartidos = bootstrap.Modal.getInstance(document.getElementById('partidosPorFechaModal'));
-        if (modalPartidos) modalPartidos.hide();
-
-        setTimeout(() => {
-          editResult(matchId, localTeam, awayTeam, localGoals, awayGoals, matchDate);
-        }, 300);
-      }
-
-      document.getElementById('editResultModal').addEventListener('hidden.bs.modal', function () {
-        if (isSavingResult) {
-          // Se cerró después de guardar exitosamente
-          isSavingResult = false; // Resetear bandera
-          const newMatchDate = document.getElementById('editMatchDate').value;
-          
-          // Refrescar datos y mostrar modal de partidos
-          loadTeamsForChampionship(currentChampionship.id, currentCategory);
-          loadFechasCards();
-          mostrarPartidosPorFecha(newMatchDate || originalMatchDate);
-        } else {
-          // Se cerró con "Cancelar" o la "X"
-          if (originalMatchDate) {
-            mostrarPartidosPorFecha(originalMatchDate);
-          }
-        }
-        // Limpiar para la próxima vez
-        originalMatchDate = null;
-      });
-
-      document.getElementById('partidosPorFechaModal').addEventListener('hidden.bs.modal', function () {
-        if (navigatingToEdit) {
-          navigatingToEdit = false; // Reset flag and do nothing
-          return;
-        }
-
-        // Si se cierra y hay un modal anterior guardado, mostrarlo
-        if (modalAnterior) {
-          setTimeout(() => {
-            modalAnterior.show();
-            modalAnterior = null;
-          }, 350);
-        }
-      });
     </script>
   </body>
-</html> 
+</html>
+

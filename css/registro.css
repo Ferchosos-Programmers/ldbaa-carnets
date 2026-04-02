@@ -1,262 +1,356 @@
+/* Font Family: "Times New Roman", Times, serif */
+
+:root {
+  --primary-color: #2ecc71;
+  --primary-dark: #27ae60;
+  --secondary-color: #3498db;
+  --dark-bg: #0a0a0a;
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --text-main: #ffffff;
+  --text-muted: #b3b3b3;
+}
+
 body {
-  background-color: #f1f1f1;
-  font-family: 'Times New Roman', Times, serif;
+  margin: 0;
+  padding: 0;
+  font-family: "Times New Roman", Times, serif;
+  background-color: var(--dark-bg);
+  color: var(--text-main);
   min-height: 100vh;
-  width: 100%;
-}
-.navbar {
-  background-color: #28a745;
-  padding: 0.5rem 1rem;
-}
-.navbar-brand {
-  font-weight: bold;
-  font-size: 1.5rem;
-  color: #fff !important;
-}
-@media (max-width: 576px) {
-  .navbar-brand {
-    font-size: 1.2rem;
-  }
-}
-.card {
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 1rem;
-  width: 100%;
-}
-.preview-image {
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-  border-radius: 0.5rem;
-}
-.preview-container {
-  border: 2px dashed #28a745;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  text-align: center;
-  margin-bottom: 1rem;
-  width: 100%;
-}
-.btn-success {
-  background-color: #28a745;
-  border-color: #28a745;
-  width: 100%;
-  margin: 0.5rem 0;
-}
-.btn-success:hover {
-  background-color: #218838;
-  border-color: #1e7e34;
-}
-.player-list {
-  max-height: 600px;
-  overflow-y: auto;
-  width: 100%;
-}
-.player-item {
-  border-bottom: 1px solid #dee2e6;
-  padding: 10px;
-  width: 100%;
-}
-.player-item:last-child {
-  border-bottom: none;
-}
-.modal-image {
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-}
-/* Tamaños responsivos para las fotos */
-.carnet-photo {
-  width: 100%;
-  max-width: 300px;
-  height: auto;
-  aspect-ratio: 3/4;
-  object-fit: cover;
-}
-.cedula-photo {
-  width: 100%;
-  max-width: 400px;
-  height: auto;
-  aspect-ratio: 4/2.5;
-  object-fit: cover;
-}
-.photo-container {
-  position: relative;
-  margin-bottom: 1rem;
-  width: 100%;
-}
-.photo-dimensions {
-  font-size: 0.8rem;
-  color: #6c757d;
-  margin-top: 0.25rem;
 }
 
-/* Estilos para el carnet y cédula */
-.document-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: space-between;
-  width: 100%;
-  padding: 1rem;
-}
-
-.carnet-container, .cedula-container {
-  flex: 1 1 300px;
-  min-width: 300px;
-  background-image: url('https://img.freepik.com/free-photo/soccer-field-background_1248-11.jpg');
-  background-size: cover;
-  background-position: center;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  position: relative;
-  overflow: hidden;
-  height: auto;
-  min-height: 600px;
-}
-
-.cedula-container {
-  background-image: none;
-  background-color: #f8f9fa;
-}
-
-.carnet-container::before {
-  content: '';
-  position: absolute;
+/* Background Overlay - Consistent with platform */
+.main-bg {
+  position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #f8f9fa;        
-  z-index: 1;
-}
-
-.carnet-content, .cedula-content {
-  position: relative;
-  z-index: 2;
+  width: 100%;
   height: 100%;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
+    url("../img/stadium-bg.png");
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+  filter: brightness(0.6);
+}
+
+/* Navbar Premium */
+.nav-premium {
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-brand {
+  font-weight: 800;
+  letter-spacing: -0.5px;
   display: flex;
-  flex-direction: column;
-  padding: 15px;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.carnet-content {
-  color: rgb(0, 0, 0);
-  background-color: #f8f9fa;
-  background-image: none;
+.brand-accent {
+  color: var(--primary-color);
+}
+
+.btn-back {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: white;
+  border-radius: 12px;
+  padding: 0.5rem 1.25rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-back:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Glass Card */
+.glass-card {
+  background: rgba(15, 15, 15, 0.7);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Form Styles */
+.form-label {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  margin-left: 0.5rem;
+}
+
+.form-control,
+.form-select {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
+  color: white;
+}
+
+.form-control:read-only {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: var(--glass-border);
+  color: var(--text-muted);
+}
+
+.form-select option {
+  background: #1a1a1a;
+  color: white;
+}
+
+/* Preview Containers */
+.preview-container {
+  border: 2px dashed var(--glass-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.preview-container:hover {
+  border-color: var(--primary-color);
+  background: rgba(46, 204, 113, 0.02);
+}
+
+.preview-image {
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Buttons */
+.btn-premium {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-dark)
+  );
+  border: none;
+  border-radius: 12px;
+  padding: 1rem;
+  font-weight: 700;
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 20px -10px rgba(46, 204, 113, 0.4);
+}
+
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 25px -10px rgba(46, 204, 113, 0.5);
+  filter: brightness(1.1);
+  color: white;
+}
+
+.btn-secondary-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: white;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary-glass:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* Cupo Cards */
+.cupo-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.cupo-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(1.02);
+}
+
+.progress {
+  background-color: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
-  border: 2px solid #28a745;
+  overflow: hidden;
 }
 
-.cedula-content {
+/* Player List */
+.player-list {
+  max-height: 800px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.player-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.player-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.player-list::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+  border-radius: 10px;
+}
+
+.player-item-glass {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.player-item-glass:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--primary-color);
+}
+
+.player-item-glass .ms-3 {
+  display: flex !important;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.player-item-glass .btn-sm {
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  min-width: 44px;
+}
+
+.player-item-glass .btn-sm i {
+  font-size: 0.85rem;
+}
+
+.player-photo-sm {
+  width: 60px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 1.25rem;
+}
+
+/* Carnet & Cedula Templates (Modal) */
+.modal-content {
+  background: rgba(15, 15, 15, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  color: white;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--glass-border);
+  padding: 1.5rem 2rem;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--glass-border);
+  padding: 1.5rem 2rem;
+}
+
+.carnet-template {
   background: white;
-  border-radius: 10px;
-  border: 2px solid #28a745;
+  color: black;
+  width: 320px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  font-family: Arial, sans-serif;
 }
 
-.carnet-header, .cedula-header {
+.carnet-template-header {
+  background: var(--primary-dark);
+  color: white;
+  padding: 1rem;
   text-align: center;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #28a745;
-  padding-bottom: 10px;
 }
 
-.carnet-title, .cedula-title {
-  color: #28a745;
-  font-size: 24px;
+.carnet-template-body {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.carnet-template-photo {
+  width: 130px;
+  height: 180px;
+  object-fit: cover;
+  border: 3px solid var(--primary-color);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.info-label {
   font-weight: bold;
-  margin: 0;
+  color: var(--primary-dark);
+  font-size: 0.8rem;
+  text-transform: uppercase;
 }
 
-.carnet-subtitle {
-  color: #000;
-  font-size: 18px;
-  margin: 5px 0;
+.info-value {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
 }
 
-.carnet-info, .cedula-info {
-  margin-top: 20px;
-}
-
-.carnet-info p, .cedula-info p {
-  margin: 8px 0;
-  font-size: 16px;
-  word-break: break-word;
-}
-
-.carnet-info strong, .cedula-info strong {
-  color: #28a745;
-}
-
-.carnet-footer, .cedula-footer {
-  text-align: center;
-  margin-top: auto;
-  padding-top: 10px;
-  border-top: 2px solid #28a745;
-}
-
-/* Media queries para diferentes tamaños de pantalla */
-@media (max-width: 1200px) {
-  .document-container {
-    padding: 0.5rem;
-  }
-  
-  .carnet-container, .cedula-container {
-    flex: 1 1 45%;
-  }
-}
-
-@media (max-width: 992px) {
-  .carnet-container, .cedula-container {
-    flex: 1 1 100%;
-    min-height: 500px;
-  }
-  
-  .carnet-title, .cedula-title {
-    font-size: 20px;
-  }
-  
-  .carnet-subtitle {
-    font-size: 16px;
-  }
-}
-
+/* Responsive */
 @media (max-width: 768px) {
-  .document-container {
-    flex-direction: column;
-    gap: 15px;
+  .glass-card {
+    padding: 1.5rem;
   }
-  
-  .carnet-container, .cedula-container {
-    min-height: 400px;
-  }
-  
-  .carnet-content, .cedula-content {
-    padding: 10px;
-  }
-  
-  .carnet-info p, .cedula-info p {
-    font-size: 14px;
-  }
-}
 
-@media (max-width: 576px) {
-  .carnet-container, .cedula-container {
-    min-height: 350px;
-    padding: 10px;
-  }
-  
-  .carnet-title, .cedula-title {
-    font-size: 18px;
-  }
-  
-  .carnet-subtitle {
-    font-size: 14px;
-  }
-  
-  .carnet-info p, .cedula-info p {
-    font-size: 12px;
+  .cupo-card {
+    margin-bottom: 1rem;
   }
 }
