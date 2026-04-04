@@ -90,17 +90,33 @@
         <!-- Card 2: Programación -->
         <div
           class="dashboard-card"
-          onclick="window.location.href = 'programacion-fixture.html'"
+          onclick="window.location.href = 'gestion-fixture.html'"
         >
           <div class="card-icon-wrapper">
-            <i class="fas fa-calendar-check"></i>
+            <i class="fas fa-clock text-blue"></i>
           </div>
-          <h3>Gestión de Fixture</h3>
+          <h3>Gestión de Horarios</h3>
           <p>
-            Organiza fechas, horarios, vocalías y revisa la programación oficial
-            de los campeonatos.
+            Asigna las fechas y horas reales a cada partido que acabas de armar
+            en el generador.
           </p>
-          <div class="btn-secondary-glass mt-4 px-5">Gestionar Fixture</div>
+          <div class="btn-secondary-glass mt-4 px-5">Gestionar Horarios</div>
+        </div>
+
+        <!-- Card 3: Generación Automática -->
+        <div
+          class="dashboard-card"
+          onclick="window.location.href = 'generar-fixture.html'"
+        >
+          <div class="card-icon-wrapper">
+            <i class="fas fa-magic text-purple"></i>
+          </div>
+          <h3>Generar Fixture</h3>
+          <p>
+            Genera automáticamente el calendario de juegos eligiendo la
+            modalidad, categorías y desde el inicio hasta las finales.
+          </p>
+          <div class="btn-secondary-glass mt-4 px-5">Comenzar Generación</div>
         </div>
       </div>
     </div>
@@ -159,4 +175,3 @@
     </script>
   </body>
 </html>
-
