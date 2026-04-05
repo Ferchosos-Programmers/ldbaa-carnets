@@ -59,13 +59,7 @@
           </div>
         </a>
         <div class="nav-actions d-flex gap-3 align-items-center">
-          <button
-            class="btn btn-secondary-glass d-none d-md-flex align-items-center gap-2"
-            onclick="exportarJugadoresExcel()"
-          >
-            <i class="fas fa-file-excel text-success"></i>
-            <span>Reporte Global</span>
-          </button>
+
           <button class="btn btn-logout" onclick="logout()">
             <i class="fas fa-power-off me-2"></i> <span>Salir</span>
           </button>
@@ -533,6 +527,7 @@
           text: "¿Estás seguro de que deseas salir?",
           icon: "warning",
           showCancelButton: true,
+          showDenyButton: false,
           confirmButtonColor: "#28a745",
           cancelButtonColor: "#d33",
           confirmButtonText: "Sí, salir",
@@ -542,13 +537,7 @@
             auth
               .signOut()
               .then(() => {
-                Swal.fire({
-                  title: "¡Sesión cerrada!",
-                  text: "Has cerrado sesión correctamente.",
-                  icon: "success",
-                }).then(() => {
-                  window.location.href = "login.html";
-                });
+                window.location.href = "login.html";
               })
               .catch((error) => {
                 console.error("Error al cerrar sesión:", error);

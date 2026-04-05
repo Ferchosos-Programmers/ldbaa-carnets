@@ -99,7 +99,7 @@ div.swal2-actions button.swal2-deny {
   min-width: 80px !important;
   width: auto !important;
   flex: 0 1 auto !important;
-  display: inline-flex !important;
+  display: inline-flex;
   justify-content: center !important;
   align-items: center !important;
   margin: 0 !important;

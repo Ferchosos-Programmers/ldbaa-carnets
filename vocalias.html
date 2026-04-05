@@ -2,27 +2,104 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>Vocalías | Liga Barrial</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vocalía Digital | LDBAA</title>
+
+    <!-- Bootstrap 5 -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <!-- Font Awesome -->
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
     />
-    <link rel="icon" href="img/logo.png" />
-    <link rel="stylesheet" href="css/responsive.css" />
-    <link rel="stylesheet" href="css/index.css" />
-    <link rel="stylesheet" href="css/dashboard.css" />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap"
+      rel="stylesheet"
+    />
+
     <link rel="stylesheet" href="css/global-theme.css" />
     <link rel="stylesheet" href="css/vocalias.css" />
+
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/global-swal-patch.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+
+    <style>
+      .jornada-card-elite {
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 20px;
+          padding: 30px;
+          text-align: center;
+          transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          cursor: pointer;
+          position: relative;
+          overflow: hidden;
+      }
+      .jornada-card-elite:hover {
+          transform: translateY(-10px);
+          background: rgba(46, 204, 113, 0.1);
+          border-color: var(--primary-color);
+          box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+      }
+      .jornada-card-elite i {
+          font-size: 2.5rem;
+          color: var(--primary-color);
+          margin-bottom: 15px;
+          display: block;
+      }
+      .jornada-card-elite h5 {
+          color: white;
+          font-weight: 800;
+          margin-bottom: 5px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+      }
+      .jornada-card-elite .match-count {
+          font-size: 0.8rem;
+          color: rgba(255,255,255,0.5);
+          text-transform: uppercase;
+      }
+
+      .match-row-elite {
+          background: rgba(255, 255, 255, 0.02);
+          border-radius: 12px;
+          padding: 15px 20px;
+          margin-bottom: 10px;
+          border-left: 4px solid var(--primary-color);
+          transition: 0.3s;
+          cursor: pointer;
+          border: 1px solid rgba(255,255,255,0.05);
+      }
+      .match-row-elite:hover {
+          background: rgba(255,255,255,0.05);
+          transform: translateX(10px);
+      }
+      .team-label { font-weight: 800; color: white; font-size: 0.95rem; }
+      .vs-label { color: var(--primary-color); font-weight: 900; margin: 0 15px; font-size: 0.8rem; }
+      .mesa-label { font-size: 0.75rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; }
+      .mesa-val { font-size: 0.85rem; color: #f1c40f; font-weight: 600; }
+      
+      .btn-back-jornadas {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: white;
+          padding: 8px 15px;
+          border-radius: 10px;
+          transition: 0.3s;
+      }
+      .btn-back-jornadas:hover {
+          background: white;
+          color: black;
+      }
+    </style>
   </head>
-    <!-- Main Background -->
+  <body>
     <div class="main-bg"></div>
 
     <!-- Navigation -->
@@ -34,362 +111,72 @@
         </a>
         <div class="nav-links d-none d-md-flex">
           <a href="index.html"><i class="fas fa-home me-2"></i>Inicio</a>
-          <a href="#" class="active"><i class="fas fa-whistle me-2"></i>Vocalías</a>
+          <a href="#" class="active"><i class="fas fa-file-invoice me-2"></i>Actas Digitales</a>
         </div>
         <a href="index.html" class="btn-logout-premium text-decoration-none">
-          <i class="fas fa-home me-2"></i><span>Volver</span>
+          <i class="fas fa-chevron-left me-2"></i><span>Volver</span>
         </a>
       </div>
     </nav>
 
     <div class="container py-5">
+      <!-- Encabezado -->
       <div class="text-center mb-5">
-        <h2 class="section-title">⚽ Partidos Programados</h2>
-        <p class="text-white-50">Gestiona las vocalías de los encuentros de forma digital e intuitiva.</p>
+        <h2 class="section-title">⚽ Vocalía <span class="text-primary-glow">Digital</span></h2>
+        <p class="text-white-50">Selecciona una jornada para gestionar los encuentros programados.</p>
       </div>
-      <div class="row" id="matchesContainer">
-        <!-- Las tarjetas de partidos se cargarán dinámicamente aquí -->
-      </div>
-    </div>
 
-    <!-- Modal de Vocalía Virtual -->
-    <div class="modal fade" id="vocaliaModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content modal-premium">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              <i class="fas fa-futbol me-2 brand-accent"></i>DETALLES DEL ENCUENTRO
-            </h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body p-4">
-            <div class="match-info-row mb-4">
-              <div class="team-container">
-                <img
-                  src=""
-                  alt="Logo Local"
-                  class="team-logo"
-                  id="localTeamLogo"
-                />
-                <h5 class="mb-0" id="localTeamName"></h5>
-              </div>
-
-              <div class="match-time-info">
-                <h5 class="mb-2">VS</h5>
-                <span class="badge bg-success mb-2" id="matchCategory"></span>
-                <div class="text-muted">
-                  <small id="matchDate"></small>
-                  <br />
-                  <small id="matchTime"></small>
+      <!-- Selector de Campeonato -->
+      <div class="glass-panel mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <label class="form-label mb-2 text-white-50">CAMPEONATO ACTIVO</label>
+                <select id="campSelect" class="select-premium" onchange="resetAndLoad()">
+                  <option value="">Cargando campeonatos...</option>
+                </select>
+            </div>
+            <div class="col-md-8 text-end">
+                <div class="d-flex justify-content-end gap-2">
+                    <span class="badge bg-success-glass">EN VIVO</span>
+                    <span class="badge bg-secondary-glass">SINCRONIZADO</span>
                 </div>
-              </div>
-
-              <div class="team-container">
-                <h5 class="mb-0" id="visitorTeamName"></h5>
-                <img
-                  src=""
-                  alt="Logo Visitante"
-                  class="team-logo"
-                  id="visitorTeamLogo"
-                />
-              </div>
             </div>
-
-            <div class="text-center mt-4">
-              <button class="btn-premium w-100 justify-content-center" onclick="mostrarVocaliaVirtual()">
-                <i class="fas fa-play me-2"></i>Comenzar Vocalía
-              </button>
-            </div>
-          </div>
         </div>
       </div>
+
+      <!-- Contenedor dinámico -->
+      <div id="jornadasContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 f-view">
+        <!-- Tarjetas de Jornadas se cargan aquí -->
+      </div>
+
+      <div id="matchesContainer" class="d-none">
+          <!-- Lista de partidos se carga aquí -->
+      </div>
     </div>
 
-    <!-- Modal de Vocalía Virtual Completa -->
-    <div class="modal fade" id="vocaliaCompletaModal" tabindex="-1">
+    <!-- Modal de Identificación y Acta (Legado Ajustado) -->
+    <div class="modal fade" id="vocaliaModal" tabindex="-1">
       <div class="modal-dialog modal-xl">
         <div class="modal-content modal-premium">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              <i class="fas fa-file-invoice me-2 brand-accent"></i>VOCALÍA VIRTUAL - ACTA NO. <span id="numeroVocalia"></span>
-            </h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          <div class="modal-header border-0 pb-0">
+             <h5 class="modal-title fw-800 text-uppercase" style="letter-spacing:2px">
+                <i class="fas fa-microchip me-2 text-primary-glow"></i> ACTA DIGITAL
+             </h5>
+             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
-          <div class="modal-body p-4">
-            <div class="row">
-              <div class="col-md-6">
-                <div class="vocalia-inner-card">
-                  <div class="vocalia-inner-card-header">
-                    <h5 class="mb-0 brand-accent" id="equipoLocalNombre"></h5>
-                    <button
-                      class="btn btn-secondary-glass btn-sm"
-                      onclick="agregarJugador('Local')"
-                    >
-                      <i class="fas fa-plus me-1"></i> Titular
-                    </button>
-                  </div>
-                  <div class="vocalia-inner-card-body">
-                    <div class="table-responsive">
-                      <table class="table-premium align-middle mb-0">
-                        <thead>
-                          <tr class="table-premium-header">
-                            <th>#</th>
-                            <th>JUGADOR</th>
-                            <th>G</th>
-                            <th>TA</th>
-                            <th>TR</th>
-                            <th></th>
-                          </tr>
-                        </thead>
-                        <tbody id="jugadoresLocal"></tbody>
-                      </table>
-                    </div>
-                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
-                      <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="mb-0 text-white-50"><i class="fas fa-exchange-alt me-1"></i> CAMBIOS</h6>
-                        <button
-                          class="btn btn-secondary-glass btn-sm"
-                          onclick="agregarCambio('Local')"
-                          id="btnCambioLocal"
-                        >
-                          <i class="fas fa-plus"></i> Añadir
-                        </button>
-                      </div>
-                      <div class="table-responsive">
-                        <table class="table-premium align-middle mb-0">
-                          <thead>
-                            <tr class="table-premium-header">
-                              <th>ENTRA</th>
-                              <th>SALE</th>
-                              <th>G</th>
-                              <th>TA</th>
-                              <th>TR</th>
-                              <th></th>
-                            </tr>
-                          </thead>
-                          <tbody id="cambiosLocal"></tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="vocalia-inner-card">
-                  <div class="vocalia-inner-card-header">
-                    <h5 class="mb-0 text-info" id="equipoVisitanteNombre"></h5>
-                    <button
-                      class="btn btn-secondary-glass btn-sm"
-                      onclick="agregarJugador('Visitante')"
-                    >
-                      <i class="fas fa-plus me-1"></i> Titular
-                    </button>
-                  </div>
-                  <div class="vocalia-inner-card-body">
-                    <div class="table-responsive">
-                      <table class="table-premium align-middle mb-0">
-                        <thead>
-                          <tr class="table-premium-header">
-                            <th>#</th>
-                            <th>JUGADOR</th>
-                            <th>G</th>
-                            <th>TA</th>
-                            <th>TR</th>
-                            <th></th>
-                          </tr>
-                        </thead>
-                        <tbody id="jugadoresVisitante"></tbody>
-                      </table>
-                    </div>
-                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
-                      <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="mb-0 text-white-50"><i class="fas fa-exchange-alt me-1"></i> CAMBIOS</h6>
-                        <button
-                          class="btn btn-secondary-glass btn-sm"
-                          onclick="agregarCambio('Visitante')"
-                          id="btnCambioVisitante"
-                        >
-                          <i class="fas fa-plus"></i> Añadir
-                        </button>
-                      </div>
-                      <div class="table-responsive">
-                        <table class="table-premium align-middle mb-0">
-                          <thead>
-                            <tr class="table-premium-header">
-                              <th>ENTRA</th>
-                              <th>SALE</th>
-                              <th>G</th>
-                              <th>TA</th>
-                              <th>TR</th>
-                              <th></th>
-                            </tr>
-                          </thead>
-                          <tbody id="cambiosVisitante"></tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="vocalia-inner-card">
-                  <div class="vocalia-inner-card-header">
-                    <h5 class="mb-0 text-white-50"><i class="fas fa-pencil-alt me-2"></i>Novedades del Vocal</h5>
-                  </div>
-                  <div class="vocalia-inner-card-body">
-                    <textarea
-                      class="glass-input"
-                      id="novedadesVocal"
-                      rows="4"
-                      placeholder="Ingrese aquí las novedades ocurridas durante el partido..."
-                    ></textarea>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="vocalia-inner-card">
-                  <div class="vocalia-inner-card-header">
-                    <h5 class="mb-0 text-white-50"><i class="fas fa-eye me-2"></i>Novedades del Veedor</h5>
-                  </div>
-                  <div class="vocalia-inner-card-body">
-                    <textarea
-                      class="glass-input"
-                      id="novedadesVeedor"
-                      rows="4"
-                      placeholder="Ingrese aquí las observaciones del veedor..."
-                    ></textarea>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Nueva sección para el informe del árbitro -->
-              <div class="col-12 mt-2">
-                <div class="vocalia-inner-card">
-                  <div class="vocalia-inner-card-header">
-                    <h5 class="mb-0 text-warning"><i class="fas fa-id-card-clip me-2"></i>Informe del Árbitro</h5>
-                  </div>
-                  <div class="vocalia-inner-card-body">
-                    <div class="row">
-                      <!-- Equipo Local -->
-                      <div class="col-md-6">
-                        <h6
-                          class="border-bottom border-secondary border-opacity-25 pb-2 mb-3 brand-accent"
-                          id="equipoLocalTarjetasTitle"
-                        ></h6>
-                        <div class="mb-4">
-                          <h6 class="text-warning small fw-bold">Tarjetas Amarillas</h6>
-                          <div
-                            id="tarjetasAmarillasLocal"
-                            class="tarjetas-container d-flex flex-wrap gap-2 mt-2"
-                          >
-                            <button
-                              class="btn btn-secondary-glass btn-sm"
-                              onclick="agregarTarjeta('Local', 'Amarilla')"
-                            >
-                              <i class="fas fa-plus text-warning"></i>
-                            </button>
-                          </div>
-                        </div>
-                        <div class="mb-3">
-                          <h6 class="text-danger small fw-bold">Tarjetas Rojas</h6>
-                          <div
-                            id="tarjetasRojasLocal"
-                            class="tarjetas-container d-flex flex-wrap gap-2 mt-2"
-                          >
-                            <button
-                              class="btn btn-secondary-glass btn-sm"
-                              onclick="agregarTarjeta('Local', 'Roja')"
-                            >
-                              <i class="fas fa-plus text-danger"></i>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Equipo Visitante -->
-                      <div class="col-md-6">
-                        <h6
-                          class="border-bottom border-secondary border-opacity-25 pb-2 mb-3 text-info"
-                          id="equipoVisitanteTarjetasTitle"
-                        ></h6>
-                        <div class="mb-4">
-                          <h6 class="text-warning small fw-bold">Tarjetas Amarillas</h6>
-                          <div
-                            id="tarjetasAmarillasVisitante"
-                            class="tarjetas-container d-flex flex-wrap gap-2 mt-2"
-                          >
-                            <button
-                              class="btn btn-secondary-glass btn-sm"
-                              onclick="agregarTarjeta('Visitante', 'Amarilla')"
-                            >
-                              <i class="fas fa-plus text-warning"></i>
-                            </button>
-                          </div>
-                        </div>
-                        <div class="mb-3">
-                          <h6 class="text-danger small fw-bold">Tarjetas Rojas</h6>
-                          <div
-                            id="tarjetasRojasVisitante"
-                            class="tarjetas-container d-flex flex-wrap gap-2 mt-2"
-                          >
-                            <button
-                              class="btn btn-secondary-glass btn-sm"
-                              onclick="agregarTarjeta('Visitante', 'Roja')"
-                            >
-                              <i class="fas fa-plus text-danger"></i>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
-                      <label class="form-label text-white-50">Informe General del Árbitro</label>
-                      <textarea
-                        class="glass-input mb-3"
-                        id="informeArbitro"
-                        rows="4"
-                        placeholder="Ingrese el informe general detallado..."
-                      ></textarea>
-                      <div class="row align-items-center">
-                        <div class="col-auto">
-                          <i class="fas fa-signature text-warning"></i>
-                        </div>
-                        <div class="col">
-                          <input
-                            type="text"
-                            class="glass-input"
-                            id="nombreArbitro"
-                            placeholder="Nombre Completo del Árbitro"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal-footer border-0">
-            <button
-              type="button"
-              class="btn-premium w-100 justify-content-center"
-              onclick="guardarVocalia()"
-            >
-              <i class="fas fa-save me-2"></i>Guardar Acta de Vocalía
-            </button>
+          <div class="modal-body p-4" id="modalVocalBody">
+              <!-- El contenido del acta se renderiza aquí -->
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+
     <script>
-      // Configuración de Firebase
       const firebaseConfig = {
         apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
         authDomain: "ldbaa-calificaciones.firebaseapp.com",
@@ -398,807 +185,289 @@
         messagingSenderId: "277579489603",
         appId: "1:277579489603:web:bc93c22fea5f5f6b63cff6",
       };
-
-      // Inicializar Firebase
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
 
-      // Cargar partidos programados
-      function loadScheduledMatches() {
-        db.collection("matches")
-          .orderBy("date", "asc")
-          .get()
-          .then((querySnapshot) => {
-            const matchesContainer =
-              document.getElementById("matchesContainer");
-            matchesContainer.innerHTML = "";
+      let fixturesMap = new Map();
+      let currentJornada = null;
 
-            if (querySnapshot.empty) {
-              matchesContainer.innerHTML =
-                '<div class="col-12 text-center"><p>No hay partidos programados</p></div>';
-              return;
-            }
+      window.addEventListener("DOMContentLoaded", async () => {
+        await loadChampionships();
+      });
 
-            querySnapshot.forEach((doc) => {
-              const match = doc.data();
-              const matchCard = createMatchCard(match, doc.id);
-              matchesContainer.appendChild(matchCard);
-            });
-          })
-          .catch((error) => {
-            console.error("Error al cargar partidos:", error);
-            Swal.fire("Error", "No se pudieron cargar los partidos", "error");
-          });
-      }
-
-      // Crear tarjeta de partido
-      function createMatchCard(match, matchId) {
-        const col = document.createElement("div");
-        col.className = "col-md-6 col-lg-4 mb-4";
-
-        const matchDate = new Date(match.date);
-
-        const card = document.createElement("div");
-        card.className = "match-card";
-        card.onclick = () => openVocalia(match);
-
-        card.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="team-container">
-                    <img src="${match.localTeamLogo}" class="team-logo" alt="Local">
-                    <h6 class="mt-2 mb-0 fw-bold text-white small">${match.localTeamName}</h6>
-                </div>
-                <div class="match-time-info px-2">
-                    <h5 class="mb-1 text-white-50 small fw-bold">VS</h5>
-                    <div class="brand-accent fw-bold" style="font-size: 0.8rem;">
-                        ${matchDate.toLocaleDateString()}
-                    </div>
-                    <div class="text-white-50" style="font-size: 0.75rem;">${match.time}</div>
-                </div>
-                <div class="team-container">
-                    <img src="${match.visitorTeamLogo}" class="team-logo" alt="Visitante">
-                    <h6 class="mt-2 mb-0 fw-bold text-white small">${match.visitorTeamName}</h6>
-                </div>
-            </div>
-            <div class="text-center pt-2 border-top border-secondary border-opacity-25">
-                <span class="badge bg-secondary-glass text-uppercase px-3" style="font-size: 0.7rem;">${match.category}</span>
-            </div>
-        `;
-
-        col.appendChild(card);
-        return col;
-      }
-
-      // Abrir modal de vocalía
-      function openVocalia(match) {
-        document.getElementById("localTeamLogo").src = match.localTeamLogo;
-        document.getElementById("localTeamName").textContent =
-          match.localTeamName;
-        document.getElementById("visitorTeamLogo").src = match.visitorTeamLogo;
-        document.getElementById("visitorTeamName").textContent =
-          match.visitorTeamName;
-        document.getElementById("matchCategory").textContent = match.category;
-        document.getElementById("matchDate").textContent = new Date(
-          match.date
-        ).toLocaleDateString();
-        document.getElementById("matchTime").textContent = match.time;
-
-        const vocaliaModal = new bootstrap.Modal(
-          document.getElementById("vocaliaModal")
-        );
-        vocaliaModal.show();
-      }
-
-      // Cargar partidos al iniciar
-      document.addEventListener("DOMContentLoaded", loadScheduledMatches);
-
-      // Función para mostrar la vocalía virtual completa
-      function mostrarVocaliaVirtual() {
-        const vocaliaModal = bootstrap.Modal.getInstance(
-          document.getElementById("vocaliaModal")
-        );
-        vocaliaModal.hide();
-
-        const vocaliaCompletaModal = new bootstrap.Modal(
-          document.getElementById("vocaliaCompletaModal")
-        );
-        document.getElementById("numeroVocalia").textContent =
-          generarNumeroVocalia();
-        document.getElementById("equipoLocalNombre").textContent =
-          document.getElementById("localTeamName").textContent;
-        document.getElementById("equipoVisitanteNombre").textContent =
-          document.getElementById("visitorTeamName").textContent;
-
-        // Limpiar las tablas
-        document.getElementById("jugadoresLocal").innerHTML = "";
-        document.getElementById("jugadoresVisitante").innerHTML = "";
-        document.getElementById("cambiosLocal").innerHTML = "";
-        document.getElementById("cambiosVisitante").innerHTML = "";
-
-        vocaliaCompletaModal.show();
-      }
-
-      // Función para generar número de vocalía
-      function generarNumeroVocalia() {
-        return Math.floor(Math.random() * 1000) + 1;
-      }
-
-      // Función para guardar la vocalía
-      // Función para agregar tarjeta
-      async function agregarTarjeta(equipo, tipo) {
-        const equipoNombre = document.getElementById(
-          `equipo${equipo}Nombre`
-        ).textContent;
-        const jugadoresSnapshot = await db
-          .collection("players")
-          .where("teamName", "==", equipoNombre)
-          .where(
-            "teamCategory",
-            "==",
-            document.getElementById("matchCategory").textContent
-          )
-          .get();
-
-        if (jugadoresSnapshot.empty) {
-          Swal.fire(
-            "Info",
-            "No hay jugadores registrados para este equipo",
-            "info"
-          );
-          return;
-        }
-
-        let jugadoresOptions = "";
-        jugadoresSnapshot.forEach((doc) => {
-          const jugador = doc.data();
-          jugadoresOptions += `<option value="${jugador.numeroJugador}">#${jugador.numeroJugador}</option>`;
-        });
-
-        const contenidoHTML = `
-              <div class="tarjeta-entry mb-3">
-                  <div class="input-group">
-                      <select class="form-select" required>
-                          <option value="">Seleccionar Jugador</option>
-                          ${jugadoresOptions}
-                      </select>
-                      <input type="text" class="form-control" placeholder="Motivo de la tarjeta" required>
-                      <button class="btn btn-outline-danger" onclick="this.closest('.tarjeta-entry').remove()">
-                          <i class="fas fa-trash"></i>
-                      </button>
-                  </div>
-              </div>
-          `;
-
-        const container = document.getElementById(`tarjetas${tipo}s${equipo}`);
-        container.insertAdjacentHTML("afterbegin", contenidoHTML);
-      }
-
-      function guardarVocalia() {
-        // Aquí puedes agregar la lógica para guardar la información del árbitro
-        // incluyendo las tarjetas y el informe general
-
-        Swal.fire({
-          title: "¡Éxito!",
-          text: "Vocalía guardada correctamente",
-          icon: "success",
-          confirmButtonText: "Aceptar",
-        }).then(() => {
-          const vocaliaCompletaModal = bootstrap.Modal.getInstance(
-            document.getElementById("vocaliaCompletaModal")
-          );
-          vocaliaCompletaModal.hide();
-        });
-      }
-
-      // Variables para controlar el número de jugadores y cambios
-      let contadoresJugadores = {
-        Local: 0,
-        Visitante: 0,
-      };
-
-      let contadoresCambios = {
-        Local: 0,
-        Visitante: 0,
-      };
-
-      // Función para agregar jugador
-      async function agregarJugador(tipo) {
-        const equipoNombre =
-          tipo === "Local"
-            ? document.getElementById("equipoLocalNombre").textContent
-            : document.getElementById("equipoVisitanteNombre").textContent;
-        const categoria = document.getElementById("matchCategory").textContent;
-
+      async function loadChampionships() {
+        const select = document.getElementById("campSelect");
         try {
-          const jugadoresSnapshot = await db
-            .collection("players")
-            .where("teamName", "==", equipoNombre)
-            .where("teamCategory", "==", categoria)
-            .get();
-
-          if (jugadoresSnapshot.empty) {
-            Swal.fire(
-              "Info",
-              "No hay jugadores registrados para este equipo en esta categoría",
-              "info"
-            );
+          const snapshot = await db.collection("championships").orderBy("createdAt", "desc").get();
+          select.innerHTML = "";
+          if (snapshot.empty) {
+            select.innerHTML = '<option value="">No hay campeonatos</option>';
             return;
           }
-
-          let contenidoHTML =
-            '<div class="d-flex flex-wrap justify-content-center gap-3 p-3">';
-          jugadoresSnapshot.forEach((doc) => {
-            const jugador = doc.data();
-            contenidoHTML += `
-        <div class="carnet-jugador" 
-             onclick="seleccionarJugador('${tipo}', ${JSON.stringify(
-              jugador
-            ).replace(/"/g, "&quot;")})">
-          <div class="carnet-container">
-            <div class="carnet-header">
-              <h6 class="mb-1" >LIGA BARRIAL ARGELIA ALTA</h6>
-              <small>CAMPEONATO 2025</small>
-            </div>
-            <div class="carnet-content">
-              <div class="foto-container">
-                <img src="${
-                  jugador.playerPhoto || "img/default-player.png"
-                }" alt="Foto">
-                <div class="numero">${jugador.numeroJugador}</div>
-              </div>
-              <div class="info-container">
-                <div class="equipo">${equipoNombre}</div>
-                <div class="categoria"><strong>CATEGORIA:</strong> ${categoria}</div>
-                <div class="nombre"><strong>NOM:</strong> ${
-                  jugador.nombres || ""
-                }</div>
-                <div class="apellido"><strong>APELL:</strong> ${
-                  jugador.apellidos || ""
-                }</div>
-                <div class="fecha"><strong>FECHA NAC:</strong> ${
-                  jugador.fechaNacimiento || ""
-                }</div>
-                <div class="cedula"><strong>CI:</strong> ${
-                  jugador.cedula || ""
-                }</div>
-              </div>
-            </div>
-          </div>
-        </div>`;
+          snapshot.forEach((doc) => {
+            const opt = document.createElement("option");
+            opt.value = doc.id; opt.textContent = doc.data().name;
+            select.appendChild(opt);
           });
-          contenidoHTML += "</div>";
-
-          // Agregar estilos específicos para el carnet
-          const estilosCarnet = `
-     
-    `;
-
-          Swal.fire({
-            title: `Seleccionar Jugador - ${equipoNombre}`,
-            html: estilosCarnet + contenidoHTML,
-            width: "80%",
-            showCloseButton: true,
-            showConfirmButton: false,
-          });
-        } catch (error) {
-          console.error("Error al cargar jugadores:", error);
-          Swal.fire("Error", "No se pudieron cargar los jugadores", "error");
-        }
-      }
-
-      function seleccionarJugador(tipo, jugador) {
-        if (contadoresJugadores[tipo] >= 9) {
-          Swal.fire(
-            "Límite alcanzado",
-            "No se pueden agregar más de 9 jugadores",
-            "warning"
-          );
-          return;
-        }
-
-        const tbody = document.getElementById(`jugadores${tipo}`);
-
-        // Verificar si el jugador ya está agregado
-        const jugadoresExistentes = tbody.getElementsByTagName("tr");
-        for (let tr of jugadoresExistentes) {
-          if (tr.getAttribute("data-cedula") === jugador.cedula) {
-            Swal.fire("Info", "Este jugador ya está agregado al acta", "info");
-            return;
+          if (select.options.length > 0) {
+            select.value = select.options[0].value;
+            resetAndLoad();
           }
-        }
-
-        // Obtener primer nombre y primer apellido
-        const primerNombre = jugador.nombres.split(" ")[0];
-        const primerApellido = jugador.apellidos.split(" ")[0];
-
-        const tr = document.createElement("tr");
-        tr.setAttribute("data-cedula", jugador.cedula);
-        tr.setAttribute("data-amarillas", "0");
-        tr.setAttribute("data-roja", "0");
-        tr.innerHTML = `
-            <td>${jugador.numeroJugador}</td>
-            <td>${primerNombre} ${primerApellido}</td>
-            <td><input type="number" class="form-control form-control-sm" value="0" min="0"></td>
-           <td class="text-center">
-  <div class="d-flex align-items-center justify-content-center gap-2">
-    <button class="btn btn-warning"
-            onclick="toggleTarjeta(this, 'amarilla')"
-            style="width: 60px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center;">
-      <i class="fas fa-square" style="font-size: 12px;"></i>
-    </button>
-    <div class="tarjetas-amarillas d-flex gap-1"></div>
-  </div>
-</td>
-<td class="text-center">
-  <div class="d-flex align-items-center justify-content-center gap-2">
-    <button class="btn btn-danger"
-            onclick="toggleTarjeta(this, 'roja')"
-            style="width: 60px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center;">
-      <i class="fas fa-square" style="font-size: 12px;"></i>
-    </button>
-    <div class="tarjeta-roja"></div>
-  </div>
-</td>
-<td>
-  <button class="btn btn-danger"
-          onclick="eliminarJugador(this, '${tipo}')"
-          style="width: 50px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center;">
-    <i class="fas fa-trash" style="font-size: 12px;"></i>
-  </button>
-</td>
-
-        `;
-
-        tbody.appendChild(tr);
-        contadoresJugadores[tipo]++;
-
-        Swal.close();
+        } catch (e) { console.error(e); }
       }
 
-      function eliminarJugador(btn, tipo) {
-        Swal.fire({
-          title: "¿Estás seguro?",
-          text: "Se eliminará el jugador del acta",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Sí, eliminar",
-          cancelButtonText: "Cancelar",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            const fila = btn.closest("tr");
-            fila.remove();
-            contadoresJugadores[tipo]--;
-            Swal.fire(
-              "Eliminado",
-              "El jugador ha sido eliminado del acta",
-              "success"
-            );
-          }
-        });
-      }
-
-      // Modificación de la función agregarCambio
-      async function agregarCambio(tipo) {
-        if (contadoresCambios[tipo] >= 5) {
-          Swal.fire(
-            "Límite alcanzado",
-            "No se pueden agregar más de 5 cambios",
-            "warning"
-          );
-          return;
-        }
-
-        const equipoNombre =
-          tipo === "Local"
-            ? document.getElementById("equipoLocalNombre").textContent
-            : document.getElementById("equipoVisitanteNombre").textContent;
-        const categoria = document.getElementById("matchCategory").textContent;
-
+      async function resetAndLoad() {
+        const campId = document.getElementById("campSelect").value;
+        if (!campId) return;
+        fixturesMap.clear();
+        currentJornada = null;
+        
         try {
-          const jugadoresSnapshot = await db
-            .collection("players")
-            .where("teamName", "==", equipoNombre)
-            .where("teamCategory", "==", categoria)
-            .get();
-
-          if (jugadoresSnapshot.empty) {
-            Swal.fire(
-              "Info",
-              "No hay jugadores registrados para este equipo en esta categoría",
-              "info"
-            );
-            return;
-          }
-
-          // Obtener los jugadores ya registrados en la vocalía
-          const jugadoresRegistrados = Array.from(
-            document
-              .getElementById(`jugadores${tipo}`)
-              .getElementsByTagName("tr")
-          ).map((tr) => tr.getAttribute("data-cedula"));
-
-          let contenidoHTML = `
-                <div class="mb-4">
-                    <h5 class="text-danger mb-3">Seleccione jugador que sale:</h5>
-                    <div class="d-flex flex-wrap justify-content-center gap-3 p-3">`;
-
-          // Mostrar solo los jugadores que están en la vocalía para salir
-          jugadoresSnapshot.forEach((doc) => {
-            const jugador = doc.data();
-            if (jugadoresRegistrados.includes(jugador.cedula)) {
-              const primerNombre = jugador.nombres.split(" ")[0];
-              const primerApellido = jugador.apellidos.split(" ")[0];
-              contenidoHTML += `
-                        <div class="jugador-card" 
-                             style="width:85%; 
-                                    text-align: center; 
-                                    cursor: pointer;
-                                    transition: transform 0.2s;
-                                    border: 2px solid #dc3545;"
-                             onmouseover="this.style.transform='scale(1.1)'"
-                             onmouseout="this.style.transform='scale(1)'"
-                             onclick="seleccionarJugadorSaliente('${tipo}', ${JSON.stringify(
-                jugador
-              ).replace(/"/g, "&quot;")})">
-                             <div class="carnet-container">
-            <div class="carnet-header">
-              <h6 class="mb-1" >LIGA BARRIAL ARGELIA ALTA</h6>
-              <small>CAMPEONATO 2025</small>
-            </div>
-            <div class="carnet-content">
-              <div class="foto-container">
-                <img src="${
-                  jugador.playerPhoto || "img/default-player.png"
-                }" alt="Foto">
-                <div class="numero">${jugador.numeroJugador}</div>
-              </div>
-              <div class="info-container">
-                <div class="equipo">${equipoNombre}</div>
-                <div class="categoria"><strong>CATEGORIA:</strong> ${categoria}</div>
-                <div class="nombre"><strong>NOM:</strong> ${
-                  jugador.nombres || ""
-                }</div>
-                <div class="apellido"><strong>APELL:</strong> ${
-                  jugador.apellidos || ""
-                }</div>
-                <div class="fecha"><strong>FECHA NAC:</strong> ${
-                  jugador.fechaNacimiento || ""
-                }</div>
-                <div class="cedula"><strong>CI:</strong> ${
-                  jugador.cedula || ""
-                }</div>
-              </div>
-            </div>
-          </div>
-        </div>`;
-            }
+          const snapshot = await db.collection("fixtures").where("championshipId", "==", campId).get();
+          snapshot.forEach(doc => {
+            fixturesMap.set(doc.id, doc.data());
           });
-
-          contenidoHTML += `
-                </div>
-            </div>
-            <div>
-                <h5 class="text-primary mb-3">Seleccione jugador que entra:</h5>
-                <div class="d-flex flex-wrap justify-content-center gap-3 p-3">`;
-
-          // Mostrar solo los jugadores que NO están en la vocalía para entrar
-          jugadoresSnapshot.forEach((doc) => {
-            const jugador = doc.data();
-            if (!jugadoresRegistrados.includes(jugador.cedula)) {
-              const primerNombre = jugador.nombres.split(" ")[0];
-              const primerApellido = jugador.apellidos.split(" ")[0];
-              contenidoHTML += `
-                        <div class="jugador-card" 
-                             style="width:85%; 
-                                    text-align: center; 
-                                    cursor: pointer;
-                                    transition: transform 0.2s;
-                                    border: 2px solid #007bff;"
-                             onmouseover="this.style.transform='scale(1.1)'"
-                             onmouseout="this.style.transform='scale(1)'"
-                             onclick="seleccionarJugadorEntrante('${tipo}', ${JSON.stringify(
-                jugador
-              ).replace(/"/g, "&quot;")})">
-                                                    <div class="carnet-container">
-            <div class="carnet-header">
-              <h6 class="mb-1" >LIGA BARRIAL ARGELIA ALTA</h6>
-              <small>CAMPEONATO 2025</small>
-            </div>
-            <div class="carnet-content">
-              <div class="foto-container">
-                <img src="${
-                  jugador.playerPhoto || "img/default-player.png"
-                }" alt="Foto">
-                <div class="numero">${jugador.numeroJugador}</div>
-              </div>
-              <div class="info-container">
-                <div class="equipo">${equipoNombre}</div>
-                <div class="categoria"><strong>CATEGORIA:</strong> ${categoria}</div>
-                <div class="nombre"><strong>NOM:</strong> ${
-                  jugador.nombres || ""
-                }</div>
-                <div class="apellido"><strong>APELL:</strong> ${
-                  jugador.apellidos || ""
-                }</div>
-                <div class="fecha"><strong>FECHA NAC:</strong> ${
-                  jugador.fechaNacimiento || ""
-                }</div>
-                <div class="cedula"><strong>CI:</strong> ${
-                  jugador.cedula || ""
-                }</div>
-              </div>
-            </div>
-          </div>
-        </div>`;
-            }
-          });
-
-          contenidoHTML += `
-                    </div>
-                </div>`;
-
-          window.jugadorSaliente = null;
-          window.jugadorEntrante = null;
-
-          Swal.fire({
-            title: `Registrar Cambio - ${equipoNombre}`,
-            html: contenidoHTML,
-            width: "80%",
-            showCloseButton: true,
-            showConfirmButton: true,
-            confirmButtonText: "Confirmar Cambio",
-            showCancelButton: true,
-            cancelButtonText: "Cancelar",
-            allowOutsideClick: false,
-            preConfirm: () => {
-              if (!window.jugadorSaliente || !window.jugadorEntrante) {
-                Swal.showValidationMessage("Debe seleccionar ambos jugadores");
-                return false;
-              }
-              return {
-                saliente: window.jugadorSaliente,
-                entrante: window.jugadorEntrante,
-              };
-            },
-          }).then((result) => {
-            if (result.isConfirmed) {
-              registrarCambio(
-                tipo,
-                result.value.saliente,
-                result.value.entrante
-              );
-            }
-          });
-        } catch (error) {
-          console.error("Error al cargar jugadores:", error);
-          Swal.fire("Error", "No se pudieron cargar los jugadores", "error");
-        }
+          renderNavigation();
+        } catch (e) { console.error(e); }
       }
 
-      function registrarCambio(tipo, jugadorSaliente, jugadorEntrante) {
-        const tbody = document.getElementById(`cambios${tipo}`);
-        const tr = document.createElement("tr");
-        tr.setAttribute("data-cedula-entrante", jugadorEntrante.cedula);
-        tr.setAttribute("data-cedula-saliente", jugadorSaliente.cedula);
-        tr.setAttribute("data-amarillas", "0");
-        tr.setAttribute("data-roja", "0");
+      function renderNavigation() {
+        const jornadasGrid = document.getElementById("jornadasContainer");
+        const matchesList = document.getElementById("matchesContainer");
 
-        const primerNombreEntrante = jugadorEntrante.nombres.split(" ")[0];
-        const primerApellidoEntrante = jugadorEntrante.apellidos.split(" ")[0];
-        const primerNombreSaliente = jugadorSaliente.nombres.split(" ")[0];
-        const primerApellidoSaliente = jugadorSaliente.apellidos.split(" ")[0];
+        if (currentJornada === null) {
+          jornadasGrid.classList.remove("d-none");
+          matchesList.classList.add("d-none");
+          matchesList.innerHTML = "";
 
-        tr.innerHTML = `
-            <td>
-                ${primerNombreEntrante} ${primerApellidoEntrante} (${jugadorEntrante.numeroJugador})
-            </td>
-            <td>
-                ${primerNombreSaliente} ${primerApellidoSaliente}
-            </td>
-            <td><input type="number" class="form-control form-control-sm" value="0" min="0"></td>
-         <td class="text-center">
-  <div class="d-flex align-items-center justify-content-center gap-2">
-    <button class="btn btn-warning"
-            onclick="toggleTarjeta(this, 'amarilla')"
-            style="width: 50px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center;">
-      <i class="fas fa-square" style="font-size: 12px;"></i>
-    </button>
-    <div class="tarjetas-amarillas d-flex gap-1"></div>
-  </div>
-</td>
-<td class="text-center">
-  <div class="d-flex align-items-center justify-content-center gap-2">
-    <button class="btn btn-danger"
-            onclick="toggleTarjeta(this, 'roja')"
-            style="width: 50px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center;">
-      <i class="fas fa-square" style="font-size: 12px;"></i>
-    </button>
-    <div class="tarjeta-roja"></div>
-  </div>
-</td>
-<td>
-  <button class="btn btn-danger"
-          onclick="eliminarJugador(this, '${tipo}')"
-          style="width: 45px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center;">
-    <i class="fas fa-trash" style="font-size: 12px;"></i>
-  </button>
-</td>
+          let jornadasProgramadas = new Set();
+          let counts = {};
 
-        `;
+          fixturesMap.forEach(meta => {
+            meta.data.forEach(x => {
+                // Solo incluimos partidos que tengan fecha y hora asignada (distintos de los valores por defecto)
+                const isProgrammed = x.fechaRealAsignadaText && 
+                                   x.fechaRealAsignadaText !== 'Por Definir' &&
+                                   x.horaRealAsignada && 
+                                   x.horaRealAsignada !== '--:--';
 
-        tbody.appendChild(tr);
-        contadoresCambios[tipo]++;
-      }
-
-      function eliminarCambio(btn, tipo) {
-        Swal.fire({
-          title: "¿Estás seguro?",
-          text: "Se eliminará el cambio del acta",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Sí, eliminar",
-          cancelButtonText: "Cancelar",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            const fila = btn.closest("tr");
-            fila.remove();
-            contadoresCambios[tipo]--;
-          }
-        });
-      }
-      // Modificar la función mostrarVocaliaVirtual para reiniciar contadores
-      function mostrarVocaliaVirtual() {
-        const vocaliaModal = bootstrap.Modal.getInstance(
-          document.getElementById("vocaliaModal")
-        );
-        vocaliaModal.hide();
-
-        // Reiniciar contadores
-        contadoresJugadores = {
-          Local: 0,
-          Visitante: 0,
-        };
-
-        contadoresCambios = {
-          Local: 0,
-          Visitante: 0,
-        };
-
-        const vocaliaCompletaModal = new bootstrap.Modal(
-          document.getElementById("vocaliaCompletaModal")
-        );
-        document.getElementById("numeroVocalia").textContent =
-          generarNumeroVocalia();
-        document.getElementById("equipoLocalNombre").textContent =
-          document.getElementById("localTeamName").textContent;
-        document.getElementById("equipoVisitanteNombre").textContent =
-          document.getElementById("visitorTeamName").textContent;
-
-        // Actualizar títulos de las secciones de tarjetas
-        document.getElementById("equipoLocalTarjetasTitle").textContent =
-          document.getElementById("equipoLocalNombre").textContent;
-        document.getElementById("equipoVisitanteTarjetasTitle").textContent =
-          document.getElementById("equipoVisitanteNombre").textContent;
-
-        // Limpiar las tablas
-        document.getElementById("jugadoresLocal").innerHTML = "";
-        document.getElementById("jugadoresVisitante").innerHTML = "";
-        document.getElementById("cambiosLocal").innerHTML = "";
-        document.getElementById("cambiosVisitante").innerHTML = "";
-
-        vocaliaCompletaModal.show();
-      }
-
-      function seleccionarJugadorSaliente(tipo, jugador) {
-        window.jugadorSaliente = jugador;
-        const cards = document.querySelectorAll(".jugador-card");
-        cards.forEach((card) => (card.style.border = "2px solid transparent"));
-        event.currentTarget.style.border = "2px solid #dc3545";
-      }
-
-      function seleccionarJugadorEntrante(tipo, jugador) {
-        window.jugadorEntrante = jugador;
-        const cards = document.querySelectorAll(".jugador-card");
-        cards.forEach((card) => {
-          if (
-            card !== event.currentTarget &&
-            card.style.border !== "2px solid #dc3545"
-          ) {
-            card.style.border = "2px solid transparent";
-          }
-        });
-        event.currentTarget.style.border = "2px solid #007bff";
-      }
-
-      function toggleTarjeta(btn, tipo, esCambio = false) {
-        const fila = btn.closest("tr");
-        const contenedorTarjetas =
-          tipo === "amarilla"
-            ? fila.querySelector(".tarjetas-amarillas")
-            : fila.querySelector(".tarjeta-roja");
-
-        if (tipo === "amarilla") {
-          const tarjetasActuales = parseInt(
-            fila.getAttribute("data-amarillas") || "0"
-          );
-
-          if (tarjetasActuales < 2) {
-            const nuevaTarjeta = document.createElement("div");
-            nuevaTarjeta.style.width = "15px";
-            nuevaTarjeta.style.height = "20px";
-            nuevaTarjeta.style.backgroundColor = "#ffc107";
-            nuevaTarjeta.style.cursor = "pointer";
-            nuevaTarjeta.onclick = function () {
-              this.remove();
-              const tarjetasRestantes =
-                parseInt(fila.getAttribute("data-amarillas")) - 1;
-              fila.setAttribute("data-amarillas", tarjetasRestantes);
-
-              // Si hay tarjeta roja por doble amarilla, eliminarla también
-              if (
-                tarjetasRestantes < 2 &&
-                fila.getAttribute("data-roja") === "1"
-              ) {
-                const tarjetaRoja = fila.querySelector(".tarjeta-roja div");
-                if (tarjetaRoja) {
-                  tarjetaRoja.remove();
-                  fila.setAttribute("data-roja", "0");
+                if (!x.isRest && x.local !== "DESCANSA" && x.visitor !== "DESCANSA" && isProgrammed) {
+                    jornadasProgramadas.add(x.jornada);
+                    counts[x.jornada] = (counts[x.jornada] || 0) + 1;
                 }
-              }
-            };
-            contenedorTarjetas.appendChild(nuevaTarjeta);
+            });
+          });
 
-            fila.setAttribute("data-amarillas", tarjetasActuales + 1);
+          // Convertir set a array y ordenar
+          const sortedJornadas = Array.from(jornadasProgramadas).sort((a, b) => a - b);
 
-            if (tarjetasActuales + 1 === 2) {
-              // Automáticamente agregar tarjeta roja por doble amarilla
-              toggleTarjeta(
-                btn.parentElement.parentElement.nextElementSibling.querySelector(
-                  ".btn-danger"
-                ),
-                "roja",
-                esCambio
-              );
-              Swal.fire({
-                title: "¡Expulsión!",
-                text: "Jugador expulsado por doble amarilla",
-                icon: "warning",
-                confirmButtonText: "Aceptar",
-              });
-            }
+          jornadasGrid.innerHTML = "";
+          if (sortedJornadas.length === 0) {
+              jornadasGrid.innerHTML = '<div class="col-12 text-center py-5"><i class="fas fa-calendar-times mb-3 opacity-25" style="font-size:3rem"></i><h5 class="text-white-50">No hay jornadas programadas aún</h5></div>';
+              return;
           }
-        } else if (tipo === "roja") {
-          if (fila.getAttribute("data-roja") === "0") {
-            const tarjetaRoja = document.createElement("div");
-            tarjetaRoja.style.width = "15px";
-            tarjetaRoja.style.height = "20px";
-            tarjetaRoja.style.backgroundColor = "#dc3545";
-            tarjetaRoja.style.cursor = "pointer";
-            tarjetaRoja.onclick = function () {
-              this.remove();
-              fila.setAttribute("data-roja", "0");
-            };
-            contenedorTarjetas.appendChild(tarjetaRoja);
 
-            fila.setAttribute("data-roja", "1");
-
-            if (
-              fila.getAttribute("data-roja") === "1" &&
-              parseInt(fila.getAttribute("data-amarillas")) < 2
-            ) {
-              Swal.fire({
-                title: "¡Expulsión!",
-                text: "Jugador expulsado por tarjeta roja directa",
-                icon: "warning",
-                confirmButtonText: "Aceptar",
-              });
-            }
-          }
+          sortedJornadas.forEach(j => {
+            jornadasGrid.insertAdjacentHTML("beforeend", `
+                <div class="col">
+                    <div class="jornada-card-elite" onclick="selectJornada(${j})">
+                        <i class="fas fa-calendar-alt"></i>
+                        <h5>Jornada ${j}</h5>
+                        <span class="match-count">${counts[j]} PARTIDOS LISTOS</span>
+                    </div>
+                </div>
+            `);
+          });
+        } else {
+          jornadasGrid.classList.add("d-none");
+          matchesList.classList.remove("d-none");
+          renderMatches();
         }
+      }
+
+      function selectJornada(j) {
+        currentJornada = j;
+        renderNavigation();
+      }
+
+      function backToJornadas() {
+        currentJornada = null;
+        renderNavigation();
+      }
+
+      async function renderMatches() {
+        // Cargar mapa de logos de equipos una vez
+        const teamsSnapshot = await db.collection("teams").where("championshipId", "==", document.getElementById("campSelect").value).get();
+        const logosMap = {};
+        teamsSnapshot.forEach(doc => {
+            logosMap[doc.data().name] = doc.data().logo || 'img/logo.png';
+        });
+
+        const container = document.getElementById("matchesContainer");
+        container.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-5 px-3">
+                <button class="btn-back-jornadas" onclick="backToJornadas()">
+                    <i class="fas fa-arrow-left me-2"></i> Volver
+                </button>
+                <div class="text-center">
+                    <h4 class="text-white mb-0 text-uppercase fw-900" style="letter-spacing:3px">JORNADA ${currentJornada}</h4>
+                    <small class="text-primary-glow">Selecciona un encuentro para iniciar el acta</small>
+                </div>
+                <div style="width:110px"></div>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 px-2" id="matchCardsGrid"></div>
+        `;
+
+        const grid = document.getElementById("matchCardsGrid");
+        let matches = [];
+        fixturesMap.forEach((meta, fixId) => {
+          meta.data.forEach(m => {
+            if (m.jornada === currentJornada && !m.isRest && m.local !== "DESCANSA" && m.visitor !== "DESCANSA") {
+              matches.push({ ...m, _cat: meta.category, _fixId: fixId });
+            }
+          });
+        });
+
+        const dayOrder = { "Viernes": 1, "Sábado": 2, "Domingo": 3 };
+        matches.sort((a, b) => {
+          if (dayOrder[a.fechaRealAsignadaText] !== dayOrder[b.fechaRealAsignadaText])
+            return dayOrder[a.fechaRealAsignadaText] - dayOrder[b.fechaRealAsignadaText];
+          return (a.horaRealAsignada || "99:99").localeCompare(b.horaRealAsignada || "99:99");
+        });
+
+        matches.forEach(m => {
+          const cardCol = document.createElement("div");
+          cardCol.className = "col";
+          const localLogo = logosMap[m.local] || 'img/logo.png';
+          const visitorLogo = logosMap[m.visitor] || 'img/logo.png';
+
+          cardCol.innerHTML = `
+            <div class="jornada-card-elite h-100 d-flex flex-column justify-content-between p-4" onclick="openVocalActa(${JSON.stringify(m).replace(/"/g, '&quot;')})">
+                <div class="mb-3 text-center">
+                    <span class="badge bg-primary-glass mb-4 text-uppercase" style="font-size:0.5rem; letter-spacing:2px; opacity:0.7">${m._cat}</span>
+                    <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                        <div style="flex:1">
+                            <img src="${localLogo}" alt="Logo Local" class="mb-2" style="width:35px; height:35px; border-radius:50%; object-fit:cover; border:1px solid rgba(255,255,255,0.1)">
+                            <div class="text-white fw-800" style="font-size:0.75rem; text-transform:uppercase; line-height:1">${m.local}</div>
+                        </div>
+                        <div class="text-primary-glow fw-900" style="font-size:0.5rem; opacity:0.5">VS</div>
+                        <div style="flex:1">
+                            <img src="${visitorLogo}" alt="Logo Visitante" class="mb-2" style="width:35px; height:35px; border-radius:50%; object-fit:cover; border:1px solid rgba(255,255,255,0.1)">
+                            <div class="text-white fw-800" style="font-size:0.75rem; text-transform:uppercase; line-height:1">${m.visitor}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-3 border-top border-secondary border-opacity-25 text-center">
+                    <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+                        <span class="text-white-50" style="font-size:0.85rem">
+                            <i class="far fa-calendar-alt me-1 text-primary-glow" style="font-size:1rem"></i> ${m.fechaRealAsignadaText}
+                        </span>
+                        <span class="mx-1 opacity-10">|</span>
+                        <span class="text-white-50" style="font-size:0.85rem">
+                            <i class="far fa-clock me-1 text-primary-glow" style="font-size:1rem"></i> ${m.horaRealAsignada}
+                        </span>
+                    </div>
+                    <div class="d-flex flex-column align-items-center gap-1">
+                        <div style="font-size:0.75rem; color:#f1c40f; line-height:1.1">
+                            <span class="text-white-50" style="font-size:0.6rem; letter-spacing:1px; opacity:0.8">VOCAL:</span> ${m.vocalAsignado}
+                        </div>
+                        <div style="font-size:0.75rem; color:#f1c40f; line-height:1.1">
+                            <span class="text-white-50" style="font-size:0.6rem; letter-spacing:1px; opacity:0.8">VEEDOR:</span> ${m.veedorAsignado}
+                        </div>
+                    </div>
+                </div>
+            </div>
+          `;
+          grid.appendChild(cardCol);
+        });
+      }
+
+      function openVocalActa(match) {
+        // Redirigir o Abrir Modal? El usuario dice "que me lleve a la pantalla de la vocalía digital"
+        // Dado que la vocalía digital es compleja, lo mejor es un modal XL o una página nueva.
+        // Reutilizaré la lógica de acta que ya existía pero con los datos dinámicos.
+        
+        const modalBody = document.getElementById("modalVocalBody");
+        modalBody.innerHTML = `
+            <div class="text-center py-5">
+                <i class="fas fa-spinner fa-spin fa-3x text-primary-glow mb-3"></i>
+                <h6 class="text-white-50">Cargando Acta Digital de ${match.local} vs ${match.visitor}...</h6>
+            </div>
+        `;
+        
+        const modal = new bootstrap.Modal(document.getElementById("vocaliaModal"));
+        modal.show();
+
+        // Cargar vista de acta (Simulado o real si existe el componente)
+        setTimeout(() => {
+           renderActaInterior(match);
+        }, 800);
+      }
+
+      function renderActaInterior(m) {
+          const body = document.getElementById("modalVocalBody");
+          body.innerHTML = `
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="glass-panel p-4 h-100">
+                        <h5 class="text-primary-glow mb-4 text-center text-uppercase">${m.local}</h5>
+                        <div id="playersLocal" class="row row-cols-3 g-2">
+                             <div class="col text-center py-4 text-white-50"><small>Cargando Nómina...</small></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="glass-panel p-4 h-100 border-info">
+                        <h5 class="text-info mb-4 text-center text-uppercase">${m.visitor}</h5>
+                        <div id="playersVisitor" class="row row-cols-3 g-2">
+                             <div class="col text-center py-4 text-white-50"><small>Cargando Nómina...</small></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                   <div class="glass-panel p-4">
+                       <h6 class="text-warning text-uppercase mb-3">Informe de Mesa (Vocal: ${m.vocalAsignado})</h6>
+                       <textarea class="select-premium" rows="3" placeholder="Ingresar novedades del encuentro..."></textarea>
+                       <div class="mt-4 text-center">
+                           <button class="btn-premium px-5" onclick="Swal.fire('Guardado', 'Acta enviada correctamente', 'success').then(()=> bootstrap.Modal.getInstance(document.getElementById('vocaliaModal')).hide())">
+                              <i class="fas fa-check-circle me-2"></i> Finalizar y Guardar Acta
+                           </button>
+                       </div>
+                   </div>
+                </div>
+            </div>
+          `;
+          loadNominas(m.local, m.visitor, m._cat);
+      }
+
+      async function loadNominas(local, visitor, cat) {
+          // Lógica para cargar jugadores de Firestore
+          const catsMap = { "MÁXIMA": "maxima", "PRIMERA": "primera", "FEMENINO": "femenino" };
+          const normalizedCat = catsMap[cat] || cat.toLowerCase();
+
+          const fetchTeam = async (name, containerId) => {
+              const snap = await db.collection("players").where("teamName", "==", name).where("teamCategory", "==", normalizedCat).get();
+              const cont = document.getElementById(containerId);
+              cont.innerHTML = "";
+              if(snap.empty) cont.innerHTML = "<div class='col-12 text-center py-3'>Sin jugadores</div>";
+              snap.forEach(doc => {
+                  const p = doc.data();
+                  cont.insertAdjacentHTML("beforeend", `
+                    <div class="col">
+                        <div class="p-2 border border-secondary rounded text-center small text-white" style="background:rgba(0,0,0,0.2)">
+                            <div class="fw-bold fs-5">#${p.numeroJugador}</div>
+                            <div style="font-size:0.6rem">${p.nombres.split(' ')[0]}</div>
+                        </div>
+                    </div>
+                  `);
+              });
+          };
+
+          await Promise.all([
+              fetchTeam(local, "playersLocal"),
+              fetchTeam(visitor, "playersVisitor")
+          ]);
       }
     </script>
   </body>
 </html>
-

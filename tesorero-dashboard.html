@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard Financiero | LDBAA</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/global-swal-patch.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
+
+    <link rel="icon" href="img/logo.png" />
+    <link rel="stylesheet" href="css/global-theme.css" />
+    <style>
+      .dashboard-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 40px 30px;
+        text-align: center;
+        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-decoration: none;
+        color: white;
+      }
+      .dashboard-card:hover {
+        transform: translateY(-10px);
+        background: rgba(46, 204, 113, 0.1);
+        border-color: var(--primary);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        color: white;
+      }
+      .dashboard-card i {
+        font-size: 3.5rem;
+        color: var(--primary);
+        margin-bottom: 20px;
+      }
+      .dashboard-card h3 {
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+      }
+      .dashboard-card p {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.9rem;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Main Background -->
+    <div class="main-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="nav-premium shadow-sm">
+      <div class="container-fluid d-flex justify-content-between align-items-center">
+        <a class="navbar-brand text-white fw-bold d-flex align-items-center" href="#">
+          <img src="img/logo.png" alt="Logo" width="40" height="40" class="me-3" />
+          <div class="brand-text d-flex flex-column">
+            <span class="fs-5 lh-1">LDBAA</span>
+            <span class="brand-accent small lh-1">FINANZAS</span>
+          </div>
+        </a>
+        <div class="nav-actions d-flex gap-3 align-items-center">
+          <button class="btn btn-logout-premium text-danger border border-danger border-opacity-25" style="background: rgba(220, 53, 69, 0.1);" onclick="logout()">
+            <i class="fas fa-power-off me-2"></i> <span>Salir</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container py-5">
+      <div class="text-center mb-5 mt-4">
+        <p class="text-uppercase tracking-widest text-white-50 mb-2 fw-bold" style="letter-spacing: 3px; font-size: 0.8rem">
+          Panel Exclusivo
+        </p>
+        <h1 class="section-title">
+          Dashboard de <span class="brand-accent">Tesorero</span>
+        </h1>
+        <p class="text-white-50 mx-auto mt-3" style="max-width: 600px; font-size: 1.1rem">
+          Bienvenido al centro de control financiero. Desde aquí puedes gestionar los ingresos y supervisar el sistema de apuestas.
+        </p>
+      </div>
+
+      <div class="row justify-content-center g-4 mt-4">
+        <div class="col-md-5 col-lg-4">
+          <div class="dashboard-card" onclick="openFacturacion()">
+            <i class="fas fa-file-invoice-dollar"></i>
+            <h3>Facturación</h3>
+            <p>Control de recibos, pagos de equipos y balances periódicos de la liga.</p>
+          </div>
+        </div>
+        
+        <div class="col-md-5 col-lg-4">
+          <a href="ligabet-admin.html" class="dashboard-card text-decoration-none">
+            <i class="fas fa-futbol"></i>
+            <h3>Admin LigaBet</h3>
+            <p>Control total de la Polla Barrial, validación de tickets y escrutinio de partidos.</p>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyAzRTlx96sL8rxcgLauftrTWpr5VlwjV00",
+        authDomain: "ldbaa-calificaciones.firebaseapp.com",
+        projectId: "ldbaa-calificaciones",
+        storageBucket: "ldbaa-calificaciones.firebasestorage.app",
+        messagingSenderId: "277579489603",
+        appId: "1:277579489603:web:01a1cc9ee1c9538163cff6",
+      };
+
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      const auth = firebase.auth();
+
+      function openFacturacion() {
+        Swal.fire({
+          title: 'Próximamente',
+          text: 'El módulo de facturación está en desarrollo.',
+          icon: 'info',
+          confirmButtonColor: '#2ecc71',
+          confirmButtonText: 'Entendido'
+        });
+      }
+
+      function logout() {
+        Swal.fire({
+          title: "¿Cerrar sesión?",
+          text: "¿Estás seguro de que deseas salir?",
+          icon: "warning",
+          showCancelButton: true,
+          showDenyButton: false,
+          confirmButtonColor: "#28a745",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Sí, salir",
+          cancelButtonText: "Cancelar",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            auth.signOut().then(() => {
+                window.location.href = "login.html";
+              }).catch((error) => {
+                console.error("Error al cerrar sesión:", error);
+                Swal.fire("Error", "No se pudo cerrar la sesión.", "error");
+              });
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
