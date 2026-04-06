@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -30,72 +30,90 @@
 
     <style>
       .jornada-card-elite {
-          background: rgba(255, 255, 255, 0.03);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 20px;
-          padding: 30px;
-          text-align: center;
-          transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-          cursor: pointer;
-          position: relative;
-          overflow: hidden;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
       }
       .jornada-card-elite:hover {
-          transform: translateY(-10px);
-          background: rgba(46, 204, 113, 0.1);
-          border-color: var(--primary-color);
-          box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        transform: translateY(-10px);
+        background: rgba(46, 204, 113, 0.1);
+        border-color: var(--primary-color);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
       }
       .jornada-card-elite i {
-          font-size: 2.5rem;
-          color: var(--primary-color);
-          margin-bottom: 15px;
-          display: block;
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        display: block;
       }
       .jornada-card-elite h5 {
-          color: white;
-          font-weight: 800;
-          margin-bottom: 5px;
-          text-transform: uppercase;
-          letter-spacing: 1px;
+        color: white;
+        font-weight: 800;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
       }
       .jornada-card-elite .match-count {
-          font-size: 0.8rem;
-          color: rgba(255,255,255,0.5);
-          text-transform: uppercase;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
       }
 
       .match-row-elite {
-          background: rgba(255, 255, 255, 0.02);
-          border-radius: 12px;
-          padding: 15px 20px;
-          margin-bottom: 10px;
-          border-left: 4px solid var(--primary-color);
-          transition: 0.3s;
-          cursor: pointer;
-          border: 1px solid rgba(255,255,255,0.05);
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin-bottom: 10px;
+        border-left: 4px solid var(--primary-color);
+        transition: 0.3s;
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.05);
       }
       .match-row-elite:hover {
-          background: rgba(255,255,255,0.05);
-          transform: translateX(10px);
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateX(10px);
       }
-      .team-label { font-weight: 800; color: white; font-size: 0.95rem; }
-      .vs-label { color: var(--primary-color); font-weight: 900; margin: 0 15px; font-size: 0.8rem; }
-      .mesa-label { font-size: 0.75rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; }
-      .mesa-val { font-size: 0.85rem; color: #f1c40f; font-weight: 600; }
-      
+      .team-label {
+        font-weight: 800;
+        color: white;
+        font-size: 0.95rem;
+      }
+      .vs-label {
+        color: var(--primary-color);
+        font-weight: 900;
+        margin: 0 15px;
+        font-size: 0.8rem;
+      }
+      .mesa-label {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .mesa-val {
+        font-size: 0.85rem;
+        color: #f1c40f;
+        font-weight: 600;
+      }
+
       .btn-back-jornadas {
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: white;
-          padding: 8px 15px;
-          border-radius: 10px;
-          transition: 0.3s;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 10px;
+        transition: 0.3s;
       }
       .btn-back-jornadas:hover {
-          background: white;
-          color: black;
+        background: white;
+        color: black;
       }
     </style>
   </head>
@@ -111,7 +129,9 @@
         </a>
         <div class="nav-links d-none d-md-flex">
           <a href="index.html"><i class="fas fa-home me-2"></i>Inicio</a>
-          <a href="#" class="active"><i class="fas fa-file-invoice me-2"></i>Actas Digitales</a>
+          <a href="#" class="active"
+            ><i class="fas fa-file-invoice me-2"></i>Actas Digitales</a
+          >
         </div>
         <a href="index.html" class="btn-logout-premium text-decoration-none">
           <i class="fas fa-chevron-left me-2"></i><span>Volver</span>
@@ -122,35 +142,48 @@
     <div class="container py-5">
       <!-- Encabezado -->
       <div class="text-center mb-5">
-        <h2 class="section-title">⚽ Vocalía <span class="text-primary-glow">Digital</span></h2>
-        <p class="text-white-50">Selecciona una jornada para gestionar los encuentros programados.</p>
+        <h2 class="section-title">
+          ⚽ Vocalía <span class="text-primary-glow">Digital</span>
+        </h2>
+        <p class="text-white-50">
+          Selecciona una jornada para gestionar los encuentros programados.
+        </p>
       </div>
 
       <!-- Selector de Campeonato -->
       <div class="glass-panel mb-5">
         <div class="row align-items-center">
-            <div class="col-md-4">
-                <label class="form-label mb-2 text-white-50">CAMPEONATO ACTIVO</label>
-                <select id="campSelect" class="select-premium" onchange="resetAndLoad()">
-                  <option value="">Cargando campeonatos...</option>
-                </select>
+          <div class="col-md-4">
+            <label class="form-label mb-2 text-white-50"
+              >CAMPEONATO ACTIVO</label
+            >
+            <select
+              id="campSelect"
+              class="select-premium"
+              onchange="resetAndLoad()"
+            >
+              <option value="">Cargando campeonatos...</option>
+            </select>
+          </div>
+          <div class="col-md-8 text-end">
+            <div class="d-flex justify-content-end gap-2">
+              <span class="badge bg-success-glass">EN VIVO</span>
+              <span class="badge bg-secondary-glass">SINCRONIZADO</span>
             </div>
-            <div class="col-md-8 text-end">
-                <div class="d-flex justify-content-end gap-2">
-                    <span class="badge bg-success-glass">EN VIVO</span>
-                    <span class="badge bg-secondary-glass">SINCRONIZADO</span>
-                </div>
-            </div>
+          </div>
         </div>
       </div>
 
       <!-- Contenedor dinámico -->
-      <div id="jornadasContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 f-view">
+      <div
+        id="jornadasContainer"
+        class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 f-view"
+      >
         <!-- Tarjetas de Jornadas se cargan aquí -->
       </div>
 
       <div id="matchesContainer" class="d-none">
-          <!-- Lista de partidos se carga aquí -->
+        <!-- Lista de partidos se carga aquí -->
       </div>
     </div>
 
@@ -159,13 +192,21 @@
       <div class="modal-dialog modal-xl">
         <div class="modal-content modal-premium">
           <div class="modal-header border-0 pb-0">
-             <h5 class="modal-title fw-800 text-uppercase" style="letter-spacing:2px">
-                <i class="fas fa-microchip me-2 text-primary-glow"></i> ACTA DIGITAL
-             </h5>
-             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <h5
+              class="modal-title fw-800 text-uppercase"
+              style="letter-spacing: 2px"
+            >
+              <i class="fas fa-microchip me-2 text-primary-glow"></i> ACTA
+              DIGITAL
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
           </div>
           <div class="modal-body p-4" id="modalVocalBody">
-              <!-- El contenido del acta se renderiza aquí -->
+            <!-- El contenido del acta se renderiza aquí -->
           </div>
         </div>
       </div>
@@ -198,7 +239,10 @@
       async function loadChampionships() {
         const select = document.getElementById("campSelect");
         try {
-          const snapshot = await db.collection("championships").orderBy("createdAt", "desc").get();
+          const snapshot = await db
+            .collection("championships")
+            .orderBy("createdAt", "desc")
+            .get();
           select.innerHTML = "";
           if (snapshot.empty) {
             select.innerHTML = '<option value="">No hay campeonatos</option>';
@@ -206,14 +250,17 @@
           }
           snapshot.forEach((doc) => {
             const opt = document.createElement("option");
-            opt.value = doc.id; opt.textContent = doc.data().name;
+            opt.value = doc.id;
+            opt.textContent = doc.data().name;
             select.appendChild(opt);
           });
           if (select.options.length > 0) {
             select.value = select.options[0].value;
             resetAndLoad();
           }
-        } catch (e) { console.error(e); }
+        } catch (e) {
+          console.error(e);
+        }
       }
 
       async function resetAndLoad() {
@@ -221,14 +268,19 @@
         if (!campId) return;
         fixturesMap.clear();
         currentJornada = null;
-        
+
         try {
-          const snapshot = await db.collection("fixtures").where("championshipId", "==", campId).get();
-          snapshot.forEach(doc => {
+          const snapshot = await db
+            .collection("fixtures")
+            .where("championshipId", "==", campId)
+            .get();
+          snapshot.forEach((doc) => {
             fixturesMap.set(doc.id, doc.data());
           });
           renderNavigation();
-        } catch (e) { console.error(e); }
+        } catch (e) {
+          console.error(e);
+        }
       }
 
       function renderNavigation() {
@@ -243,32 +295,43 @@
           let jornadasProgramadas = new Set();
           let counts = {};
 
-          fixturesMap.forEach(meta => {
-            meta.data.forEach(x => {
-                // Solo incluimos partidos que tengan fecha y hora asignada (distintos de los valores por defecto)
-                const isProgrammed = x.fechaRealAsignadaText && 
-                                   x.fechaRealAsignadaText !== 'Por Definir' &&
-                                   x.horaRealAsignada && 
-                                   x.horaRealAsignada !== '--:--';
+          fixturesMap.forEach((meta) => {
+            meta.data.forEach((x) => {
+              // Solo incluimos partidos que tengan fecha y hora asignada (distintos de los valores por defecto)
+              const isProgrammed =
+                x.fechaRealAsignadaText &&
+                x.fechaRealAsignadaText !== "Por Definir" &&
+                x.horaRealAsignada &&
+                x.horaRealAsignada !== "--:--";
 
-                if (!x.isRest && x.local !== "DESCANSA" && x.visitor !== "DESCANSA" && isProgrammed) {
-                    jornadasProgramadas.add(x.jornada);
-                    counts[x.jornada] = (counts[x.jornada] || 0) + 1;
-                }
+              if (
+                !x.isRest &&
+                x.local !== "DESCANSA" &&
+                x.visitor !== "DESCANSA" &&
+                isProgrammed
+              ) {
+                jornadasProgramadas.add(x.jornada);
+                counts[x.jornada] = (counts[x.jornada] || 0) + 1;
+              }
             });
           });
 
           // Convertir set a array y ordenar
-          const sortedJornadas = Array.from(jornadasProgramadas).sort((a, b) => a - b);
+          const sortedJornadas = Array.from(jornadasProgramadas).sort(
+            (a, b) => a - b,
+          );
 
           jornadasGrid.innerHTML = "";
           if (sortedJornadas.length === 0) {
-              jornadasGrid.innerHTML = '<div class="col-12 text-center py-5"><i class="fas fa-calendar-times mb-3 opacity-25" style="font-size:3rem"></i><h5 class="text-white-50">No hay jornadas programadas aún</h5></div>';
-              return;
+            jornadasGrid.innerHTML =
+              '<div class="col-12 text-center py-5"><i class="fas fa-calendar-times mb-3 opacity-25" style="font-size:3rem"></i><h5 class="text-white-50">No hay jornadas programadas aún</h5></div>';
+            return;
           }
 
-          sortedJornadas.forEach(j => {
-            jornadasGrid.insertAdjacentHTML("beforeend", `
+          sortedJornadas.forEach((j) => {
+            jornadasGrid.insertAdjacentHTML(
+              "beforeend",
+              `
                 <div class="col">
                     <div class="jornada-card-elite" onclick="selectJornada(${j})">
                         <i class="fas fa-calendar-alt"></i>
@@ -276,7 +339,8 @@
                         <span class="match-count">${counts[j]} PARTIDOS LISTOS</span>
                     </div>
                 </div>
-            `);
+            `,
+            );
           });
         } else {
           jornadasGrid.classList.add("d-none");
@@ -297,10 +361,17 @@
 
       async function renderMatches() {
         // Cargar mapa de logos de equipos una vez
-        const teamsSnapshot = await db.collection("teams").where("championshipId", "==", document.getElementById("campSelect").value).get();
+        const teamsSnapshot = await db
+          .collection("teams")
+          .where(
+            "championshipId",
+            "==",
+            document.getElementById("campSelect").value,
+          )
+          .get();
         const logosMap = {};
-        teamsSnapshot.forEach(doc => {
-            logosMap[doc.data().name] = doc.data().logo || 'img/logo.png';
+        teamsSnapshot.forEach((doc) => {
+          logosMap[doc.data().name] = doc.data().logo || "img/logo.png";
         });
 
         const container = document.getElementById("matchesContainer");
@@ -321,28 +392,41 @@
         const grid = document.getElementById("matchCardsGrid");
         let matches = [];
         fixturesMap.forEach((meta, fixId) => {
-          meta.data.forEach(m => {
-            if (m.jornada === currentJornada && !m.isRest && m.local !== "DESCANSA" && m.visitor !== "DESCANSA") {
+          meta.data.forEach((m) => {
+            if (
+              m.jornada === currentJornada &&
+              !m.isRest &&
+              m.local !== "DESCANSA" &&
+              m.visitor !== "DESCANSA"
+            ) {
               matches.push({ ...m, _cat: meta.category, _fixId: fixId });
             }
           });
         });
 
-        const dayOrder = { "Viernes": 1, "Sábado": 2, "Domingo": 3 };
+        const dayOrder = { Viernes: 1, Sábado: 2, Domingo: 3 };
         matches.sort((a, b) => {
-          if (dayOrder[a.fechaRealAsignadaText] !== dayOrder[b.fechaRealAsignadaText])
-            return dayOrder[a.fechaRealAsignadaText] - dayOrder[b.fechaRealAsignadaText];
-          return (a.horaRealAsignada || "99:99").localeCompare(b.horaRealAsignada || "99:99");
+          if (
+            dayOrder[a.fechaRealAsignadaText] !==
+            dayOrder[b.fechaRealAsignadaText]
+          )
+            return (
+              dayOrder[a.fechaRealAsignadaText] -
+              dayOrder[b.fechaRealAsignadaText]
+            );
+          return (a.horaRealAsignada || "99:99").localeCompare(
+            b.horaRealAsignada || "99:99",
+          );
         });
 
-        matches.forEach(m => {
+        matches.forEach((m) => {
           const cardCol = document.createElement("div");
           cardCol.className = "col";
-          const localLogo = logosMap[m.local] || 'img/logo.png';
-          const visitorLogo = logosMap[m.visitor] || 'img/logo.png';
+          const localLogo = logosMap[m.local] || "img/logo.png";
+          const visitorLogo = logosMap[m.visitor] || "img/logo.png";
 
           cardCol.innerHTML = `
-            <div class="jornada-card-elite h-100 d-flex flex-column justify-content-between p-4" onclick="openVocalActa(${JSON.stringify(m).replace(/"/g, '&quot;')})">
+            <div class="jornada-card-elite h-100 d-flex flex-column justify-content-between p-4" onclick="openVocalActa(${JSON.stringify(m).replace(/"/g, "&quot;")})">
                 <div class="mb-3 text-center">
                     <span class="badge bg-primary-glass mb-4 text-uppercase" style="font-size:0.5rem; letter-spacing:2px; opacity:0.7">${m._cat}</span>
                     <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
@@ -386,7 +470,7 @@
         // Redirigir o Abrir Modal? El usuario dice "que me lleve a la pantalla de la vocalía digital"
         // Dado que la vocalía digital es compleja, lo mejor es un modal XL o una página nueva.
         // Reutilizaré la lógica de acta que ya existía pero con los datos dinámicos.
-        
+
         const modalBody = document.getElementById("modalVocalBody");
         modalBody.innerHTML = `
             <div class="text-center py-5">
@@ -394,80 +478,1221 @@
                 <h6 class="text-white-50">Cargando Acta Digital de ${match.local} vs ${match.visitor}...</h6>
             </div>
         `;
-        
-        const modal = new bootstrap.Modal(document.getElementById("vocaliaModal"));
+
+        const modal = new bootstrap.Modal(
+          document.getElementById("vocaliaModal"),
+        );
         modal.show();
 
         // Cargar vista de acta (Simulado o real si existe el componente)
         setTimeout(() => {
-           renderActaInterior(match);
+          renderActaInterior(match);
         }, 800);
       }
 
       function renderActaInterior(m) {
-          const body = document.getElementById("modalVocalBody");
-          body.innerHTML = `
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="glass-panel p-4 h-100">
-                        <h5 class="text-primary-glow mb-4 text-center text-uppercase">${m.local}</h5>
-                        <div id="playersLocal" class="row row-cols-3 g-2">
-                             <div class="col text-center py-4 text-white-50"><small>Cargando Nómina...</small></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="glass-panel p-4 h-100 border-info">
-                        <h5 class="text-info mb-4 text-center text-uppercase">${m.visitor}</h5>
-                        <div id="playersVisitor" class="row row-cols-3 g-2">
-                             <div class="col text-center py-4 text-white-50"><small>Cargando Nómina...</small></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12">
-                   <div class="glass-panel p-4">
-                       <h6 class="text-warning text-uppercase mb-3">Informe de Mesa (Vocal: ${m.vocalAsignado})</h6>
-                       <textarea class="select-premium" rows="3" placeholder="Ingresar novedades del encuentro..."></textarea>
-                       <div class="mt-4 text-center">
-                           <button class="btn-premium px-5" onclick="Swal.fire('Guardado', 'Acta enviada correctamente', 'success').then(()=> bootstrap.Modal.getInstance(document.getElementById('vocaliaModal')).hide())">
-                              <i class="fas fa-check-circle me-2"></i> Finalizar y Guardar Acta
-                           </button>
-                       </div>
+        const body = document.getElementById("modalVocalBody");
+        body.innerHTML = `
+            <div class="acta-container p-2" style="max-height: 75vh; overflow-y: auto; overflow-x: hidden;">
+                <!-- Detalles de Cabecera -->
+                <div class="row g-2 mb-4 align-items-center bg-dark p-3 rounded" style="border: 1px solid rgba(255,255,255,0.1)">
+                   <div class="col-md-3">
+                       <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Cancha</div>
+                       <div class="fw-bold text-white" style="font-size:0.9rem">Liga Barrial Argelia Alta</div>
+                   </div>
+                   <div class="col-md-3">
+                       <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Fecha de juego</div>
+                       <div class="fw-bold text-white" style="font-size:0.9rem">${m.fechaRealAsignadaText || "---"}</div>
+                   </div>
+                   <div class="col-md-3">
+                       <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Jornada / Hora</div>
+                       <div class="fw-bold text-white" style="font-size:0.9rem">Jornada ${m.jornada} | ${m.horaRealAsignada || "---"}</div>
+                   </div>
+                   <div class="col-md-3">
+                       <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Categoría</div>
+                       <div class="fw-bold text-warning" style="font-size:0.9rem">${m._cat}</div>
+                   </div>
+                   <div class="col-md-6 mt-3">
+                       <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Vocal</div>
+                       <div class="fw-bold text-info" style="font-size:0.9rem">${m.vocalAsignado || "---"}</div>
+                   </div>
+                   <div class="col-md-6 mt-3">
+                       <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Veedor</div>
+                       <div class="fw-bold text-white" style="font-size:0.9rem">${m.veedorAsignado || "---"}</div>
                    </div>
                 </div>
-            </div>
-          `;
-          loadNominas(m.local, m.visitor, m._cat);
-      }
 
-      async function loadNominas(local, visitor, cat) {
-          // Lógica para cargar jugadores de Firestore
-          const catsMap = { "MÁXIMA": "maxima", "PRIMERA": "primera", "FEMENINO": "femenino" };
-          const normalizedCat = catsMap[cat] || cat.toLowerCase();
+                <!-- Equipos y Jugadores -->
+                <div class="row g-4">
+                    <!-- EQUIPO LOCAL -->
+                    <div class="col-lg-6">
+                        <div class="glass-panel p-3 h-100 border-primary" style="background: rgba(0,0,0,0.4)">
+                            <div class="mb-3 text-center border-bottom border-secondary border-opacity-50 pb-2">
+                                <h5 class="text-primary-glow mb-0 text-uppercase fw-bold">${m.local}</h5>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-dark table-sm table-bordered border-secondary mb-0">
+                                    <thead>
+                                        <tr class="text-center text-white-50 align-middle" style="font-size:0.75rem; background: rgba(255,255,255,0.05)">
+                                            <th width="10%">No.</th>
+                                            <th width="50%">Nombres y Apellidos del jugador</th>
+                                            <th width="10%" class="text-warning">T.A</th>
+                                            <th width="10%" class="text-danger">T.R</th>
+                                            <th width="20%">Goles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="listaJugadoresLocal">
+                                        <tr><td colspan="3" class="text-center text-muted py-3">Cargando nómina...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
 
-          const fetchTeam = async (name, containerId) => {
-              const snap = await db.collection("players").where("teamName", "==", name).where("teamCategory", "==", normalizedCat).get();
-              const cont = document.getElementById(containerId);
-              cont.innerHTML = "";
-              if(snap.empty) cont.innerHTML = "<div class='col-12 text-center py-3'>Sin jugadores</div>";
-              snap.forEach(doc => {
-                  const p = doc.data();
-                  cont.insertAdjacentHTML("beforeend", `
-                    <div class="col">
-                        <div class="p-2 border border-secondary rounded text-center small text-white" style="background:rgba(0,0,0,0.2)">
-                            <div class="fw-bold fs-5">#${p.numeroJugador}</div>
-                            <div style="font-size:0.6rem">${p.nombres.split(' ')[0]}</div>
+                            <div class="mt-4 table-responsive">
+                                <table class="table table-dark table-sm table-bordered border-secondary mb-0">
+                                    <thead>
+                                        <tr class="text-center text-white-50 align-middle" style="font-size:0.7rem; background: rgba(255,255,255,0.05)">
+                                            <th colspan="6">CAMBIOS</th>
+                                        </tr>
+                                        <tr class="text-center text-white-50" style="font-size:0.7rem">
+                                            <th width="12%">N. Entra</th>
+                                            <th width="30%">Nombre</th>
+                                            <th width="10%">N. Sale</th>
+                                            <th width="10%" class="text-warning">T.A</th>
+                                            <th width="10%" class="text-danger">T.R</th>
+                                            <th width="20%">Goles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="listaCambiosLocal">
+                                        ${Array(8)
+                                          .fill()
+                                          .map(
+                                            () => `
+                                        <tr>
+                                            <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none h-100" placeholder="#"></td>
+                                            <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none h-100 cursor-pointer text-warning" placeholder="Seleccionar Entra..." readonly onclick="openPlayerSelector('${m.local}', '${m._cat}', this, 'listaJugadoresLocal')"></td>
+                                            <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none h-100 cursor-pointer text-info text-center" placeholder="#" readonly onclick="openRosterSelector('listaJugadoresLocal', this)"></td>
+                                            <td class="p-0 text-center align-middle cursor-pointer" onclick="window.toggleCard(this, 'yellow')">
+                                                <div class="card-slot yellow-slot"></div>
+                                            </td>
+                                            <td class="p-0 text-center align-middle cursor-pointer" onclick="window.toggleCard(this, 'red')">
+                                                <div class="card-slot red-slot"></div>
+                                            </td>
+                                            <td class="p-0"><input type="number" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none h-100" min="0" oninput="window.updateTotalGoles('local')"></td>
+                                        </tr>
+                                        `,
+                                          )
+                                          .join("")}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-3 border border-secondary border-opacity-50">
+                                <div class="px-3 py-2 fw-bold text-white text-center w-75 bg-dark">TOTAL GOLES</div>
+                                <div class="w-25 border-start border-secondary py-1 bg-dark">
+                                    <input type="number" id="totalGolesLocal" class="form-control form-control-sm text-center fw-bold bg-transparent text-white border-0 shadow-none fs-5" value="0" readonly>
+                                </div>
+                            </div>
+
+                            <div class="mt-3 border border-secondary border-opacity-50">
+                                <div class="d-flex border-bottom border-secondary border-opacity-50 bg-dark">
+                                    <div class="px-3 py-2 text-white-50 small w-50">Deuda a pagar:</div>
+                                    <div class="w-50 d-flex bg-transparent border-start border-secondary">
+                                      <span class="px-2 py-2 fw-bold text-white">$</span>
+                                      <input type="number" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none" placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div class="d-flex bg-dark align-items-center">
+                                    <div class="px-3 py-2 text-white-50 small" style="width:25%">F) Capitán:</div>
+                                    <input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none border-end border-secondary border-opacity-50" style="width:50%" placeholder="...">
+                                    <div class="px-2 py-2 text-white-50 small">No.</div>
+                                    <input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none" style="width:25%" placeholder="#">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                  `);
-              });
+
+                    <!-- EQUIPO VISITANTE -->
+                    <div class="col-lg-6">
+                        <div class="glass-panel p-3 h-100 border-info" style="background: rgba(0,0,0,0.4)">
+                            <div class="mb-3 text-center border-bottom border-secondary border-opacity-50 pb-2">
+                                <h5 class="text-info mb-0 text-uppercase fw-bold">${m.visitor}</h5>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-dark table-sm table-bordered border-secondary mb-0">
+                                    <thead>
+                                        <tr class="text-center text-white-50 align-middle" style="font-size:0.75rem; background: rgba(255,255,255,0.05)">
+                                            <th width="10%">No.</th>
+                                            <th width="40%">Nombres y Apellidos del jugador</th>
+                                            <th width="10%" class="text-warning">T.A</th>
+                                            <th width="10%" class="text-danger">T.R</th>
+                                            <th width="10%">Goles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="listaJugadoresVisitante">
+                                        <tr><td colspan="5" class="text-center text-muted py-3">Cargando nómina...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="mt-4 table-responsive">
+                                <table class="table table-dark table-sm table-bordered border-secondary mb-0">
+                                    <thead>
+                                        <tr class="text-center text-white-50 align-middle" style="font-size:0.7rem; background: rgba(255,255,255,0.05)">
+                                            <th colspan="6">CAMBIOS</th>
+                                        </tr>
+                                        <tr class="text-center text-white-50" style="font-size:0.7rem">
+                                            <th width="10%">N. Entra</th>
+                                            <th width="30%">Nombre</th>
+                                            <th width="10%">N. Sale</th>
+                                            <th width="10%" class="text-warning">T.A</th>
+                                            <th width="10%" class="text-danger">T.R</th>
+                                            <th width="10%">Goles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="listaCambiosVisitante">
+                                        ${Array(8)
+                                          .fill()
+                                          .map(
+                                            () => `
+                                        <tr>
+                                            <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none h-100" placeholder="#"></td>
+                                            <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none h-100 cursor-pointer text-warning" placeholder="Seleccionar Entra..." readonly onclick="openPlayerSelector('${m.visitor}', '${m._cat}', this, 'listaJugadoresVisitante')"></td>
+                                            <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none h-100 cursor-pointer text-info text-center" placeholder="#" readonly onclick="openRosterSelector('listaJugadoresVisitante', this)"></td>
+                                            <td class="p-0 text-center align-middle cursor-pointer" onclick="window.toggleCard(this, 'yellow')">
+                                                <div class="card-slot yellow-slot"></div>
+                                            </td>
+                                            <td class="p-0 text-center align-middle cursor-pointer" onclick="window.toggleCard(this, 'red')">
+                                                <div class="card-slot red-slot"></div>
+                                            </td>
+                                            <td class="p-0"><input type="number" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none h-100" min="0" oninput="window.updateTotalGoles('visitor')"></td>
+                                        </tr>
+                                        `,
+                                          )
+                                          .join("")}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-3 border border-secondary border-opacity-50">
+                                <div class="px-3 py-2 fw-bold text-white text-center w-75 bg-dark">TOTAL GOLES</div>
+                                <div class="w-25 border-start border-secondary py-1 bg-dark">
+                                    <input type="number" id="totalGolesVisitante" class="form-control form-control-sm text-center fw-bold bg-transparent text-white border-0 shadow-none fs-5" value="0" readonly>
+                                </div>
+                            </div>
+
+                            <div class="mt-3 border border-secondary border-opacity-50">
+                                <div class="d-flex border-bottom border-secondary border-opacity-50 bg-dark">
+                                    <div class="px-3 py-2 text-white-50 small w-50">Deuda a pagar:</div>
+                                    <div class="w-50 d-flex bg-transparent border-start border-secondary">
+                                      <span class="px-2 py-2 fw-bold text-white">$</span>
+                                      <input type="number" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none" placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div class="d-flex bg-dark align-items-center">
+                                    <div class="px-3 py-2 text-white-50 small" style="width:25%">F) Capitán:</div>
+                                    <input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none border-end border-secondary border-opacity-50" style="width:50%" placeholder="...">
+                                    <div class="px-2 py-2 text-white-50 small">No.</div>
+                                    <input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none" style="width:25%" placeholder="#">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reportes: Vocal, Árbitro, Penas -->
+                <div class="glass-panel p-0 mt-4 border border-secondary border-opacity-25" style="background: rgba(0,0,0,0.3)">
+                    
+                    <!-- INFORME DEL VOCAL -->
+                    <div class="bg-dark p-2 text-center border-bottom border-secondary border-opacity-50">
+                        <h6 class="text-white text-uppercase mb-0 fw-bold" style="letter-spacing:1px">INFORME DEL VOCAL</h6>
+                    </div>
+                    <div class="p-3 border-bottom border-secondary border-opacity-50">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3 bg-dark p-2 rounded">
+                            <span class="text-white small fw-bold">El partido inicia a las</span>
+                            <input type="time" class="form-control form-control-sm w-auto bg-transparent text-warning border-secondary shadow-none">
+                            <span class="text-white small fw-bold">con las siguientes novedades:</span>
+                        </div>
+                        <div class="mb-3">
+                            <span class="text-white-50 small d-block mb-1 text-uppercase">Observaciones:</span>
+                            <textarea class="form-control form-control-sm bg-dark text-white border-secondary shadow-none" rows="3" placeholder="Escriba aquí..."></textarea>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6 border-end border-secondary border-opacity-25 pe-4">
+                                <div class="text-primary-glow small fw-bold mb-3">${m.local}</div>
+                                
+                                <!-- TABLA TA VOCAL LOCAL -->
+                                <div class="table-responsive mb-2">
+                                    <table class="table table-dark table-sm table-bordered border-secondary mb-0 text-center" style="font-size:0.65rem; table-layout: fixed;">
+                                        <thead class="bg-dark">
+                                            <tr class="text-warning"><th colspan="7">TARJETAS AMARILLAS (T.A.)</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="bg-dark fw-bold align-middle" width="60">DORSAL</td>
+                                                ${Array(6)
+                                                  .fill()
+                                                  .map(
+                                                    (_, i) =>
+                                                      `<td class="p-0"><input type="text" id="vocalTA_Local_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none p-0" readonly placeholder="-"></td>`,
+                                                  )
+                                                  .join("")}
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- TABLA TR VOCAL LOCAL -->
+                                <div class="table-responsive mb-3">
+                                    <table class="table table-dark table-sm table-bordered border-secondary mb-0 text-center" style="font-size:0.65rem; table-layout: fixed;">
+                                        <thead class="bg-dark">
+                                            <tr class="text-danger"><th colspan="7">TARJETAS ROJAS (T.R.)</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="bg-dark fw-bold align-middle" width="60">DORSAL</td>
+                                                ${Array(6)
+                                                  .fill()
+                                                  .map(
+                                                    (_, i) =>
+                                                      `<td class="p-0"><input type="text" id="vocalTR_Local_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none p-0" readonly placeholder="-"></td>`,
+                                                  )
+                                                  .join("")}
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="row g-2 border-top border-secondary border-opacity-25 pt-2 mt-2">
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Cinta Cap.</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Vocal</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Veedor</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Balón Liga</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Balón Propio</label></div>
+                                    <div class="col-6"><label class="form-check-label text-danger small cursor-pointer fw-bold"><input type="checkbox" class="form-check-input me-1" onchange="window.handleNoBall(this)"> No presentó balón</label></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 ps-4">
+                                <div class="text-info small fw-bold mb-3">${m.visitor}</div>
+                                
+                                <!-- TABLA TA VOCAL VISITANTE -->
+                                <div class="table-responsive mb-2">
+                                    <table class="table table-dark table-sm table-bordered border-secondary mb-0 text-center" style="font-size:0.65rem; table-layout: fixed;">
+                                        <thead class="bg-dark">
+                                            <tr class="text-warning"><th colspan="7">TARJETAS AMARILLAS (T.A.)</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="bg-dark fw-bold align-middle" width="60">DORSAL</td>
+                                                ${Array(6)
+                                                  .fill()
+                                                  .map(
+                                                    (_, i) =>
+                                                      `<td class="p-0"><input type="text" id="vocalTA_Visitor_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none p-0" readonly placeholder="-"></td>`,
+                                                  )
+                                                  .join("")}
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- TABLA TR VOCAL VISITANTE -->
+                                <div class="table-responsive mb-3">
+                                    <table class="table table-dark table-sm table-bordered border-secondary mb-0 text-center" style="font-size:0.65rem; table-layout: fixed;">
+                                        <thead class="bg-dark">
+                                            <tr class="text-danger"><th colspan="7">TARJETAS ROJAS (T.R.)</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="bg-dark fw-bold align-middle" width="60">DORSAL</td>
+                                                ${Array(6)
+                                                  .fill()
+                                                  .map(
+                                                    (_, i) =>
+                                                      `<td class="p-0"><input type="text" id="vocalTR_Visitor_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none p-0" readonly placeholder="-"></td>`,
+                                                  )
+                                                  .join("")}
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="row g-2 border-top border-secondary border-opacity-25 pt-2 mt-2">
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Cinta Cap.</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Vocal</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Veedor</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Balón Liga</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Balón Propio</label></div>
+                                    <div class="col-6"><label class="form-check-label text-danger small cursor-pointer fw-bold"><input type="checkbox" class="form-check-input me-1" onchange="window.handleNoBall(this)"> No presentó balón</label></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- FIRMA Y DATOS DEL VOCAL -->
+                        <div class="row g-3 mt-1 pt-3 border-top border-secondary border-opacity-25">
+                            <div class="col-md-5">
+                                <div class="d-flex align-items-center bg-dark p-2 rounded">
+                                    <span class="text-white-50 small me-2" style="width:110px">Nombre:</span>
+                                    <input type="text" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Nombre completo...">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center bg-dark p-2 rounded">
+                                    <span class="text-white-50 small me-2" style="width:90px">Club:</span>
+                                    <input type="text" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Club del vocal...">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center bg-dark p-2 rounded">
+                                    <span class="text-white-50 small me-2" style="width:60px">Firma:</span>
+                                    <input type="text" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INFORME DEL ÁRBITRO -->
+                    <div class="bg-dark p-2 text-center border-bottom border-secondary border-opacity-50">
+                        <h6 class="text-white text-uppercase mb-0 fw-bold" style="letter-spacing:1px">INFORME DEL ÁRBITRO</h6>
+                    </div>
+                    <div class="p-3 border-bottom border-secondary border-opacity-50">
+                        <div class="row g-4">
+                            <!-- Informe Árbitro Local -->
+                            <div class="col-md-6 border-end border-secondary border-opacity-25 pe-4">
+                                <div class="text-primary-glow small fw-bold mb-3">Equipo: ${m.local}</div>
+                                
+                                <div class="table-responsive mb-3">
+                                    <table class="table table-dark table-sm table-bordered border-secondary mb-0 text-center" style="font-size:0.7rem; table-layout: fixed;">
+                                        <thead class="bg-dark">
+                                            <tr class="text-warning"><th colspan="7">TARJETAS AMARILLAS (T.A.)</th></tr>
+                                            <tr class="text-white-50"><th>ITEM</th>${Array(6).fill("<th>#</th>").join("")}</tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td class="bg-dark fw-bold align-middle">DORSAL</td>${Array(
+                                              6,
+                                            )
+                                              .fill()
+                                              .map(
+                                                () =>
+                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none"></td>`,
+                                              )
+                                              .join("")}</tr>
+                                            <tr><td class="bg-dark fw-bold align-middle">MOTIVO</td>${Array(
+                                              6,
+                                            )
+                                              .fill()
+                                              .map(
+                                                () =>
+                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" placeholder="Siglas..."></td>`,
+                                              )
+                                              .join("")}</tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="table-responsive mb-3">
+                                    <table class="table table-dark table-sm table-bordered border-secondary mb-0 text-center" style="font-size:0.7rem; table-layout: fixed;">
+                                        <thead class="bg-dark">
+                                            <tr class="text-danger"><th colspan="7">TARJETAS ROJAS (T.R.)</th></tr>
+                                            <tr class="text-white-50"><th>ITEM</th>${Array(6).fill("<th>#</th>").join("")}</tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td class="bg-dark fw-bold align-middle">DORSAL</td>${Array(
+                                              6,
+                                            )
+                                              .fill()
+                                              .map(
+                                                () =>
+                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none"></td>`,
+                                              )
+                                              .join("")}</tr>
+                                            <tr><td class="bg-dark fw-bold align-middle">MOTIVO</td>${Array(
+                                              6,
+                                            )
+                                              .fill()
+                                              .map(
+                                                () =>
+                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" placeholder="Siglas..."></td>`,
+                                              )
+                                              .join("")}</tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-sm table-bordered border-secondary mb-0 text-center" style="font-size:0.7rem; table-layout: fixed;">
+                                        <thead class="bg-dark">
+                                            <tr class="text-white-50"><th colspan="7">GOLES ${m.local}</th></tr>
+                                            <tr class="text-white-50">
+                                                <th>N. JUG</th>${Array(6).fill("<th>#</th>").join("")}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="bg-dark align-middle fw-bold">DORSAL</td>
+                                                ${Array(6)
+                                                  .fill()
+                                                  .map(
+                                                    () =>
+                                                      `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none"></td>`,
+                                                  )
+                                                  .join("")}
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-dark align-middle fw-bold">CANT.</td>
+                                                ${Array(6)
+                                                  .fill()
+                                                  .map(
+                                                    () =>
+                                                      `<td class="p-0"><input type="number" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" oninput="window.calcRefereeGoles('${m.local}')"></td>`,
+                                                  )
+                                                  .join("")}
+                                            </tr>
+                                            <tr class="bg-dark fw-bold text-white">
+                                                <td colspan="6" class="text-end pe-2">TOTAL GOLES ${m.local}</td>
+                                                <td id="refTotalGoles${m.local.replace(/\s+/g, "")}">0</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Informe Árbitro Visitante -->
+                            <div class="col-md-6 ps-4">
+                                <div class="text-info small fw-bold mb-3">Equipo: ${m.visitor}</div>
+                                
+                                <div class="table-responsive mb-3">
+                                    <table class="table table-dark table-sm table-bordered border-secondary mb-0 text-center" style="font-size:0.7rem; table-layout: fixed;">
+                                        <thead class="bg-dark">
+                                            <tr class="text-warning"><th colspan="7">TARJETAS AMARILLAS (T.A.)</th></tr>
+                                            <tr class="text-white-50"><th>ITEM</th>${Array(6).fill("<th>#</th>").join("")}</tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td class="bg-dark fw-bold align-middle">DORSAL</td>${Array(
+                                              6,
+                                            )
+                                              .fill()
+                                              .map(
+                                                () =>
+                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none"></td>`,
+                                              )
+                                              .join("")}</tr>
+                                            <tr><td class="bg-dark fw-bold align-middle">MOTIVO</td>${Array(
+                                              6,
+                                            )
+                                              .fill()
+                                              .map(
+                                                () =>
+                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" placeholder="Siglas..."></td>`,
+                                              )
+                                              .join("")}</tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="table-responsive mb-3">
+                                    <table class="table table-dark table-sm table-bordered border-secondary mb-0 text-center" style="font-size:0.7rem; table-layout: fixed;">
+                                        <thead class="bg-dark">
+                                            <tr class="text-danger"><th colspan="7">TARJETAS ROJAS (T.R.)</th></tr>
+                                            <tr class="text-white-50"><th>ITEM</th>${Array(6).fill("<th>#</th>").join("")}</tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td class="bg-dark fw-bold align-middle">DORSAL</td>${Array(
+                                              6,
+                                            )
+                                              .fill()
+                                              .map(
+                                                () =>
+                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none"></td>`,
+                                              )
+                                              .join("")}</tr>
+                                            <tr><td class="bg-dark fw-bold align-middle">MOTIVO</td>${Array(
+                                              6,
+                                            )
+                                              .fill()
+                                              .map(
+                                                () =>
+                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" placeholder="Siglas..."></td>`,
+                                              )
+                                              .join("")}</tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-sm table-bordered border-secondary mb-0 text-center" style="font-size:0.7rem; table-layout: fixed;">
+                                        <thead class="bg-dark">
+                                            <tr class="text-white-50"><th colspan="7">GOLES ${m.visitor}</th></tr>
+                                            <tr class="text-white-50">
+                                                <th>N. JUG</th>${Array(6).fill("<th>#</th>").join("")}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="bg-dark align-middle fw-bold">DORSAL</td>
+                                                ${Array(6)
+                                                  .fill()
+                                                  .map(
+                                                    () =>
+                                                      `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none"></td>`,
+                                                  )
+                                                  .join("")}
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-dark align-middle fw-bold">CANT.</td>
+                                                ${Array(6)
+                                                  .fill()
+                                                  .map(
+                                                    () =>
+                                                      `<td class="p-0"><input type="number" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" oninput="window.calcRefereeGoles('${m.visitor}')"></td>`,
+                                                  )
+                                                  .join("")}
+                                            </tr>
+                                            <tr class="bg-dark fw-bold text-white">
+                                                <td colspan="6" class="text-end pe-2">TOTAL GOLES ${m.visitor}</td>
+                                                <td id="refTotalGoles${m.visitor.replace(/\s+/g, "")}">0</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- OBSERVACIONES FINAL -->
+                        <div class="mt-4">
+                            <span class="text-white-50 small d-block mb-1">OBSERVACIONES ÁRBITRO:</span>
+                            <textarea class="form-control form-control-sm bg-dark text-white border-secondary shadow-none" rows="2" placeholder="Novedades del juego..."></textarea>
+                        </div>
+
+                        <!-- FIRMA Y CALIFICACIÓN JUEZ -->
+                        <div class="row g-3 mt-2 pt-3 border-top border-secondary border-opacity-25 align-items-center">
+                            <div class="col-md-5">
+                                <div class="d-flex align-items-center bg-dark p-2 rounded">
+                                    <span class="text-white-50 small me-2" style="width:110px">Nombre Juez:</span>
+                                    <input type="text" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Nombre completo...">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center bg-dark p-2 rounded">
+                                    <span class="text-white-50 small me-2" style="width:60px">Firma:</span>
+                                    <input type="text" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="...">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center bg-primary-glass p-2 rounded">
+                                    <span class="text-white small fw-bold me-2" style="width:140px">Calificación:</span>
+                                    <input type="number" class="form-control form-control-sm bg-dark text-white border-secondary shadow-none" min="1" max="10" placeholder="1-10">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INFORME DEL TRIBUNAL DE PENAS -->
+                    <div class="bg-dark p-2 text-center border-bottom border-secondary border-opacity-50">
+                        <h6 class="text-white text-uppercase mb-0 fw-bold" style="letter-spacing:1px" title="Bloqueado - Uso exclusivo del Tribunal">INFORME DEL TRIBUNAL DE PENAS <i class="fas fa-lock ms-2 text-white-50"></i></h6>
+                    </div>
+                    <fieldset disabled class="p-0 border-0 m-0">
+                        <div class="d-flex border-bottom border-secondary border-opacity-50 bg-dark text-center">
+                            <div class="w-50 p-2 border-end border-secondary border-opacity-50 text-primary-glow fw-bold text-uppercase small">${m.local}</div>
+                            <div class="w-50 p-2 text-info fw-bold text-uppercase small">${m.visitor}</div>
+                        </div>
+                        <div class="d-flex">
+                            <!-- Multas Local -->
+                            <div class="w-50 p-3 border-end border-secondary border-opacity-50">
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
+                                    <span class="small text-white-50">Por Tarjetas Amarillas</span>
+                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
+                                    <span class="small text-white-50">Por T/R 1 Partido</span>
+                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
+                                    <span class="small text-white-50">Por T/R 2 Partidos</span>
+                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
+                                    <span class="small text-white-50">Por T/R 3 Partidos</span>
+                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
+                                    <span class="small text-white-50">Por T/R 4 Partidos</span>
+                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+                                </div>
+                                <div class="mt-3">
+                                    <span class="small text-white fw-bold mb-1 d-block">OTRAS</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary flex-grow-1" placeholder="Detalle...">
+                                        <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Multas Visitante -->
+                            <div class="w-50 p-3">
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
+                                    <span class="small text-white-50">Por Tarjetas Amarillas</span>
+                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
+                                    <span class="small text-white-50">Por T/R 1 Partido</span>
+                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
+                                    <span class="small text-white-50">Por T/R 2 Partidos</span>
+                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
+                                    <span class="small text-white-50">Por T/R 3 Partidos</span>
+                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
+                                    <span class="small text-white-50">Por T/R 4 Partidos</span>
+                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+                                </div>
+                                <div class="mt-3">
+                                    <span class="small text-white fw-bold mb-1 d-block">OTRAS</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary flex-grow-1" placeholder="Detalle...">
+                                        <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex border-top border-secondary border-opacity-50 font-weight-bold bg-dark p-3 text-white">
+                            <div class="w-50 pe-3 border-end border-secondary border-opacity-50 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">Total Multas $</span>
+                                <input type="number" class="form-control form-control-sm bg-transparent border-0 text-white fw-bold fs-5 text-end w-50 shadow-none" readonly value="0">
+                            </div>
+                            <div class="w-50 ps-3 d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">Total Multas $</span>
+                                <input type="number" class="form-control form-control-sm bg-transparent border-0 text-white fw-bold fs-5 text-end w-50 shadow-none" readonly value="0">
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <!-- Botón de Guardado -->
+                <div class="row mt-4 mb-3">
+                    <div class="col-12 text-center">
+                        <button class="btn-premium px-5 py-3 fs-5" onclick="Swal.fire('Guardado', 'El acta digital fue enviada exitosamente.', 'success').then(()=> bootstrap.Modal.getInstance(document.getElementById('vocaliaModal')).hide())">
+                            <i class="fas fa-check-circle me-2"></i> Finalizar y Guardar Acta
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+          `;
+        loadNominasDigitales(m.local, m.visitor, m._cat);
+      }
+
+      function loadNominasDigitales(local, visitor, cat) {
+        const loadEmptyRows = (name, tbodyId) => {
+          const tbody = document.getElementById(tbodyId);
+          tbody.innerHTML = "";
+
+          for (let i = 0; i < 9; i++) {
+            tbody.insertAdjacentHTML(
+              "beforeend",
+              `
+                      <tr>
+                          <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none h-100" placeholder="#"></td>
+                          <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none h-100 cursor-pointer text-warning" placeholder="Seleccionar..." readonly onclick="openPlayerSelector('${name}', '${cat}', this, '${tbodyId}')"></td>
+                          <td class="p-0 text-center align-middle cursor-pointer" onclick="window.toggleCard(this, 'yellow')">
+                              <div class="card-slot yellow-slot"></div>
+                          </td>
+                          <td class="p-0 text-center align-middle cursor-pointer" onclick="window.toggleCard(this, 'red')">
+                              <div class="card-slot red-slot"></div>
+                          </td>
+                          <td class="p-0"><input type="number" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none h-100" placeholder="" min="0" oninput="window.updateTotalGoles('${tbodyId.includes("Local") ? "local" : "visitor"}')"></td>
+                      </tr>
+                  `,
+            );
+          }
+        };
+
+        loadEmptyRows(local, "listaJugadoresLocal");
+        loadEmptyRows(visitor, "listaJugadoresVisitante");
+      }
+
+      let currentTargetInput = null;
+
+      async function openPlayerSelector(
+        teamName,
+        category,
+        inputElement,
+        rosterTbodyIdToFilter = null,
+      ) {
+        currentTargetInput = inputElement;
+
+        // Obtener números de jugadores en cancha si se pasa el rosterTbodyId
+        let numbersOnField = [];
+        if (rosterTbodyIdToFilter) {
+          const tbody = document.getElementById(rosterTbodyIdToFilter);
+          if (tbody) {
+            tbody.querySelectorAll("tr").forEach((tr) => {
+              const num = tr.querySelectorAll("input")[0].value.trim();
+              if (num) numbersOnField.push(num);
+            });
+          }
+        }
+
+        let modalEl = document.getElementById("playerSelectorModal");
+        if (!modalEl) {
+          modalEl = document.createElement("div");
+          modalEl.id = "playerSelectorModal";
+          modalEl.className = "modal fade";
+          modalEl.style.zIndex = "1060";
+          modalEl.innerHTML = `
+                  <div class="modal-dialog modal-xl modal-dialog-centered">
+                      <div class="modal-content border border-secondary" style="background: rgba(10,10,10,0.95); backdrop-filter: blur(10px)">
+                          <div class="modal-header border-bottom border-secondary border-opacity-50 flex-wrap gap-2">
+                              <h5 class="modal-title fw-bold text-uppercase text-white" id="playerSelectorTitle"></h5>
+                              <div class="d-flex align-items-center gap-2 ms-auto">
+                                  <div class="input-group input-group-sm">
+                                      <span class="input-group-text bg-transparent text-white-50 border-secondary"><i class="fas fa-search"></i></span>
+                                      <input type="text" id="carnetSearchInput" class="form-control bg-transparent text-white border-secondary shadow-none" placeholder="Número..." oninput="window.filterCarnets(this.value)" style="width:120px;" autocomplete="off">
+                                  </div>
+                                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                              </div>
+                          </div>
+                          <div class="modal-body p-4 bg-dark" id="playerSelectorBody" style="max-height:75vh; overflow-y:auto">
+                          </div>
+                      </div>
+                  </div>
+              `;
+          document.body.appendChild(modalEl);
+        }
+
+        document.getElementById("playerSelectorTitle").innerHTML =
+          `<i class="fas fa-id-badge me-2 text-primary-glow"></i> CARNETS DIGITALES: ${teamName}`;
+        const modalBody = document.getElementById("playerSelectorBody");
+        modalBody.innerHTML = `<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-4x text-primary-glow"></i><p class="mt-3 fs-5 text-white-50">Cargando carnets digitales...</p></div>`;
+
+        const bsModal = new bootstrap.Modal(modalEl);
+        bsModal.show();
+
+        try {
+          const snap = await db
+            .collection("players")
+            .where("teamName", "==", teamName)
+            .get();
+
+          const campSelect = document.getElementById("campSelect");
+          const campName =
+            campSelect && campSelect.selectedIndex >= 0
+              ? campSelect.options[campSelect.selectedIndex].text
+              : "CAMPEONATO ACTIVO";
+
+          let html =
+            '<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">';
+          let validCount = 0;
+
+          snap.forEach((doc) => {
+            const p = doc.data();
+
+            // Filtrar los que están recalificados
+            if (p.status && p.status.toUpperCase() === "RECALIFICADO") return;
+
+            // Filtrar los que ya están en cancha (para cambios)
+            if (numbersOnField.includes(String(p.numeroJugador))) return;
+
+            if (
+              p.teamCategory &&
+              p.teamCategory.toUpperCase() !== category.toUpperCase()
+            )
+              return;
+
+            validCount++;
+            const photo = p.playerPhoto || p.fotoUrl || "img/default-user.png";
+            const nombre = (
+              (p.nombres || "") +
+              " " +
+              (p.apellidos || "")
+            ).trim();
+            const safeNombre = nombre.replace(/'/g, "\\'");
+            const num = p.numeroJugador || "";
+            const cedula = p.cedula || "N/A";
+
+            let fNac = "N/A";
+            let badgeHtml = "";
+            if (p.fechaNacimiento) {
+              const parts = p.fechaNacimiento.split("-");
+              if (parts.length === 3) {
+                fNac = `${parts[2]}/${parts[1]}/${parts[0]}`;
+              } else {
+                fNac = p.fechaNacimiento;
+              }
+
+              // Calcular la edad para las etiquetas "MASTER" o "JUVENIL"
+              const hoy = new Date();
+              const fechaNac = new Date(p.fechaNacimiento);
+              let edad = hoy.getFullYear() - fechaNac.getFullYear();
+              const mes = hoy.getMonth() - fechaNac.getMonth();
+              if (
+                mes < 0 ||
+                (mes === 0 && hoy.getDate() < fechaNac.getDate())
+              ) {
+                edad--;
+              }
+
+              if (edad < 18) {
+                badgeHtml =
+                  '<span class="badge position-absolute rounded-pill bg-light text-dark border border-secondary fw-bold z-2" style="bottom: 12px; right: 12px; font-size: 0.65rem; padding: 4px 8px; font-family: sans-serif; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">JUVENIL</span>';
+              } else if (edad > 40) {
+                badgeHtml =
+                  '<span class="badge position-absolute rounded-pill bg-warning text-dark fw-bold z-2" style="bottom: 12px; right: 12px; font-size: 0.65rem; padding: 4px 8px; font-family: sans-serif; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">MASTER</span>';
+              }
+            }
+
+            html += `
+                      <div class="col carnet-col-filter" data-dorsal="${num}" style="min-width:320px; max-width:380px;">
+                          <div class="card h-100 text-center position-relative overflow-hidden p-0 shadow-lg mx-auto" 
+                               onclick="selectPlayer('${safeNombre}', '${num}')" 
+                               style="cursor:pointer; border: 2px solid #111; border-radius: 12px; background: linear-gradient(135deg, #b5e877 0%, #4caf50 100%); color: black; transition: transform 0.2s;"
+                               onmouseover="this.style.transform='scale(1.03)'"
+                               onmouseout="this.style.transform='scale(1)'">
+                              
+                              <!-- Watermarks -->
+                              <i class="fas fa-futbol position-absolute" style="font-size: 8rem; color: white; opacity: 0.15; right: 55%; top: 30%;"></i>
+                              <i class="fas fa-trophy position-absolute" style="font-size: 10rem; color: white; opacity: 0.15; right: -10%; bottom: -10%;"></i>
+                              
+                              ${badgeHtml}
+
+                              <div class="position-relative z-1 p-2 pt-3">
+                                  <div class="fw-bold text-uppercase" style="font-size: 1.1rem; font-family: 'Times New Roman', serif;">LIGA BARRIAL ARGELIA ALTA</div>
+                                  <div style="font-size: 0.95rem; font-family: 'Times New Roman', serif; margin-top: 2px;" class="fw-bold text-uppercase">${campName}</div>
+                                  <hr style="border-top: 2px solid black; opacity: 1; margin: 4px 15px;">
+                                  
+                                  <div class="d-flex w-100 px-1 mt-2 gap-1 text-start">
+                                      <!-- Foto -->
+                                      <div class="d-flex flex-column align-items-center" style="width: 125px;">
+                                          <div style="border: 3px solid #14802c; border-radius: 12px; padding: 0px; background: white; width: 110px; height: 135px; display:flex; justify-content:center; align-items:center; overflow:hidden;">
+                                              <img src="${photo}" style="width: 100%; height: 100%; object-fit: cover;">
+                                          </div>
+                                          <div class="fw-bold mt-2 text-dark" style="font-size: 1.6rem; font-family: 'Times New Roman', serif;">${num}</div>
+                                      </div>
+                                      
+                                      <!-- Detalles -->
+                                      <div class="flex-grow-1 ps-1 pt-1 pb-1" style="font-size: 0.75rem; font-family: 'Times New Roman', serif; line-height: 1.5;">
+                                          <div class="fw-bold text-center mb-1 text-uppercase" style="font-size: 1.1rem;">${teamName}</div>
+                                          <div class="mb-1"><span class="fw-bold">CATEGORIA:</span> ${category.toUpperCase()}</div>
+                                          <div class="mb-1 text-truncate" style="max-width:180px;"><span class="fw-bold">NOM:</span> ${(p.nombres || "").toUpperCase()}</div>
+                                          <div class="mb-1 text-truncate" style="max-width:180px;"><span class="fw-bold">APELL:</span> ${(p.apellidos || "").toUpperCase()}</div>
+                                          <div class="mb-1"><span class="fw-bold">FECHA NAC:</span> ${fNac}</div>
+                                          <div class="mt-2 text-center pb-2"><span class="fw-bold" style="font-size:0.95rem;">CI: ${cedula}</span></div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  `;
+          });
+          html += "</div>";
+
+          if (validCount === 0) {
+            modalBody.innerHTML = `<div class="text-center text-white-50 py-5"><i class="fas fa-users-slash text-warning mb-3" style="font-size: 4rem;"></i><br><h5 class="fw-bold">No hay carnets digitales</h5><p>No se encontraron jugadores registrados en esta categoría para ${teamName}.</p></div>`;
+            return;
+          }
+
+          modalBody.innerHTML = html;
+        } catch (e) {
+          console.error(e);
+          modalBody.innerHTML = `<div class="text-danger text-center py-4"><i class="fas fa-exclamation-triangle fs-1 mb-2"></i><br>Error al cargar carnets digitales</div>`;
+        }
+      }
+
+      function selectPlayer(name, number) {
+        if (currentTargetInput) {
+          currentTargetInput.value = name;
+          const tr = currentTargetInput.closest("tr");
+          if (tr) {
+            const inputs = tr.querySelectorAll("input");
+            const currentIndex = Array.from(inputs).indexOf(currentTargetInput);
+            if (currentIndex > 0) {
+              inputs[currentIndex - 1].value = number;
+            }
+          }
+        }
+        const bsModal = bootstrap.Modal.getInstance(
+          document.getElementById("playerSelectorModal"),
+        );
+        if (bsModal) bsModal.hide();
+      }
+
+      window.filterCarnets = function (val) {
+        const term = val.trim().toLowerCase();
+        const cols = document.querySelectorAll(
+          "#playerSelectorBody .carnet-col-filter",
+        );
+        cols.forEach((col) => {
+          if (!term) {
+            col.style.display = "";
+          } else {
+            const dorsal = (
+              col.getAttribute("data-dorsal") || ""
+            ).toLowerCase();
+            if (dorsal.includes(term)) {
+              col.style.display = "";
+            } else {
+              col.style.display = "none";
+            }
+          }
+        });
+      };
+
+      window.openRosterSelector = function (rosterTbodyId, inputElement) {
+        const tbody = document.getElementById(rosterTbodyId);
+        const rows = tbody.querySelectorAll("tr");
+        const playersOnField = [];
+
+        rows.forEach((tr) => {
+          const inputs = tr.querySelectorAll("input");
+          const num = inputs[0].value.trim();
+          const name = inputs[1].value.trim();
+          if (num && name && name !== "Seleccionar...") {
+            playersOnField.push({ num, name });
+          }
+        });
+
+        if (playersOnField.length === 0) {
+          Swal.fire(
+            "Atención",
+            "No hay jugadores en la nómina principal para realizar el cambio.",
+            "warning",
+          );
+          return;
+        }
+
+        const options = playersOnField
+          .map((p) => `<option value="${p.num}">${p.num} - ${p.name}</option>`)
+          .join("");
+
+        Swal.fire({
+          title: "Seleccionar Jugador que Sale",
+          html: `<select id="swalRosterSelect" class="form-select bg-dark text-white border-secondary">${options}</select>`,
+          showCancelButton: true,
+          confirmButtonText: "Seleccionar",
+          cancelButtonText: "Cancelar",
+          preConfirm: () => {
+            return document.getElementById("swalRosterSelect").value;
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            inputElement.value = result.value;
+          }
+        });
+      };
+
+      window.updateTotalGoles = function (team) {
+        let total = 0;
+        const rosterTbody =
+          team === "local" ? "listaJugadoresLocal" : "listaJugadoresVisitante";
+        const cambiosTbody =
+          team === "local" ? "listaCambiosLocal" : "listaCambiosVisitante";
+        const totalInput =
+          team === "local" ? "totalGolesLocal" : "totalGolesVisitante";
+
+        // Sumar goles de titulares
+        document
+          .getElementById(rosterTbody)
+          .querySelectorAll("input[type='number']")
+          .forEach((input) => {
+            total += parseInt(input.value) || 0;
+          });
+
+        // Sumar goles de cambios
+        const cambiosBody = document.getElementById(cambiosTbody);
+        if (cambiosBody) {
+          cambiosBody
+            .querySelectorAll("input[type='number']")
+            .forEach((input) => {
+              total += parseInt(input.value) || 0;
+            });
+        }
+
+        document.getElementById(totalInput).value = total;
+      };
+
+      window.toggleCard = function (cell, color) {
+        const tr = cell.closest("tr");
+        const yellowCell = tr.querySelector(".yellow-slot").parentElement;
+        const redCell = tr.querySelector(".red-slot").parentElement;
+
+        const yellowSlot = yellowCell.querySelector(".yellow-slot");
+        const redSlot = redCell.querySelector(".red-slot");
+
+        let currentYellows = yellowSlot.querySelectorAll(".yellow-rect").length;
+        let hasRed = redSlot.querySelectorAll(".red-rect").length > 0;
+
+        if (color === "yellow") {
+          if (hasRed) return; // Si ya tiene roja, no hace nada
+
+          if (currentYellows === 0) {
+            yellowSlot.innerHTML =
+              '<div class="card-rect yellow-rect animate__animated animate__zoomIn"></div>';
+          } else if (currentYellows === 1) {
+            yellowSlot.innerHTML +=
+              '<div class="card-rect yellow-rect animate__animated animate__zoomIn"></div>';
+            // Doble amarilla = Roja automática visual y funcional
+            setTimeout(() => {
+              redSlot.innerHTML =
+                '<div class="card-rect red-rect animate__animated animate__shakeX"></div>';
+              window.syncVocalReport(); // Re-sincronizar para captar la roja nueva
+            }, 400);
+          } else {
+            // Reset yellow
+            yellowSlot.innerHTML = "";
+            redSlot.innerHTML = "";
+          }
+        } else if (color === "red") {
+          if (hasRed) {
+            redSlot.innerHTML = "";
+          } else {
+            redSlot.innerHTML =
+              '<div class="card-rect red-rect animate__animated animate__zoomIn"></div>';
+          }
+        }
+
+        // Sincronizar automáticamente con el Reporte del Vocal
+        window.syncVocalReport();
+      };
+
+      window.syncVocalReport = function () {
+        const teams = ["Local", "Visitor"];
+        teams.forEach((team) => {
+          const mainTbodyId =
+            team === "Local"
+              ? "listaJugadoresLocal"
+              : "listaJugadoresVisitante";
+          const changesTbodyId =
+            team === "Local" ? "listaCambiosLocal" : "listaCambiosVisitante";
+
+          let yellows = [];
+          let reds = [];
+
+          const processTbody = (tbodyId, isChanges = false) => {
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return;
+
+            tbody.querySelectorAll("tr").forEach((tr) => {
+              const inputs = tr.querySelectorAll("input");
+              // El número de dorsal es el primer input en ambos casos (titulares y cambios)
+              const dorsal = inputs[0].value.trim();
+              if (!dorsal || dorsal === "#") return;
+
+              const yellowSlot = tr.querySelector(".yellow-slot");
+              const redSlot = tr.querySelector(".red-slot");
+
+              if (
+                yellowSlot &&
+                yellowSlot.querySelectorAll(".yellow-rect").length > 0
+              ) {
+                yellows.push(dorsal);
+              }
+              if (redSlot && redSlot.querySelectorAll(".red-rect").length > 0) {
+                reds.push(dorsal);
+              }
+            });
           };
 
-          await Promise.all([
-              fetchTeam(local, "playersLocal"),
-              fetchTeam(visitor, "playersVisitor")
-          ]);
-      }
+          processTbody(mainTbodyId);
+          processTbody(changesTbodyId, true);
+
+          // Actualizar inputs del reporte (limpiar antes)
+          for (let i = 0; i < 6; i++) {
+            const taCell = document.getElementById(`vocalTA_${team}_${i}`);
+            const trCell = document.getElementById(`vocalTR_${team}_${i}`);
+            if (taCell) taCell.value = "";
+            if (trCell) trCell.value = "";
+          }
+
+          // Rellenar Set único de dorsales
+          const uniqueYellows = [...new Set(yellows)];
+          const uniqueReds = [...new Set(reds)];
+
+          uniqueYellows.slice(0, 6).forEach((dorsal, i) => {
+            const cell = document.getElementById(`vocalTA_${team}_${i}`);
+            if (cell) cell.value = dorsal;
+          });
+
+          uniqueReds.slice(0, 6).forEach((dorsal, i) => {
+            const cell = document.getElementById(`vocalTR_${team}_${i}`);
+            if (cell) cell.value = dorsal;
+          });
+        });
+      };
+
+      window.handleNoBall = function (checkbox) {
+        if (checkbox.checked) {
+          const parentRow = checkbox.closest(".row");
+          // Buscar todos los labels en esa fila y filtrar por texto para ser más precisos
+          parentRow.querySelectorAll("label").forEach((label) => {
+            if (
+              label.innerText.includes("Balón Liga") ||
+              label.innerText.includes("Balón Propio")
+            ) {
+              label.querySelector("input").checked = false;
+            }
+          });
+        }
+      };
+
+      window.calcRefereeGoles = function (teamName) {
+        const idSafe = teamName.replace(/\s+/g, "");
+        const totalSpan = document.getElementById(`refTotalGoles${idSafe}`);
+        if (!totalSpan) return;
+
+        // Buscar el contenedor del equipo en el informe del árbitro
+        // Usamos una forma más segura de encontrar la tabla específica
+        const tables = document.querySelectorAll(
+          ".p-3.border-bottom.border-secondary table",
+        );
+        let targetTable = null;
+        tables.forEach((table) => {
+          if (table.innerText.includes(`GOLES ${teamName}`)) {
+            targetTable = table;
+          }
+        });
+
+        if (!targetTable) return;
+
+        let total = 0;
+        targetTable
+          .querySelectorAll('input[type="number"]')
+          .forEach((input) => {
+            total += parseInt(input.value) || 0;
+          });
+        totalSpan.innerText = total;
+      };
     </script>
+    <style>
+      .card-slot {
+        width: 100%;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+      }
+      .card-rect {
+        width: 12px;
+        height: 18px;
+        border-radius: 2px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      }
+      .yellow-rect {
+        background: #ffeb3b;
+        border: 1px solid #fbc02d;
+      }
+      .red-rect {
+        background: #f44336;
+        border: 1px solid #d32f2f;
+      }
+      .animate__animated {
+        animation-duration: 0.4s;
+      }
+    </style>
   </body>
 </html>

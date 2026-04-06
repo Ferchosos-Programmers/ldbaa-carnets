@@ -67,12 +67,6 @@
           </div>
         </a>
         <div class="nav-actions d-flex gap-3 align-items-center">
-          <div
-            class="user-balance badge-secondary-glass d-flex align-items-center gap-2"
-          >
-            <i class="fas fa-coins text-warning"></i>
-            <span id="userCredits">0.00 Credits</span>
-          </div>
           <a href="index.html" class="btn btn-secondary-glass">
             <i class="fas fa-arrow-left me-2"></i> Volver
           </a>
@@ -502,7 +496,7 @@
               "Este código ya registró sus pronósticos.",
               "warning",
             );
-            
+
           if (data.round && data.round !== currentJornada) {
             return Swal.fire(
               "Error de Jornada",
