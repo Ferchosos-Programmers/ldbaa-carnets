@@ -174,3 +174,60 @@ select.glass-input:hover {
     margin-bottom: 0.8rem;
     display: block;
 }
+
+/* Jornada Card Elite (ported from vocalias) */
+.jornada-card-elite {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.jornada-card-elite:hover {
+    transform: translateY(-10px);
+    background: rgba(46, 204, 113, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+.jornada-card-elite i {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    display: block;
+}
+
+.jornada-card-elite h5 {
+    color: white;
+    font-weight: 800;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.jornada-card-elite .match-count {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+}
+
+.text-primary-glow {
+    color: var(--primary-color);
+    text-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+}
+
+.fw-900 {
+    font-weight: 900;
+}
+
+.btn-xs {
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+}

@@ -1008,7 +1008,11 @@
                 </div>
                 <div class="form-check mb-2">
                   <input class="form-check-input" type="checkbox" value="juvenil" id="age_juvenil" checked>
-                  <label class="form-check-label" for="age_juvenil">Juvenil (< 18 años)</label>
+                  <label class="form-check-label" for="age_juvenil">Juvenil (15 - 17 años)</label>
+                </div>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" value="infantil" id="age_infantil" checked>
+                  <label class="form-check-label" for="age_infantil">Infantil (< 15 años)</label>
                 </div>
               </div>
             `,
@@ -1024,6 +1028,9 @@
                 selected.push("master");
               if (document.getElementById("age_juvenil").checked)
                 selected.push("juvenil");
+              if (document.getElementById("age_infantil").checked)
+                selected.push("infantil");
+
               if (selected.length === 0) {
                 Swal.showValidationMessage(
                   "Debes seleccionar al menos una opción",
@@ -1135,7 +1142,8 @@
               // Filtrar por Rango de Edad
               let matchAge = false;
               const edad = calcularEdad(player.fechaNacimiento);
-              if (ageFilters.includes("juvenil") && edad < 18) matchAge = true;
+              if (ageFilters.includes("infantil") && edad < 15) matchAge = true;
+              else if (ageFilters.includes("juvenil") && edad >= 15 && edad < 18) matchAge = true;
               else if (ageFilters.includes("master") && edad > 40)
                 matchAge = true;
               else if (
@@ -1202,6 +1210,7 @@
             { header: "CÉDULA", key: "cedula", width: 20 },
             { header: "CLUB/EQUIPO", key: "club", width: 40 },
             { header: "CATEGORÍA", key: "categoria", width: 20 },
+            { header: "TIPO JUGADOR", key: "tipo_jugador", width: 20 },
             { header: "ESTADO", key: "estado", width: 20 },
           ];
           worksheet.columns = columns;
@@ -1218,6 +1227,7 @@
           for (let i = 0; i < playersToExport.length; i++) {
             const player = playersToExport[i];
             const rowIndex = i + 2; // +1 por encabezado
+            const edad = calcularEdad(player.fechaNacimiento);
 
             const row = worksheet.addRow({
               numero: player.numeroJugador || "S/N",
@@ -1226,6 +1236,7 @@
               cedula: player.cedula || "",
               club: player.clubRef,
               categoria: player.catRef,
+              tipo_jugador: edad < 15 ? "INFANTIL" : (edad < 18 ? "JUVENIL" : (edad > 40 ? "MASTER" : "SENIOR")),
               estado:
                 player.status === "recalificado"
                   ? "RECALIFICADO"

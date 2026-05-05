@@ -27,6 +27,7 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/global-swal-patch.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
       .jornada-card-elite {
@@ -252,7 +253,7 @@
     </div>
 
     <!-- Modal de Identificación y Acta (Legado Ajustado) -->
-    <div class="modal fade" id="vocaliaModal" tabindex="-1">
+    <div class="modal fade" id="vocaliaModal">
       <div class="modal-dialog modal-xl">
         <div class="modal-content modal-premium">
           <div class="modal-header border-0 pb-0">
@@ -277,7 +278,7 @@
     </div>
 
     <!-- Modal para ver Recibo (Vista Vocal Premium Pixel-Perfect) -->
-    <div class="modal fade" id="receiptViewModal" tabindex="-1">
+    <div class="modal fade" id="receiptViewModal">
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 bg-transparent">
           <div class="modal-body p-0">
@@ -734,18 +735,25 @@
               class="p-3 text-center d-flex gap-2 justify-content-center bg-dark rounded-bottom-5 border-top border-white border-opacity-5"
             >
               <button
-                class="btn btn-outline-secondary rounded-pill px-5 py-2 fw-bold"
+                class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-bold"
                 style="font-size: 0.8rem; letter-spacing: 1px"
                 data-bs-dismiss="modal"
               >
                 SALIR
               </button>
               <button
-                class="btn btn-warning rounded-pill px-5 py-2 fw-900"
+                class="btn btn-success rounded-pill px-4 py-2 fw-900"
                 style="font-size: 0.8rem; letter-spacing: 1px"
-                onclick="window.printReceipt()"
+                onclick="window.sendReceiptByWA()"
               >
-                <i class="fas fa-print me-2"></i>IMPRIMIR COMPROBANTE
+                <i class="fab fa-whatsapp me-2"></i>ENVIAR
+              </button>
+              <button
+                class="btn btn-warning rounded-pill px-4 py-2 fw-900"
+                style="font-size: 0.8rem; letter-spacing: 1px"
+                onclick="window.showPaymentQR()"
+              >
+                <i class="fas fa-qrcode me-2"></i>PAGAR
               </button>
             </div>
           </div>
@@ -1099,6 +1107,13 @@
                        <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Categoría</div>
                        <div class="fw-bold text-warning" style="font-size:0.9rem">${m._cat}</div>
                    </div>
+                   ${m.isFinalized ? `
+                   <div class="col-12 mt-2">
+                       <div class="alert alert-success bg-success bg-opacity-10 border-success border-opacity-25 text-success d-flex align-items-center py-2 mb-0">
+                           <i class="fas fa-lock me-2"></i>
+                           <span class="small fw-bold">ACTA FINALIZADA - MODO LECTURA</span>
+                       </div>
+                   </div>` : ''}
                    <div class="col-md-6 mt-3">
                        <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Vocal</div>
                        <div class="fw-bold text-info" style="font-size:0.9rem">${m.vocalAsignado || "---"}</div>
@@ -1701,95 +1716,93 @@
                         </div>
                     </div>
 
-                    <!-- INFORME DEL TRIBUNAL DE PENAS -->
+                    <!-- INFORME DE VEDOR -->
                     <div class="bg-dark p-2 text-center border-bottom border-secondary border-opacity-50">
-                        <h6 class="text-white text-uppercase mb-0 fw-bold" style="letter-spacing:1px" title="Bloqueado - Uso exclusivo del Tribunal">INFORME DEL TRIBUNAL DE PENAS <i class="fas fa-lock ms-2 text-white-50"></i></h6>
+                        <h6 class="text-white text-uppercase mb-0 fw-bold" style="letter-spacing:1px">INFORME DE VEDOR</h6>
                     </div>
-                    <fieldset disabled class="p-0 border-0 m-0">
-                        <div class="d-flex border-bottom border-secondary border-opacity-50 bg-dark text-center">
-                            <div class="w-50 p-2 border-end border-secondary border-opacity-50 text-primary-glow fw-bold text-uppercase small">${m.local}</div>
-                            <div class="w-50 p-2 text-info fw-bold text-uppercase small">${m.visitor}</div>
-                        </div>
-                        <div class="d-flex">
-                            <!-- Multas Local -->
-                            <div class="w-50 p-3 border-end border-secondary border-opacity-50">
-                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
-                                    <span class="small text-white-50">Por Tarjetas Amarillas</span>
-                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+                    <div class="p-3">
+                        <div class="row g-4">
+                            <!-- Datos Local -->
+                            <div class="col-md-6 border-end border-secondary border-opacity-25 pe-4">
+                                <div class="text-primary-glow small fw-bold mb-3 text-uppercase" style="letter-spacing:1px">${m.local}</div>
+                                
+                                <!-- Juveniles Local -->
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="text-white-50 small text-uppercase fw-bold" style="font-size:0.6rem; letter-spacing:1px">JUVENILES:</label>
+                                        <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-pill" onclick="window.addVedorRow('list_juv_local')" style="font-size:0.6rem; border-width:1px" ${m.isFinalized ? 'disabled' : ''}>+ AGREGAR</button>
+                                    </div>
+                                    <div id="list_juv_local" class="d-flex flex-column gap-1">
+                                        <!-- Rows here -->
+                                    </div>
                                 </div>
-                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
-                                    <span class="small text-white-50">Por T/R 1 Partido</span>
-                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
-                                    <span class="small text-white-50">Por T/R 2 Partidos</span>
-                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
-                                    <span class="small text-white-50">Por T/R 3 Partidos</span>
-                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
-                                    <span class="small text-white-50">Por T/R 4 Partidos</span>
-                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
-                                </div>
-                                <div class="mt-3">
-                                    <span class="small text-white fw-bold mb-1 d-block">OTRAS</span>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary flex-grow-1" placeholder="Detalle...">
-                                        <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+
+                                <!-- Arqueros Local -->
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="text-white-50 small text-uppercase fw-bold" style="font-size:0.6rem; letter-spacing:1px">ARQUEROS:</label>
+                                        <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-pill" onclick="window.addVedorRow('list_arq_local')" style="font-size:0.6rem; border-width:1px" ${m.isFinalized ? 'disabled' : ''}>+ AGREGAR</button>
+                                    </div>
+                                    <div id="list_arq_local" class="d-flex flex-column gap-1">
+                                        <!-- Rows here -->
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- Multas Visitante -->
-                            <div class="w-50 p-3">
-                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
-                                    <span class="small text-white-50">Por Tarjetas Amarillas</span>
-                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+
+                            <!-- Datos Visitante -->
+                            <div class="col-md-6 ps-4">
+                                <div class="text-info small fw-bold mb-3 text-uppercase" style="letter-spacing:1px">${m.visitor}</div>
+                                
+                                <!-- Juveniles Visitante -->
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="text-white-50 small text-uppercase fw-bold" style="font-size:0.6rem; letter-spacing:1px">JUVENILES:</label>
+                                        <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-pill" onclick="window.addVedorRow('list_juv_visitor')" style="font-size:0.6rem; border-width:1px" ${m.isFinalized ? 'disabled' : ''}>+ AGREGAR</button>
+                                    </div>
+                                    <div id="list_juv_visitor" class="d-flex flex-column gap-1">
+                                        <!-- Rows here -->
+                                    </div>
                                 </div>
-                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
-                                    <span class="small text-white-50">Por T/R 1 Partido</span>
-                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
-                                    <span class="small text-white-50">Por T/R 2 Partidos</span>
-                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
-                                    <span class="small text-white-50">Por T/R 3 Partidos</span>
-                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1 border-bottom border-dark">
-                                    <span class="small text-white-50">Por T/R 4 Partidos</span>
-                                    <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
-                                </div>
-                                <div class="mt-3">
-                                    <span class="small text-white fw-bold mb-1 d-block">OTRAS</span>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary flex-grow-1" placeholder="Detalle...">
-                                        <div class="d-flex align-items-center"><span class="text-white me-1">$</span><input type="number" class="form-control form-control-sm bg-dark text-white border-secondary text-end w-auto" style="max-width:80px"></div>
+
+                                <!-- Arqueros Visitante -->
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="text-white-50 small text-uppercase fw-bold" style="font-size:0.6rem; letter-spacing:1px">ARQUEROS:</label>
+                                        <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-pill" onclick="window.addVedorRow('list_arq_visitor')" style="font-size:0.6rem; border-width:1px" ${m.isFinalized ? 'disabled' : ''}>+ AGREGAR</button>
+                                    </div>
+                                    <div id="list_arq_visitor" class="d-flex flex-column gap-1">
+                                        <!-- Rows here -->
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="d-flex border-top border-secondary border-opacity-50 font-weight-bold bg-dark p-3 text-white">
-                            <div class="w-50 pe-3 border-end border-secondary border-opacity-50 d-flex justify-content-between align-items-center">
-                                <span class="fw-bold">Total Multas $</span>
-                                <input type="number" class="form-control form-control-sm bg-transparent border-0 text-white fw-bold fs-5 text-end w-50 shadow-none" readonly value="0">
+
+                        <div class="mt-4">
+                            <span class="text-white-50 small d-block mb-1 text-uppercase fw-bold" style="letter-spacing:1px; font-size:0.65rem">OBSERVACIONES DEL VEDOR (Barras, comportamiento, etc.):</span>
+                            <textarea id="vedor_obs" class="form-control form-control-sm bg-dark text-white border-secondary border-opacity-25 shadow-none mb-4" rows="4" placeholder="Detalle aquí las novedades de las barras y el comportamiento general del encuentro..."></textarea>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center bg-dark p-2 rounded border border-white border-opacity-5">
+                                    <span class="text-white-50 small me-2" style="width:110px">Nombre Vedor:</span>
+                                    <input type="text" id="vedor_nombre" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Nombre del veedor...">
+                                </div>
                             </div>
-                            <div class="w-50 ps-3 d-flex justify-content-between align-items-center">
-                                <span class="fw-bold">Total Multas $</span>
-                                <input type="number" class="form-control form-control-sm bg-transparent border-0 text-white fw-bold fs-5 text-end w-50 shadow-none" readonly value="0">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center bg-dark p-2 rounded border border-white border-opacity-5">
+                                    <span class="text-white-50 small me-2" style="width:110px">Club Vedor:</span>
+                                    <input type="text" id="vedor_club" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Club al que pertenece...">
+                                </div>
                             </div>
                         </div>
-                    </fieldset>
+                    </div>
                 </div>
 
                 <!-- Botón de Guardado -->
-                <div class="row mt-4 mb-3">
+                <div class="row mt-4 mb-3 ${m.isFinalized ? 'd-none' : ''}">
                     <div class="col-12 text-center">
-                        <button class="btn-premium px-5 py-3 fs-5" onclick="Swal.fire('Guardado', 'El acta digital fue enviada exitosamente.', 'success').then(()=> bootstrap.Modal.getInstance(document.getElementById('vocaliaModal')).hide())">
+                        <button class="btn-premium px-5 py-3 fs-5" onclick="window.finalizarGuardarActa('${m.matchId}', '${m._fixId}')">
                             <i class="fas fa-check-circle me-2"></i> Finalizar y Guardar Acta
                         </button>
                     </div>
@@ -1797,36 +1810,149 @@
 
             </div>
           `;
-        loadNominasDigitales(m.local, m.visitor, m._cat);
+        loadNominasDigitales(m);
       }
 
-      function loadNominasDigitales(local, visitor, cat) {
-        const loadEmptyRows = (name, tbodyId) => {
+      function loadNominasDigitales(m) {
+        const isFinalized = m.isFinalized || false;
+        const disabledAttr = isFinalized ? "disabled" : "";
+        const readonlyAttr = isFinalized ? "readonly" : "";
+        const onclickSelector = isFinalized ? "" : "onclick"; // Desactivar clics en selectores
+
+        const loadRows = (teamType, tbodyId) => {
           const tbody = document.getElementById(tbodyId);
           tbody.innerHTML = "";
-
+          const teamName = teamType === "local" ? m.local : m.visitor;
+          
+          // Buscar datos guardados si existen
+          const savedData = teamType === "local" ? m.playersLocal : m.playersVisitor;
+          
           for (let i = 0; i < 9; i++) {
+            const p = (savedData && savedData[i]) ? savedData[i] : { num: "", name: "", ta: 0, tr: 0, goles: 0 };
+            
+            let yellowHtml = "";
+            if (p.ta >= 1) yellowHtml += '<div class="card-rect yellow-rect"></div>';
+            if (p.ta >= 2) yellowHtml += '<div class="card-rect yellow-rect"></div>';
+            
+            let redHtml = "";
+            if (p.tr >= 1) redHtml += '<div class="card-rect red-rect"></div>';
+
             tbody.insertAdjacentHTML(
               "beforeend",
               `
-                      <tr>
-                          <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none h-100" placeholder="#"></td>
-                          <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none h-100 cursor-pointer text-warning" placeholder="Seleccionar..." readonly onclick="openPlayerSelector('${name}', '${cat}', this, '${tbodyId}')"></td>
-                          <td class="p-0 text-center align-middle cursor-pointer" onclick="window.toggleCard(this, 'yellow')">
-                              <div class="card-slot yellow-slot"></div>
-                          </td>
-                          <td class="p-0 text-center align-middle cursor-pointer" onclick="window.toggleCard(this, 'red')">
-                              <div class="card-slot red-slot"></div>
-                          </td>
-                          <td class="p-0"><input type="number" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none h-100" placeholder="" min="0" oninput="window.updateTotalGoles('${tbodyId.includes("Local") ? "local" : "visitor"}')"></td>
-                      </tr>
-                  `,
+              <tr>
+                  <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none h-100" placeholder="#" value="${p.num}" ${readonlyAttr}></td>
+                  <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none h-100 cursor-pointer text-warning" placeholder="Seleccionar..." value="${p.name}" readonly ${onclickSelector}="openPlayerSelector('${teamName}', '${m._cat}', this, '${tbodyId}')"></td>
+                  <td class="p-0 text-center align-middle cursor-pointer" ${onclickSelector}="window.toggleCard(this, 'yellow')">
+                      <div class="card-slot yellow-slot">${yellowHtml}</div>
+                  </td>
+                  <td class="p-0 text-center align-middle cursor-pointer" ${onclickSelector}="window.toggleCard(this, 'red')">
+                      <div class="card-slot red-slot">${redHtml}</div>
+                  </td>
+                  <td class="p-0"><input type="number" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none h-100" placeholder="" min="0" value="${p.goles || ""}" ${readonlyAttr} oninput="window.updateTotalGoles('${teamType}')"></td>
+              </tr>
+              `,
             );
           }
         };
 
-        loadEmptyRows(local, "listaJugadoresLocal");
-        loadEmptyRows(visitor, "listaJugadoresVisitante");
+        loadRows("local", "listaJugadoresLocal");
+        loadRows("visitor", "listaJugadoresVisitante");
+
+        // También cargar cambios si hay datos
+        const loadCambios = (teamType, tbodyId) => {
+            const tbody = document.getElementById(tbodyId);
+            if(!tbody) return;
+            tbody.innerHTML = "";
+            const teamName = teamType === "local" ? m.local : m.visitor;
+            const savedChanges = teamType === "local" ? m.changesLocal : m.changesVisitor;
+
+            for (let i = 0; i < 8; i++) {
+                const c = (savedChanges && savedChanges[i]) ? savedChanges[i] : { entraNum: "", name: "", saleNum: "", ta: 0, tr: 0, goles: 0 };
+                
+                let yellowHtml = "";
+                if (c.ta >= 1) yellowHtml += '<div class="card-rect yellow-rect"></div>';
+                if (c.ta >= 2) yellowHtml += '<div class="card-rect yellow-rect"></div>';
+                
+                let redHtml = "";
+                if (c.tr >= 1) redHtml += '<div class="card-rect red-rect"></div>';
+
+                tbody.insertAdjacentHTML("beforeend", `
+                    <tr>
+                        <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none h-100" placeholder="#" value="${c.entraNum}" ${readonlyAttr}></td>
+                        <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none h-100 cursor-pointer text-warning" placeholder="Seleccionar Entra..." value="${c.name}" readonly ${onclickSelector}="openPlayerSelector('${teamName}', '${m._cat}', this, '${teamType === 'local' ? 'listaJugadoresLocal' : 'listaJugadoresVisitante'}')"></td>
+                        <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none h-100 cursor-pointer text-info text-center" placeholder="#" value="${c.saleNum}" readonly ${onclickSelector}="openRosterSelector('${teamType === 'local' ? 'listaJugadoresLocal' : 'listaJugadoresVisitante'}', this)"></td>
+                        <td class="p-0 text-center align-middle cursor-pointer" ${onclickSelector}="window.toggleCard(this, 'yellow')">
+                            <div class="card-slot yellow-slot">${yellowHtml}</div>
+                        </td>
+                        <td class="p-0 text-center align-middle cursor-pointer" ${onclickSelector}="window.toggleCard(this, 'red')">
+                            <div class="card-slot red-slot">${redHtml}</div>
+                        </td>
+                        <td class="p-0"><input type="number" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none h-100" min="0" value="${c.goles || ""}" ${readonlyAttr} oninput="window.updateTotalGoles('${teamType}')"></td>
+                    </tr>
+                `);
+            }
+        };
+
+        loadCambios("local", "listaCambiosLocal");
+        loadCambios("visitor", "listaCambiosVisitante");
+
+        // Cargar otros campos (Observaciones, firmas, etc)
+        if(isFinalized) {
+            // Deshabilitar todos los inputs del modal
+            const inputs = document.querySelectorAll("#modalVocalBody input, #modalVocalBody textarea, #modalVocalBody select");
+            inputs.forEach(inp => inp.disabled = true);
+        }
+
+        // Poblar datos extras si existen
+        if(m.vocalReport) {
+            const vr = m.vocalReport;
+            const container = document.getElementById("modalVocalBody");
+            const timeInp = container.querySelector('input[type="time"]');
+            if(timeInp) timeInp.value = vr.startTime || "";
+            const obsText = container.querySelector('textarea');
+            if(obsText) obsText.value = vr.observations || "";
+        }
+
+        // Poblar datos de VEDOR si existen
+        if(m.vedorReport) {
+            const vr = m.vedorReport;
+            const container = document.getElementById("modalVocalBody");
+            
+            // Info Vedor
+            if(container.querySelector("#vedor_nombre")) container.querySelector("#vedor_nombre").value = vr.nombre || "";
+            if(container.querySelector("#vedor_club")) container.querySelector("#vedor_club").value = vr.club || "";
+            
+            // Renderizar filas dinámicas
+            const renderRows = (dataArr, containerId) => {
+                const list = document.getElementById(containerId);
+                if(!list) return;
+                list.innerHTML = "";
+                if(dataArr && dataArr.length > 0) {
+                    dataArr.forEach(item => window.addVedorRow(containerId, item.dorsal, item.min, isFinalized));
+                } else if(!isFinalized) {
+                    // Si no hay datos y no está finalizado, agregar una vacía por defecto
+                    window.addVedorRow(containerId);
+                }
+            };
+
+            renderRows(vr.juvenilesLocal, "list_juv_local");
+            renderRows(vr.arquerosLocal, "list_arq_local");
+            renderRows(vr.juvenilesVisitor, "list_juv_visitor");
+            renderRows(vr.arquerosVisitor, "list_arq_visitor");
+
+            // Obs Vedor
+            if(container.querySelector("#vedor_obs")) container.querySelector("#vedor_obs").value = vr.observaciones || "";
+        } else if(!isFinalized) {
+            // Si no hay reporte aún, inicializar con una fila vacía para cada lista
+            window.addVedorRow("list_juv_local");
+            window.addVedorRow("list_arq_local");
+            window.addVedorRow("list_juv_visitor");
+            window.addVedorRow("list_arq_visitor");
+        }
+        
+        window.updateTotalGoles("local");
+        window.updateTotalGoles("visitor");
       }
 
       let currentTargetInput = null;
@@ -2252,6 +2378,40 @@
         }
       };
 
+      window.addVedorRow = function(containerId, dorsal = "", min = "", disabled = false) {
+          const list = document.getElementById(containerId);
+          if(!list) return;
+          const row = document.createElement("div");
+          row.className = "vedor-row d-flex gap-2 align-items-center animate__animated animate__fadeInDown mb-2";
+          row.style.animationDuration = "0.3s";
+          row.innerHTML = `
+              <div class="p-2 rounded-3 border border-white border-opacity-10 flex-grow-1" 
+                   style="background: rgba(255,255,255,0.03); backdrop-filter: blur(5px);">
+                  <div class="row g-2">
+                      <div class="col-4">
+                          <label class="text-primary-glow small d-block mb-1 fw-bold" style="font-size:0.5rem; letter-spacing:1px">DORSAL</label>
+                          <input type="number" class="form-control form-control-sm bg-transparent text-white border-secondary border-opacity-25 shadow-none text-center inp-dorsal" 
+                                 placeholder="#" value="${dorsal}" ${disabled ? 'disabled' : ''}>
+                      </div>
+                      <div class="col-8">
+                          <label class="text-white-50 small d-block mb-1 fw-bold" style="font-size:0.5rem; letter-spacing:1px">MINUTOS JUGADOS</label>
+                          <input type="number" class="form-control form-control-sm bg-transparent text-white border-secondary border-opacity-25 shadow-none text-center inp-min" 
+                                 placeholder="min." value="${min}" ${disabled ? 'disabled' : ''}>
+                      </div>
+                  </div>
+              </div>
+              ${!disabled ? `<button type="button" class="btn btn-sm btn-outline-danger p-1 border-0 opacity-50" onclick="window.removeVedorRow(this)"><i class="fas fa-times"></i></button>` : ''}
+          `;
+          list.appendChild(row);
+      };
+
+      window.removeVedorRow = function(btn) {
+          const row = btn.closest(".vedor-row");
+          row.classList.remove("animate__fadeInDown");
+          row.classList.add("animate__fadeOutRight");
+          setTimeout(() => row.remove(), 300);
+      };
+
       window.calcRefereeGoles = function (teamName) {
         const idSafe = teamName.replace(/\s+/g, "");
         const totalSpan = document.getElementById(`refTotalGoles${idSafe}`);
@@ -2327,6 +2487,8 @@
             isPreview: true,
           };
         }
+
+        window.currentBillingForWA = billing;
 
         document.getElementById("rv_team_name").textContent =
           billing.team.toUpperCase();
@@ -2435,6 +2597,133 @@
         modalView.show();
       };
 
+      window.sendReceiptByWA = async function () {
+        const team = document.getElementById("rv_team_name").innerText;
+        const invoice = document.getElementById("rv_invoice_id").innerText;
+        const total = document.getElementById("rv_total_display").innerText;
+        const savedWA =
+          window.currentBillingForWA && window.currentBillingForWA.whatsapp
+            ? window.currentBillingForWA.whatsapp.replace(/\D/g, "")
+            : "";
+
+        Swal.fire({
+          title: "Generando Comprobante Digital...",
+          html: "Estamos preparando la imagen de la factura para que puedas enviarla completa.",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
+        try {
+          const receiptEl = document.getElementById("receiptPaper");
+          const canvas = await html2canvas(receiptEl, {
+            backgroundColor: "#111",
+            scale: 2,
+            useCORS: true,
+            logging: false,
+          });
+
+          const imageData = canvas.toDataURL("image/png");
+          const blob = await new Promise((resolve) =>
+            canvas.toBlob(resolve, "image/png"),
+          );
+          const file = new File([blob], `Factura_${team}_${invoice}.png`, {
+            type: "image/png",
+          });
+
+          // 1. Intentar compartir directamente (Funciona en Móvil / Algunos navegadores)
+          if (
+            navigator.canShare &&
+            navigator.canShare({ files: [file] })
+          ) {
+            Swal.fire({
+              title: "¡Listo para compartir!",
+              text: "Selecciona WhatsApp en la siguiente ventana para enviar la factura completa.",
+              icon: "info",
+              confirmButtonText: "Compartir Factura",
+              confirmButtonColor: "#2ecc71",
+            }).then(async (result) => {
+              if (result.isConfirmed) {
+                try {
+                  await navigator.share({
+                    files: [file],
+                    title: `Factura ${team}`,
+                    text: `*COMPROBANTE DIGITAL - LDBAA*\n*Club:* ${team}\n*Factura:* ${invoice}\n*Total:* ${total}`,
+                  });
+                } catch (shareErr) {
+                  console.error("Share failed:", shareErr);
+                }
+              }
+            });
+            return;
+          }
+
+          // 2. Fallback: Copiar al portapapeles (Desktop)
+          let copied = false;
+          try {
+            const item = new ClipboardItem({ "image/png": blob });
+            await navigator.clipboard.write([item]);
+            copied = true;
+          } catch (clipError) {
+            console.error("Clipboard error:", clipError);
+          }
+
+          Swal.fire({
+            title: "¡Factura Lista!",
+            html: `
+              <div class="text-center">
+                <p class="text-white-50 mb-3">${copied ? "Se ha copiado la imagen. Al abrir WhatsApp solo debes presionar <strong>PEGAR (Ctrl+V)</strong>." : "Descarga la imagen y adjúntala en WhatsApp."}</p>
+                <img src="${imageData}" style="width: 100%; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                ${!copied ? `<a href="${imageData}" download="Factura_${team}.png" class="btn btn-primary mb-3">Descargar Imagen</a>` : ""}
+              </div>
+            `,
+            background: "#111",
+            confirmButtonText: "Ir a WhatsApp y Pegar",
+            confirmButtonColor: "#2ecc71",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              const msg = encodeURIComponent(
+                `*COMPROBANTE DIGITAL - LDBAA*\n*Club:* ${team}\n*Factura:* ${invoice}\n*Total:* ${total}\n\n_Pega la imagen aquí debajo 👇_`,
+              );
+              if (savedWA && savedWA.length >= 7) {
+                window.open(`https://wa.me/${savedWA}?text=${msg}`, "_blank");
+              } else {
+                window.open(
+                  `https://api.whatsapp.com/send?text=${msg}`,
+                  "_blank",
+                );
+              }
+            }
+          });
+        } catch (error) {
+          console.error("html2canvas error:", error);
+          Swal.fire("Error", "No se pudo generar la imagen de la factura.", "error");
+        }
+      };
+
+      window.showPaymentQR = function () {
+        const total = document.getElementById("rv_total_display").innerText;
+        Swal.fire({
+          title: '<h4 class="fw-900 text-white mb-0">PASARELA DE PAGO</h4>',
+          html: `
+            <div class="text-center p-3">
+              <p class="text-white-50 mb-4">Escanea el código para transferir <strong class="text-warning">${total}</strong></p>
+              <div class="p-3 bg-white rounded-4 d-inline-block shadow-lg mb-4">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=LDBAA-PAYMENT-${total}" style="width:200px; height:200px;">
+              </div>
+              <div class="alert alert-info bg-primary bg-opacity-10 border-primary border-opacity-25 text-primary small">
+                <i class="fas fa-info-circle me-2"></i> Una vez realizado el pago, el sistema actualizará automáticamente su estado.
+              </div>
+            </div>
+          `,
+          background: "#111",
+          showConfirmButton: true,
+          confirmButtonText: "ENTENDIDO",
+          confirmButtonColor: "#c9a227",
+        });
+      };
+
       window.printReceipt = function () {
         const contents = document.getElementById("receiptPaper").innerHTML;
         const originalContents = document.body.innerHTML;
@@ -2443,6 +2732,158 @@
         window.print();
         document.body.innerHTML = originalContents;
         window.location.reload(); // Recargar para restaurar los listeners de Firebase ***-signal//*
+      };
+
+      window.finalizarGuardarActa = async function (matchId, fixId) {
+        const result = await Swal.fire({
+          title: "¿Finalizar Acta?",
+          text: "Una vez guardada, no podrá ser modificada.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Sí, finalizar y guardar",
+          cancelButtonText: "Cancelar",
+          confirmButtonColor: "#2ecc71",
+        });
+
+        if (!result.isConfirmed) return;
+
+        Swal.fire({
+          title: "Guardando...",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
+        try {
+          const collectPlayers = (tbodyId) => {
+            const players = [];
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return players;
+
+            tbody.querySelectorAll("tr").forEach((tr) => {
+              const inputs = tr.querySelectorAll("input");
+              const num = inputs[0].value.trim();
+              const name = inputs[1].value.trim();
+              const yellowSlot = tr.querySelector(".yellow-slot");
+              const redSlot = tr.querySelector(".red-slot");
+              const ta = yellowSlot.querySelectorAll(".yellow-rect").length;
+              const trCount = redSlot.querySelectorAll(".red-rect").length;
+              const goles = parseInt(inputs[2].value) || 0;
+              if (num && name && name !== "Seleccionar...") {
+                players.push({ num, name, ta, tr: trCount, goles });
+              }
+            });
+            return players;
+          };
+
+          const collectChanges = (tbodyId) => {
+            const changes = [];
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return changes;
+
+            tbody.querySelectorAll("tr").forEach((tr) => {
+              const inputs = tr.querySelectorAll("input");
+              const entraNum = inputs[0].value.trim();
+              const name = inputs[1].value.trim();
+              const saleNum = inputs[2].value.trim();
+              const yellowSlot = tr.querySelector(".yellow-slot");
+              const redSlot = tr.querySelector(".red-slot");
+              const ta = yellowSlot.querySelectorAll(".yellow-rect").length;
+              const trCount = redSlot.querySelectorAll(".red-rect").length;
+              const goles = parseInt(inputs[3].value) || 0;
+              if (entraNum && name && name !== "Seleccionar Entra...") {
+                changes.push({
+                  entraNum,
+                  name,
+                  saleNum,
+                  ta,
+                  tr: trCount,
+                  goles,
+                });
+              }
+            });
+            return changes;
+          };
+
+          const playersLocal = collectPlayers("listaJugadoresLocal");
+          const playersVisitor = collectPlayers("listaJugadoresVisitante");
+          const changesLocal = collectChanges("listaCambiosLocal");
+          const changesVisitor = collectChanges("listaCambiosVisitante");
+
+          const container = document.getElementById("modalVocalBody");
+          const vocalReport = {
+            startTime: container.querySelector('input[type="time"]').value,
+            observations: container.querySelector("textarea").value,
+          };
+
+          const collectVedorRows = (containerId) => {
+            const rows = [];
+            const container = document.getElementById(containerId);
+            if(!container) return rows;
+            container.querySelectorAll(".vedor-row").forEach(row => {
+                const dorsal = row.querySelector(".inp-dorsal").value.trim();
+                const min = row.querySelector(".inp-min").value.trim();
+                if(dorsal || min) rows.push({ dorsal, min });
+            });
+            return rows;
+          };
+
+          const vedorReport = {
+            nombre: container.querySelector("#vedor_nombre").value,
+            club: container.querySelector("#vedor_club").value,
+            juvenilesLocal: collectVedorRows("list_juv_local"),
+            arquerosLocal: collectVedorRows("list_arq_local"),
+            juvenilesVisitor: collectVedorRows("list_juv_visitor"),
+            arquerosVisitor: collectVedorRows("list_arq_visitor"),
+            observaciones: container.querySelector("#vedor_obs").value
+          };
+
+          const docRef = db.collection("fixtures").doc(fixId);
+          const doc = await docRef.get();
+          if (!doc.exists) throw new Error("Documento no encontrado");
+
+          const fixtureData = doc.data();
+          const updatedMatches = fixtureData.data.map((m) => {
+            if (
+              (m.matchId === matchId && m.matchId !== "undefined") ||
+              (m.local === window.currentMatchOpened.local &&
+                m.visitor === window.currentMatchOpened.visitor)
+            ) {
+              return {
+                ...m,
+                isFinalized: true,
+                playersLocal,
+                playersVisitor,
+                changesLocal,
+                changesVisitor,
+                vocalReport,
+                vedorReport,
+                lastUpdated: new Date(),
+              };
+            }
+            return m;
+          });
+
+          await docRef.update({ data: updatedMatches });
+
+          Swal.fire(
+            "Éxito",
+            "El acta ha sido finalizada y guardada correctamente.",
+            "success",
+          );
+          const modal = bootstrap.Modal.getInstance(
+            document.getElementById("vocaliaModal"),
+          );
+          if (modal) modal.hide();
+        } catch (error) {
+          console.error(error);
+          Swal.fire(
+            "Error",
+            "Hubo un problema al guardar el acta: " + error.message,
+            "error",
+          );
+        }
       };
     </script>
     <style>
@@ -2470,6 +2911,18 @@
       }
       .animate__animated {
         animation-duration: 0.4s;
+      }
+      /* Fix SweetAlert Input Visibility */
+      .swal2-input {
+        color: white !important;
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        box-shadow: none !important;
+        transition: border-color 0.3s, box-shadow 0.3s !important;
+      }
+      .swal2-input:focus {
+        border-color: #2ecc71 !important;
+        box-shadow: 0 0 10px rgba(46, 204, 113, 0.3) !important;
       }
     </style>
   </body>

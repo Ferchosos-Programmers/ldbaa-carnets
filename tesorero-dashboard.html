@@ -12,6 +12,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/global-swal-patch.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
@@ -333,6 +334,17 @@
           font-weight: 800;
           letter-spacing: 1px;
       }
+      /* Fix SweetAlert Input Visibility */
+      .swal2-input {
+        color: white !important;
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        box-shadow: none !important;
+      }
+      .swal2-input:focus {
+        border-color: #2ecc71 !important;
+        box-shadow: 0 0 10px rgba(46, 204, 113, 0.3) !important;
+      }
     </style>
   </head>
   <body>
@@ -430,7 +442,7 @@
     </div>
 
     <!-- Invoice Modal -->
-    <div class="modal fade" id="invoiceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="invoiceModal" aria-hidden="true">
       <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content modal-invoice overflow-hidden">
           <div class="modal-header border-0 p-4 pb-0 justify-content-end">
@@ -478,7 +490,7 @@
                       <img src="img/logo.png" id="invoiceLogoLocal" class="invoice-team-logo me-3">
                       <div>
                         <h5 class="text-white fw-800 mb-0 text-uppercase" id="invoiceNameLocal">Equipo Local</h5>
-                        <span class="badge bg-primary-glass">LOCAL</span>
+                            <span class="badge bg-primary-glass">LOCAL</span>
                       </div>
                     </div>
                   </div>
@@ -587,7 +599,7 @@
                       <img src="img/logo.png" id="invoiceLogoVisitor" class="invoice-team-logo me-3">
                       <div>
                         <h5 class="text-white fw-800 mb-0 text-uppercase" id="invoiceNameVisitor">Equipo Visitante</h5>
-                        <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 py-2 px-3">VISITANTE</span>
+                            <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 py-2 px-3">VISITANTE</span>
                       </div>
                     </div>
                   </div>
@@ -663,7 +675,7 @@
             </div>
           </div>
           <!-- Receipt Digital Modal -->
-    <div class="modal fade" id="receiptDigitalModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="receiptDigitalModal" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 bg-transparent">
           <div class="modal-body p-0">
@@ -773,8 +785,11 @@
           </div>
           <div class="modal-footer justify-content-center border-0 mt-3 flex-column gap-3">
               <div class="d-flex gap-3">
+                <button class="btn btn-success rounded-pill px-4 shadow" onclick="sendReceiptByWA()">
+                    <i class="fab fa-whatsapp me-2"></i> Enviar por WA (Imagen)
+                </button>
                 <button class="btn btn-dark rounded-pill px-4 shadow" onclick="window.print()">
-                    <i class="fas fa-print me-2"></i> Imprimir Comprobante
+                    <i class="fas fa-print me-2"></i> Imprimir
                 </button>
                 <button class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">
                     <i class="fas fa-times me-2"></i> Cerrar
@@ -1093,7 +1108,7 @@
           document.getElementById('ta_players_' + team).innerHTML = "";
           document.getElementById('tr_players_' + team).innerHTML = "";
           document.getElementById('multas_list_' + team).innerHTML = "";
-          
+
           calculateTotal(team);
         });
 
@@ -1182,6 +1197,7 @@
                 val: parseFloat(row.querySelector('.multa-val-dynamic').value) || 0
             })),
             total: totalValue,
+            whatsapp: document.getElementById('inv_wa_' + team).value.trim(),
             invoiceId: "001-001-" + String(invoiceCounter).padStart(9, '0')
         }));
         
@@ -1324,6 +1340,92 @@
 
         const modal = new bootstrap.Modal(document.getElementById('receiptDigitalModal'));
         modal.show();
+      }
+
+      async function sendReceiptByWA() {
+        const teamName = document.getElementById('rec_client').textContent;
+        const invoiceNum = document.getElementById('rec_number').textContent;
+        const total = document.getElementById('rec_total').textContent;
+        
+        // Determinar el equipo actual para buscar el WhatsApp guardado
+        const isLocal = currentMatch.local === teamName;
+        const teamKey = isLocal ? 'local' : 'visitor';
+        const savedWA = document.getElementById('inv_wa_' + teamKey).value.trim().replace(/\D/g, "");
+
+        Swal.fire({
+          title: "Generando Imagen del Recibo...",
+          html: "Capturando factura completa para envío por WhatsApp.",
+          allowOutsideClick: false,
+          didOpen: () => { Swal.showLoading(); }
+        });
+
+        try {
+          const receiptEl = document.getElementById("printableReceipt");
+          const canvas = await html2canvas(receiptEl, {
+            backgroundColor: "#111",
+            scale: 2,
+            useCORS: true
+          });
+
+          const imageData = canvas.toDataURL("image/png");
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+          const file = new File([blob], `Factura_${teamName}.png`, { type: 'image/png' });
+
+          // 1. Intentar compartir directamente (Móvil)
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            Swal.fire({
+              title: "¡Listo para compartir!",
+              text: "Selecciona WhatsApp en la siguiente ventana para enviar la factura completa.",
+              icon: "info",
+              confirmButtonText: "Compartir Factura",
+              confirmButtonColor: "#2ecc71",
+            }).then(async (result) => {
+              if (result.isConfirmed) {
+                try {
+                  await navigator.share({
+                    files: [file],
+                    title: `Factura ${teamName}`,
+                    text: `*RECIBO DIGITAL - LDBAA*\n*Club:* ${teamName}\n*Factura:* ${invoiceNum}\n*Total:* ${total}`,
+                  });
+                } catch (err) { console.error(err); }
+              }
+            });
+            return;
+          }
+          
+          // 2. Fallback: Copiar al portapapeles (Desktop)
+          let copied = false;
+          try {
+            const item = new ClipboardItem({ "image/png": blob });
+            await navigator.clipboard.write([item]);
+            copied = true;
+          } catch (err) {
+            console.error("Clipboard error:", err);
+          }
+
+          Swal.fire({
+            title: "¡Factura Lista!",
+            html: `
+              <div class="text-center">
+                <p class="text-white-50 mb-3">${copied ? "Se ha copiado la imagen. Al abrir WhatsApp solo debes presionar <strong>PEGAR (Ctrl+V)</strong>." : "Descarga la imagen y adjúntala en WhatsApp."}</p>
+                <img src="${imageData}" style="width: 100%; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                ${!copied ? `<a href="${imageData}" download="Factura_${teamName}.png" class="btn btn-primary mb-3">Descargar Imagen</a>` : ""}
+              </div>
+            `,
+            background: "#111",
+            confirmButtonText: "Ir a WhatsApp y Pegar",
+            confirmButtonColor: "#2ecc71",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              const msg = encodeURIComponent(`*RECIBO DIGITAL - LDBAA*\n*Club:* ${teamName}\n*Factura:* ${invoiceNum}\n*Total:* ${total}\n\n_Pega la imagen aquí debajo 👇_`);
+              if (savedWA) window.open(`https://wa.me/${savedWA}?text=${msg}`, "_blank");
+              else window.open(`https://api.whatsapp.com/send?text=${msg}`, "_blank");
+            }
+          });
+        } catch (e) {
+          console.error(e);
+          Swal.fire("Error", "No se pudo generar la imagen.", "error");
+        }
       }
 
       function logout() {
