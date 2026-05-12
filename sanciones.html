@@ -759,6 +759,11 @@
       let fixturesMap = new Map();
       let fixturesListener = null;
 
+      // Variables para refrescar vista de Acta Digital
+      let lastMatchId = null;
+      let lastMatchLocal = null;
+      let lastMatchVisitor = null;
+
       // Cargar campeonatos al iniciar
       auth.onAuthStateChanged((user) => {
         if (!user || user.email !== "sanciones@gmail.com") {
@@ -1039,6 +1044,11 @@
       }
 
       async function verDetallesMatch(matchId, local, visitor) {
+        // Guardar para refrescar después
+        lastMatchId = matchId;
+        lastMatchLocal = local;
+        lastMatchVisitor = visitor;
+
         let match = null;
         for (let [fixId, meta] of fixturesMap) {
           const found = meta.data.find(
@@ -1448,35 +1458,41 @@
           if (tipo === "amarilla") {
             // Sanción automática para amarillas
             Swal.fire({
-              title: "¿Confirmar Tarjeta Amarilla?",
-              text: `Se aplicará automáticamente una tarjeta amarilla a ${pNombre}. Valor: $0.50`,
-              icon: "warning",
-              showCancelButton: true,
-              confirmButtonText: "Sí, aplicar",
-              cancelButtonText: "Cancelar",
-              confirmButtonColor: "#f1c40f",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                db.collection("sanciones")
-                  .add({
-                    jugadorId: pId,
-                    tipo: "amarilla",
-                    articulo: null,
-                    literal: null,
-                    valor: 0.5,
-                    fecha: new Date(),
-                    estado: "activa",
-                    campeonatoId: campeonatoActual,
-                  })
-                  .then(() => {
-                    Swal.fire(
-                      "Éxito",
-                      "Tarjeta Amarilla aplicada correctamente",
-                      "success",
-                    );
-                  });
-              }
+              title: "Aplicando Tarjeta Amarilla...",
+              allowOutsideClick: false,
+              didOpen: () => {
+                Swal.showLoading();
+              },
             });
+
+            db.collection("sanciones")
+              .add({
+                jugadorId: pId,
+                tipo: "amarilla",
+                articulo: null,
+                literal: null,
+                valor: 0.5,
+                fecha: new Date(),
+                estado: "activa",
+                campeonatoId: campeonatoActual,
+              })
+              .then(() => {
+                Swal.fire({
+                  title: "¡Aplicada!",
+                  text: "Tarjeta Amarilla registrada correctamente.",
+                  icon: "success",
+                  timer: 1500,
+                  showConfirmButton: false,
+                });
+
+                // Refrescar vistas
+                if (equipoActual) mostrarJugadores(equipoActual, "");
+                if (lastMatchId) verDetallesMatch(lastMatchId, lastMatchLocal, lastMatchVisitor);
+              })
+              .catch((error) => {
+                console.error("Error al aplicar amarilla:", error);
+                Swal.fire("Error", "No se pudo aplicar la sanción.", "error");
+              });
           } else {
             // Para rojas, abrir el modal con el contenedor de artículos visible y bloqueado
             setTimeout(() => {
@@ -1496,37 +1512,43 @@
       window.manualSelectPlayerSancion = function (id, nombre, tipo) {
         Swal.close();
         if (tipo === "amarilla") {
-          // Si es amarilla desde selección manual, también intentar automática
+          // Aplicación automática desde selección manual
           Swal.fire({
-            title: "¿Confirmar Tarjeta Amarilla?",
-            text: `Se aplicará una tarjeta amarilla a ${nombre}.`,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Sí, aplicar",
-            cancelButtonText: "Cancelar",
-            confirmButtonColor: "#f1c40f",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              db.collection("sanciones")
-                .add({
-                  jugadorId: id,
-                  tipo: "amarilla",
-                  articulo: null,
-                  literal: null,
-                  valor: 0.5,
-                  fecha: new Date(),
-                  estado: "activa",
-                  campeonatoId: campeonatoActual,
-                })
-                .then(() => {
-                  Swal.fire(
-                    "Éxito",
-                    "Tarjeta Amarilla aplicada correctamente",
-                    "success",
-                  );
-                });
-            }
+            title: "Aplicando Tarjeta Amarilla...",
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
           });
+
+          db.collection("sanciones")
+            .add({
+              jugadorId: id,
+              tipo: "amarilla",
+              articulo: null,
+              literal: null,
+              valor: 0.5,
+              fecha: new Date(),
+              estado: "activa",
+              campeonatoId: campeonatoActual,
+            })
+            .then(() => {
+              Swal.fire({
+                title: "¡Aplicada!",
+                text: "Tarjeta Amarilla registrada correctamente.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+
+              // Refrescar vistas
+              if (equipoActual) mostrarJugadores(equipoActual, "");
+              if (lastMatchId) verDetallesMatch(lastMatchId, lastMatchLocal, lastMatchVisitor);
+            })
+            .catch((error) => {
+              console.error("Error al aplicar amarilla manual:", error);
+              Swal.fire("Error", "No se pudo aplicar la sanción.", "error");
+            });
         } else {
           abrirModalSancion(id, nombre, tipo, true);
         }
@@ -1852,36 +1874,49 @@
           return;
         }
 
+        // Mostrar cargando
         Swal.fire({
-          title: "¿Confirmar sanción?",
-          text: `Se aplicará una tarjeta ${tipo} al jugador.`,
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Sí, aplicar",
-          cancelButtonText: "Cancelar",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            db.collection("sanciones")
-              .add({
-                jugadorId: id,
-                tipo: tipo,
-                articulo: art || null,
-                literal: lit || null,
-                valor: valor,
-                partidosSuspension: partidos,
-                fecha: new Date(),
-                estado: "activa",
-                campeonatoId: campeonatoActual,
-              })
-              .then(() => {
-                Swal.fire("Éxito", "Sanción aplicada correctamente", "success");
-                const modalEl = document.getElementById("sancionModal");
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                if (modalInstance) modalInstance.hide();
-                if (equipoActual) mostrarJugadores(equipoActual, "");
-              });
-          }
+          title: "Guardando sanción...",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
         });
+
+        db.collection("sanciones")
+          .add({
+            jugadorId: id,
+            tipo: tipo,
+            articulo: art || null,
+            literal: lit || null,
+            valor: valor,
+            partidosSuspension: partidos,
+            fecha: new Date(),
+            estado: "activa",
+            campeonatoId: campeonatoActual,
+          })
+          .then(() => {
+            Swal.fire({
+              title: "¡Guardado!",
+              text: "La sanción se ha registrado correctamente.",
+              icon: "success",
+              timer: 1500,
+              showConfirmButton: false,
+            });
+
+            // Cerrar modal de sanción
+            const modalEl = document.getElementById("sancionModal");
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+
+            // Refrescar vistas
+            if (equipoActual) mostrarJugadores(equipoActual, "");
+            if (lastMatchId) verDetallesMatch(lastMatchId, lastMatchLocal, lastMatchVisitor);
+          })
+          .catch((error) => {
+            console.error("Error al guardar sanción:", error);
+            Swal.fire("Error", "No se pudo guardar la sanción.", "error");
+          });
       }
 
       // Lógica de Multas
@@ -1967,34 +2002,47 @@
           return;
         }
 
+        // Mostrar cargando
         Swal.fire({
-          title: "¿Confirmar multa?",
-          text: `Se registrará una multa de tipo ${tipo} al equipo.`,
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Sí, aplicar",
-          cancelButtonText: "Cancelar",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            db.collection("sanciones")
-              .add({
-                teamId: id,
-                tipo: tipo,
-                articulo: art,
-                literal: lit,
-                valor: valor,
-                fecha: new Date(),
-                estado: "activa",
-                campeonatoId: campeonatoActual,
-              })
-              .then(() => {
-                Swal.fire("Éxito", "Multa aplicada correctamente", "success");
-                const modalEl = document.getElementById("multaModal");
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                if (modalInstance) modalInstance.hide();
-              });
-          }
+          title: "Procesando multa...",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
         });
+
+        db.collection("sanciones")
+          .add({
+            teamId: id,
+            tipo: tipo,
+            articulo: art,
+            literal: lit,
+            valor: valor,
+            fecha: new Date(),
+            estado: "activa",
+            campeonatoId: campeonatoActual,
+          })
+          .then(() => {
+            Swal.fire({
+              title: "¡Multa Aplicada!",
+              text: "La multa se ha guardado correctamente.",
+              icon: "success",
+              timer: 1500,
+              showConfirmButton: false,
+            });
+
+            // Cerrar modal de multa
+            const modalEl = document.getElementById("multaModal");
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+
+            // Refrescar vistas
+            if (lastMatchId) verDetallesMatch(lastMatchId, lastMatchLocal, lastMatchVisitor);
+          })
+          .catch((error) => {
+            console.error("Error al guardar multa:", error);
+            Swal.fire("Error", "No se pudo guardar la multa.", "error");
+          });
       };
 
       window.verMultasEquipo = function (equipoId, equipoNombre) {
