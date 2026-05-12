@@ -1107,13 +1107,17 @@
                        <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Categoría</div>
                        <div class="fw-bold text-warning" style="font-size:0.9rem">${m._cat}</div>
                    </div>
-                   ${m.isFinalized ? `
+                   ${
+                     m.isFinalized
+                       ? `
                    <div class="col-12 mt-2">
                        <div class="alert alert-success bg-success bg-opacity-10 border-success border-opacity-25 text-success d-flex align-items-center py-2 mb-0">
                            <i class="fas fa-lock me-2"></i>
                            <span class="small fw-bold">ACTA FINALIZADA - MODO LECTURA</span>
                        </div>
-                   </div>` : ''}
+                   </div>`
+                       : ""
+                   }
                    <div class="col-md-6 mt-3">
                        <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Vocal</div>
                        <div class="fw-bold text-info" style="font-size:0.9rem">${m.vocalAsignado || "---"}</div>
@@ -1210,17 +1214,16 @@
                                     </button>
                                 </div>
                                 
-                                <!-- Captain Signature Row -->
                                 <div class="row g-0 align-items-center">
                                     <div class="col-8 d-flex align-items-center gap-2">
                                         <span class="text-white-50 small fw-bold" style="white-space:nowrap; font-size:0.6rem">F) CAPITÁN:</span>
-                                        <input type="text" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 shadow-none" 
-                                               style="font-size:0.75rem; border-radius:0" placeholder="Firma digital...">
+                                        <input type="text" id="cap_signature_local" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 shadow-none" 
+                                               style="font-size:0.75rem; border-radius:0" placeholder="Firma digital..." value="${m.vocalReport?.capSignatureLocal || ""}">
                                     </div>
                                     <div class="col-4 d-flex align-items-center gap-2 ps-3">
                                         <span class="text-white-50 small fw-bold" style="font-size:0.6rem">NO:</span>
-                                        <input type="text" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 text-center shadow-none" 
-                                               style="font-size:0.75rem; border-radius:0" placeholder="#">
+                                        <input type="text" id="cap_no_local" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 text-center shadow-none" 
+                                               style="font-size:0.75rem; border-radius:0" placeholder="#" value="${m.vocalReport?.capNoLocal || ""}">
                                     </div>
                                 </div>
                              </div>
@@ -1315,13 +1318,13 @@
                                 <div class="row g-0 align-items-center">
                                     <div class="col-8 d-flex align-items-center gap-2">
                                         <span class="text-white-50 small fw-bold" style="white-space:nowrap; font-size:0.6rem">F) CAPITÁN:</span>
-                                        <input type="text" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 shadow-none" 
-                                               style="font-size:0.75rem; border-radius:0" placeholder="Firma digital...">
+                                        <input type="text" id="cap_signature_visitor" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 shadow-none" 
+                                               style="font-size:0.75rem; border-radius:0" placeholder="Firma digital..." value="${m.vocalReport?.capSignatureVisitor || ""}">
                                     </div>
                                     <div class="col-4 d-flex align-items-center gap-2 ps-3">
                                         <span class="text-white-50 small fw-bold" style="font-size:0.6rem">NO:</span>
-                                        <input type="text" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 text-center shadow-none" 
-                                               style="font-size:0.75rem; border-radius:0" placeholder="#">
+                                        <input type="text" id="cap_no_visitor" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 text-center shadow-none" 
+                                               style="font-size:0.75rem; border-radius:0" placeholder="#" value="${m.vocalReport?.capNoVisitor || ""}">
                                     </div>
                                 </div>
                              </div>
@@ -1339,12 +1342,12 @@
                     <div class="p-3 border-bottom border-secondary border-opacity-50">
                         <div class="d-flex flex-wrap align-items-center gap-2 mb-3 bg-dark p-2 rounded">
                             <span class="text-white small fw-bold">El partido inicia a las</span>
-                            <input type="time" class="form-control form-control-sm w-auto bg-transparent text-warning border-secondary shadow-none">
+                            <input type="time" id="vocal_start_time" class="form-control form-control-sm w-auto bg-transparent text-warning border-secondary shadow-none" value="${m.vocalReport?.startTime || ""}">
                             <span class="text-white small fw-bold">con las siguientes novedades:</span>
                         </div>
                         <div class="mb-3">
                             <span class="text-white-50 small d-block mb-1 text-uppercase">Observaciones:</span>
-                            <textarea class="form-control form-control-sm bg-dark text-white border-secondary shadow-none" rows="3" placeholder="Escriba aquí..."></textarea>
+                            <textarea id="vocal_observations" class="form-control form-control-sm bg-dark text-white border-secondary shadow-none" rows="3" placeholder="Escriba aquí...">${m.vocalReport?.observations || ""}</textarea>
                         </div>
                         <div class="row g-3">
                             <div class="col-md-6 border-end border-secondary border-opacity-25 pe-4">
@@ -1363,7 +1366,7 @@
                                                   .fill()
                                                   .map(
                                                     (_, i) =>
-                                                      `<td class="p-0"><input type="text" id="vocalTA_Local_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none p-0" readonly placeholder="-"></td>`,
+                                                      `<td class="p-0"><input type="text" id="vocalTA_Local_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none p-0" readonly placeholder="-" value="${m.vocalReport?.localTA?.[i] || ""}"></td>`,
                                                   )
                                                   .join("")}
                                             </tr>
@@ -1384,7 +1387,7 @@
                                                   .fill()
                                                   .map(
                                                     (_, i) =>
-                                                      `<td class="p-0"><input type="text" id="vocalTR_Local_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none p-0" readonly placeholder="-"></td>`,
+                                                      `<td class="p-0"><input type="text" id="vocalTR_Local_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none p-0" readonly placeholder="-" value="${m.vocalReport?.localTR?.[i] || ""}"></td>`,
                                                   )
                                                   .join("")}
                                             </tr>
@@ -1393,12 +1396,13 @@
                                 </div>
 
                                 <div class="row g-2 border-top border-secondary border-opacity-25 pt-2 mt-2">
-                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Cinta Cap.</label></div>
-                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Vocal</label></div>
-                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Veedor</label></div>
-                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Balón Liga</label></div>
-                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Balón Propio</label></div>
-                                    <div class="col-6"><label class="form-check-label text-danger small cursor-pointer fw-bold"><input type="checkbox" class="form-check-input me-1" onchange="window.handleNoBall(this)"> No presentó balón</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" id="check_local_0" class="form-check-input me-1" ${m.vocalReport?.localChecks?.[0] ? "checked" : ""}> Cinta Cap.</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" id="check_local_1" class="form-check-input me-1" ${m.vocalReport?.localChecks?.[1] ? "checked" : ""}> Vocal</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" id="check_local_2" class="form-check-input me-1" ${m.vocalReport?.localChecks?.[2] ? "checked" : ""}> Veedor</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" id="check_local_3" class="form-check-input me-1" ${m.vocalReport?.localChecks?.[3] ? "checked" : ""}> Balón Liga</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" id="check_local_4" class="form-check-input me-1" ${m.vocalReport?.localChecks?.[4] ? "checked" : ""}> Balón Propio</label></div>
+                                    <div class="col-6"><label class="form-check-label text-danger small cursor-pointer fw-bold"><input type="checkbox" id="check_local_5" class="form-check-input me-1" onchange="window.handleNoBall(this)" ${m.vocalReport?.localChecks?.[5] ? "checked" : ""}> No presentó balón</label></div>
+
                                 </div>
                             </div>
                             <div class="col-md-6 ps-4">
@@ -1417,7 +1421,7 @@
                                                   .fill()
                                                   .map(
                                                     (_, i) =>
-                                                      `<td class="p-0"><input type="text" id="vocalTA_Visitor_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none p-0" readonly placeholder="-"></td>`,
+                                                      `<td class="p-0"><input type="text" id="vocalTA_Visitor_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none p-0" readonly placeholder="-" value="${m.vocalReport?.visitorTA?.[i] || ""}"></td>`,
                                                   )
                                                   .join("")}
                                             </tr>
@@ -1438,7 +1442,7 @@
                                                   .fill()
                                                   .map(
                                                     (_, i) =>
-                                                      `<td class="p-0"><input type="text" id="vocalTR_Visitor_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none p-0" readonly placeholder="-"></td>`,
+                                                      `<td class="p-0"><input type="text" id="vocalTR_Visitor_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none p-0" readonly placeholder="-" value="${m.vocalReport?.visitorTR?.[i] || ""}"></td>`,
                                                   )
                                                   .join("")}
                                             </tr>
@@ -1447,12 +1451,13 @@
                                 </div>
 
                                 <div class="row g-2 border-top border-secondary border-opacity-25 pt-2 mt-2">
-                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Cinta Cap.</label></div>
-                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Vocal</label></div>
-                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Veedor</label></div>
-                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Balón Liga</label></div>
-                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" class="form-check-input me-1"> Balón Propio</label></div>
-                                    <div class="col-6"><label class="form-check-label text-danger small cursor-pointer fw-bold"><input type="checkbox" class="form-check-input me-1" onchange="window.handleNoBall(this)"> No presentó balón</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" id="check_visitor_0" class="form-check-input me-1" ${m.vocalReport?.visitorChecks?.[0] ? "checked" : ""}> Cinta Cap.</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" id="check_visitor_1" class="form-check-input me-1" ${m.vocalReport?.visitorChecks?.[1] ? "checked" : ""}> Vocal</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" id="check_visitor_2" class="form-check-input me-1" ${m.vocalReport?.visitorChecks?.[2] ? "checked" : ""}> Veedor</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" id="check_visitor_3" class="form-check-input me-1" ${m.vocalReport?.visitorChecks?.[3] ? "checked" : ""}> Balón Liga</label></div>
+                                    <div class="col-6"><label class="form-check-label text-white-50 small cursor-pointer"><input type="checkbox" id="check_visitor_4" class="form-check-input me-1" ${m.vocalReport?.visitorChecks?.[4] ? "checked" : ""}> Balón Propio</label></div>
+                                    <div class="col-6"><label class="form-check-label text-danger small cursor-pointer fw-bold"><input type="checkbox" id="check_visitor_5" class="form-check-input me-1" onchange="window.handleNoBall(this)" ${m.vocalReport?.visitorChecks?.[5] ? "checked" : ""}> No presentó balón</label></div>
+
                                 </div>
                             </div>
                         </div>
@@ -1462,19 +1467,19 @@
                             <div class="col-md-5">
                                 <div class="d-flex align-items-center bg-dark p-2 rounded">
                                     <span class="text-white-50 small me-2" style="width:110px">Nombre:</span>
-                                    <input type="text" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Nombre completo...">
+                                    <input type="text" id="vocal_adm_name" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Nombre completo..." value="${m.vocalReport?.vocalName || ""}">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="d-flex align-items-center bg-dark p-2 rounded">
                                     <span class="text-white-50 small me-2" style="width:90px">Club:</span>
-                                    <input type="text" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Club del vocal...">
+                                    <input type="text" id="vocal_adm_club" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Club del vocal..." value="${m.vocalReport?.vocalClub || ""}">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="d-flex align-items-center bg-dark p-2 rounded">
                                     <span class="text-white-50 small me-2" style="width:60px">Firma:</span>
-                                    <input type="text" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="...">
+                                    <input type="text" id="vocal_adm_signature" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="..." value="${m.vocalReport?.vocalSignature || ""}">
                                 </div>
                             </div>
                         </div>
@@ -1502,8 +1507,8 @@
                                             )
                                               .fill()
                                               .map(
-                                                () =>
-                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none"></td>`,
+                                                (_, i) =>
+                                                  `<td class="p-0"><input type="text" id="refTA_L_D_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" value="${m.refereeReport?.local?.ta?.[i]?.dorsal || ""}"></td>`,
                                               )
                                               .join("")}</tr>
                                             <tr><td class="bg-dark fw-bold align-middle">MOTIVO</td>${Array(
@@ -1511,8 +1516,8 @@
                                             )
                                               .fill()
                                               .map(
-                                                () =>
-                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" placeholder="Siglas..."></td>`,
+                                                (_, i) =>
+                                                  `<td class="p-0"><input type="text" id="refTA_L_M_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" placeholder="Siglas..." value="${m.refereeReport?.local?.ta?.[i]?.motivo || ""}"></td>`,
                                               )
                                               .join("")}</tr>
                                         </tbody>
@@ -1531,8 +1536,8 @@
                                             )
                                               .fill()
                                               .map(
-                                                () =>
-                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none"></td>`,
+                                                (_, i) =>
+                                                  `<td class="p-0"><input type="text" id="refTR_L_D_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" value="${m.refereeReport?.local?.tr?.[i]?.dorsal || ""}"></td>`,
                                               )
                                               .join("")}</tr>
                                             <tr><td class="bg-dark fw-bold align-middle">MOTIVO</td>${Array(
@@ -1540,8 +1545,8 @@
                                             )
                                               .fill()
                                               .map(
-                                                () =>
-                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" placeholder="Siglas..."></td>`,
+                                                (_, i) =>
+                                                  `<td class="p-0"><input type="text" id="refTR_L_M_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" placeholder="Siglas..." value="${m.refereeReport?.local?.tr?.[i]?.motivo || ""}"></td>`,
                                               )
                                               .join("")}</tr>
                                         </tbody>
@@ -1562,8 +1567,8 @@
                                                 ${Array(6)
                                                   .fill()
                                                   .map(
-                                                    () =>
-                                                      `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none"></td>`,
+                                                    (_, i) =>
+                                                      `<td class="p-0"><input type="text" id="refGL_L_D_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" value="${m.refereeReport?.local?.goles?.[i]?.dorsal || ""}"></td>`,
                                                   )
                                                   .join("")}
                                             </tr>
@@ -1572,8 +1577,8 @@
                                                 ${Array(6)
                                                   .fill()
                                                   .map(
-                                                    () =>
-                                                      `<td class="p-0"><input type="number" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" oninput="window.calcRefereeGoles('${m.local}')"></td>`,
+                                                    (_, i) =>
+                                                      `<td class="p-0"><input type="number" id="refGL_L_C_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" oninput="window.calcRefereeGoles('${m.local}')" value="${m.refereeReport?.local?.goles?.[i]?.cant || ""}"></td>`,
                                                   )
                                                   .join("")}
                                             </tr>
@@ -1602,8 +1607,8 @@
                                             )
                                               .fill()
                                               .map(
-                                                () =>
-                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none"></td>`,
+                                                (_, i) =>
+                                                  `<td class="p-0"><input type="text" id="refTA_V_D_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" value="${m.refereeReport?.visitor?.ta?.[i]?.dorsal || ""}"></td>`,
                                               )
                                               .join("")}</tr>
                                             <tr><td class="bg-dark fw-bold align-middle">MOTIVO</td>${Array(
@@ -1611,8 +1616,8 @@
                                             )
                                               .fill()
                                               .map(
-                                                () =>
-                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" placeholder="Siglas..."></td>`,
+                                                (_, i) =>
+                                                  `<td class="p-0"><input type="text" id="refTA_V_M_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" placeholder="Siglas..." value="${m.refereeReport?.visitor?.ta?.[i]?.motivo || ""}"></td>`,
                                               )
                                               .join("")}</tr>
                                         </tbody>
@@ -1631,8 +1636,8 @@
                                             )
                                               .fill()
                                               .map(
-                                                () =>
-                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none"></td>`,
+                                                (_, i) =>
+                                                  `<td class="p-0"><input type="text" id="refTR_V_D_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" value="${m.refereeReport?.visitor?.tr?.[i]?.dorsal || ""}"></td>`,
                                               )
                                               .join("")}</tr>
                                             <tr><td class="bg-dark fw-bold align-middle">MOTIVO</td>${Array(
@@ -1640,8 +1645,8 @@
                                             )
                                               .fill()
                                               .map(
-                                                () =>
-                                                  `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" placeholder="Siglas..."></td>`,
+                                                (_, i) =>
+                                                  `<td class="p-0"><input type="text" id="refTR_V_M_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" placeholder="Siglas..." value="${m.refereeReport?.visitor?.tr?.[i]?.motivo || ""}"></td>`,
                                               )
                                               .join("")}</tr>
                                         </tbody>
@@ -1662,8 +1667,8 @@
                                                 ${Array(6)
                                                   .fill()
                                                   .map(
-                                                    () =>
-                                                      `<td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none"></td>`,
+                                                    (_, i) =>
+                                                      `<td class="p-0"><input type="text" id="refGL_V_D_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" value="${m.refereeReport?.visitor?.goles?.[i]?.dorsal || ""}"></td>`,
                                                   )
                                                   .join("")}
                                             </tr>
@@ -1672,8 +1677,8 @@
                                                 ${Array(6)
                                                   .fill()
                                                   .map(
-                                                    () =>
-                                                      `<td class="p-0"><input type="number" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" oninput="window.calcRefereeGoles('${m.visitor}')"></td>`,
+                                                    (_, i) =>
+                                                      `<td class="p-0"><input type="number" id="refGL_V_C_${i}" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none" oninput="window.calcRefereeGoles('${m.visitor}')" value="${m.refereeReport?.visitor?.goles?.[i]?.cant || ""}"></td>`,
                                                   )
                                                   .join("")}
                                             </tr>
@@ -1690,7 +1695,7 @@
                         <!-- OBSERVACIONES FINAL -->
                         <div class="mt-4">
                             <span class="text-white-50 small d-block mb-1">OBSERVACIONES ÁRBITRO:</span>
-                            <textarea class="form-control form-control-sm bg-dark text-white border-secondary shadow-none" rows="2" placeholder="Novedades del juego..."></textarea>
+                            <textarea id="referee_observations" class="form-control form-control-sm bg-dark text-white border-secondary shadow-none" rows="2" placeholder="Novedades del juego...">${m.refereeReport?.observations || ""}</textarea>
                         </div>
 
                         <!-- FIRMA Y CALIFICACIÓN JUEZ -->
@@ -1698,19 +1703,19 @@
                             <div class="col-md-5">
                                 <div class="d-flex align-items-center bg-dark p-2 rounded">
                                     <span class="text-white-50 small me-2" style="width:110px">Nombre Juez:</span>
-                                    <input type="text" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Nombre completo...">
+                                    <input type="text" id="referee_name" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Nombre completo..." value="${m.refereeReport?.judgeName || ""}">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="d-flex align-items-center bg-dark p-2 rounded">
                                     <span class="text-white-50 small me-2" style="width:60px">Firma:</span>
-                                    <input type="text" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="...">
+                                    <input type="text" id="referee_signature" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="..." value="${m.refereeReport?.judgeSignature || ""}">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="d-flex align-items-center bg-primary-glass p-2 rounded">
                                     <span class="text-white small fw-bold me-2" style="width:140px">Calificación:</span>
-                                    <input type="number" class="form-control form-control-sm bg-dark text-white border-secondary shadow-none" min="1" max="10" placeholder="1-10">
+                                    <input type="number" id="referee_rating" class="form-control form-control-sm bg-dark text-white border-secondary shadow-none" min="1" max="10" placeholder="1-10" value="${m.refereeReport?.judgeRating || ""}">
                                 </div>
                             </div>
                         </div>
@@ -1730,7 +1735,7 @@
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <label class="text-white-50 small text-uppercase fw-bold" style="font-size:0.6rem; letter-spacing:1px">JUVENILES:</label>
-                                        <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-pill" onclick="window.addVedorRow('list_juv_local')" style="font-size:0.6rem; border-width:1px" ${m.isFinalized ? 'disabled' : ''}>+ AGREGAR</button>
+                                        <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-pill" onclick="window.addVedorRow('list_juv_local')" style="font-size:0.6rem; border-width:1px" ${m.isFinalized ? "disabled" : ""}>+ AGREGAR</button>
                                     </div>
                                     <div id="list_juv_local" class="d-flex flex-column gap-1">
                                         <!-- Rows here -->
@@ -1741,7 +1746,7 @@
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <label class="text-white-50 small text-uppercase fw-bold" style="font-size:0.6rem; letter-spacing:1px">ARQUEROS:</label>
-                                        <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-pill" onclick="window.addVedorRow('list_arq_local')" style="font-size:0.6rem; border-width:1px" ${m.isFinalized ? 'disabled' : ''}>+ AGREGAR</button>
+                                        <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-pill" onclick="window.addVedorRow('list_arq_local')" style="font-size:0.6rem; border-width:1px" ${m.isFinalized ? "disabled" : ""}>+ AGREGAR</button>
                                     </div>
                                     <div id="list_arq_local" class="d-flex flex-column gap-1">
                                         <!-- Rows here -->
@@ -1757,7 +1762,7 @@
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <label class="text-white-50 small text-uppercase fw-bold" style="font-size:0.6rem; letter-spacing:1px">JUVENILES:</label>
-                                        <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-pill" onclick="window.addVedorRow('list_juv_visitor')" style="font-size:0.6rem; border-width:1px" ${m.isFinalized ? 'disabled' : ''}>+ AGREGAR</button>
+                                        <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-pill" onclick="window.addVedorRow('list_juv_visitor')" style="font-size:0.6rem; border-width:1px" ${m.isFinalized ? "disabled" : ""}>+ AGREGAR</button>
                                     </div>
                                     <div id="list_juv_visitor" class="d-flex flex-column gap-1">
                                         <!-- Rows here -->
@@ -1768,7 +1773,7 @@
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <label class="text-white-50 small text-uppercase fw-bold" style="font-size:0.6rem; letter-spacing:1px">ARQUEROS:</label>
-                                        <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-pill" onclick="window.addVedorRow('list_arq_visitor')" style="font-size:0.6rem; border-width:1px" ${m.isFinalized ? 'disabled' : ''}>+ AGREGAR</button>
+                                        <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2 rounded-pill" onclick="window.addVedorRow('list_arq_visitor')" style="font-size:0.6rem; border-width:1px" ${m.isFinalized ? "disabled" : ""}>+ AGREGAR</button>
                                     </div>
                                     <div id="list_arq_visitor" class="d-flex flex-column gap-1">
                                         <!-- Rows here -->
@@ -1779,20 +1784,20 @@
 
                         <div class="mt-4">
                             <span class="text-white-50 small d-block mb-1 text-uppercase fw-bold" style="letter-spacing:1px; font-size:0.65rem">OBSERVACIONES DEL VEDOR (Barras, comportamiento, etc.):</span>
-                            <textarea id="vedor_obs" class="form-control form-control-sm bg-dark text-white border-secondary border-opacity-25 shadow-none mb-4" rows="4" placeholder="Detalle aquí las novedades de las barras y el comportamiento general del encuentro..."></textarea>
+                            <textarea id="vedor_obs" class="form-control form-control-sm bg-dark text-white border-secondary border-opacity-25 shadow-none mb-4" rows="4" placeholder="Detalle aquí las novedades de las barras y el comportamiento general del encuentro...">${m.vedorReport?.observaciones || ""}</textarea>
                         </div>
 
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="d-flex align-items-center bg-dark p-2 rounded border border-white border-opacity-5">
                                     <span class="text-white-50 small me-2" style="width:110px">Nombre Vedor:</span>
-                                    <input type="text" id="vedor_nombre" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Nombre del veedor...">
+                                    <input type="text" id="vedor_nombre" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Nombre del veedor..." value="${m.vedorReport?.nombre || ""}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="d-flex align-items-center bg-dark p-2 rounded border border-white border-opacity-5">
                                     <span class="text-white-50 small me-2" style="width:110px">Club Vedor:</span>
-                                    <input type="text" id="vedor_club" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Club al que pertenece...">
+                                    <input type="text" id="vedor_club" class="form-control form-control-sm bg-transparent text-white border-bottom border-top-0 border-start-0 border-end-0 border-secondary shadow-none rounded-0" placeholder="Club al que pertenece..." value="${m.vedorReport?.club || ""}">
                                 </div>
                             </div>
                         </div>
@@ -1800,7 +1805,7 @@
                 </div>
 
                 <!-- Botón de Guardado -->
-                <div class="row mt-4 mb-3 ${m.isFinalized ? 'd-none' : ''}">
+                <div class="row mt-4 mb-3 ${m.isFinalized ? "d-none" : ""}">
                     <div class="col-12 text-center">
                         <button class="btn-premium px-5 py-3 fs-5" onclick="window.finalizarGuardarActa('${m.matchId}', '${m._fixId}')">
                             <i class="fas fa-check-circle me-2"></i> Finalizar y Guardar Acta
@@ -1823,17 +1828,23 @@
           const tbody = document.getElementById(tbodyId);
           tbody.innerHTML = "";
           const teamName = teamType === "local" ? m.local : m.visitor;
-          
+
           // Buscar datos guardados si existen
-          const savedData = teamType === "local" ? m.playersLocal : m.playersVisitor;
-          
+          const savedData =
+            teamType === "local" ? m.playersLocal : m.playersVisitor;
+
           for (let i = 0; i < 9; i++) {
-            const p = (savedData && savedData[i]) ? savedData[i] : { num: "", name: "", ta: 0, tr: 0, goles: 0 };
-            
+            const p =
+              savedData && savedData[i]
+                ? savedData[i]
+                : { num: "", name: "", ta: 0, tr: 0, goles: 0 };
+
             let yellowHtml = "";
-            if (p.ta >= 1) yellowHtml += '<div class="card-rect yellow-rect"></div>';
-            if (p.ta >= 2) yellowHtml += '<div class="card-rect yellow-rect"></div>';
-            
+            if (p.ta >= 1)
+              yellowHtml += '<div class="card-rect yellow-rect"></div>';
+            if (p.ta >= 2)
+              yellowHtml += '<div class="card-rect yellow-rect"></div>';
+
             let redHtml = "";
             if (p.tr >= 1) redHtml += '<div class="card-rect red-rect"></div>';
 
@@ -1861,27 +1872,42 @@
 
         // También cargar cambios si hay datos
         const loadCambios = (teamType, tbodyId) => {
-            const tbody = document.getElementById(tbodyId);
-            if(!tbody) return;
-            tbody.innerHTML = "";
-            const teamName = teamType === "local" ? m.local : m.visitor;
-            const savedChanges = teamType === "local" ? m.changesLocal : m.changesVisitor;
+          const tbody = document.getElementById(tbodyId);
+          if (!tbody) return;
+          tbody.innerHTML = "";
+          const teamName = teamType === "local" ? m.local : m.visitor;
+          const savedChanges =
+            teamType === "local" ? m.changesLocal : m.changesVisitor;
 
-            for (let i = 0; i < 8; i++) {
-                const c = (savedChanges && savedChanges[i]) ? savedChanges[i] : { entraNum: "", name: "", saleNum: "", ta: 0, tr: 0, goles: 0 };
-                
-                let yellowHtml = "";
-                if (c.ta >= 1) yellowHtml += '<div class="card-rect yellow-rect"></div>';
-                if (c.ta >= 2) yellowHtml += '<div class="card-rect yellow-rect"></div>';
-                
-                let redHtml = "";
-                if (c.tr >= 1) redHtml += '<div class="card-rect red-rect"></div>';
+          for (let i = 0; i < 8; i++) {
+            const c =
+              savedChanges && savedChanges[i]
+                ? savedChanges[i]
+                : {
+                    entraNum: "",
+                    name: "",
+                    saleNum: "",
+                    ta: 0,
+                    tr: 0,
+                    goles: 0,
+                  };
 
-                tbody.insertAdjacentHTML("beforeend", `
+            let yellowHtml = "";
+            if (c.ta >= 1)
+              yellowHtml += '<div class="card-rect yellow-rect"></div>';
+            if (c.ta >= 2)
+              yellowHtml += '<div class="card-rect yellow-rect"></div>';
+
+            let redHtml = "";
+            if (c.tr >= 1) redHtml += '<div class="card-rect red-rect"></div>';
+
+            tbody.insertAdjacentHTML(
+              "beforeend",
+              `
                     <tr>
                         <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none h-100" placeholder="#" value="${c.entraNum}" ${readonlyAttr}></td>
-                        <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none h-100 cursor-pointer text-warning" placeholder="Seleccionar Entra..." value="${c.name}" readonly ${onclickSelector}="openPlayerSelector('${teamName}', '${m._cat}', this, '${teamType === 'local' ? 'listaJugadoresLocal' : 'listaJugadoresVisitante'}')"></td>
-                        <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none h-100 cursor-pointer text-info text-center" placeholder="#" value="${c.saleNum}" readonly ${onclickSelector}="openRosterSelector('${teamType === 'local' ? 'listaJugadoresLocal' : 'listaJugadoresVisitante'}', this)"></td>
+                        <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none h-100 cursor-pointer text-warning" placeholder="Seleccionar Entra..." value="${c.name}" readonly ${onclickSelector}="openPlayerSelector('${teamName}', '${m._cat}', this, '${teamType === "local" ? "listaJugadoresLocal" : "listaJugadoresVisitante"}')"></td>
+                        <td class="p-0"><input type="text" class="form-control form-control-sm bg-transparent text-white border-0 shadow-none h-100 cursor-pointer text-info text-center" placeholder="#" value="${c.saleNum}" readonly ${onclickSelector}="openRosterSelector('${teamType === "local" ? "listaJugadoresLocal" : "listaJugadoresVisitante"}', this)"></td>
                         <td class="p-0 text-center align-middle cursor-pointer" ${onclickSelector}="window.toggleCard(this, 'yellow')">
                             <div class="card-slot yellow-slot">${yellowHtml}</div>
                         </td>
@@ -1890,69 +1916,77 @@
                         </td>
                         <td class="p-0"><input type="number" class="form-control form-control-sm bg-transparent text-white border-0 text-center shadow-none h-100" min="0" value="${c.goles || ""}" ${readonlyAttr} oninput="window.updateTotalGoles('${teamType}')"></td>
                     </tr>
-                `);
-            }
+                `,
+            );
+          }
         };
 
         loadCambios("local", "listaCambiosLocal");
         loadCambios("visitor", "listaCambiosVisitante");
 
         // Cargar otros campos (Observaciones, firmas, etc)
-        if(isFinalized) {
-            // Deshabilitar todos los inputs del modal
-            const inputs = document.querySelectorAll("#modalVocalBody input, #modalVocalBody textarea, #modalVocalBody select");
-            inputs.forEach(inp => inp.disabled = true);
+        if (isFinalized) {
+          // Deshabilitar todos los inputs del modal
+          const inputs = document.querySelectorAll(
+            "#modalVocalBody input, #modalVocalBody textarea, #modalVocalBody select",
+          );
+          inputs.forEach((inp) => (inp.disabled = true));
         }
 
-        // Poblar datos extras si existen
-        if(m.vocalReport) {
-            const vr = m.vocalReport;
-            const container = document.getElementById("modalVocalBody");
-            const timeInp = container.querySelector('input[type="time"]');
-            if(timeInp) timeInp.value = vr.startTime || "";
-            const obsText = container.querySelector('textarea');
-            if(obsText) obsText.value = vr.observations || "";
-        }
+        // Restauración de datos adicionales vía Template Literal (IDs) - Limpieza de lógica manual redundante
 
         // Poblar datos de VEDOR si existen
-        if(m.vedorReport) {
-            const vr = m.vedorReport;
-            const container = document.getElementById("modalVocalBody");
-            
-            // Info Vedor
-            if(container.querySelector("#vedor_nombre")) container.querySelector("#vedor_nombre").value = vr.nombre || "";
-            if(container.querySelector("#vedor_club")) container.querySelector("#vedor_club").value = vr.club || "";
-            
-            // Renderizar filas dinámicas
-            const renderRows = (dataArr, containerId) => {
-                const list = document.getElementById(containerId);
-                if(!list) return;
-                list.innerHTML = "";
-                if(dataArr && dataArr.length > 0) {
-                    dataArr.forEach(item => window.addVedorRow(containerId, item.dorsal, item.min, isFinalized));
-                } else if(!isFinalized) {
-                    // Si no hay datos y no está finalizado, agregar una vacía por defecto
-                    window.addVedorRow(containerId);
-                }
-            };
+        if (m.vedorReport) {
+          const vr = m.vedorReport;
+          const container = document.getElementById("modalVocalBody");
 
-            renderRows(vr.juvenilesLocal, "list_juv_local");
-            renderRows(vr.arquerosLocal, "list_arq_local");
-            renderRows(vr.juvenilesVisitor, "list_juv_visitor");
-            renderRows(vr.arquerosVisitor, "list_arq_visitor");
+          // Info Vedor
+          if (container.querySelector("#vedor_nombre"))
+            container.querySelector("#vedor_nombre").value = vr.nombre || "";
+          if (container.querySelector("#vedor_club"))
+            container.querySelector("#vedor_club").value = vr.club || "";
 
-            // Obs Vedor
-            if(container.querySelector("#vedor_obs")) container.querySelector("#vedor_obs").value = vr.observaciones || "";
-        } else if(!isFinalized) {
-            // Si no hay reporte aún, inicializar con una fila vacía para cada lista
-            window.addVedorRow("list_juv_local");
-            window.addVedorRow("list_arq_local");
-            window.addVedorRow("list_juv_visitor");
-            window.addVedorRow("list_arq_visitor");
+          // Renderizar filas dinámicas
+          const renderRows = (dataArr, containerId) => {
+            const list = document.getElementById(containerId);
+            if (!list) return;
+            list.innerHTML = "";
+            if (dataArr && dataArr.length > 0) {
+              dataArr.forEach((item) =>
+                window.addVedorRow(
+                  containerId,
+                  item.dorsal,
+                  item.min,
+                  isFinalized,
+                ),
+              );
+            } else if (!isFinalized) {
+              // Si no hay datos y no está finalizado, agregar una vacía por defecto
+              window.addVedorRow(containerId);
+            }
+          };
+
+          renderRows(vr.juvenilesLocal, "list_juv_local");
+          renderRows(vr.arquerosLocal, "list_arq_local");
+          renderRows(vr.juvenilesVisitor, "list_juv_visitor");
+          renderRows(vr.arquerosVisitor, "list_arq_visitor");
+
+          // Obs Vedor
+          if (container.querySelector("#vedor_obs"))
+            container.querySelector("#vedor_obs").value =
+              vr.observaciones || "";
+        } else if (!isFinalized) {
+          // Si no hay reporte aún, inicializar con una fila vacía para cada lista
+          window.addVedorRow("list_juv_local");
+          window.addVedorRow("list_arq_local");
+          window.addVedorRow("list_juv_visitor");
+          window.addVedorRow("list_arq_visitor");
         }
-        
+
         window.updateTotalGoles("local");
         window.updateTotalGoles("visitor");
+        window.calcRefereeGoles(m.local);
+        window.calcRefereeGoles(m.visitor);
       }
 
       let currentTargetInput = null;
@@ -2378,38 +2412,44 @@
         }
       };
 
-      window.addVedorRow = function(containerId, dorsal = "", min = "", disabled = false) {
-          const list = document.getElementById(containerId);
-          if(!list) return;
-          const row = document.createElement("div");
-          row.className = "vedor-row d-flex gap-2 align-items-center animate__animated animate__fadeInDown mb-2";
-          row.style.animationDuration = "0.3s";
-          row.innerHTML = `
+      window.addVedorRow = function (
+        containerId,
+        dorsal = "",
+        min = "",
+        disabled = false,
+      ) {
+        const list = document.getElementById(containerId);
+        if (!list) return;
+        const row = document.createElement("div");
+        row.className =
+          "vedor-row d-flex gap-2 align-items-center animate__animated animate__fadeInDown mb-2";
+        row.style.animationDuration = "0.3s";
+        row.innerHTML = `
               <div class="p-2 rounded-3 border border-white border-opacity-10 flex-grow-1" 
                    style="background: rgba(255,255,255,0.03); backdrop-filter: blur(5px);">
                   <div class="row g-2">
                       <div class="col-4">
                           <label class="text-primary-glow small d-block mb-1 fw-bold" style="font-size:0.5rem; letter-spacing:1px">DORSAL</label>
                           <input type="number" class="form-control form-control-sm bg-transparent text-white border-secondary border-opacity-25 shadow-none text-center inp-dorsal" 
-                                 placeholder="#" value="${dorsal}" ${disabled ? 'disabled' : ''}>
+                                 placeholder="#" value="${dorsal}" ${disabled ? "disabled" : ""}>
                       </div>
                       <div class="col-8">
                           <label class="text-white-50 small d-block mb-1 fw-bold" style="font-size:0.5rem; letter-spacing:1px">MINUTOS JUGADOS</label>
                           <input type="number" class="form-control form-control-sm bg-transparent text-white border-secondary border-opacity-25 shadow-none text-center inp-min" 
-                                 placeholder="min." value="${min}" ${disabled ? 'disabled' : ''}>
+                                 placeholder="min." value="${min}" ${disabled ? "disabled" : ""}>
                       </div>
                   </div>
               </div>
-              ${!disabled ? `<button type="button" class="btn btn-sm btn-outline-danger p-1 border-0 opacity-50" onclick="window.removeVedorRow(this)"><i class="fas fa-times"></i></button>` : ''}
+              ${!disabled ? `<button type="button" class="btn btn-sm btn-outline-danger p-1 border-0 opacity-50" onclick="window.removeVedorRow(this)"><i class="fas fa-times"></i></button>` : ""}
           `;
-          list.appendChild(row);
+        list.appendChild(row);
       };
 
-      window.removeVedorRow = function(btn) {
-          const row = btn.closest(".vedor-row");
-          row.classList.remove("animate__fadeInDown");
-          row.classList.add("animate__fadeOutRight");
-          setTimeout(() => row.remove(), 300);
+      window.removeVedorRow = function (btn) {
+        const row = btn.closest(".vedor-row");
+        row.classList.remove("animate__fadeInDown");
+        row.classList.add("animate__fadeOutRight");
+        setTimeout(() => row.remove(), 300);
       };
 
       window.calcRefereeGoles = function (teamName) {
@@ -2633,10 +2673,7 @@
           });
 
           // 1. Intentar compartir directamente (Funciona en Móvil / Algunos navegadores)
-          if (
-            navigator.canShare &&
-            navigator.canShare({ files: [file] })
-          ) {
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
             Swal.fire({
               title: "¡Listo para compartir!",
               text: "Selecciona WhatsApp en la siguiente ventana para enviar la factura completa.",
@@ -2698,7 +2735,11 @@
           });
         } catch (error) {
           console.error("html2canvas error:", error);
-          Swal.fire("Error", "No se pudo generar la imagen de la factura.", "error");
+          Swal.fire(
+            "Error",
+            "No se pudo generar la imagen de la factura.",
+            "error",
+          );
         }
       };
 
@@ -2811,32 +2852,112 @@
           const changesLocal = collectChanges("listaCambiosLocal");
           const changesVisitor = collectChanges("listaCambiosVisitante");
 
-          const container = document.getElementById("modalVocalBody");
           const vocalReport = {
-            startTime: container.querySelector('input[type="time"]').value,
-            observations: container.querySelector("textarea").value,
+            startTime: document.getElementById("vocal_start_time")?.value || "",
+            observations:
+              document.getElementById("vocal_observations")?.value || "",
+            vocalName: document.getElementById("vocal_adm_name")?.value || "",
+            vocalClub: document.getElementById("vocal_adm_club")?.value || "",
+            vocalSignature:
+              document.getElementById("vocal_adm_signature")?.value || "",
+            capSignatureLocal:
+              document.getElementById("cap_signature_local")?.value || "",
+            capNoLocal: document.getElementById("cap_no_local")?.value || "",
+            capSignatureVisitor:
+              document.getElementById("cap_signature_visitor")?.value || "",
+            capNoVisitor:
+              document.getElementById("cap_no_visitor")?.value || "",
+            localTA: Array.from({ length: 6 }).map(
+              (_, i) =>
+                document.getElementById(`vocalTA_Local_${i}`)?.value || "",
+            ),
+            localTR: Array.from({ length: 6 }).map(
+              (_, i) =>
+                document.getElementById(`vocalTR_Local_${i}`)?.value || "",
+            ),
+            visitorTA: Array.from({ length: 6 }).map(
+              (_, i) =>
+                document.getElementById(`vocalTA_Visitor_${i}`)?.value || "",
+            ),
+            visitorTR: Array.from({ length: 6 }).map(
+              (_, i) =>
+                document.getElementById(`vocalTR_Visitor_${i}`)?.value || "",
+            ),
+            localChecks: [
+              document.getElementById("check_local_0")?.checked || false,
+              document.getElementById("check_local_1")?.checked || false,
+              document.getElementById("check_local_2")?.checked || false,
+              document.getElementById("check_local_3")?.checked || false,
+              document.getElementById("check_local_4")?.checked || false,
+              document.getElementById("check_local_5")?.checked || false,
+            ],
+            visitorChecks: [
+              document.getElementById("check_visitor_0")?.checked || false,
+              document.getElementById("check_visitor_1")?.checked || false,
+              document.getElementById("check_visitor_2")?.checked || false,
+              document.getElementById("check_visitor_3")?.checked || false,
+              document.getElementById("check_visitor_4")?.checked || false,
+              document.getElementById("check_visitor_5")?.checked || false,
+            ],
+          };
+
+          const refereeReport = {
+            observations:
+              document.getElementById("referee_observations")?.value || "",
+            judgeName: document.getElementById("referee_name")?.value || "",
+            judgeSignature:
+              document.getElementById("referee_signature")?.value || "",
+            judgeRating: document.getElementById("referee_rating")?.value || "",
+            local: {
+              ta: Array.from({ length: 6 }).map((_, i) => ({
+                dorsal: document.getElementById(`refTA_L_D_${i}`)?.value || "",
+                motivo: document.getElementById(`refTA_L_M_${i}`)?.value || "",
+              })),
+              tr: Array.from({ length: 6 }).map((_, i) => ({
+                dorsal: document.getElementById(`refTR_L_D_${i}`)?.value || "",
+                motivo: document.getElementById(`refTR_L_M_${i}`)?.value || "",
+              })),
+              goles: Array.from({ length: 6 }).map((_, i) => ({
+                dorsal: document.getElementById(`refGL_L_D_${i}`)?.value || "",
+                cant: document.getElementById(`refGL_L_C_${i}`)?.value || "",
+              })),
+            },
+            visitor: {
+              ta: Array.from({ length: 6 }).map((_, i) => ({
+                dorsal: document.getElementById(`refTA_V_D_${i}`)?.value || "",
+                motivo: document.getElementById(`refTA_V_M_${i}`)?.value || "",
+              })),
+              tr: Array.from({ length: 6 }).map((_, i) => ({
+                dorsal: document.getElementById(`refTR_V_D_${i}`)?.value || "",
+                motivo: document.getElementById(`refTR_V_M_${i}`)?.value || "",
+              })),
+              goles: Array.from({ length: 6 }).map((_, i) => ({
+                dorsal: document.getElementById(`refGL_V_D_${i}`)?.value || "",
+                cant: document.getElementById(`refGL_V_C_${i}`)?.value || "",
+              })),
+            },
           };
 
           const collectVedorRows = (containerId) => {
             const rows = [];
             const container = document.getElementById(containerId);
-            if(!container) return rows;
-            container.querySelectorAll(".vedor-row").forEach(row => {
-                const dorsal = row.querySelector(".inp-dorsal").value.trim();
-                const min = row.querySelector(".inp-min").value.trim();
-                if(dorsal || min) rows.push({ dorsal, min });
+            if (!container) return rows;
+            container.querySelectorAll(".vedor-row").forEach((row) => {
+              const dorsal = row.querySelector(".inp-dorsal").value.trim();
+              const min = row.querySelector(".inp-min").value.trim();
+              if (dorsal || min) rows.push({ dorsal, min });
             });
             return rows;
           };
 
           const vedorReport = {
-            nombre: container.querySelector("#vedor_nombre").value,
-            club: container.querySelector("#vedor_club").value,
+            nombre: document.getElementById("vedor_nombre")?.value || "",
+            club: document.getElementById("vedor_club")?.value || "",
             juvenilesLocal: collectVedorRows("list_juv_local"),
             arquerosLocal: collectVedorRows("list_arq_local"),
             juvenilesVisitor: collectVedorRows("list_juv_visitor"),
             arquerosVisitor: collectVedorRows("list_arq_visitor"),
-            observaciones: container.querySelector("#vedor_obs").value
+            observaciones: document.getElementById("vedor_obs")?.value || "",
           };
 
           const docRef = db.collection("fixtures").doc(fixId);
@@ -2858,6 +2979,7 @@
                 changesLocal,
                 changesVisitor,
                 vocalReport,
+                refereeReport,
                 vedorReport,
                 lastUpdated: new Date(),
               };
@@ -2918,7 +3040,9 @@
         background-color: rgba(255, 255, 255, 0.05) !important;
         border: 1px solid rgba(255, 255, 255, 0.2) !important;
         box-shadow: none !important;
-        transition: border-color 0.3s, box-shadow 0.3s !important;
+        transition:
+          border-color 0.3s,
+          box-shadow 0.3s !important;
       }
       .swal2-input:focus {
         border-color: #2ecc71 !important;

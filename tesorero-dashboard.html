@@ -1075,9 +1075,19 @@
       let logosMap = {};
       let invoiceCounter = 1;
 
-      function openMatchInvoice(match) {
+      async function openMatchInvoice(match) {
+        Swal.fire({
+          title: 'Cargando datos del encuentro...',
+          html: '<div class="spinner-border text-primary mb-3"></div><p class="text-white-50">Sincronizando sanciones y jugadores...</p>',
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          background: '#111',
+          didOpen: () => { Swal.showLoading(); }
+        });
+
         currentMatch = match;
         const cat = (match._cat || "").toLowerCase();
+        const campId = document.getElementById("campSelect").value;
         
         document.getElementById('invoiceNameLocal').textContent = match.local;
         document.getElementById('invoiceNameVisitor').textContent = match.visitor;
@@ -1094,12 +1104,12 @@
         else if(cat.includes('primera') || cat.includes('maxima')) defaultArb = 9.50;
 
         // Reset inputs and dynamic lists
-        ['local', 'visitor'].forEach(team => {
+        for (const team of ['local', 'visitor']) {
           document.getElementById('inv_can_' + team).value = "2.00";
           document.getElementById('inv_arb_' + team).value = defaultArb.toFixed(2);
           document.getElementById('inv_cem_' + team).value = "0.50";
           
-          // Card Prices
+          // Card Prices (Match Screenshots)
           document.getElementById('inv_ta_val_' + team).value = "0.50";
           document.getElementById('inv_tr_val_' + team).value = "1.00";
 
@@ -1109,9 +1119,83 @@
           document.getElementById('tr_players_' + team).innerHTML = "";
           document.getElementById('multas_list_' + team).innerHTML = "";
 
-          calculateTotal(team);
-        });
+          // FETCH PENDING SANCTIONS AUTOMATICALLY (Teams & Players)
+          try {
+              const teamName = team === 'local' ? match.local : match.visitor;
+              
+              // Find Team ID first
+              const teamSnap = await db.collection("teams").where("name", "==", teamName).where("championshipId", "==", campId).get();
+              if(!teamSnap.empty) {
+                  const teamId = teamSnap.docs[0].id;
+                  
+                  // 1. Team Sanctions (Multas a la barra, etc)
+                  const teamSancSnap = await db.collection("sanciones")
+                      .where("teamId", "==", teamId)
+                      .where("estado", "==", "activa")
+                      .get();
+                  
+                  teamSancSnap.forEach(sDoc => {
+                      const s = sDoc.data();
+                      const desc = `${s.tipo.replace(/_/g, " ").toUpperCase()} (${s.literal || ""})`;
+                      window.addMultaRow(team, desc, s.valor, sDoc.id);
+                  });
 
+                  // 2. Player Sanctions (Cards)
+                  const playersSnap = await db.collection("players").where("teamId", "==", teamId).get();
+                  const playersMap = {};
+                  playersSnap.forEach(pDoc => { playersMap[pDoc.id] = pDoc.data(); });
+
+                  const playerIds = Object.keys(playersMap);
+                  if (playerIds.length > 0) {
+                      // Firestore doesn't support 'in' with more than 10 items, but for sanctions it's usually manageable
+                      // or we can fetch by chunks. For now, let's assume we can fetch all and filter in JS if needed,
+                      // but it's better to query by playerIds in chunks of 10.
+                      let allPlayerSanc = [];
+                      for (let i = 0; i < playerIds.length; i += 10) {
+                          const chunk = playerIds.slice(i, i + 10);
+                          const sSnap = await db.collection("sanciones")
+                              .where("jugadorId", "in", chunk)
+                              .where("estado", "==", "activa")
+                              .get();
+                          sSnap.forEach(doc => allPlayerSanc.push({ id: doc.id, ...doc.data() }));
+                      }
+
+                      const yellows = allPlayerSanc.filter(s => s.tipo === "amarilla");
+                      const reds = allPlayerSanc.filter(s => s.tipo === "roja");
+
+                      if (yellows.length > 0) {
+                          document.getElementById(`inv_ta_count_${team}`).value = yellows.length;
+                          updateCardInputs(team, 'ta');
+                          const inputs = document.querySelectorAll(`#ta_players_${team} input`);
+                          yellows.forEach((s, idx) => {
+                              if (inputs[idx]) {
+                                  inputs[idx].value = playersMap[s.jugadorId]?.numeroJugador || "";
+                                  inputs[idx].setAttribute('data-sanction-id', s.id);
+                              }
+                          });
+                      }
+
+                      if (reds.length > 0) {
+                          document.getElementById(`inv_tr_count_${team}`).value = reds.length;
+                          updateCardInputs(team, 'tr');
+                          const inputs = document.querySelectorAll(`#tr_players_${team} input`);
+                          reds.forEach((s, idx) => {
+                              if (inputs[idx]) {
+                                  inputs[idx].value = playersMap[s.jugadorId]?.numeroJugador || "";
+                                  inputs[idx].setAttribute('data-sanction-id', s.id);
+                              }
+                          });
+                      }
+                  }
+              }
+          } catch (err) {
+              console.error("Error fetching auto-multas/cards:", err);
+          }
+
+          calculateTotal(team);
+        }
+
+        Swal.close();
         const modal = new bootstrap.Modal(document.getElementById('invoiceModal'));
         modal.show();
       }
@@ -1127,13 +1211,13 @@
         }
       }
 
-      function addMultaRow(team) {
+      window.addMultaRow = function(team, description = "", value = "0.00", sanctionId = "") {
         const container = document.getElementById('multas_list_' + team);
-        const rowId = 'multa_' + Date.now();
+        const rowId = 'multa_' + Date.now() + Math.random().toString(36).substr(2, 5);
         container.insertAdjacentHTML('beforeend', `
-            <div class="input-group" id="${rowId}">
-                <input type="text" class="form-control invoice-input" placeholder="Descripción detallada de la sanción..." style="font-size: 0.75rem; flex: 3">
-                <input type="number" class="form-control invoice-input multa-val-dynamic" value="0.00" step="0.01" oninput="calculateTotal('${team}')" style="flex: 1; max-width: 90px; text-align: right">
+            <div class="input-group multa-item-row" id="${rowId}" data-sanction-id="${sanctionId}">
+                <input type="text" class="form-control invoice-input" placeholder="Descripción detallada de la sanción..." value="${description}" style="font-size: 0.75rem; flex: 3">
+                <input type="number" class="form-control invoice-input multa-val-dynamic" value="${parseFloat(value).toFixed(2)}" step="0.01" oninput="calculateTotal('${team}')" style="flex: 1; max-width: 90px; text-align: right">
                 <button class="btn btn-outline-danger border-0 bg-danger bg-opacity-10" onclick="removeMultaRow('${rowId}', '${team}')">
                     <i class="fas fa-times text-danger"></i>
                 </button>
@@ -1185,16 +1269,23 @@
             ta: {
                 count: parseInt(document.getElementById('inv_ta_count_' + team).value) || 0,
                 val: parseFloat(document.getElementById('inv_ta_val_' + team).value) || 0,
-                players: Array.from(document.querySelectorAll(`#ta_players_${team} input`)).map(i => i.value).filter(v => v)
+                players: Array.from(document.querySelectorAll(`#ta_players_${team} input`)).map(i => ({
+                    num: i.value,
+                    sanctionId: i.getAttribute('data-sanction-id') || ""
+                })).filter(p => p.num)
             },
             tr: {
                 count: parseInt(document.getElementById('inv_tr_count_' + team).value) || 0,
                 val: parseFloat(document.getElementById('inv_tr_val_' + team).value) || 0,
-                players: Array.from(document.querySelectorAll(`#tr_players_${team} input`)).map(i => i.value).filter(v => v)
+                players: Array.from(document.querySelectorAll(`#tr_players_${team} input`)).map(i => ({
+                    num: i.value,
+                    sanctionId: i.getAttribute('data-sanction-id') || ""
+                })).filter(p => p.num)
             },
-            extras: Array.from(document.querySelectorAll(`#multas_list_${team} .input-group`)).map(row => ({
+            extras: Array.from(document.querySelectorAll(`#multas_list_${team} .multa-item-row`)).map(row => ({
                 desc: row.querySelector('input[type="text"]').value || 'Multa Adicional',
-                val: parseFloat(row.querySelector('.multa-val-dynamic').value) || 0
+                val: parseFloat(row.querySelector('.multa-val-dynamic').value) || 0,
+                sanctionId: row.getAttribute('data-sanction-id') || ""
             })),
             total: totalValue,
             whatsapp: document.getElementById('inv_wa_' + team).value.trim(),
@@ -1249,6 +1340,22 @@
 
                 // 2. Create entry in centralized "invoices" collection
                 await db.collection("invoices").add(billingData);
+
+                // 3. Mark auto-fetched sanctions as "cobrada" (Teams & Cards)
+                const teamSanctions = billingData.extras.filter(e => e.sanctionId);
+                const playerSanctions = [
+                    ...billingData.ta.players.filter(p => p.sanctionId),
+                    ...billingData.tr.players.filter(p => p.sanctionId)
+                ];
+
+                const allToMark = [...teamSanctions, ...playerSanctions];
+                for(const s of allToMark) {
+                    await db.collection("sanciones").doc(s.sanctionId).update({
+                        estado: "cobrada",
+                        paidAt: new Date(),
+                        invoiceId: billingData.invoiceId
+                    });
+                }
 
                 showDigitalReceipt(team);
                 
@@ -1305,16 +1412,16 @@
 
         // Tarjetas
         if(taCount > 0) {
-            const taPn = Array.from(document.querySelectorAll(`#ta_players_${team} input`)).map(i => i.value).filter(v => v).join(', ');
+            const taPn = billingData.ta.players.map(p => p.num).join(', ');
             addRow("P000000001", `T. Amarillas (${taCount}) ${taPn ? 'Jug: ' + taPn : ''}`, 1, taCount * taVal);
         }
         if(trCount > 0) {
-            const trPn = Array.from(document.querySelectorAll(`#tr_players_${team} input`)).map(i => i.value).filter(v => v).join(', ');
+            const trPn = billingData.tr.players.map(p => p.num).join(', ');
             addRow("P000000001", `T. Rojas (${trCount}) ${trPn ? 'Jug: ' + trPn : ''}`, 1, trCount * trVal);
         }
 
         // Multas dinámicas
-        document.querySelectorAll(`#multas_list_${team} .input-group`).forEach(row => {
+        document.querySelectorAll(`#multas_list_${team} .multa-item-row`).forEach(row => {
             const desc = row.querySelector('input[type="text"]').value || 'Multa Adicional';
             const val = parseFloat(row.querySelector('.multa-val-dynamic').value) || 0;
             if(val > 0) addRow("P000000014", desc, 1, val);

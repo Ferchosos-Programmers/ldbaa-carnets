@@ -33,7 +33,9 @@
         background: white;
         color: black;
       }
-      .fw-900 { font-weight: 900; }
+      .fw-900 {
+        font-weight: 900;
+      }
       .text-primary-glow {
         color: #2ecc71;
         text-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
@@ -43,6 +45,230 @@
         color: #2ecc71;
         border: 1px solid rgba(46, 204, 113, 0.2);
       }
+      /* Estilos para Acta Digital Completa - Premium */
+      .card-slot {
+        width: 45px;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 6px;
+        display: inline-flex;
+        gap: 4px;
+        padding: 4px;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .card-rect {
+        width: 12px;
+        height: 18px;
+        border-radius: 2px;
+      }
+      .yellow-rect {
+        background: linear-gradient(135deg, #f1c40f, #f39c12);
+        box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
+      }
+      .red-rect {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        box-shadow: 0 0 10px rgba(231, 76, 60, 0.4);
+      }
+      .glass-panel {
+        background: rgba(15, 15, 15, 0.7);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      }
+      .table-premium {
+        --bs-table-bg: transparent;
+        color: #fff;
+        margin-bottom: 0;
+      }
+      .table-premium thead th {
+        background: rgba(255, 255, 255, 0.03);
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 12px 8px;
+      }
+      .table-premium tbody td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        padding: 12px 8px;
+        vertical-align: middle;
+      }
+      .form-check-premium {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 15px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: 0.3s;
+      }
+      .form-check-premium:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+      .form-check-input {
+        width: 1.2em;
+        height: 1.2em;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+      }
+      .form-check-input:checked {
+        background-color: #2ecc71;
+        border-color: #2ecc71;
+      }
+      .badge-motivo {
+        font-size: 0.6rem;
+        padding: 3px 8px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.6);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .header-vocal {
+        background: linear-gradient(
+          90deg,
+          rgba(46, 204, 113, 0.1),
+          transparent
+        );
+        border-left: 4px solid #2ecc71;
+        padding: 15px;
+        border-radius: 0 12px 12px 0;
+        margin-bottom: 20px;
+      }
+      .header-veedor {
+        background: linear-gradient(
+          90deg,
+          rgba(52, 152, 219, 0.1),
+          transparent
+        );
+        border-left: 4px solid #3498db;
+        padding: 15px;
+        border-radius: 0 12px 12px 0;
+        margin-bottom: 20px;
+      }
+      .modal-xl {
+        max-width: 1200px;
+      }
+      /* Soporte para múltiples modales apilados (Premium) */
+      .modal {
+        background: rgba(0, 0, 0, 0.5) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        z-index: 1060 !important;
+      }
+      #sancionModal,
+      #multaModal {
+        z-index: 1080 !important;
+      }
+      .modal-premium {
+        background: rgba(20, 20, 20, 0.98) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 28px !important;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8) !important;
+      }
+      .modal-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        padding: 25px 35px !important;
+      }
+      .modal-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+        padding: 20px 35px !important;
+      }
+      /* Animación de entrada suave para modales anidados */
+      #sancionModal.fade .modal-dialog,
+      #multaModal.fade .modal-dialog {
+        transform: scale(0.95);
+        transition: transform 0.3s ease-out;
+      }
+      #sancionModal.show .modal-dialog,
+      #multaModal.show .modal-dialog {
+        transform: scale(1);
+      }
+      /* Estilos para Items de Vocalía */
+      .vocalia-check-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 8px;
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(8px);
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .vocalia-check-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .vocalia-check-card i {
+        font-size: 1.1rem;
+        margin-bottom: 6px;
+        filter: drop-shadow(0 0 8px currentColor);
+      }
+      .vocalia-check-card .label-text {
+        font-size: 0.6rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+      .vocalia-check-card.checked {
+        background: linear-gradient(145deg, rgba(46, 204, 113, 0.1), rgba(46, 204, 113, 0.02));
+        border-color: rgba(46, 204, 113, 0.3);
+        box-shadow: 0 4px 15px rgba(46, 204, 113, 0.1);
+      }
+      .vocalia-check-card.checked i {
+        color: #2ecc71;
+      }
+      .vocalia-check-card.checked .label-text {
+        color: #fff;
+      }
+      .vocalia-check-card.unchecked {
+        opacity: 0.6;
+      }
+      .vocalia-check-card.unchecked i {
+        color: rgba(255, 255, 255, 0.2);
+      }
+      .vocalia-check-card.no-ball-card {
+        transform: scale(0.98);
+      }
+      .vocalia-check-card.checked.no-ball-card {
+        background: linear-gradient(145deg, rgba(231, 76, 60, 0.15), rgba(231, 76, 60, 0.05));
+        border-color: rgba(231, 76, 60, 0.4);
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.15);
+      }
+      .vocalia-check-card.checked.no-ball-card i {
+        color: #ff4757;
+      }
+      .vocalia-check-card.checked.no-ball-card .label-text {
+        color: #ff4757;
+      }
+      .text-info-glow {
+        color: #3498db;
+        text-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+      }
+      .bg-dark-glass {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+      }
+      .italic {
+        font-style: italic;
+      }
+
+
     </style>
   </head>
   <body>
@@ -58,8 +284,12 @@
           <span>LDBAA <span class="brand-accent">ARGELIA ALTA</span></span>
         </a>
         <div class="nav-links d-none d-md-flex">
-          <a href="programacion-dashboard.html"><i class="fas fa-home me-2"></i>Dashboard</a>
-          <a href="#" class="active"><i class="fas fa-gavel me-2"></i>Sanciones</a>
+          <a href="programacion-dashboard.html"
+            ><i class="fas fa-home me-2"></i>Dashboard</a
+          >
+          <a href="#" class="active"
+            ><i class="fas fa-gavel me-2"></i>Sanciones</a
+          >
         </div>
         <button class="btn-logout-premium" onclick="logout()">
           <i class="fas fa-sign-out-alt me-2"></i><span>Salir</span>
@@ -73,7 +303,8 @@
           <i class="fas fa-gavel me-2"></i>Gestión de Sanciones
         </h2>
         <p class="text-white-50">
-          Administra disciplina, tarjetas y multas de forma centralizada y moderna.
+          Administra disciplina, tarjetas y multas de forma centralizada y
+          moderna.
         </p>
       </div>
 
@@ -84,25 +315,40 @@
 
       <!-- Sección de Elección (Equipos vs Vocalías) -->
       <div id="eleccionSection" class="row" style="display: none">
-        <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+        <div
+          class="col-12 mb-4 d-flex justify-content-between align-items-center"
+        >
           <button class="btn-secondary-glass" onclick="volverACampeonatos()">
             <i class="fas fa-arrow-left me-2"></i> Volver
           </button>
-          <h4 class="mb-0 brand-accent text-uppercase fw-bold" id="eleccionTitulo"></h4>
+          <h4
+            class="mb-0 brand-accent text-uppercase fw-bold"
+            id="eleccionTitulo"
+          ></h4>
         </div>
         <div class="row g-4 justify-content-center mt-2">
           <div class="col-md-5">
-            <div class="jornada-card-elite p-5 text-center h-100" onclick="irAEquipos()">
+            <div
+              class="jornada-card-elite p-5 text-center h-100"
+              onclick="irAEquipos()"
+            >
               <i class="fas fa-users fa-3x mb-4 text-success"></i>
               <h3 class="text-white fw-800">GESTIÓN POR EQUIPOS</h3>
-              <p class="text-white-50">Sanciona buscando directamente a los jugadores por equipo.</p>
+              <p class="text-white-50">
+                Sanciona buscando directamente a los jugadores por equipo.
+              </p>
             </div>
           </div>
           <div class="col-md-5">
-            <div class="jornada-card-elite p-5 text-center h-100" onclick="irAVocalizaciones()">
+            <div
+              class="jornada-card-elite p-5 text-center h-100"
+              onclick="irAVocalizaciones()"
+            >
               <i class="fas fa-file-invoice fa-3x mb-4 text-primary"></i>
               <h3 class="text-white fw-800">GESTIÓN POR VOCALÍAS</h3>
-              <p class="text-white-50">Sanciona basándote en los reportes de los partidos jugados.</p>
+              <p class="text-white-50">
+                Sanciona basándote en los reportes de los partidos jugados.
+              </p>
             </div>
           </div>
         </div>
@@ -110,11 +356,15 @@
 
       <!-- Sección de Jornadas (Vocalías) -->
       <div id="jornadasSection" class="row" style="display: none">
-        <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+        <div
+          class="col-12 mb-4 d-flex justify-content-between align-items-center"
+        >
           <button class="btn-secondary-glass" onclick="volverAEleccion()">
             <i class="fas fa-arrow-left me-2"></i> Volver
           </button>
-          <h4 class="mb-0 text-primary text-uppercase fw-bold">Jornadas Programadas</h4>
+          <h4 class="mb-0 text-primary text-uppercase fw-bold">
+            Jornadas Programadas
+          </h4>
         </div>
         <div id="jornadasLista" class="row row-cols-1 row-cols-md-4 g-4">
           <!-- Se llena dinámicamente -->
@@ -123,33 +373,54 @@
 
       <!-- Sección de Partidos (Vocalías) -->
       <div id="partidosSection" class="row" style="display: none">
-        <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+        <div
+          class="col-12 mb-4 d-flex justify-content-between align-items-center"
+        >
           <button class="btn-back-jornadas" onclick="volverAJornadas()">
             <i class="fas fa-arrow-left me-2"></i> Volver
           </button>
-          <h4 class="mb-0 text-white text-uppercase fw-900" id="partidosTitulo" style="letter-spacing:3px">Partidos de la Jornada</h4>
+          <h4
+            class="mb-0 text-white text-uppercase fw-900"
+            id="partidosTitulo"
+            style="letter-spacing: 3px"
+          >
+            Partidos de la Jornada
+          </h4>
         </div>
-        <div id="partidosLista" class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 px-2">
+        <div
+          id="partidosLista"
+          class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 px-2"
+        >
           <!-- Se llena dinámicamente -->
         </div>
       </div>
 
       <!-- Sección de Equipos -->
       <div id="equiposSection" class="row" style="display: none">
-        <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+        <div
+          class="col-12 mb-4 d-flex justify-content-between align-items-center"
+        >
           <button class="btn-secondary-glass" onclick="volverAEleccion()">
             <i class="fas fa-arrow-left me-2"></i> Volver
           </button>
-          <h4 class="mb-0 brand-accent text-uppercase fw-bold" id="equiposTitulo"></h4>
+          <h4
+            class="mb-0 brand-accent text-uppercase fw-bold"
+            id="equiposTitulo"
+          ></h4>
         </div>
-        
+
         <div class="col-12 mb-5">
           <div class="filter-grid">
             <div class="input-group-premium">
               <i class="fas fa-search"></i>
-              <input type="text" id="searchEquipoInput" class="search-input" placeholder="Buscar equipo por nombre...">
+              <input
+                type="text"
+                id="searchEquipoInput"
+                class="search-input"
+                placeholder="Buscar equipo por nombre..."
+              />
             </div>
-            
+
             <select id="categoryEquipoFilter" class="select-premium">
               <option value="">TODAS LAS CATEGORÍAS</option>
               <option value="MÁXIMA">MÁXIMA</option>
@@ -181,7 +452,12 @@
         <div class="col-12 mb-5">
           <div class="input-group-premium">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchJugadorInput" class="search-input" placeholder="Buscar por nombre o número de jugador...">
+            <input
+              type="text"
+              id="searchJugadorInput"
+              class="search-input"
+              placeholder="Buscar por nombre o número de jugador..."
+            />
           </div>
         </div>
         <div class="col-12">
@@ -211,17 +487,45 @@
     <div class="modal fade" id="sancionModal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content modal-premium">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              <i class="fas fa-gavel me-2 brand-accent"></i>APLICAR SANCIÓN
-            </h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          <div class="modal-header border-0 pb-0">
+            <div class="d-flex flex-column">
+              <h5
+                class="modal-title fw-800 text-uppercase letter-spacing-1 mb-1"
+              >
+                <i class="fas fa-gavel me-2 brand-accent"></i>APLICAR SANCIÓN
+              </h5>
+              <div
+                id="sancionJugadorNombre"
+                class="text-white-50 small fw-bold text-uppercase"
+              ></div>
+            </div>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
           </div>
           <div class="modal-body">
             <form id="sancionForm">
               <input type="hidden" id="jugadorId" />
               <div class="mb-4">
                 <label class="form-label">TIPO DE SANCIÓN</label>
+                <div
+                  id="tipoSancionDisplay"
+                  class="p-3 rounded-4 border border-white border-opacity-10 d-none align-items-center"
+                  style="background: rgba(255, 255, 255, 0.05)"
+                >
+                  <div
+                    id="tipoSancionIndicator"
+                    class="me-3"
+                    style="width: 12px; height: 12px; border-radius: 3px"
+                  ></div>
+                  <span
+                    id="tipoSancionText"
+                    class="fw-bold text-white text-uppercase"
+                    style="letter-spacing: 1px"
+                  ></span>
+                </div>
                 <select class="select-premium" id="tipoSancion" required>
                   <option value="">Seleccione tipo</option>
                   <option value="amarilla">TARJETA AMARILLA 🟨</option>
@@ -231,7 +535,11 @@
               <div id="articuloLiteralContainer" style="display: none">
                 <div class="mb-4">
                   <label class="form-label">ARTÍCULO</label>
-                  <select class="select-premium" id="articulo" onchange="actualizarLiterales()">
+                  <select
+                    class="select-premium"
+                    id="articulo"
+                    onchange="actualizarLiterales()"
+                  >
                     <option value="">Seleccione artículo</option>
                     <option value="124">Art. 124 - 1 PARTIDO</option>
                     <option value="125">Art. 125 - 2 PARTIDOS</option>
@@ -248,11 +556,60 @@
                   </select>
                 </div>
               </div>
+              <div class="row g-3">
+                <div class="col-md-6 mb-4">
+                  <label class="form-label">VALOR A PAGAR ($)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    class="search-input"
+                    id="valorSancion"
+                    placeholder="0.00"
+                    style="
+                      background: rgba(255, 255, 255, 0.05);
+                      border: 1px solid rgba(255, 255, 255, 0.1);
+                      color: white;
+                      border-radius: 10px;
+                      padding: 10px;
+                      width: 100%;
+                    "
+                  />
+                </div>
+                <div class="col-md-6 mb-4" id="partidosSuspensionContainer">
+                  <label class="form-label">PARTIDOS DE SUSPENSIÓN</label>
+                  <input
+                    type="number"
+                    class="search-input"
+                    id="partidosSuspension"
+                    placeholder="0"
+                    style="
+                      background: rgba(255, 255, 255, 0.05);
+                      border: 1px solid rgba(255, 255, 255, 0.1);
+                      color: white;
+                      border-radius: 10px;
+                      padding: 10px;
+                      width: 100%;
+                    "
+                  />
+                </div>
+              </div>
             </form>
           </div>
           <div class="modal-footer border-0">
-            <button type="button" class="btn btn-secondary-glass" data-bs-dismiss="modal">CANCELAR</button>
-            <button type="button" class="btn btn-success-premium" onclick="aplicarSancion()">CONFIRMAR SANCIÓN</button>
+            <button
+              type="button"
+              class="btn btn-secondary-glass"
+              data-bs-dismiss="modal"
+            >
+              CANCELAR
+            </button>
+            <button
+              type="button"
+              class="btn btn-success-premium"
+              onclick="aplicarSancion()"
+            >
+              CONFIRMAR SANCIÓN
+            </button>
           </div>
         </div>
       </div>
@@ -266,7 +623,11 @@
             <h5 class="modal-title text-danger">
               <i class="fas fa-dollar-sign me-2"></i>APLICAR MULTA
             </h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
           </div>
           <div class="modal-body">
             <form id="multaForm">
@@ -279,11 +640,19 @@
                   <option value="no_presentacion">NO PRESENTACIÓN</option>
                   <option value="no_vocal">NO VOCAL</option>
                   <option value="no_veedor">NO VEEDOR</option>
+                  <option value="balon_liga">BALÓN DE LIGA</option>
+                  <option value="no_balon">NO PRESENTÓ BALÓN</option>
+                  <option value="perdida_balon">PÉRDIDA DE BALÓN</option>
+                  <option value="no_cinta">NO CINTA DE CAPITÁN</option>
                 </select>
               </div>
               <div class="mb-4">
                 <label class="form-label">ARTÍCULO</label>
-                <select class="select-premium" id="multaArticulo" onchange="actualizarLiteralesMulta()">
+                <select
+                  class="select-premium"
+                  id="multaArticulo"
+                  onchange="actualizarLiteralesMulta()"
+                >
                   <option value="131">Art. 131 - Multas</option>
                 </select>
               </div>
@@ -293,11 +662,66 @@
                   <option value="">Seleccione primero un tipo de multa</option>
                 </select>
               </div>
+              <div class="mb-4">
+                <label class="form-label">VALOR A PAGAR ($)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  class="search-input"
+                  id="valorMulta"
+                  placeholder="0.00"
+                  style="
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    color: white;
+                    border-radius: 10px;
+                    padding: 10px;
+                    width: 100%;
+                  "
+                />
+              </div>
             </form>
           </div>
           <div class="modal-footer border-0">
-            <button type="button" class="btn btn-secondary-glass" data-bs-dismiss="modal">CANCELAR</button>
-            <button type="button" class="btn btn-danger" onclick="aplicarMulta()">CONFIRMAR MULTA</button>
+            <button
+              type="button"
+              class="btn btn-secondary-glass"
+              data-bs-dismiss="modal"
+            >
+              CANCELAR
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger"
+              onclick="aplicarMulta()"
+            >
+              CONFIRMAR MULTA
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para ver Acta Digital Completa -->
+    <div class="modal fade" id="vocaliaCompletaModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content modal-premium">
+          <div class="modal-header border-0 pb-0">
+            <h5
+              class="modal-title fw-800 text-uppercase"
+              style="letter-spacing: 2px"
+            >
+              <i class="fas fa-file-invoice me-2 text-primary"></i> ACTA DIGITAL
+              COMPLETA
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body p-4" id="vocaliaCompletaBody">
+            <!-- El contenido se llena dinámicamente -->
           </div>
         </div>
       </div>
@@ -346,7 +770,8 @@
 
       // Cargar campeonatos
       function cargarCampeonatos() {
-        const campeonatosSection = document.getElementById("campeonatosSection");
+        const campeonatosSection =
+          document.getElementById("campeonatosSection");
         const eleccionSection = document.getElementById("eleccionSection");
         const equiposSection = document.getElementById("equiposSection");
         const jugadoresSection = document.getElementById("jugadoresSection");
@@ -360,14 +785,16 @@
         jornadasSection.style.display = "none";
         partidosSection.style.display = "none";
 
-        campeonatosSection.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-success" role="status"></div><p class="mt-2 text-white-50">Cargando campeonatos...</p></div>';
+        campeonatosSection.innerHTML =
+          '<div class="col-12 text-center py-5"><div class="spinner-border text-success" role="status"></div><p class="mt-2 text-white-50">Cargando campeonatos...</p></div>';
 
         db.collection("championships")
           .get()
           .then((snapshot) => {
             campeonatosSection.innerHTML = "";
             if (snapshot.empty) {
-              campeonatosSection.innerHTML = '<div class="col-12 text-center py-5 text-white-50">No hay campeonatos activos</div>';
+              campeonatosSection.innerHTML =
+                '<div class="col-12 text-center py-5 text-white-50">No hay campeonatos activos</div>';
               return;
             }
 
@@ -389,7 +816,8 @@
           })
           .catch((error) => {
             console.error("Error al cargar campeonatos:", error);
-            campeonatosSection.innerHTML = '<div class="col-12 text-center text-danger py-5">Error al cargar los campeonatos</div>';
+            campeonatosSection.innerHTML =
+              '<div class="col-12 text-center text-danger py-5">Error al cargar los campeonatos</div>';
           });
       }
 
@@ -398,23 +826,31 @@
         campeonatoNombreActual = campeonatoNombre;
         document.getElementById("campeonatosSection").style.display = "none";
         document.getElementById("eleccionSection").style.display = "flex";
-        document.getElementById("eleccionTitulo").textContent = campeonatoNombre;
+        document.getElementById("eleccionTitulo").textContent =
+          campeonatoNombre;
 
         // Iniciar listener de fixtures como en vocalias.html
         if (fixturesListener) fixturesListener();
         fixturesMap.clear();
 
-        fixturesListener = db.collection("fixtures")
+        fixturesListener = db
+          .collection("fixtures")
           .where("championshipId", "==", campeonatoId)
-          .onSnapshot(snapshot => {
-            snapshot.forEach(doc => {
-              fixturesMap.set(doc.id, doc.data());
-            });
-            // Si estamos en la vista de vocalizaciones, refrescar
-            if (document.getElementById("jornadasSection").style.display === "block") {
-              cargarVocalizaciones();
-            }
-          }, error => console.error("Error fixtures listener:", error));
+          .onSnapshot(
+            (snapshot) => {
+              snapshot.forEach((doc) => {
+                fixturesMap.set(doc.id, doc.data());
+              });
+              // Si estamos en la vista de vocalizaciones, refrescar
+              if (
+                document.getElementById("jornadasSection").style.display ===
+                "block"
+              ) {
+                cargarVocalizaciones();
+              }
+            },
+            (error) => console.error("Error fixtures listener:", error),
+          );
       }
 
       function volverACampeonatos() {
@@ -442,9 +878,10 @@
 
       function cargarVocalizaciones() {
         const jornadasLista = document.getElementById("jornadasLista");
-        
+
         if (fixturesMap.size === 0) {
-          jornadasLista.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-white-50">Cargando encuentros...</p></div>';
+          jornadasLista.innerHTML =
+            '<div class="col-12 text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-white-50">Cargando encuentros...</p></div>';
           // El listener se encargará de llamar a cargarVocalizaciones cuando lleguen datos
           return;
         }
@@ -472,16 +909,21 @@
           });
         });
 
-        const sortedJornadas = Array.from(jornadasProgramadas).sort((a, b) => a - b);
+        const sortedJornadas = Array.from(jornadasProgramadas).sort(
+          (a, b) => a - b,
+        );
         jornadasLista.innerHTML = "";
-        
+
         if (sortedJornadas.length === 0) {
-          jornadasLista.innerHTML = '<div class="col-12 text-center py-5 text-white-50"><i class="fas fa-calendar-times mb-3 opacity-25" style="font-size:3rem"></i><h5 class="text-white-50">No hay jornadas programadas aún</h5></div>';
+          jornadasLista.innerHTML =
+            '<div class="col-12 text-center py-5 text-white-50"><i class="fas fa-calendar-times mb-3 opacity-25" style="font-size:3rem"></i><h5 class="text-white-50">No hay jornadas programadas aún</h5></div>';
           return;
         }
 
         sortedJornadas.forEach((j) => {
-          jornadasLista.insertAdjacentHTML("beforeend", `
+          jornadasLista.insertAdjacentHTML(
+            "beforeend",
+            `
             <div class="col">
               <div class="jornada-card-elite" onclick="mostrarPartidosJornada(${j})">
                 <i class="fas fa-calendar-alt"></i>
@@ -489,17 +931,20 @@
                 <span class="match-count">${counts[j]} PARTIDOS LISTOS</span>
               </div>
             </div>
-          `);
+          `,
+          );
         });
       }
 
       async function mostrarPartidosJornada(jornada) {
         document.getElementById("jornadasSection").style.display = "none";
         document.getElementById("partidosSection").style.display = "block";
-        document.getElementById("partidosTitulo").textContent = `Jornada ${jornada} - ${campeonatoNombreActual}`;
+        document.getElementById("partidosTitulo").textContent =
+          `Jornada ${jornada} - ${campeonatoNombreActual}`;
 
         const partidosLista = document.getElementById("partidosLista");
-        partidosLista.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>';
+        partidosLista.innerHTML =
+          '<div class="col-12 text-center py-5"><div class="spinner-border text-primary" role="status"></div></div>';
 
         // Cargar mapa de logos de equipos (como en vocalias.html)
         const teamsSnapshot = await db
@@ -516,7 +961,12 @@
         let matches = [];
         fixturesMap.forEach((meta, fixId) => {
           meta.data.forEach((m) => {
-            if (m.jornada === jornada && !m.isRest && m.local !== "DESCANSA" && m.visitor !== "DESCANSA") {
+            if (
+              m.jornada === jornada &&
+              !m.isRest &&
+              m.local !== "DESCANSA" &&
+              m.visitor !== "DESCANSA"
+            ) {
               matches.push({ ...m, _cat: meta.category, _fixId: fixId });
             }
           });
@@ -525,9 +975,17 @@
         // Ordenar como en vocalias.html
         const dayOrder = { Viernes: 1, Sábado: 2, Domingo: 3 };
         matches.sort((a, b) => {
-          if (dayOrder[a.fechaRealAsignadaText] !== dayOrder[b.fechaRealAsignadaText])
-            return (dayOrder[a.fechaRealAsignadaText] || 99) - (dayOrder[b.fechaRealAsignadaText] || 99);
-          return (a.horaRealAsignada || "99:99").localeCompare(b.horaRealAsignada || "99:99");
+          if (
+            dayOrder[a.fechaRealAsignadaText] !==
+            dayOrder[b.fechaRealAsignadaText]
+          )
+            return (
+              (dayOrder[a.fechaRealAsignadaText] || 99) -
+              (dayOrder[b.fechaRealAsignadaText] || 99)
+            );
+          return (a.horaRealAsignada || "99:99").localeCompare(
+            b.horaRealAsignada || "99:99",
+          );
         });
 
         matches.forEach((m) => {
@@ -583,7 +1041,11 @@
       async function verDetallesMatch(matchId, local, visitor) {
         let match = null;
         for (let [fixId, meta] of fixturesMap) {
-          const found = meta.data.find(m => (m.matchId === matchId && m.matchId !== "undefined") || (m.local === local && m.visitor === visitor));
+          const found = meta.data.find(
+            (m) =>
+              (m.matchId === matchId && m.matchId !== "undefined") ||
+              (m.local === local && m.visitor === visitor),
+          );
           if (found) {
             match = { ...found, _cat: meta.category, _fixId: fixId };
             break;
@@ -591,114 +1053,496 @@
         }
         if (!match) return;
 
-        // Mostrar un resumen de los sancionables
-        let html = `
-          <div class="text-start">
-            <h5 class="text-warning mb-3 fw-bold border-bottom border-warning border-opacity-25 pb-2">REPORTADOS EN ACTA DIGITAL</h5>
-            <div class="row g-4">
-              <div class="col-md-6">
-                <h6 class="text-primary-glow fw-bold mb-3">${match.local}</h6>
-                ${renderSancionables(match, 'local')}
+        const body = document.getElementById("vocaliaCompletaBody");
+        body.innerHTML = `
+          <div class="row g-4">
+            <!-- Columna Local -->
+            <div class="col-lg-6">
+              <div class="glass-panel p-4 h-100 border-0">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-white border-opacity-10">
+                  <div>
+                    <h5 class="text-white mb-1 text-uppercase fw-900" style="letter-spacing:1px">${match.local}</h5>
+                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size:0.6rem">EQUIPO LOCAL</span>
+                  </div>
+                  <button class="btn btn-premium btn-sm" onclick="window.obtenerIdEquipoYMultar('${match.local.replace(/'/g, "\\'")}', '${match._cat}')">
+                    <i class="fas fa-gavel me-2"></i>Sancionar Equipo
+                  </button>
+                </div>
+
+                ${renderNominaTablePremium(match, "local", match._cat)}
+                ${renderCheckboxesPremium(match, "local")}
               </div>
-              <div class="col-md-6">
-                <h6 class="text-info fw-bold mb-3">${match.visitor}</h6>
-                ${renderSancionables(match, 'visitor')}
+            </div>
+
+            <!-- Columna Visitante -->
+            <div class="col-lg-6">
+              <div class="glass-panel p-4 h-100 border-0">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-white border-opacity-10">
+                  <div>
+                    <h5 class="text-white mb-1 text-uppercase fw-900" style="letter-spacing:1px">${match.visitor}</h5>
+                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25" style="font-size:0.6rem">EQUIPO VISITANTE</span>
+                  </div>
+                  <button class="btn btn-premium btn-sm" onclick="window.obtenerIdEquipoYMultar('${match.visitor.replace(/'/g, "\\'")}', '${match._cat}')">
+                    <i class="fas fa-gavel me-2"></i>Sancionar Equipo
+                  </button>
+                </div>
+
+                ${renderNominaTablePremium(match, "visitor", match._cat)}
+                ${renderCheckboxesPremium(match, "visitor")}
+              </div>
+            </div>
+
+            <!-- Informes Consolidados -->
+            <div class="col-12 mt-2">
+              <div class="glass-panel p-4 border-0">
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <div class="header-vocal">
+                      <h6 class="text-primary-glow text-uppercase mb-1 fw-800"><i class="fas fa-user-tie me-2"></i>INFORME DEL VOCAL</h6>
+                      <div class="text-white-50 small mb-2">Vocal Responsable: <span class="text-success fw-bold">${match.vocalAsignado || "---"}</span></div>
+                    </div>
+                    <div class="p-3 bg-dark-glass rounded-4">
+                      <label class="text-white-50 small text-uppercase mb-2 d-block fw-bold" style="font-size:0.6rem; letter-spacing:1px">Observaciones y Novedades:</label>
+                      <p class="text-white small mb-0 italic">${match.vocalReport?.observations || "No se registraron novedades por parte del vocal."}</p>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="header-veedor">
+                      <h6 class="text-info-glow text-uppercase mb-1 fw-800"><i class="fas fa-eye me-2"></i>INFORME DE VEEDOR</h6>
+                      <div class="text-white-50 small mb-2">Veedor: <span class="text-info fw-bold">${match.vedorReport?.nombre || "---"}</span> | Club: <span class="text-white-50">${match.vedorReport?.club || "---"}</span></div>
+                    </div>
+                    <div class="p-3 bg-dark-glass rounded-4">
+                      <label class="text-white-50 small text-uppercase mb-2 d-block fw-bold" style="font-size:0.6rem; letter-spacing:1px">Observaciones Generales:</label>
+                      <p class="text-white small mb-0 italic">${match.vedorReport?.observaciones || "No se registraron novedades por parte del veedor."}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         `;
 
-        Swal.fire({
-          title: `<span class="text-white">${match.local} vs ${match.visitor}</span>`,
-          html: html,
-          width: '900px',
-          background: 'rgba(10,10,10,0.95)',
-          showCloseButton: true,
-          showConfirmButton: false,
-          customClass: {
-            popup: 'glass-card border-secondary'
-          }
+        const modalEl = document.getElementById("vocaliaCompletaModal");
+        const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl, {
+          backdrop: false,
         });
+        modalInstance.show();
       }
 
-      function renderSancionables(match, teamType) {
-        const billing = teamType === 'local' ? match.billingLocal : match.billingVisitor;
-        if (!billing) return '<p class="text-white-50 small italic">Sin reporte de vocalía finalizado.</p>';
+      function renderNominaTablePremium(match, teamType, category = "") {
+        const players =
+          teamType === "local" ? match.playersLocal : match.playersVisitor;
+        const teamName = teamType === "local" ? match.local : match.visitor;
 
-        let html = '';
+        if (!players || players.length === 0) {
+          return '<div class="text-center py-5 opacity-50"><i class="fas fa-users-slash fs-1 mb-3"></i><p class="small">Nómina no registrada.</p></div>';
+        }
+
+        let rows = "";
+        players.forEach((p) => {
+          if (!p.name) return;
+
+          let yellowHtml = "";
+          if (p.ta >= 1)
+            yellowHtml += '<div class="card-rect yellow-rect"></div>';
+          if (p.ta >= 2)
+            yellowHtml += '<div class="card-rect yellow-rect"></div>';
+
+          let redHtml = "";
+          if (p.tr >= 1) redHtml += '<div class="card-rect red-rect"></div>';
+
+          rows += `
+            <tr>
+              <td class="text-center fw-900 text-white-50" style="font-size:0.8rem">${p.num}</td>
+              <td>
+                <div class="fw-bold text-white">${p.name}</div>
+                ${p.motivo ? `<div class="badge-motivo mt-1"><i class="fas fa-info-circle me-1"></i>${p.motivo}</div>` : ""}
+              </td>
+              <td class="text-center"><div class="card-slot">${yellowHtml}</div></td>
+              <td class="text-center"><div class="card-slot">${redHtml}</div></td>
+              <td class="text-center fw-bold text-success">${p.goles || 0}</td>
+              <td class="text-end">
+                ${
+                  p.ta > 0 || p.tr > 0
+                    ? `
+                  <button class="btn btn-xs btn-outline-warning" onclick="window.sancionarDesdeVocal('${p.name.replace(/'/g, "\\'")}', '${teamName.replace(/'/g, "\\'")}', '${p.tr > 0 || p.ta >= 2 ? "roja" : "amarilla"}', '${p.playerId || p.id || ""}', '${category}')">
+                    Sancionar
+                  </button>
+                `
+                    : ""
+                }
+              </td>
+            </tr>
+          `;
+        });
+
+        // Cambios
+        const changes =
+          teamType === "local" ? match.changesLocal : match.changesVisitor;
+        if (changes && changes.length > 0) {
+          changes.forEach((c) => {
+            if (!c.name) return;
+            let yellowHtml = "";
+            if (c.ta >= 1)
+              yellowHtml += '<div class="card-rect yellow-rect"></div>';
+            if (c.ta >= 2)
+              yellowHtml += '<div class="card-rect yellow-rect"></div>';
+            let redHtml = "";
+            if (c.tr >= 1) redHtml += '<div class="card-rect red-rect"></div>';
+
+            rows += `
+              <tr class="bg-white bg-opacity-5">
+                <td class="text-center fw-900 text-info" style="font-size:0.8rem">${c.entraNum}</td>
+                <td>
+                  <div class="fw-bold text-info">${c.name} <span class="badge bg-info bg-opacity-10 text-info ms-1" style="font-size:0.5rem">SUB</span></div>
+                  ${c.motivo ? `<div class="badge-motivo mt-1"><i class="fas fa-info-circle me-1"></i>${c.motivo}</div>` : ""}
+                </td>
+                <td class="text-center"><div class="card-slot">${yellowHtml}</div></td>
+                <td class="text-center"><div class="card-slot">${redHtml}</div></td>
+                <td class="text-center fw-bold text-success">${c.goles || 0}</td>
+                <td class="text-end">
+                  ${
+                    c.ta > 0 || c.tr > 0
+                      ? `
+                    <button class="btn btn-xs btn-outline-warning" onclick="window.sancionarDesdeVocal('${c.name.replace(/'/g, "\\'")}', '${teamName.replace(/'/g, "\\'")}', '${c.tr > 0 || c.ta >= 2 ? "roja" : "amarilla"}', '${c.playerId || c.id || ""}', '${category}')">
+                      Sancionar
+                    </button>
+                  `
+                      : ""
+                  }
+                </td>
+              </tr>
+            `;
+          });
+        }
+
+        return `
+          <div class="table-responsive mb-4">
+            <table class="table table-premium align-middle">
+              <thead>
+                <tr>
+                  <th width="10%" class="text-center">#</th>
+                  <th width="45%">Jugador</th>
+                  <th width="12%" class="text-center">T.A</th>
+                  <th width="12%" class="text-center">T.R</th>
+                  <th width="10%" class="text-center">GL</th>
+                  <th width="11%"></th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function renderCheckboxesPremium(match, teamType) {
+        const report =
+          teamType === "local"
+            ? match.vocalReport?.localChecks
+            : match.vocalReport?.visitorChecks;
         
-        // Tarjetas Amarillas
-        if (billing.ta && billing.ta.players && billing.ta.players.length > 0) {
-          html += '<div class="mb-3"><span class="badge bg-warning text-dark mb-2">AMARILLAS</span><ul class="list-unstyled small">';
-          billing.ta.players.forEach(p => {
-            html += `<li class="text-white d-flex justify-content-between align-items-center mb-1">
-              <span>${p}</span>
-              <button class="btn btn-xs btn-outline-warning py-0" onclick="sancionarDesdeVocal('${p}', '${teamType === 'local' ? match.local : match.visitor}', 'amarilla')">Aplicar</button>
-            </li>`;
-          });
-          html += '</ul></div>';
+        if (!report || report.length === 0) {
+          return `
+            <div class="glass-panel p-3 text-center mt-3" style="background: rgba(255,193,7,0.05); border: 1px dashed rgba(255,193,7,0.2);">
+              <i class="fas fa-clipboard-list text-warning mb-2" style="font-size: 1.5rem;"></i>
+              <div class="text-warning small fw-bold text-uppercase">Reporte de Vocalía no disponible</div>
+              <div class="text-white-50" style="font-size: 0.7rem;">El acta aún no ha sido finalizada o no contiene estos datos.</div>
+            </div>
+          `;
         }
 
-        // Tarjetas Rojas
-        if (billing.tr && billing.tr.players && billing.tr.players.length > 0) {
-          html += '<div class="mb-3"><span class="badge bg-danger text-white mb-2">ROJAS</span><ul class="list-unstyled small">';
-          billing.tr.players.forEach(p => {
-            html += `<li class="text-white d-flex justify-content-between align-items-center mb-1">
-              <span>${p}</span>
-              <button class="btn btn-xs btn-outline-danger py-0" onclick="sancionarDesdeVocal('${p}', '${teamType === 'local' ? match.local : match.visitor}', 'roja')">Aplicar</button>
-            </li>`;
-          });
-          html += '</ul></div>';
-        }
+        const labels = [
+          "Cinta Cap.",
+          "Vocal",
+          "Veedor",
+          "Balón Liga",
+          "Balón Propio",
+          "No balón",
+        ];
 
-        if (!html) return '<p class="text-white-50 small italic">Sin tarjetas reportadas.</p>';
+        let html = '<div class="row g-2 mt-3">'; // Gap más ajustado
+        labels.forEach((label, i) => {
+          const isChecked = report && report[i];
+          const isNoBall = label === "No balón";
+          
+          // Icono y estado
+          let iconClass = isChecked ? "fas fa-check-circle" : "fas fa-times-circle";
+          if (isNoBall && isChecked) iconClass = "fas fa-exclamation-triangle";
+          
+          const statusClass = isChecked ? "checked" : "unchecked";
+          const cardClass = isNoBall ? "vocalia-check-card no-ball-card" : "vocalia-check-card";
+          
+          html += `
+            <div class="col-4 col-md-4">
+              <div class="${cardClass} ${statusClass}">
+                <i class="${iconClass}"></i>
+                <div class="label-text">${label}</div>
+              </div>
+            </div>
+          `;
+        });
+        html += "</div>";
         return html;
       }
 
-      window.sancionarDesdeVocal = async function(nombreJugador, nombreEquipo, tipo) {
-        Swal.close();
-        // Buscar el equipo y luego el jugador
-        try {
-          const teamSnap = await db.collection("teams").where("name", "==", nombreEquipo).get();
-          if (teamSnap.empty) throw new Error("Equipo no encontrado");
-          
-          const teamId = teamSnap.docs[0].id;
-          const playerSnap = await db.collection("players").where("teamId", "==", teamId).get();
-          
-          let playerDoc = playerSnap.docs.find(d => {
-            const p = d.data();
-            const fullName = `${p.nombres} ${p.apellidos}`.toLowerCase();
-            return fullName.includes(nombreJugador.toLowerCase()) || nombreJugador.toLowerCase().includes(fullName);
-          });
 
-          if (!playerDoc) {
-            // Fallback por número si el nombre es corto o dorsal
-            if (!isNaN(nombreJugador)) {
-               playerDoc = playerSnap.docs.find(d => d.data().numeroJugador == nombreJugador);
+      window.obtenerIdEquipoYMultar = async function (nombreEquipo, categoria) {
+        try {
+          const snap = await db
+            .collection("teams")
+            .where("name", "==", nombreEquipo)
+            .where("category", "==", categoria)
+            .get();
+
+          if (snap.empty) throw new Error("Equipo no encontrado");
+
+          abrirModalMulta(snap.docs[0].id, nombreEquipo);
+        } catch (e) {
+          console.error(e);
+          Swal.fire("Error", "No se pudo encontrar el ID del equipo.", "error");
+        }
+      };
+
+      window.sancionarDesdeVocal = async function (
+        nombreJugador,
+        nombreEquipo,
+        tipo,
+        playerId = "",
+        categoria = "",
+      ) {
+        console.log("Sancionando:", {
+          nombreJugador,
+          nombreEquipo,
+          tipo,
+          playerId,
+          categoria,
+        });
+
+        // Cerrar cualquier alerta previa
+        Swal.close();
+
+        Swal.fire({
+          title: "Buscando jugador...",
+          html: `<p class="small text-white-50">Equipo: ${nombreEquipo}<br>Categoría: ${categoria || "No especificada"}</p>`,
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
+        try {
+          let playerDoc = null;
+
+          // 1. Si ya tenemos el ID, buscar directamente (MÁXIMA PRIORIDAD)
+          if (playerId && playerId !== "undefined" && playerId !== "") {
+            const doc = await db.collection("players").doc(playerId).get();
+            if (doc.exists) {
+              playerDoc = doc;
             }
           }
 
+          // 2. Si no hay ID o falló, buscar por nombre dentro del equipo filtrando por categoría
           if (!playerDoc) {
-             Swal.fire("Error", "No se pudo vincular el nombre del acta con un jugador registrado. Por favor sancione manualmente en la sección Equipos.", "error");
-             return;
+            let teamQuery = db
+              .collection("teams")
+              .where("name", "==", nombreEquipo);
+            if (categoria) {
+              teamQuery = teamQuery.where("category", "==", categoria);
+            }
+
+            const teamSnap = await teamQuery.get();
+
+            if (teamSnap.empty) {
+              // Reintento sin categoría si falló con ella (por si acaso el nombre de categoría varió)
+              const fallbackTeamSnap = await db
+                .collection("teams")
+                .where("name", "==", nombreEquipo)
+                .get();
+              if (fallbackTeamSnap.empty)
+                throw new Error(
+                  `Equipo "${nombreEquipo}" no encontrado en la base de datos.`,
+                );
+
+              // Si lo encontramos sin categoría, avisar pero seguir
+              console.warn("Equipo encontrado solo sin filtro de categoría.");
+              var targetTeamId = fallbackTeamSnap.docs[0].id;
+            } else {
+              var targetTeamId = teamSnap.docs[0].id;
+            }
+
+            const playerSnap = await db
+              .collection("players")
+              .where("teamId", "==", targetTeamId)
+              .get();
+            const cleanSearchName = nombreJugador
+              .trim()
+              .toLowerCase()
+              .replace(/\s+/g, " ");
+
+            playerDoc = playerSnap.docs.find((d) => {
+              const p = d.data();
+              const fullName = `${p.nombres} ${p.apellidos}`
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, " ");
+              return (
+                fullName === cleanSearchName ||
+                fullName.includes(cleanSearchName) ||
+                cleanSearchName.includes(fullName)
+              );
+            });
+
+            // 3. Intento flexible final
+            if (!playerDoc) {
+              playerDoc = playerSnap.docs.find((d) => {
+                const p = d.data();
+                const nombres = (p.nombres || "").toLowerCase();
+                const apellidos = (p.apellidos || "").toLowerCase();
+                return (
+                  cleanSearchName.includes(nombres) &&
+                  cleanSearchName.includes(apellidos)
+                );
+              });
+            }
+
+            // 4. Si aún no se encuentra, mostrar lista manual (mismo snap)
+            if (!playerDoc) {
+              Swal.close();
+              let playersHtml =
+                '<div class="list-group list-group-flush bg-transparent mt-3" style="max-height: 400px; overflow-y: auto;">';
+              playerSnap.docs.forEach((doc) => {
+                const p = doc.data();
+                playersHtml += `
+                    <button type="button" class="list-group-item list-group-item-action bg-dark text-white border-secondary border-opacity-25"
+                            onclick="Swal.clickConfirm(); window.manualSelectPlayerSancion('${doc.id}', '${p.nombres} ${p.apellidos}', '${tipo}')">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span>${p.nombres} ${p.apellidos}</span>
+                        <span class="badge bg-secondary">#${p.numeroJugador || "N/A"}</span>
+                      </div>
+                    </button>
+                  `;
+              });
+              playersHtml += "</div>";
+
+              Swal.fire({
+                title:
+                  '<h6 class="text-warning mb-0">SELECCIÓN MANUAL REQUERIDA</h6>',
+                html: `<p class="small text-white-50 mb-3">No pudimos vincular automáticamente a <strong>${nombreJugador}</strong>. Selecciónelo de la lista:</p>${playersHtml}`,
+                background: "#111",
+                showConfirmButton: false,
+                showCancelButton: true,
+                cancelButtonText: "CANCELAR",
+              });
+              return;
+            }
           }
 
-          abrirModalSancion(playerDoc.id, `${playerDoc.data().nombres} ${playerDoc.data().apellidos}`, tipo);
+          // Si llegamos aquí, tenemos playerDoc
+          const pData = playerDoc.data();
+          const pId = playerDoc.id;
+          const pNombre = `${pData.nombres} ${pData.apellidos}`;
+
+          // CERRAR LOADER ANTES DE CONTINUAR
+          Swal.close();
+
+          if (tipo === "amarilla") {
+            // Sanción automática para amarillas
+            Swal.fire({
+              title: "¿Confirmar Tarjeta Amarilla?",
+              text: `Se aplicará automáticamente una tarjeta amarilla a ${pNombre}. Valor: $0.50`,
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonText: "Sí, aplicar",
+              cancelButtonText: "Cancelar",
+              confirmButtonColor: "#f1c40f",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                db.collection("sanciones")
+                  .add({
+                    jugadorId: pId,
+                    tipo: "amarilla",
+                    articulo: null,
+                    literal: null,
+                    valor: 0.5,
+                    fecha: new Date(),
+                    estado: "activa",
+                    campeonatoId: campeonatoActual,
+                  })
+                  .then(() => {
+                    Swal.fire(
+                      "Éxito",
+                      "Tarjeta Amarilla aplicada correctamente",
+                      "success",
+                    );
+                  });
+              }
+            });
+          } else {
+            // Para rojas, abrir el modal con el contenedor de artículos visible y bloqueado
+            setTimeout(() => {
+              abrirModalSancion(pId, pNombre, "roja", true);
+            }, 100);
+          }
         } catch (e) {
           console.error(e);
-          Swal.fire("Error", "Ocurrió un error al buscar el jugador.", "error");
+          Swal.fire(
+            "Error de Búsqueda",
+            e.message || "Ocurrió un error al procesar la sanción.",
+            "error",
+          );
         }
-      }
+      };
+
+      window.manualSelectPlayerSancion = function (id, nombre, tipo) {
+        Swal.close();
+        if (tipo === "amarilla") {
+          // Si es amarilla desde selección manual, también intentar automática
+          Swal.fire({
+            title: "¿Confirmar Tarjeta Amarilla?",
+            text: `Se aplicará una tarjeta amarilla a ${nombre}.`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Sí, aplicar",
+            cancelButtonText: "Cancelar",
+            confirmButtonColor: "#f1c40f",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              db.collection("sanciones")
+                .add({
+                  jugadorId: id,
+                  tipo: "amarilla",
+                  articulo: null,
+                  literal: null,
+                  valor: 0.5,
+                  fecha: new Date(),
+                  estado: "activa",
+                  campeonatoId: campeonatoActual,
+                })
+                .then(() => {
+                  Swal.fire(
+                    "Éxito",
+                    "Tarjeta Amarilla aplicada correctamente",
+                    "success",
+                  );
+                });
+            }
+          });
+        } else {
+          abrirModalSancion(id, nombre, tipo, true);
+        }
+      };
 
       // Funciones originales de Equipos (re-vincular)
       function mostrarEquipos(campeonatoId, campeonatoNombre) {
         document.getElementById("campeonatosSection").style.display = "none";
         document.getElementById("equiposSection").style.display = "block";
         document.getElementById("jugadoresSection").style.display = "none";
-        document.getElementById("equiposTitulo").textContent = `Equipos - ${campeonatoNombre}`;
+        document.getElementById("equiposTitulo").textContent =
+          `Equipos - ${campeonatoNombre}`;
 
         const equiposLista = document.getElementById("equiposLista");
-        equiposLista.innerHTML = '<div class="col-12 text-center py-5"><div class="spinner-border text-success" role="status"></div></div>';
+        equiposLista.innerHTML =
+          '<div class="col-12 text-center py-5"><div class="spinner-border text-success" role="status"></div></div>';
 
         db.collection("teams")
           .where("championshipId", "==", campeonatoId)
@@ -706,7 +1550,8 @@
           .then((snapshot) => {
             equiposLista.innerHTML = "";
             if (snapshot.empty) {
-              equiposLista.innerHTML = '<div class="col-12 text-center py-5">No hay equipos registrados</div>';
+              equiposLista.innerHTML =
+                '<div class="col-12 text-center py-5">No hay equipos registrados</div>';
               return;
             }
 
@@ -746,10 +1591,12 @@
         equipoActual = equipoId;
         document.getElementById("equiposSection").style.display = "none";
         document.getElementById("jugadoresSection").style.display = "block";
-        document.getElementById("jugadoresTitulo").textContent = `Jugadores - ${equipoNombre}`;
+        document.getElementById("jugadoresTitulo").textContent =
+          `Jugadores - ${equipoNombre}`;
 
         const tbody = document.getElementById("jugadoresTableBody");
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5"><div class="spinner-border text-success" role="status"></div></td></tr>';
+        tbody.innerHTML =
+          '<tr><td colspan="5" class="text-center py-5"><div class="spinner-border text-success" role="status"></div></td></tr>';
 
         db.collection("players")
           .where("teamId", "==", equipoId)
@@ -757,7 +1604,8 @@
           .then(async (snapshot) => {
             tbody.innerHTML = "";
             if (snapshot.empty) {
-              tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5">No hay jugadores registrados</td></tr>';
+              tbody.innerHTML =
+                '<tr><td colspan="5" class="text-center py-5">No hay jugadores registrados</td></tr>';
               return;
             }
 
@@ -773,21 +1621,23 @@
               let tarjetasRojas = 0;
               let sancionesActivas = [];
 
-              sancionesSnapshot.forEach(sDoc => {
+              sancionesSnapshot.forEach((sDoc) => {
                 const s = sDoc.data();
-                if(s.tipo === 'amarilla') tarjetasAmarillas++;
-                if(s.tipo === 'roja') tarjetasRojas++;
-                sancionesActivas.push(s.articulo ? `Art. ${s.articulo}` : s.tipo);
+                if (s.tipo === "amarilla") tarjetasAmarillas++;
+                if (s.tipo === "roja") tarjetasRojas++;
+                sancionesActivas.push(
+                  s.articulo ? `Art. ${s.articulo}` : s.tipo,
+                );
               });
 
               const tr = `
                 <tr>
-                  <td class="ps-4 fw-bold text-white-50">${jugador.numeroJugador || '-'}</td>
+                  <td class="ps-4 fw-bold text-white-50">${jugador.numeroJugador || "-"}</td>
                   <td>
                     <div class="d-flex align-items-center">
                       <div class="ms-0">
                         <div class="fw-bold text-white">${jugador.nombres} ${jugador.apellidos}</div>
-                        <div class="small text-white-50">CI: ${jugador.cedula || '---'}</div>
+                        <div class="small text-white-50">CI: ${jugador.cedula || "---"}</div>
                       </div>
                     </div>
                   </td>
@@ -796,7 +1646,7 @@
                     <span class="badge bg-danger text-white" title="Rojas">${tarjetasRojas}</span>
                   </td>
                   <td>
-                    ${sancionesActivas.length > 0 ? sancionesActivas.map(s => `<span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 me-1">${s}</span>`).join('') : '<span class="text-white-50 small italic">Ninguna</span>'}
+                    ${sancionesActivas.length > 0 ? sancionesActivas.map((s) => `<span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 me-1">${s}</span>`).join("") : '<span class="text-white-50 small italic">Ninguna</span>'}
                   </td>
                   <td class="text-center pe-4">
                     <button class="btn btn-sm btn-premium" onclick="abrirModalSancion('${doc.id}', '${jugador.nombres} ${jugador.apellidos}')">
@@ -816,58 +1666,164 @@
       }
 
       function filtrarEquipos() {
-        const searchText = document.getElementById("searchEquipoInput").value.toLowerCase();
+        const searchText = document
+          .getElementById("searchEquipoInput")
+          .value.toLowerCase();
         const category = document.getElementById("categoryEquipoFilter").value;
         const cards = document.querySelectorAll("#equiposLista > .col-md-4");
 
-        cards.forEach(card => {
+        cards.forEach((card) => {
           const name = card.querySelector("h4").textContent.toLowerCase();
           const cat = card.querySelector(".badge").textContent.trim();
           const matchesSearch = name.includes(searchText);
           const matchesCat = category === "" || cat === category;
 
-          card.style.display = (matchesSearch && matchesCat) ? "block" : "none";
+          card.style.display = matchesSearch && matchesCat ? "block" : "none";
         });
       }
 
-      document.getElementById("searchEquipoInput")?.addEventListener("input", filtrarEquipos);
-      document.getElementById("categoryEquipoFilter")?.addEventListener("change", filtrarEquipos);
+      document
+        .getElementById("searchEquipoInput")
+        ?.addEventListener("input", filtrarEquipos);
+      document
+        .getElementById("categoryEquipoFilter")
+        ?.addEventListener("change", filtrarEquipos);
 
       // Lógica de Sanciones (Modales y Firestore)
-      const sancionModal = new bootstrap.Modal(document.getElementById("sancionModal"));
-      
-      function abrirModalSancion(id, nombre, tipoPredeterminado = null) {
+      window.abrirModalSancion = function (
+        id,
+        nombre,
+        tipoPredeterminado = null,
+        isLocked = false,
+      ) {
         document.getElementById("jugadorId").value = id;
-        if (tipoPredeterminado) {
-          document.getElementById("tipoSancion").value = tipoPredeterminado;
-        } else {
-          document.getElementById("tipoSancion").value = "";
-        }
-        document.getElementById("articuloLiteralContainer").style.display = "none";
-        sancionModal.show();
-      }
+        document.getElementById("sancionJugadorNombre").textContent =
+          nombre.toUpperCase();
 
-      document.getElementById("tipoSancion").addEventListener("change", function() {
+        const tipoSelect = document.getElementById("tipoSancion");
+        const tipoDisplay = document.getElementById("tipoSancionDisplay");
+        const tipoText = document.getElementById("tipoSancionText");
+        const tipoIndicator = document.getElementById("tipoSancionIndicator");
+        const valorInput = document.getElementById("valorSancion");
+        const partidosInput = document.getElementById("partidosSuspension");
         const container = document.getElementById("articuloLiteralContainer");
-        container.style.display = this.value === "roja" ? "block" : "none";
-      });
+        const suspensionContainer = document.getElementById(
+          "partidosSuspensionContainer",
+        );
+        const artSelect = document.getElementById("articulo");
+        const litSelect = document.getElementById("literal");
+
+        // Reset fields
+        artSelect.value = "";
+        litSelect.innerHTML =
+          '<option value="">Seleccione primero un artículo</option>';
+        partidosInput.value = "";
+
+        if (tipoPredeterminado) {
+          tipoSelect.value = tipoPredeterminado;
+
+          if (isLocked) {
+            tipoSelect.classList.add("d-none");
+            tipoDisplay.classList.remove("d-none");
+            tipoDisplay.classList.add("d-flex");
+
+            if (tipoPredeterminado === "roja") {
+              tipoText.textContent = "TARJETA ROJA";
+              tipoIndicator.style.backgroundColor = "#ff4d4d";
+              valorInput.value = "1.00";
+            } else {
+              tipoText.textContent = "TARJETA AMARILLA";
+              tipoIndicator.style.backgroundColor = "#ffcc00";
+              valorInput.value = "0.50";
+            }
+          } else {
+            tipoSelect.classList.remove("d-none");
+            tipoDisplay.classList.add("d-none");
+            tipoDisplay.classList.remove("d-flex");
+            valorInput.value = tipoPredeterminado === "roja" ? "1.00" : "0.50";
+          }
+        } else {
+          tipoSelect.value = "";
+          tipoSelect.classList.remove("d-none");
+          tipoDisplay.classList.add("d-none");
+          tipoDisplay.classList.remove("d-flex");
+          valorInput.value = "";
+        }
+
+        container.style.display =
+          tipoSelect.value === "roja" ? "block" : "none";
+        suspensionContainer.style.display =
+          tipoSelect.value === "roja" ? "block" : "none";
+
+        const modalEl = document.getElementById("sancionModal");
+        const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl, {
+          backdrop: false,
+        });
+        modalInstance.show();
+      };
+
+      document
+        .getElementById("tipoSancion")
+        .addEventListener("change", function () {
+          const container = document.getElementById("articuloLiteralContainer");
+          const suspensionContainer = document.getElementById(
+            "partidosSuspensionContainer",
+          );
+          const valorInput = document.getElementById("valorSancion");
+
+          const isRoja = this.value === "roja";
+          container.style.display = isRoja ? "block" : "none";
+          suspensionContainer.style.display = isRoja ? "block" : "none";
+
+          if (this.value === "roja") {
+            valorInput.value = "1.00";
+          } else if (this.value === "amarilla") {
+            valorInput.value = "0.50";
+          } else {
+            valorInput.value = "";
+          }
+        });
 
       function actualizarLiterales() {
         const art = document.getElementById("articulo").value;
         const litSelect = document.getElementById("literal");
+        const matchesInput = document.getElementById("partidosSuspension");
         litSelect.innerHTML = '<option value="">Seleccione literal</option>';
 
+        const mapping = {
+          124: 1,
+          125: 2,
+          126: 3,
+          127: 4,
+          128: 6,
+          129: 40, // Representación de un año en partidos aprox
+        };
+
+        if (mapping[art]) {
+          matchesInput.value = mapping[art];
+        } else {
+          matchesInput.value = "";
+        }
+
         const literales = {
-          "124": ["a) Por doble tarjeta amarilla", "b) Por impedir gol con la mano", "c) Juego brusco"],
-          "125": ["a) Insultos al árbitro", "b) Gestos obscenos", "c) Intento de agresión"],
-          "126": ["a) Agresión física al árbitro", "b) Riña colectiva"],
-          "127": ["a) Agresión grave", "b) Reincidencia"],
-          "128": ["a) Agresión criminal"],
-          "129": ["a) Expulsión de la liga"]
+          124: [
+            "a) Por doble tarjeta amarilla",
+            "b) Por impedir gol con la mano",
+            "c) Juego brusco",
+          ],
+          125: [
+            "a) Insultos al árbitro",
+            "b) Gestos obscenos",
+            "c) Intento de agresión",
+          ],
+          126: ["a) Agresión física al árbitro", "b) Riña colectiva"],
+          127: ["a) Agresión grave", "b) Reincidencia"],
+          128: ["a) Agresión criminal"],
+          129: ["a) Expulsión de la liga"],
         };
 
         if (literales[art]) {
-          literales[art].forEach(l => {
+          literales[art].forEach((l) => {
             const opt = document.createElement("option");
             opt.value = l.substring(0, 2);
             opt.textContent = l;
@@ -881,140 +1837,226 @@
         const tipo = document.getElementById("tipoSancion").value;
         const art = document.getElementById("articulo").value;
         const lit = document.getElementById("literal").value;
+        const valor =
+          parseFloat(document.getElementById("valorSancion").value) || 0;
+        const partidos =
+          parseInt(document.getElementById("partidosSuspension").value) || 0;
 
         if (!tipo) return;
+        if (tipo === "roja" && (!art || !lit)) {
+          Swal.fire(
+            "Atención",
+            "Por favor seleccione artículo y literal para la tarjeta roja",
+            "warning",
+          );
+          return;
+        }
 
         Swal.fire({
-          title: '¿Confirmar sanción?',
+          title: "¿Confirmar sanción?",
           text: `Se aplicará una tarjeta ${tipo} al jugador.`,
-          icon: 'warning',
+          icon: "warning",
           showCancelButton: true,
-          confirmButtonText: 'Sí, aplicar',
-          cancelButtonText: 'Cancelar'
+          confirmButtonText: "Sí, aplicar",
+          cancelButtonText: "Cancelar",
         }).then((result) => {
           if (result.isConfirmed) {
-            db.collection("sanciones").add({
-              jugadorId: id,
-              tipo: tipo,
-              articulo: art || null,
-              literal: lit || null,
-              fecha: new Date(),
-              estado: "activa",
-              campeonatoId: campeonatoActual
-            }).then(() => {
-              Swal.fire("Éxito", "Sanción aplicada correctamente", "success");
-              sancionModal.hide();
-              if (equipoActual) mostrarJugadores(equipoActual, "");
-            });
+            db.collection("sanciones")
+              .add({
+                jugadorId: id,
+                tipo: tipo,
+                articulo: art || null,
+                literal: lit || null,
+                valor: valor,
+                partidosSuspension: partidos,
+                fecha: new Date(),
+                estado: "activa",
+                campeonatoId: campeonatoActual,
+              })
+              .then(() => {
+                Swal.fire("Éxito", "Sanción aplicada correctamente", "success");
+                const modalEl = document.getElementById("sancionModal");
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) modalInstance.hide();
+                if (equipoActual) mostrarJugadores(equipoActual, "");
+              });
           }
         });
       }
 
       // Lógica de Multas
-      const multaModal = new bootstrap.Modal(document.getElementById("multaModal"));
-      
-      window.abrirModalMulta = function(equipoId, equipoNombre) {
+      window.abrirModalMulta = function (equipoId, equipoNombre) {
         document.getElementById("multaJugadorId").value = equipoId; // Usamos este ID para el equipo
         document.getElementById("tipoMulta").value = "";
-        document.getElementById("multaLiteral").innerHTML = '<option value="">Seleccione primero un tipo de multa</option>';
-        multaModal.show();
-      }
+        document.getElementById("valorMulta").value = "";
+        document.getElementById("multaLiteral").innerHTML =
+          '<option value="">Seleccione primero un tipo de multa</option>';
 
-      window.actualizarLiteralesMulta = function() {
+        const modalEl = document.getElementById("multaModal");
+        const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl, {
+          backdrop: false,
+        });
+        modalInstance.show();
+      };
+
+      window.actualizarLiteralesMulta = function () {
         const tipo = document.getElementById("tipoMulta").value;
         const litSelect = document.getElementById("multaLiteral");
         litSelect.innerHTML = '<option value="">Seleccione literal</option>';
 
         const literales = {
-          "multa_barra": ["a) Por comportamiento inadecuado - $10.00", "b) Por invasión de cancha - $20.00"],
-          "no_presentacion": ["a) Primera vez - $25.00", "b) Segunda vez - Expulsión"],
-          "no_vocal": ["a) Por no presentarse - $15.00"],
-          "no_veedor": ["a) Por no presentarse - $10.00"]
+          multa_barra: [
+            "a) Por comportamiento inadecuado - $10.00",
+            "b) Por invasión de cancha - $20.00",
+          ],
+          no_presentacion: [
+            "a) Primera vez - $25.00",
+            "b) Segunda vez - Expulsión",
+          ],
+          no_vocal: ["a) Por no presentarse - $15.00"],
+          no_veedor: ["a) Por no presentarse - $10.00"],
+          balon_liga: ["a) Uso de balón de liga - $0.50"],
+          no_balon: ["a) No presentar balón - $1.00"],
+          perdida_balon: ["a) Pérdida de balón liga - $25.00"],
+          no_cinta: ["a) No presentar cinta cap. - $1.00"],
         };
 
         if (literales[tipo]) {
-          literales[tipo].forEach(l => {
+          literales[tipo].forEach((l) => {
             const opt = document.createElement("option");
             opt.value = l.substring(0, 2);
             opt.textContent = l;
             litSelect.appendChild(opt);
           });
         }
-      }
+      };
 
-      document.getElementById("tipoMulta").addEventListener("change", actualizarLiteralesMulta);
+      document
+        .getElementById("tipoMulta")
+        .addEventListener("change", actualizarLiteralesMulta);
 
-      window.aplicarMulta = function() {
+      // Auto-completar monto de multa basado en el literal seleccionado
+      document
+        .getElementById("multaLiteral")
+        .addEventListener("change", function () {
+          const text = this.options[this.selectedIndex].text;
+          const match = text.match(/\$\s?(\d+(\.\d+)?)/);
+          const valorInput = document.getElementById("valorMulta");
+
+          if (match) {
+            valorInput.value = match[1];
+          } else {
+            valorInput.value = "";
+          }
+        });
+
+      window.aplicarMulta = function () {
         const id = document.getElementById("multaJugadorId").value;
         const tipo = document.getElementById("tipoMulta").value;
         const art = document.getElementById("multaArticulo").value;
         const lit = document.getElementById("multaLiteral").value;
+        const valor =
+          parseFloat(document.getElementById("valorMulta").value) || 0;
 
         if (!tipo || !lit) {
-          Swal.fire("Atención", "Por favor complete todos los campos", "warning");
+          Swal.fire(
+            "Atención",
+            "Por favor complete todos los campos",
+            "warning",
+          );
           return;
         }
 
         Swal.fire({
-          title: '¿Confirmar multa?',
+          title: "¿Confirmar multa?",
           text: `Se registrará una multa de tipo ${tipo} al equipo.`,
-          icon: 'warning',
+          icon: "warning",
           showCancelButton: true,
-          confirmButtonText: 'Sí, aplicar',
-          cancelButtonText: 'Cancelar'
+          confirmButtonText: "Sí, aplicar",
+          cancelButtonText: "Cancelar",
         }).then((result) => {
           if (result.isConfirmed) {
-            db.collection("sanciones").add({
-              teamId: id,
-              tipo: tipo,
-              articulo: art,
-              literal: lit,
-              fecha: new Date(),
-              estado: "activa",
-              campeonatoId: campeonatoActual
-            }).then(() => {
-              Swal.fire("Éxito", "Multa aplicada correctamente", "success");
-              multaModal.hide();
-            });
+            db.collection("sanciones")
+              .add({
+                teamId: id,
+                tipo: tipo,
+                articulo: art,
+                literal: lit,
+                valor: valor,
+                fecha: new Date(),
+                estado: "activa",
+                campeonatoId: campeonatoActual,
+              })
+              .then(() => {
+                Swal.fire("Éxito", "Multa aplicada correctamente", "success");
+                const modalEl = document.getElementById("multaModal");
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) modalInstance.hide();
+              });
           }
         });
-      }
+      };
 
-      window.verMultasEquipo = function(equipoId, equipoNombre) {
+      window.verMultasEquipo = function (equipoId, equipoNombre) {
         db.collection("sanciones")
           .where("teamId", "==", equipoId)
           .get()
-          .then(snapshot => {
-            let html = '<div class="table-responsive"><table class="table table-dark table-sm"><thead><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th></tr></thead><tbody>';
+          .then((snapshot) => {
+            let html =
+              '<div class="table-responsive"><table class="table table-dark table-sm"><thead><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th></tr></thead><tbody>';
             if (snapshot.empty) {
-              html += '<tr><td colspan="3" class="text-center">No hay multas registradas</td></tr>';
+              html +=
+                '<tr><td colspan="3" class="text-center">No hay multas registradas</td></tr>';
             } else {
-              snapshot.forEach(doc => {
+              snapshot.forEach((doc) => {
                 const s = doc.data();
-                const fecha = s.fecha ? (s.fecha.toDate ? s.fecha.toDate().toLocaleDateString() : new Date(s.fecha).toLocaleDateString()) : '---';
-                html += `<tr><td>${fecha}</td><td>${s.tipo}</td><td>Art. ${s.articulo} - ${s.literal}</td></tr>`;
+                const fecha = s.fecha
+                  ? s.fecha.toDate
+                    ? s.fecha.toDate().toLocaleDateString()
+                    : new Date(s.fecha).toLocaleDateString()
+                  : "---";
+                const detalle = s.articulo
+                  ? `Art. ${s.articulo} - ${s.literal || ""}`
+                  : s.tipo === "amarilla"
+                    ? "Tarjeta Amarilla"
+                    : "Sanción Directa";
+                html += `<tr><td>${fecha}</td><td>${s.tipo.toUpperCase()}</td><td>${detalle}</td></tr>`;
               });
             }
-            html += '</tbody></table></div>';
+            html += "</tbody></table></div>";
 
             Swal.fire({
               title: `Historial de Multas - ${equipoNombre}`,
               html: html,
-              width: '600px',
-              background: 'rgba(20,20,20,0.95)',
+              width: "600px",
+              background: "rgba(20,20,20,0.95)",
               customClass: {
-                popup: 'glass-card border-secondary'
-              }
+                popup: "glass-card border-secondary",
+              },
             });
           });
-      }
+      };
 
       // Logout function
-      window.logout = function() {
+      window.logout = function () {
         auth.signOut().then(() => {
           window.location.href = "login.html";
         });
-      }
+      };
+
+      // Manejo de modales anidados para mantener el scroll y la elegancia
+      document.addEventListener("hidden.bs.modal", function () {
+        const activeModals = document.querySelectorAll(".modal.show");
+        if (activeModals.length > 0) {
+          document.body.classList.add("modal-open");
+        } else {
+          document.body.classList.remove("modal-open");
+          // Limpieza forzada de cualquier backdrop huérfano (por si acaso)
+          document
+            .querySelectorAll(".modal-backdrop")
+            .forEach((b) => b.remove());
+        }
+      });
     </script>
   </body>
 </html>

@@ -212,47 +212,117 @@
         loadTeamsForChampionship(championshipId, currentCategory);
       }
 
-      function loadTeamsForChampionship(championshipId, category) {
-        document.getElementById(`${category}TableBody`).innerHTML = '<tr><td colspan="10">Cargando equipos...</td></tr>';
-        db.collection('teams').where('championshipId', '==', championshipId).get().then((querySnapshot) => {
-          let teams = [];
-          querySnapshot.forEach((doc) => {
+      async function loadTeamsForChampionship(championshipId, category) {
+        const tableBody = document.getElementById(`${category}TableBody`);
+        tableBody.innerHTML = '<tr><td colspan="10" class="py-4"><div class="spinner-border text-success" role="status"></div><br>Calculando estadísticas...</td></tr>';
+        
+        try {
+          // 1. Obtener equipos
+          const teamsSnap = await db.collection('teams').where('championshipId', '==', championshipId).get();
+          let teamsData = {};
+          
+          const normalizedSelectedCat = category.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+          teamsSnap.forEach(doc => {
             const team = doc.data();
-            const teamCategory = team.category ? team.category.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase() : '';
-            const selectedCategory = category.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-            if (teamCategory === selectedCategory) {
-                teams.push(team);
+            const teamCat = (team.category || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+            
+            if (teamCat === normalizedSelectedCat) {
+              teamsData[team.name] = {
+                name: team.name,
+                logo: team.logo || 'img/logo.png',
+                pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, dg: 0, pts: 0
+              };
             }
           });
-          teams.sort((a, b) => {
-            if ((b.points || 0) !== (a.points || 0)) return (b.points || 0) - (a.points || 0);
-            return ((b.goalsFor || 0) - (b.goalsAgainst || 0)) - ((a.goalsFor || 0) - (a.goalsAgainst || 0));
+
+          // 2. Obtener fixtures (partidos)
+          const fixturesSnap = await db.collection('fixtures')
+            .where('championshipId', '==', championshipId)
+            .get();
+
+          fixturesSnap.forEach(doc => {
+            const fixture = doc.data();
+            const fixCat = (fixture.category || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+            if (fixCat === normalizedSelectedCat) {
+              fixture.data.forEach(m => {
+                if (m.isFinalized && teamsData[m.local] && teamsData[m.visitor]) {
+                  const goalsLocal = (m.playersLocal || []).reduce((acc, p) => acc + (parseInt(p.goles) || 0), 0);
+                  const goalsVisitor = (m.playersVisitor || []).reduce((acc, p) => acc + (parseInt(p.goles) || 0), 0);
+
+                  // Update Local
+                  teamsData[m.local].pj++;
+                  teamsData[m.local].gf += goalsLocal;
+                  teamsData[m.local].gc += goalsVisitor;
+
+                  // Update Visitor
+                  teamsData[m.visitor].pj++;
+                  teamsData[m.visitor].gf += goalsVisitor;
+                  teamsData[m.visitor].gc += goalsLocal;
+
+                  if (goalsLocal > goalsVisitor) {
+                    teamsData[m.local].pg++;
+                    teamsData[m.local].pts += 3;
+                    teamsData[m.visitor].pp++;
+                  } else if (goalsLocal < goalsVisitor) {
+                    teamsData[m.visitor].pg++;
+                    teamsData[m.visitor].pts += 3;
+                    teamsData[m.local].pp++;
+                  } else {
+                    teamsData[m.local].pe++;
+                    teamsData[m.local].pts += 1;
+                    teamsData[m.visitor].pe++;
+                    teamsData[m.visitor].pts += 1;
+                  }
+                }
+              });
+            }
           });
-          updateTable(category, teams);
-        });
+
+          // 3. Convertir a array, calcular DG y ordenar
+          let sortedTeams = Object.values(teamsData).map(t => {
+            t.dg = t.gf - t.gc;
+            return t;
+          });
+
+          sortedTeams.sort((a, b) => {
+            if (b.pts !== a.pts) return b.pts - a.pts;
+            if (b.dg !== a.dg) return b.dg - a.dg;
+            return b.gf - a.gf;
+          });
+
+          updateTable(category, sortedTeams);
+
+        } catch (error) {
+          console.error("Error al calcular tabla:", error);
+          tableBody.innerHTML = '<tr><td colspan="10" class="text-danger">Error al cargar estadísticas.</td></tr>';
+        }
       }
 
       function updateTable(category, teams) {
         const tableBody = document.getElementById(`${category}TableBody`);
         if (teams.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="10" class="py-4">No hay equipos registrados en esta categoría</td></tr>';
-            return;
+          tableBody.innerHTML = '<tr><td colspan="10" class="py-4 text-white-50 small italic">No hay equipos registrados o partidos finalizados en esta categoría</td></tr>';
+          return;
         }
         tableBody.innerHTML = teams.map((team, index) => `
           <tr>
-            <td>${index + 1}</td>
+            <td class="fw-bold" style="color: #2ecc71">${index + 1}</td>
             <td class="text-start ps-4">
-              <img src="${team.logo || 'img/logo.png'}" alt="Logo" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-              ${team.name}
+              <div class="d-flex align-items-center">
+                <img src="${team.logo}" alt="Logo" class="me-2" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.1)">
+                <span class="text-white fw-bold">${team.name}</span>
+              </div>
             </td>
-            <td>${team.played || 0}</td>
-            <td>${team.won || 0}</td>
-            <td>${team.drawn || 0}</td>
-            <td>${team.lost || 0}</td>
-            <td>${team.goalsFor || 0}</td>
-            <td>${team.goalsAgainst || 0}</td>
-            <td>${(team.goalsFor || 0) - (team.goalsAgainst || 0)}</td>
-            <td>${team.points || 0}</td>
+            <td class="text-white-50">${team.pj}</td>
+            <td class="text-white-50">${team.pg}</td>
+            <td class="text-white-50">${team.pe}</td>
+            <td class="text-white-50">${team.pp}</td>
+            <td class="text-white-50">${team.gf}</td>
+            <td class="text-white-50">${team.gc}</td>
+            <td class="text-white fw-bold ${team.dg >= 0 ? 'text-success' : 'text-danger'}">${team.dg}</td>
+            <td class="fw-900 text-white" style="font-size: 1.1rem">${team.pts}</td>
           </tr>
         `).join('');
       }
