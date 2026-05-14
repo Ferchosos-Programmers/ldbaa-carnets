@@ -1201,6 +1201,132 @@
       </div>
     </div>
 
+    <!-- Pagos Generales View Section -->
+    <div class="container py-5 d-none" id="pagos-generales-view">
+      <div class="d-flex align-items-center justify-content-between mb-5">
+        <div class="d-flex align-items-center">
+          <button class="btn btn-outline-light rounded-pill px-4 me-4" onclick="closePagosGenerales()">
+            <i class="fas fa-arrow-left me-2"></i> Volver
+          </button>
+          <div>
+            <h2 class="section-title mb-0" style="font-size: 2rem;">
+              Gestión de <span class="brand-accent" style="color: #e74c3c;">Pagos (Egresos)</span>
+            </h2>
+            <p class="text-white-50 mb-0">Registro y control de gastos y pagos de la liga.</p>
+          </div>
+        </div>
+        <button class="btn px-4 py-2" style="background: rgba(231, 76, 60, 0.1); border: 1px solid #e74c3c; color: #e74c3c; border-radius: 50px; font-weight: bold; width: auto;" onclick="openModalPago()">
+          <i class="fas fa-minus-circle me-2"></i> Registrar Nuevo Pago
+        </button>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="row g-4 mb-5">
+        <div class="col-md-6">
+          <div class="glass-panel p-4 text-center h-100" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px">
+            <i class="fas fa-receipt text-danger mb-3 fs-1"></i>
+            <h6 class="text-white-50 text-uppercase small fw-800">Total de Pagos Registrados</h6>
+            <h2 class="text-white fw-900 mb-0 fs-1 mt-2" id="stat-total-pagos">0</h2>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="glass-panel p-4 text-center h-100" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px">
+            <i class="fas fa-hand-holding-usd text-danger mb-3 fs-1"></i>
+            <h6 class="text-white-50 text-uppercase small fw-800">Dinero Total en Pagos</h6>
+            <h2 class="text-white fw-900 mb-0 fs-1 mt-2" id="stat-revenue-pagos" style="color: #e74c3c !important;">$ 0.00</h2>
+          </div>
+        </div>
+      </div>
+
+      <!-- History Table -->
+      <div class="glass-panel p-4" style="background: rgba(255,255,255,0.03); border-radius: 25px; border: 1px solid rgba(255,255,255,0.1);">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="text-white fw-800 mb-0 text-uppercase">Historial de Pagos</h5>
+          <div class="position-relative" style="width: 350px">
+            <div class="position-absolute top-50 translate-middle-y ms-4 z-1">
+                <i class="fas fa-search text-danger fs-5" style="opacity: 0.8;"></i>
+            </div>
+            <input type="text" class="form-control text-white w-100" 
+                   placeholder="Buscar pago..." 
+                   oninput="filterPagosTable(this.value)"
+                   style="background: rgba(255,255,255,0.04); 
+                          border: 1px solid rgba(255,255,255,0.1); 
+                          border-radius: 50px; 
+                          padding: 12px 20px 12px 55px;
+                          font-size: 0.95rem;
+                          box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                          transition: all 0.3s ease;
+                          outline: none;">
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-dark table-hover align-middle border-0" id="table-pagos-history">
+            <thead>
+              <tr class="text-uppercase small text-white-50 border-bottom border-white border-opacity-10">
+                <th class="ps-4">Fecha</th>
+                <th>Concepto / Motivo</th>
+                <th class="text-center">Valor</th>
+                <th class="text-center">Comprobante</th>
+                <th class="text-end pe-4">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="pagos-body">
+              <!-- Content loaded dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Registrar Pago -->
+    <div class="modal fade" id="modalRegistrarPago" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-invoice overflow-hidden">
+          <div class="modal-header border-0 p-4 pb-0">
+            <h5 class="modal-title text-white fw-800 text-uppercase tracking-widest mb-0">Registrar Pago (Egreso)</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4 pt-4">
+            <div class="mb-3">
+                <label class="form-label text-white-50 text-uppercase small fw-bold">Concepto / Motivo del Pago</label>
+                <input type="text" class="form-control invoice-input" id="pago-concepto" placeholder="Ej: Pago Arbitraje, Compra de Balones, etc.">
+            </div>
+            <div class="mb-3">
+                <label class="form-label text-white-50 text-uppercase small fw-bold">Valor del Pago ($)</label>
+                <input type="number" class="form-control invoice-input fw-bold text-danger fs-5" id="pago-valor" placeholder="0.00" step="0.01">
+            </div>
+            <div class="mb-4">
+                <label class="form-label text-white-50 text-uppercase small fw-bold">Comprobante de Pago (JPG/PNG)</label>
+                <input type="file" class="d-none" id="pago-file-input" accept="image/png, image/jpeg" onchange="handleFileSelect(event)">
+                <div class="glass-panel text-center p-4" id="pago-dropzone" style="border: 2px dashed rgba(255,255,255,0.2); cursor: pointer;" onclick="document.getElementById('pago-file-input').click()">
+                    <i class="fas fa-cloud-upload-alt text-white-50 fs-2 mb-2" id="pago-upload-icon"></i>
+                    <p class="text-white-50 mb-0 small fw-bold" id="pago-upload-text">Haz clic aquí para subir una imagen</p>
+                    <img id="pago-image-preview" src="" class="d-none mt-3 rounded" style="max-width: 100%; max-height: 200px;">
+                </div>
+            </div>
+            <button class="btn w-100 py-2 fw-bold text-uppercase tracking-widest" style="background: #e74c3c; color: white; border-radius: 12px; border: none; box-shadow: 0 10px 20px rgba(231,76,60,0.3);" onclick="savePagoGeneral()">
+                <i class="fas fa-save me-2"></i> Guardar Pago
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Ver Comprobante -->
+    <div class="modal fade" id="modalVerComprobante" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content modal-invoice overflow-hidden">
+          <div class="modal-header border-0 p-3 pb-0">
+            <h5 class="modal-title text-white fw-800 text-uppercase tracking-widest mb-0">Comprobante de Pago</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-3 text-center">
+            <img id="comprobante-viewer" src="" class="img-fluid rounded shadow-lg" style="max-height: 75vh;">
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Facturación View Section -->
     <div class="container py-5 d-none" id="facturacion-view">
       <div class="d-flex align-items-center mb-5">
@@ -2500,13 +2626,210 @@
           }
       }
 
+      // PAGOS GENERALES LOGIC
+      let base64Comprobante = "";
+
       function openPagosGenerales() {
-        Swal.fire({
-          title: 'Pagos Generales',
-          text: 'Módulo de registro de pagos en desarrollo.',
-          icon: 'info',
-          confirmButtonColor: '#2ecc71'
-        });
+          document.getElementById('otras-facturaciones-view').classList.add('d-none');
+          document.getElementById('pagos-generales-view').classList.remove('d-none');
+          loadPagosGenerales();
+      }
+
+      function closePagosGenerales() {
+          document.getElementById('pagos-generales-view').classList.add('d-none');
+          document.getElementById('otras-facturaciones-view').classList.remove('d-none');
+      }
+
+      function openModalPago() {
+          document.getElementById('pago-concepto').value = '';
+          document.getElementById('pago-valor').value = '';
+          document.getElementById('pago-file-input').value = '';
+          document.getElementById('pago-image-preview').classList.add('d-none');
+          document.getElementById('pago-image-preview').src = '';
+          document.getElementById('pago-upload-icon').classList.remove('d-none');
+          document.getElementById('pago-upload-text').classList.remove('d-none');
+          base64Comprobante = "";
+          
+          const modal = new bootstrap.Modal(document.getElementById('modalRegistrarPago'));
+          modal.show();
+      }
+
+      function handleFileSelect(event) {
+          const file = event.target.files[0];
+          if (!file) return;
+
+          // Resize and convert to base64 to save in Firestore without Storage
+          const reader = new FileReader();
+          reader.onload = function(e) {
+              const img = new Image();
+              img.onload = function() {
+                  const canvas = document.createElement('canvas');
+                  const MAX_WIDTH = 800;
+                  const MAX_HEIGHT = 800;
+                  let width = img.width;
+                  let height = img.height;
+
+                  if (width > height) {
+                      if (width > MAX_WIDTH) {
+                          height *= MAX_WIDTH / width;
+                          width = MAX_WIDTH;
+                      }
+                  } else {
+                      if (height > MAX_HEIGHT) {
+                          width *= MAX_HEIGHT / height;
+                          height = MAX_HEIGHT;
+                      }
+                  }
+                  canvas.width = width;
+                  canvas.height = height;
+                  const ctx = canvas.getContext('2d');
+                  ctx.drawImage(img, 0, 0, width, height);
+                  
+                  // Compression 0.7 to keep size small
+                  base64Comprobante = canvas.toDataURL('image/jpeg', 0.7);
+
+                  document.getElementById('pago-image-preview').src = base64Comprobante;
+                  document.getElementById('pago-image-preview').classList.remove('d-none');
+                  document.getElementById('pago-upload-icon').classList.add('d-none');
+                  document.getElementById('pago-upload-text').classList.add('d-none');
+              }
+              img.src = e.target.result;
+          }
+          reader.readAsDataURL(file);
+      }
+
+      async function savePagoGeneral() {
+          const concepto = document.getElementById('pago-concepto').value.trim();
+          const valorStr = document.getElementById('pago-valor').value;
+          const valor = parseFloat(valorStr);
+
+          if (!concepto || isNaN(valor) || valor <= 0) {
+              Swal.fire('Advertencia', 'Por favor, ingresa un concepto y un valor válido mayor a 0.', 'warning');
+              return;
+          }
+          if (!base64Comprobante) {
+              Swal.fire('Advertencia', 'Debes adjuntar el comprobante de pago.', 'warning');
+              return;
+          }
+
+          Swal.fire({
+            title: 'Guardando Pago...',
+            didOpen: () => Swal.showLoading()
+          });
+
+          try {
+              const pagoData = {
+                  concepto,
+                  valor,
+                  comprobante: base64Comprobante,
+                  createdAt: firebase.firestore.FieldValue.serverTimestamp()
+              };
+
+              await db.collection('pagos_generales').add(pagoData);
+              
+              bootstrap.Modal.getInstance(document.getElementById('modalRegistrarPago')).hide();
+              await loadPagosGenerales();
+
+              Swal.fire('¡Éxito!', 'El pago ha sido registrado correctamente.', 'success');
+          } catch(e) {
+              console.error(e);
+              Swal.fire('Error', 'No se pudo guardar el pago.', 'error');
+          }
+      }
+
+      function viewComprobante(base64Image) {
+          document.getElementById('comprobante-viewer').src = base64Image;
+          const modal = new bootstrap.Modal(document.getElementById('modalVerComprobante'));
+          modal.show();
+      }
+
+      let todosLosPagos = [];
+
+      async function loadPagosGenerales() {
+          try {
+              const snapshot = await db.collection("pagos_generales").orderBy("createdAt", "desc").get();
+              todosLosPagos = [];
+              let totalValor = 0;
+
+              snapshot.forEach(doc => {
+                  const data = doc.data();
+                  data.id = doc.id;
+                  todosLosPagos.push(data);
+                  totalValor += (data.valor || 0);
+              });
+
+              document.getElementById('stat-total-pagos').textContent = todosLosPagos.length;
+              document.getElementById('stat-revenue-pagos').textContent = `$ ${totalValor.toFixed(2)}`;
+
+              renderPagosTable(todosLosPagos);
+          } catch (e) {
+              console.error("Error loadPagosGenerales:", e);
+          }
+      }
+
+      function renderPagosTable(pagos) {
+          const tbody = document.getElementById('pagos-body');
+          tbody.innerHTML = "";
+
+          if(pagos.length === 0) {
+              tbody.innerHTML = `<tr><td colspan="5" class="text-center text-white-50 py-4">No hay pagos registrados.</td></tr>`;
+              return;
+          }
+
+          pagos.forEach(data => {
+              const dateStr = data.createdAt ? data.createdAt.toDate().toLocaleString() : 'Reciente';
+              const id = data.id;
+              
+              const safeImg = (data.comprobante || '').replace(/'/g, "\\'");
+
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                  <td class="ps-4 text-white-50 small">${dateStr}</td>
+                  <td class="text-white fw-bold">${data.concepto}</td>
+                  <td class="text-center"><span class="badge" style="background: rgba(231,76,60,0.1); color: #e74c3c; border: 1px solid #e74c3c;">$${parseFloat(data.valor).toFixed(2)}</span></td>
+                  <td class="text-center">
+                      <button class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="viewComprobante('${safeImg}')">
+                          <i class="fas fa-image me-1"></i> Ver Comprobante
+                      </button>
+                  </td>
+                  <td class="text-end pe-4">
+                      <button class="btn btn-sm btn-outline-danger btn-icon" onclick="deletePagoGeneral('${id}')" title="Eliminar">
+                          <i class="fas fa-trash-alt"></i>
+                      </button>
+                  </td>
+              `;
+              tbody.appendChild(tr);
+          });
+      }
+
+      function filterPagosTable(query) {
+          const q = query.toLowerCase();
+          const filtered = todosLosPagos.filter(p => p.concepto.toLowerCase().includes(q));
+          renderPagosTable(filtered);
+      }
+
+      async function deletePagoGeneral(id) {
+          const res = await Swal.fire({
+              title: '¿Eliminar Pago?',
+              text: "Esta acción no se puede deshacer.",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#e74c3c',
+              cancelButtonColor: '#555',
+              confirmButtonText: 'Sí, eliminar',
+              cancelButtonText: 'Cancelar'
+          });
+
+          if (res.isConfirmed) {
+              try {
+                  await db.collection('pagos_generales').doc(id).delete();
+                  loadPagosGenerales();
+                  Swal.fire('Eliminado', 'El pago ha sido eliminado.', 'success');
+              } catch(e) {
+                  console.error(e);
+                  Swal.fire('Error', 'No se pudo eliminar.', 'error');
+              }
+          }
       }
 
       async function loadChampionships() {
