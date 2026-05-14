@@ -6,12 +6,16 @@
     <title>Dashboard Financiero | LDBAA</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/global-swal-patch.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
@@ -344,6 +348,281 @@
         border-color: #2ecc71 !important;
         box-shadow: 0 0 10px rgba(46, 204, 113, 0.3) !important;
       }
+      /* Select2 Premium Dark Theme */
+      .select2-container--default .select2-selection--single {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        height: 45px !important;
+        display: flex !important;
+        align-items: center !important;
+      }
+      .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: white !important;
+        font-weight: 600 !important;
+        padding-left: 15px !important;
+      }
+      .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 43px !important;
+      }
+      .select2-dropdown {
+        background-color: #1a1a1a !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 15px !important;
+        overflow: hidden !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+      }
+      .select2-search__field {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+      }
+      .select2-results__option {
+        padding: 10px 15px !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+        color: rgba(255, 255, 255, 0.7) !important;
+        font-size: 0.9rem !important;
+      }
+      .select2-results__option--highlighted[aria-selected] {
+        background-color: var(--primary) !important;
+        color: black !important;
+      }
+      .select2-results__option[aria-selected=true] {
+        background-color: rgba(46, 204, 113, 0.2) !important;
+        color: white !important;
+      }
+      /* Stepper Styles */
+      .cp-stepper {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        position: relative;
+      }
+      .cp-stepper::before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.1);
+        z-index: 0;
+      }
+      .cp-step-item {
+        position: relative;
+        z-index: 1;
+        background: #111;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.3);
+        transition: 0.4s;
+      }
+      .cp-step-item.active {
+        border-color: var(--primary);
+        color: var(--primary);
+        box-shadow: 0 0 15px var(--primary-glow);
+      }
+      .cp-step-item.completed {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: black;
+      }
+
+      /* Selection Cards */
+      .selection-card-premium {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        padding: 20px;
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+      .selection-card-premium:hover {
+        background: rgba(46, 204, 113, 0.08);
+        border-color: var(--primary);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      }
+      .selection-card-premium::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--primary);
+        opacity: 0;
+        transition: 0.3s;
+      }
+      .selection-card-premium:hover::before {
+        opacity: 1;
+      }
+      .selection-card-logo {
+        width: 45px;
+        height: 45px;
+        object-fit: contain;
+        filter: drop-shadow(0 0 5px rgba(255,255,255,0.1));
+      }
+
+      /* Carta Pase PDF Template Style (Premium Modern) */
+      #pdf-render-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+        z-index: -9999;
+      }
+      #carta-pase-pdf-template {
+        width: 210mm;
+        height: 296mm;
+        padding: 15mm 25mm;
+        background: white !important;
+        color: #1a1a1a !important;
+        font-family: 'Times New Roman', Times, serif;
+        box-sizing: border-box;
+        overflow: hidden;
+        position: relative;
+      }
+      .pdf-header-container {
+        border-bottom: 2px solid #2ecc71;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+      }
+      .pdf-logo-box {
+        width: 70px;
+        margin-right: 20px;
+      }
+      .pdf-logo-box img {
+        width: 100%;
+        display: block;
+      }
+      .pdf-header-text {
+        flex: 1;
+      }
+      .pdf-header-text h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        color: #2c3e50;
+      }
+      .pdf-header-text p {
+        margin: 1px 0;
+        font-size: 10px;
+        color: #7f8c8d;
+        text-transform: uppercase;
+      }
+      .pdf-main-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin: 15px 0;
+        letter-spacing: 5px;
+        color: #1a1a1a;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+      }
+      .pdf-date-row {
+        text-align: right;
+        margin-bottom: 25px;
+        font-size: 13px;
+      }
+      .pdf-content-body {
+        font-size: 14px;
+        line-height: 1.8;
+        text-align: justify;
+      }
+      .pdf-field-line {
+        border-bottom: 1px solid #333;
+        display: inline-block;
+        padding: 0 8px;
+        font-weight: bold;
+        color: #000;
+      }
+      .pdf-signature-grid {
+        margin-top: 40px;
+        display: flex;
+        justify-content: space-between;
+        text-align: center;
+      }
+      .pdf-sig-item {
+        width: 30%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .pdf-sig-line-box {
+        width: 100%;
+        border-top: 1px solid #000;
+        padding-top: 5px;
+        font-size: 11px;
+        font-weight: bold;
+        margin-top: 35px;
+      }
+      .pdf-seq-box {
+        position: absolute;
+        top: 20mm;
+        right: 25mm;
+        border-bottom: 2px solid #2ecc71;
+        padding: 2px 10px;
+        font-family: 'Times New Roman', Times, serif;
+        font-weight: bold;
+        color: #333;
+        font-size: 16px;
+      }
+      .pdf-register-section {
+        margin-top: 25px;
+        border: 1px solid #ddd;
+        padding: 12px 25px;
+        border-radius: 10px;
+        background: #fafafa;
+      }
+      .pdf-register-title {
+        text-align: center;
+        font-size: 15px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        color: #2c3e50;
+        border-bottom: 2px solid #2ecc71;
+        display: inline-block;
+        padding-bottom: 3px;
+      }
+      .pdf-final-signature {
+        margin-top: 55px;
+        width: 250px;
+      }
+      .pdf-footer-info {
+        margin-top: 30px;
+        text-align: center;
+        border-top: 1px solid #eee;
+        padding-top: 8px;
+        font-size: 10px;
+        color: #95a5a6;
+      }
+      .pdf-line {
+        display: inline-block;
+        border-bottom: 1px solid #000;
+        height: 14px;
+        margin-bottom: -2px;
+      }
     </style>
   </head>
   <body>
@@ -385,17 +664,539 @@
         <div class="col-md-5 col-lg-4">
           <div class="dashboard-card" onclick="openFacturacion()">
             <i class="fas fa-file-invoice-dollar"></i>
-            <h3>Facturación</h3>
+            <h3>Facturación de Vocalías</h3>
             <p>Control de recibos, pagos de equipos y balances periódicos de la liga.</p>
           </div>
         </div>
-        
+
+        <div class="col-md-5 col-lg-4">
+          <div class="dashboard-card" onclick="openOtrasFacturaciones()">
+            <i class="fas fa-receipt"></i>
+            <h3>Otras Facturaciones</h3>
+            <p>Gestión de cartas pases, cobros generales y pagos administrativos.</p>
+          </div>
+        </div>
+
         <div class="col-md-5 col-lg-4 d-none">
           <a href="ligabet-admin.html" class="dashboard-card text-decoration-none">
             <i class="fas fa-futbol"></i>
             <h3>Admin LigaBet</h3>
             <p>Control total de la Polla Barrial, validación de tickets y escrutinio de partidos.</p>
           </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Otras Facturaciones View Section -->
+    <div class="container py-5 d-none" id="otras-facturaciones-view">
+      <div class="d-flex align-items-center mb-5">
+        <button class="btn btn-outline-light rounded-pill px-4 me-4" onclick="closeOtrasFacturaciones()">
+          <i class="fas fa-arrow-left me-2"></i> Volver
+        </button>
+        <div>
+          <h2 class="section-title mb-0" style="font-size: 2rem;">
+            Facturación <span class="brand-accent">General</span>
+          </h2>
+          <p class="text-white-50 mb-0">Gestión de cartas pases, cobros y pagos diversos.</p>
+        </div>
+      </div>
+
+      <div class="row justify-content-center g-4 mt-4">
+        <div class="col-md-4">
+          <div class="dashboard-card" onclick="openCartasPases()">
+            <i class="fas fa-envelope-open-text"></i>
+            <h3>Cartas Pases</h3>
+            <p>Generación y cobro de transferencias de jugadores.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="dashboard-card" onclick="openCobrosGenerales()">
+            <i class="fas fa-hand-holding-usd"></i>
+            <h3>Cobros</h3>
+            <p>Registro y gestión de cobros administrativos.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="dashboard-card" onclick="openPagosGenerales()">
+            <i class="fas fa-money-bill-wave"></i>
+            <h3>Pagos</h3>
+            <p>Registro de egresos y pagos de la liga.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cartas Pases View Section -->
+    <div class="container py-5 d-none" id="cartas-pases-view">
+      <div class="d-flex align-items-center justify-content-between mb-5">
+        <div class="d-flex align-items-center">
+          <button class="btn btn-outline-light rounded-pill px-4 me-4" onclick="closeCartasPases()">
+            <i class="fas fa-arrow-left me-2"></i> Volver
+          </button>
+          <div>
+            <h2 class="section-title mb-0" style="font-size: 2rem;">
+              Gestión de <span class="brand-accent">Cartas Pases</span>
+            </h2>
+            <p class="text-white-50 mb-0">Generación, control y registro histórico de transferencias.</p>
+          </div>
+        </div>
+        <button class="btn btn-save-invoice px-4 py-2" style="width: auto" onclick="openModalCartaPase()">
+          <i class="fas fa-plus-circle me-2"></i> Generar Nueva Carta Pase
+        </button>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="row g-4 mb-5">
+        <div class="col-md-3">
+          <div class="glass-panel p-4 text-center h-100" style="background: rgba(46, 204, 113, 0.05); border: 1px solid rgba(46, 204, 113, 0.2); border-radius: 20px">
+            <i class="fas fa-file-export text-primary-glow mb-2 fs-3"></i>
+            <h6 class="text-white-50 text-uppercase small fw-800">Total Generadas</h6>
+            <h2 class="text-white fw-900 mb-0" id="stat-total-pases">0</h2>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="glass-panel p-4 text-center h-100" style="background: rgba(52, 152, 219, 0.05); border: 1px solid rgba(52, 152, 219, 0.2); border-radius: 20px">
+            <i class="fas fa-dollar-sign text-info mb-2 fs-3"></i>
+            <h6 class="text-white-50 text-uppercase small fw-800">Recaudación Total</h6>
+            <h2 class="text-white fw-900 mb-0" id="stat-total-revenue">$ 0.00</h2>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="glass-panel p-4 text-center h-100" style="background: rgba(241, 196, 15, 0.05); border: 1px solid rgba(241, 196, 15, 0.2); border-radius: 20px; cursor: pointer;" onclick="showTeamsWithPases()">
+            <i class="fas fa-users text-warning mb-2 fs-3"></i>
+            <h6 class="text-white-50 text-uppercase small fw-800">Equipos con Pases</h6>
+            <h2 class="text-white fw-900 mb-0 fs-4" id="stat-top-team">Ver Listado</h2>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="glass-panel p-4 text-center h-100" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px">
+            <i class="fas fa-clock text-white-50 mb-2 fs-3"></i>
+            <h6 class="text-white-50 text-uppercase small fw-800">Último Registro</h6>
+            <h2 class="text-white fw-900 mb-0 fs-6" id="stat-last-date">---</h2>
+          </div>
+        </div>
+      </div>
+
+      <!-- History Table -->
+      <div class="glass-panel p-4" style="background: rgba(255,255,255,0.03); border-radius: 25px; border: 1px solid rgba(255,255,255,0.1);">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="text-white fw-800 mb-0 text-uppercase">Historial de Cartas Pases</h5>
+          <div class="position-relative" style="width: 350px">
+            <div class="position-absolute top-50 translate-middle-y ms-4 z-1">
+                <i class="fas fa-search text-primary-glow fs-5" style="opacity: 0.8;"></i>
+            </div>
+            <input type="text" class="form-control text-white w-100" 
+                   placeholder="Buscar en el historial..." 
+                   oninput="filterPasesTable(this.value)"
+                   style="background: rgba(255,255,255,0.04); 
+                          border: 1px solid rgba(255,255,255,0.1); 
+                          border-radius: 50px; 
+                          padding: 12px 20px 12px 55px;
+                          font-size: 0.95rem;
+                          box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                          transition: all 0.3s ease;
+                          outline: none;">
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-dark table-hover align-middle border-0" id="table-pases-history">
+            <thead>
+              <tr class="text-uppercase small text-white-50 border-bottom border-white border-opacity-10">
+                <th class="ps-4">Fecha</th>
+                <th>Equipo Solicitante</th>
+                <th class="text-center">Cant.</th>
+                <th class="text-center">Valor Total</th>
+                <th class="text-center">Numeración</th>
+                <th class="text-end pe-4">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="pases-body">
+              <!-- Content loaded dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Generar Carta Pase Multi-Step -->
+    <div class="modal fade" id="modalCartaPase" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content modal-invoice overflow-hidden">
+          <div class="modal-header border-0 p-4 pb-0">
+            <div class="d-flex align-items-center">
+                <button type="button" id="cp-btn-back" class="btn btn-outline-light btn-sm rounded-pill me-3 d-none" onclick="cpPrevStep()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h5 class="modal-title text-white fw-800 text-uppercase tracking-widest mb-0" id="cp-modal-title">Generar Carta Pase</h5>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4 pt-2">
+            <!-- Stepper Indicator -->
+            <div class="cp-stepper px-5 mt-2">
+                <div class="cp-step-item active" id="cp-dot-1">1</div>
+                <div class="cp-step-item" id="cp-dot-2">2</div>
+                <div class="cp-step-item" id="cp-dot-3">3</div>
+            </div>
+
+            <!-- Step 1: Championship Selection -->
+            <div id="cp-step-1" class="f-view">
+              <div class="text-center mb-4">
+                <h6 class="text-white text-uppercase tracking-widest fw-800 small mb-1">Paso 1</h6>
+                <h4 class="text-white fw-900 mb-0">Seleccionar Campeonato</h4>
+              </div>
+              <div class="row row-cols-1 row-cols-md-2 g-3" id="cp-championship-list">
+                <!-- Championships loaded here -->
+              </div>
+            </div>
+
+            <!-- Step 2: Team Selection -->
+            <div id="cp-step-2" class="f-view d-none">
+              <div class="text-center mb-4">
+                <h6 class="text-white text-uppercase tracking-widest fw-800 small mb-1">Paso 2</h6>
+                <h4 class="text-white fw-900 mb-0">Seleccionar Equipo Adquiriente</h4>
+              </div>
+              <div class="mb-4">
+                <div class="search-box position-relative w-100">
+                    <i class="fas fa-search position-absolute top-50 translate-middle-y ms-3 text-white-50"></i>
+                    <input type="text" class="form-control invoice-input ps-5 bg-dark border-opacity-10" placeholder="Filtrar equipos participantes..." oninput="filterCPTeams(this.value)">
+                </div>
+              </div>
+              <div class="row row-cols-1 row-cols-md-2 g-3 overflow-auto pe-2" style="max-height: 400px;" id="cp-team-list">
+                <!-- Teams loaded here -->
+              </div>
+            </div>
+
+            <!-- Step 3: Final Form -->
+            <div id="cp-step-3" class="f-view d-none">
+                <div class="text-center mb-4">
+                    <h6 class="text-white text-uppercase tracking-widest fw-800 small mb-1">Paso Final</h6>
+                    <h4 class="text-white fw-900 mb-0">Completar Datos del Pase</h4>
+                </div>
+
+                <div class="d-flex align-items-center mb-4 p-4 rounded-4 bg-primary bg-opacity-10 border border-primary border-opacity-25 shadow-sm">
+                    <div class="position-relative">
+                        <img id="cp-final-team-logo" src="img/logo.png" style="width: 60px; height: 60px; object-fit: contain;" class="me-4">
+                        <div class="position-absolute bottom-0 end-0 bg-success rounded-circle border border-dark" style="width: 15px; height: 15px; margin-bottom: 5px; margin-right: 15px;"></div>
+                    </div>
+                    <div>
+                        <h6 class="text-white-50 small mb-0 fw-bold text-uppercase tracking-wider">Club Adquiriente</h6>
+                        <h3 class="text-white fw-900 mb-0 text-uppercase" id="cp-final-team-name">EQUIPO</h3>
+                    </div>
+                </div>
+                
+                <form id="form-carta-pase" class="glass-panel p-4" style="background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05)">
+                  <div class="text-center mb-4">
+                    <div class="mb-4">
+                      <img id="cp-final-team-logo-small" src="img/logo.png" style="width: 40px; height: 40px; object-fit: contain;" class="mb-2 opacity-50">
+                      <h6 class="text-primary-glow small text-uppercase fw-900 mb-0" style="letter-spacing: 2px;">Adquisición de Cartas Pases</h6>
+                    </div>
+                    
+                    <div class="row justify-content-center mb-4">
+                      <div class="col-md-8">
+                        <div class="p-4 rounded-4 bg-dark bg-opacity-50 border border-white border-opacity-10">
+                          <label class="label text-white-50 small text-uppercase fw-bold mb-3 d-block">¿Cuántas cartas pases desea generar?</label>
+                          <div class="input-group input-group-lg mx-auto" style="max-width: 250px;">
+                            <button class="btn btn-outline-secondary border-opacity-25" type="button" onclick="changeCPQty(-1)"><i class="fas fa-minus"></i></button>
+                            <input type="number" id="cp-quantity" class="form-control bg-dark border-secondary border-opacity-25 text-white text-center fw-900 fs-2" value="1" min="1" oninput="updateCPTotal()">
+                            <button class="btn btn-outline-secondary border-opacity-25" type="button" onclick="changeCPQty(1)"><i class="fas fa-plus"></i></button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="p-4 rounded-4 bg-dark bg-opacity-50 border border-white border-opacity-10 mb-4" style="max-width: 400px; margin: 0 auto;">
+                       <div class="d-flex justify-content-between align-items-center px-2">
+                          <span class="text-white-50 small text-uppercase fw-bold">Precio Unitario</span>
+                          <span class="text-white fw-900 fs-5">$ 0.50</span>
+                       </div>
+                       <div class="d-flex justify-content-between align-items-center mt-3 px-2 border-top border-white border-opacity-5 pt-3">
+                          <span class="text-white-50 small text-uppercase fw-bold">Total a Pagar</span>
+                          <span class="text-primary-glow fs-2 fw-900" id="cp-total-display">$ 0.50</span>
+                       </div>
+                    </div>
+
+                    <div class="alert alert-info bg-primary bg-opacity-10 border-primary border-opacity-25 text-start small mb-4">
+                      <i class="fas fa-info-circle me-2"></i> Las cartas pases se generarán en blanco con una numeración secuencial única para ser llenadas manualmente.
+                    </div>
+                  </div>
+
+                  <button type="button" class="btn-save-invoice py-3 rounded-4 fs-5 w-100" onclick="saveCartaPase()">
+                    <i class="fas fa-file-pdf me-2"></i> Generar Cartas Pases en Lote
+                  </button>
+                </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cobros Generales View Section -->
+    <div class="container py-5 d-none" id="cobros-generales-view">
+      <div class="d-flex align-items-center justify-content-between mb-5">
+        <div class="d-flex align-items-center">
+          <button class="btn btn-outline-light rounded-pill px-4 me-4" onclick="closeCobrosGenerales()">
+            <i class="fas fa-arrow-left me-2"></i> Volver
+          </button>
+          <div>
+            <h2 class="section-title mb-0" style="font-size: 2rem;">
+              Gestión de <span class="brand-accent">Cobros Adicionales</span>
+            </h2>
+            <p class="text-white-50 mb-0">Registro y control de ingresos extras de la liga.</p>
+          </div>
+        </div>
+        <button class="btn btn-save-invoice px-4 py-2" style="width: auto" onclick="openModalCobro()">
+          <i class="fas fa-plus-circle me-2"></i> Registrar Nuevo Cobro
+        </button>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="row g-4 mb-5">
+        <div class="col-md-4">
+          <div class="glass-panel p-4 text-center h-100" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px">
+            <i class="fas fa-file-invoice-dollar text-primary-glow mb-3 fs-1"></i>
+            <h6 class="text-white-50 text-uppercase small fw-800">Total de Cobros</h6>
+            <h2 class="text-white fw-900 mb-0 fs-1 mt-2" id="stat-total-cobros">0</h2>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="glass-panel p-4 text-center h-100" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px">
+            <i class="fas fa-dollar-sign text-primary mb-3 fs-1"></i>
+            <h6 class="text-white-50 text-uppercase small fw-800">Recaudación Total</h6>
+            <h2 class="text-white fw-900 mb-0 fs-1 mt-2" id="stat-revenue-cobros">$ 0.00</h2>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="glass-panel p-4 text-center h-100" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px">
+            <i class="fas fa-clock text-white-50 mb-3 fs-1"></i>
+            <h6 class="text-white-50 text-uppercase small fw-800">Último Registro</h6>
+            <h2 class="text-white fw-900 mb-0 mt-3" style="font-size: 1.3rem" id="stat-last-cobro">---</h2>
+          </div>
+        </div>
+      </div>
+
+      <!-- History Table -->
+      <div class="glass-panel p-4" style="background: rgba(255,255,255,0.03); border-radius: 25px; border: 1px solid rgba(255,255,255,0.1);">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="text-white fw-800 mb-0 text-uppercase">Historial de Cobros</h5>
+          <div class="position-relative" style="width: 350px">
+            <div class="position-absolute top-50 translate-middle-y ms-4 z-1">
+                <i class="fas fa-search text-primary-glow fs-5" style="opacity: 0.8;"></i>
+            </div>
+            <input type="text" class="form-control text-white w-100" 
+                   placeholder="Buscar cobro..." 
+                   oninput="filterCobrosTable(this.value)"
+                   style="background: rgba(255,255,255,0.04); 
+                          border: 1px solid rgba(255,255,255,0.1); 
+                          border-radius: 50px; 
+                          padding: 12px 20px 12px 55px;
+                          font-size: 0.95rem;
+                          box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                          transition: all 0.3s ease;
+                          outline: none;">
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-dark table-hover align-middle border-0" id="table-cobros-history">
+            <thead>
+              <tr class="text-uppercase small text-white-50 border-bottom border-white border-opacity-10">
+                <th class="ps-4">Fecha</th>
+                <th>Concepto / Motivo</th>
+                <th>Entidad / Persona</th>
+                <th class="text-center">Valor</th>
+                <th class="text-end pe-4">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="cobros-body">
+              <!-- Content loaded dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Registrar Cobro -->
+    <div class="modal fade" id="modalRegistrarCobro" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modal-invoice overflow-hidden">
+          <div class="modal-header border-0 p-4 pb-0">
+            <h5 class="modal-title text-white fw-800 text-uppercase tracking-widest mb-0">Registrar Cobro Adicional</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4 pt-4">
+            <div class="mb-3">
+                <label class="form-label text-white-50 text-uppercase small fw-bold">Concepto / Motivo</label>
+                <input type="text" class="form-control invoice-input" id="cobro-concepto" placeholder="Ej: Inscripción, Multa Extra, etc.">
+            </div>
+            <div class="mb-3">
+                <label class="form-label text-white-50 text-uppercase small fw-bold">Entidad / Equipo / Persona</label>
+                <input type="text" class="form-control invoice-input" id="cobro-entidad" placeholder="Ej: Club Los Leones">
+            </div>
+            <div class="mb-4">
+                <label class="form-label text-white-50 text-uppercase small fw-bold">Valor a Cobrar ($)</label>
+                <input type="number" class="form-control invoice-input fw-bold text-primary-glow fs-5" id="cobro-valor" placeholder="0.00" step="0.01">
+            </div>
+            <button class="btn btn-save-invoice w-100" onclick="saveCobroAdicional()">
+                <i class="fas fa-save me-2"></i> Confirmar y Guardar Cobro
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plantilla Oculta para PDF de Cobro (Diseño Factura Blanca) -->
+    <div id="cobro-pdf-template" class="d-none">
+      <div class="pdf-wrapper" style="font-family: 'Times New Roman', Times, serif; color: #000; padding: 15mm; background: #fff; position: relative; width: 210mm; box-sizing: border-box; overflow: hidden;">
+        
+        <!-- Watermark -->
+        <div style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 140px; font-weight: 900; color: rgba(0,0,0,0.04); letter-spacing: 20px; z-index: 0; pointer-events: none;">
+            OFICIAL
+        </div>
+
+        <div style="position: relative; z-index: 1;">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                <!-- Left -->
+                <div style="width: 48%;">
+                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <img src="img/logo.png" style="width: 70px; height: 70px; margin-right: 15px;">
+                        <div>
+                            <h2 style="margin: 0; font-size: 16px; color: #333; letter-spacing: 1px;">LIGA DEPORTIVA BARRIAL</h2>
+                            <h2 style="margin: 0; font-size: 20px; color: #c9a227; font-weight: bold;">ARGELIA ALTA</h2>
+                        </div>
+                    </div>
+                    <div style="font-size: 10px; color: #555; line-height: 2;">
+                        <div><strong style="color: #333;">Matriz:</strong> Molleturo E10-70 y Cuyuja. Quito - Ecuador</div>
+                        <div><strong style="color: #333;">Correo:</strong> calificaciones.argelia@gmail.com</div>
+                        <div><strong style="color: #333;">Obligada a Llevar Contabilidad:</strong> SI</div>
+                    </div>
+                </div>
+                <!-- Right Box -->
+                <div style="width: 45%; border: 1px solid #ddd; border-radius: 10px; padding: 15px; background: #fdfdfd;">
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <span style="border: 1px solid #27ae60; color: #27ae60; padding: 3px 15px; border-radius: 20px; font-size: 10px; font-weight: bold;">DOCUMENTO OFICIAL DE TESORERÍA</span>
+                    </div>
+                    <div style="text-align: right; margin-bottom: 15px;">
+                        <div style="font-size: 10px; color: #666; font-weight: bold; letter-spacing: 1px;">RUC: 1714583745001</div>
+                        <div style="font-size: 20px; font-weight: bold; color: #000; letter-spacing: 2px; margin: 5px 0;">001-001-<span id="pdf-cobro-secuencia">000000001</span></div>
+                        <div style="font-size: 10px; color: #666; font-weight: bold; letter-spacing: 1px;">FACTURA ELECTRÓNICA N°</div>
+                    </div>
+                    <div style="font-size: 10px; display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span style="color: #666;">FECHA AUTORIZACIÓN:</span>
+                        <span style="color: #000; font-weight: bold;" id="pdf-cobro-fecha-auth">2026-05-04 22:07</span>
+                    </div>
+                    <div style="font-size: 10px; display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span style="color: #666;">AMBIENTE:</span>
+                        <span style="color: #000; font-weight: bold;">PRODUCCIÓN</span>
+                    </div>
+                    <div style="font-size: 10px; display: flex; justify-content: space-between;">
+                        <span style="color: #666;">EMISIÓN:</span>
+                        <span style="color: #27ae60; font-weight: bold;">NORMAL</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Client Info Box -->
+            <div style="border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 20px; background: #fdfdfd;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 15px;">
+                    <div>
+                        <div style="font-size: 10px; color: #666; font-weight: bold; letter-spacing: 1px; margin-bottom: 5px;">BENEFICIARIO / CLUB</div>
+                        <div style="font-size: 20px; font-weight: bold; color: #000; text-transform: uppercase;" id="pdf-cobro-entidad">ESTUDIANTES <span style="font-size: 10px; border: 1px solid #2980b9; color: #2980b9; padding: 2px 8px; border-radius: 10px; vertical-align: middle; margin-left: 10px;">PRIMERA</span></div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 10px; color: #666; font-weight: bold; letter-spacing: 1px; margin-bottom: 5px;">FECHA DE EMISIÓN</div>
+                        <div style="font-size: 18px; color: #000;" id="pdf-cobro-fecha">04/05/2026</div>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <div>
+                        <div style="font-size: 10px; color: #666; font-weight: bold; letter-spacing: 1px; margin-bottom: 5px;">CLAVE DE ACCESO</div>
+                        <div style="font-size: 11px; font-weight: bold; color: #444;" id="pdf-cobro-clave">1504202601171458374500120019010000004671234567811</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 10px; color: #666; font-weight: bold; letter-spacing: 1px; margin-bottom: 5px;">IDENTIFICACIÓN / RUC</div>
+                        <div style="font-size: 14px; color: #000;">999999999001</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div style="margin-bottom: 30px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <th style="text-align: left; padding: 12px 5px; font-size: 10px; color: #27ae60; letter-spacing: 1px;">CÓDIGO</th>
+                            <th style="text-align: left; padding: 12px 5px; font-size: 10px; color: #27ae60; letter-spacing: 1px;">DESCRIPCIÓN DEL ÍTEM</th>
+                            <th style="text-align: center; padding: 12px 5px; font-size: 10px; color: #27ae60; letter-spacing: 1px;">CANT.</th>
+                            <th style="text-align: right; padding: 12px 5px; font-size: 10px; color: #27ae60; letter-spacing: 1px;">P. UNITARIO</th>
+                            <th style="text-align: right; padding: 12px 5px; font-size: 10px; color: #27ae60; letter-spacing: 1px;">DESCUENTO</th>
+                            <th style="text-align: right; padding: 12px 5px; font-size: 10px; color: #27ae60; letter-spacing: 1px;">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 20px 5px; font-size: 12px; color: #c9a227; font-weight: bold;" id="pdf-cobro-codigo">P000000001</td>
+                            <td style="padding: 20px 5px; font-size: 13px; font-weight: bold; color: #000;" id="pdf-cobro-concepto">Derecho de Cancha</td>
+                            <td style="text-align: center; padding: 20px 5px; font-size: 13px; color: #444;">1</td>
+                            <td style="text-align: right; padding: 20px 5px; font-size: 13px; color: #444;" id="pdf-cobro-punitario">$2.00</td>
+                            <td style="text-align: right; padding: 20px 5px; font-size: 13px; color: #444;">$0.00</td>
+                            <td style="text-align: right; padding: 20px 5px; font-size: 14px; font-weight: bold; color: #000;" id="pdf-cobro-ptotal">$2.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Divider -->
+            <div style="border-top: 1px solid #ddd; margin-bottom: 25px;"></div>
+
+            <!-- Footer Details -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <!-- Info Box -->
+                <div style="width: 55%; border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #fdfdfd;">
+                    <div style="font-size: 12px; color: #2980b9; font-weight: bold; letter-spacing: 1px; margin-bottom: 15px; text-transform: uppercase;">INFORMACIÓN DEL COBRO</div>
+                    <div style="border-top: 1px solid #eee; margin-bottom: 15px;"></div>
+                    
+                    <div style="display: flex; margin-bottom: 15px;">
+                        <div style="width: 40%; font-size: 10px; color: #666; font-weight: bold; letter-spacing: 1px;">FORMA DE PAGO:</div>
+                        <div style="width: 60%; font-size: 12px; font-weight: bold; color: #000;">Sin Utilización Del Sistema Financiero</div>
+                    </div>
+                    <div style="display: flex;">
+                        <div style="width: 40%; font-size: 10px; color: #666; font-weight: bold; letter-spacing: 1px;">OBSERVACIONES:</div>
+                        <div style="width: 60%; font-size: 12px; font-weight: bold; color: #27ae60;">Cobro procesado exitosamente.</div>
+                    </div>
+                </div>
+
+                <!-- Totals -->
+                <div style="width: 40%;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; font-weight: bold;">
+                        <span style="color: #666;">Subtotal 0%</span>
+                        <span style="color: #000;" id="pdf-cobro-subtotal">$12.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; font-weight: bold;">
+                        <span style="color: #666;">Subtotal 15%</span>
+                        <span style="color: #000;">$0.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 25px; font-size: 12px; font-weight: bold;">
+                        <span style="color: #666;">IVA 15%</span>
+                        <span style="color: #000;">$0.00</span>
+                    </div>
+
+                    <!-- Total Box -->
+                    <div style="border: 1px solid #c9a227; border-radius: 8px; padding: 20px; background: rgba(201, 162, 39, 0.05); text-align: center;">
+                        <div style="font-size: 14px; font-weight: bold; color: #000; letter-spacing: 1px; margin-bottom: 10px;">TOTAL A PAGAR</div>
+                        <div style="font-size: 32px; font-weight: bold; color: #c9a227;" id="pdf-cobro-gran-total">$12.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Divider -->
+            <div style="border-top: 1px solid #ddd; margin-top: 40px; margin-bottom: 20px;"></div>
+
+            <!-- Footer Text -->
+            <div style="text-align: center;">
+                <div style="font-size: 10px; color: #666; margin-bottom: 5px;">Este documento es una representación digital del cobro gestionado en LDBAA.</div>
+                <div style="font-size: 11px; font-weight: bold; color: #444; letter-spacing: 1px;">GRACIAS POR SU GESTIÓN - SISTEMA ELITE FINANZAS</div>
+            </div>
         </div>
       </div>
     </div>
@@ -749,7 +1550,6 @@
                             <!-- Items dynamically loaded -->
                         </tbody>
                     </table>
-                </div>
 
                 <div class="row g-4 mt-2">
                     <div class="col-7">
@@ -799,6 +1599,83 @@
       </div>
     </div>
 
+    <!-- Hidden Template for PDF -->
+    <div id="pdf-render-container">
+        <div id="carta-pase-pdf-template">
+            <div class="pdf-seq-box">Nº <span class="pdf-seq-val">0000</span></div>
+            <div class="pdf-header-container">
+                <div class="pdf-logo-box">
+                    <img src="img/logo.png">
+                </div>
+                <div class="pdf-header-text">
+                    <h2>LIGA DEPORTIVA BARRIAL "ARGELIA ALTA"</h2>
+                    <p>FUNDADA EL 9 DE JULIO DE 1996</p>
+                    <p>FILIAL A LA ASOCIACIÓN DE LIGAS DE MICROFÚTBOL DE QUITO</p>
+                    <p>Acuerdo Ministerial 0049</p>
+                </div>
+            </div>
+
+            <h1 class="pdf-main-title">CARTA PASE</h1>
+
+            <div class="pdf-date-row">
+                Quito, <span class="pdf-line" style="width: 35px;"></span> de <span class="pdf-line" style="width: 100px;"></span> del 20<span class="pdf-line" style="width: 25px;"></span>
+            </div>
+
+            <div class="pdf-content-body">
+                <p>
+                    Yo <span class="pdf-line" style="width: 320px;"></span> 
+                    con Nro. de cedula <span class="pdf-line" style="width: 130px;"></span>, me 
+                    encuentro registrado(a) en el Club " <span class="pdf-line" style="width: 200px;"></span> " 
+                    perteneciente a la Liga Deportiva Barrial Argelia Alta, en virtud de que es mi voluntad seguir 
+                    participando en el Deporte Barrial solicito a usted señor <span class="pdf-line" style="width: 240px;"></span> 
+                    con C.C. <span class="pdf-line" style="width: 130px;"></span> presidente del Club " <span class="pdf-line" style="width: 200px;"></span> " 
+                    me conceda el PASE a préstamo <span class="pdf-line" style="width: 30px;"></span>, libre <span class="pdf-line" style="width: 30px;"></span> o compra definitiva <span class="pdf-line" style="width: 30px;"></span>
+                </p>
+
+                <p style="margin-top: 20px;">
+                    El mencionado deportista puede hacer uso del presente documento para los fines requeridos en el deporte barrial.
+                </p>
+
+                <div class="pdf-signature-grid">
+                    <div class="pdf-sig-item">
+                        <div class="pdf-sig-line-box">Presidente del Club</div>
+                    </div>
+                    <div class="pdf-sig-item">
+                        <div class="pdf-sig-line-box">Jugador</div>
+                    </div>
+                    <div class="pdf-sig-item">
+                        <div class="pdf-sig-line-box">Presidente del Club</div>
+                    </div>
+                </div>
+
+                <div class="pdf-register-section">
+                    <div style="text-align: center;"><span class="pdf-register-title">Registro del Pase</span></div>
+                    <p style="margin-top: 10px;">
+                        Certifico el registro del pase del deportista <span class="pdf-line" style="width: 280px;"></span>, 
+                        dejando constancia en nuestro archivo, el interesado participará o actuará desde la presente fecha en donde en el Club 
+                        " <span class="pdf-line" style="width: 260px;"></span> "
+                    </p>
+                    <p style="margin-top: 10px;">
+                        Fecha de Registro: <span class="pdf-line" style="width: 260px;"></span>
+                    </p>
+                </div>
+
+                <div class="pdf-final-signature">
+                    <div style="width: 100%; border-top: 1px solid #000; padding-top: 10px;">
+                        <strong style="font-size: 15px;">Sr. Javier Miño</strong><br>
+                        <span style="font-size: 12px;">Presidente L.B.A.A.</span><br>
+                        <span style="font-size: 11px; color: #7f8c8d;">Gestión 2025 - 2029</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pdf-footer-info">
+                Dir: Argelia Alta calle Cuyuja y Majúa altos de la casa barrial. / Telf.: 0984613518<br>
+                <strong>QUITO - ECUADOR</strong>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
@@ -833,6 +1710,803 @@
         document.getElementById('facturacion-view').classList.add('d-none');
         document.getElementById('main-view').classList.remove('d-none');
         backToJornadas();
+      }
+
+      function openOtrasFacturaciones() {
+        document.getElementById('main-view').classList.add('d-none');
+        document.getElementById('otras-facturaciones-view').classList.remove('d-none');
+      }
+
+      function closeOtrasFacturaciones() {
+        document.getElementById('otras-facturaciones-view').classList.add('d-none');
+        document.getElementById('main-view').classList.remove('d-none');
+      }
+
+      function openCartasPases() {
+        document.getElementById('otras-facturaciones-view').classList.add('d-none');
+        document.getElementById('cartas-pases-view').classList.remove('d-none');
+        loadCartasPases();
+      }
+
+      function closeCartasPases() {
+        document.getElementById('cartas-pases-view').classList.add('d-none');
+        document.getElementById('otras-facturaciones-view').classList.remove('d-none');
+      }
+
+      let allPases = [];
+
+      async function loadCartasPases() {
+          const tbody = document.getElementById('pases-body');
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>';
+          
+          try {
+              const snapshot = await db.collection("cartas_pases").orderBy("createdAt", "desc").get();
+              tbody.innerHTML = '';
+              allPases = [];
+              
+              if (snapshot.empty) {
+                  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-white-50">No hay registros de cartas pases.</td></tr>';
+                  updateCartasPasesStats([]);
+                  return;
+              }
+
+              snapshot.forEach(doc => {
+                  const data = { id: doc.id, ...doc.data() };
+                  allPases.push(data);
+                  const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'N/A';
+                  const start = String(data.startSeq || data.seqNum).padStart(4, '0');
+                  const end = String(data.endSeq || data.seqNum).padStart(4, '0');
+                  const range = data.isBatch ? `${start} - ${end}` : start;
+                  const qty = data.quantity || 1;
+                  const totalVal = data.totalValue || (data.value * qty) || 0;
+
+                  const tr = document.createElement('tr');
+                  tr.className = "border-bottom border-white border-opacity-5";
+                  tr.innerHTML = `
+                      <td class="ps-4">
+                        <div class="fw-bold text-white">${date}</div>
+                        <div class="small text-white-50">${data.createdAt ? data.createdAt.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</div>
+                      </td>
+                      <td>
+                        <div class="fw-bold text-white">${data.teamName}</div>
+                      </td>
+                      <td class="text-center fw-bold text-primary-glow">${qty}</td>
+                      <td class="text-center text-white fw-bold">$ ${totalVal.toFixed(2)}</td>
+                      <td class="text-center">
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2">
+                          <i class="fas fa-hashtag me-1"></i> ${range}
+                        </span>
+                      </td>
+                      <td class="text-end pe-4">
+                        <div class="btn-group">
+                          <button class="btn btn-sm btn-outline-primary border-opacity-25 rounded-3 me-2" onclick="viewCPDetails('${doc.id}')" title="Ver Detalles">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                          <button class="btn btn-sm btn-primary rounded-3" onclick="reprintCPBatch('${doc.id}')" title="Re-descargar PDF">
+                            <i class="fas fa-file-pdf"></i>
+                          </button>
+                        </div>
+                      </td>
+                  `;
+                  tbody.appendChild(tr);
+              });
+
+              updateCartasPasesStats(allPases);
+          } catch (e) {
+              console.error(e);
+          }
+      }
+
+      function updateCartasPasesStats(data) {
+          let totalPases = 0;
+          let totalRevenue = 0;
+          let lastDate = '---';
+
+          data.forEach(p => {
+              // Sumar cantidad total de pases en el lote (default 1 si es registro antiguo)
+              const qty = parseInt(p.quantity) || 1;
+              totalPases += qty;
+
+              // Sumar valor total del lote
+              // Si no existe totalValue (registro antiguo), calcular como qty * 0.50
+              const val = parseFloat(p.totalValue) || (qty * 0.50);
+              totalRevenue += val;
+          });
+
+          if (data.length > 0) {
+              const last = data[0]; // data está ordenada desc (más reciente primero)
+              if (last.createdAt) {
+                  lastDate = last.createdAt.toDate().toLocaleDateString();
+              }
+          }
+
+          // Actualizar las tarjetas del dashboard
+          const statTotal = document.getElementById('stat-total-pases');
+          const statRevenue = document.getElementById('stat-total-revenue');
+          const statLast = document.getElementById('stat-last-date');
+
+          if(statTotal) statTotal.textContent = totalPases;
+          if(statRevenue) statRevenue.textContent = `$ ${totalRevenue.toFixed(2)}`;
+          if(statLast) statLast.textContent = lastDate;
+          
+          console.log(`Stats actualizadas: ${totalPases} pases, $${totalRevenue} recaudados.`);
+      }
+
+      function showTeamsWithPases() {
+          const teamSummary = {};
+          allPases.forEach(p => {
+              if (!teamSummary[p.teamName]) teamSummary[p.teamName] = 0;
+              teamSummary[p.teamName] += (p.quantity || 1);
+          });
+
+          let listHtml = `
+            <div class="mb-4 px-2">
+                <div class="position-relative w-100">
+                    <div class="position-absolute top-50 translate-middle-y ms-4 z-1">
+                        <i class="fas fa-search text-primary-glow fs-5" style="opacity: 0.8;"></i>
+                    </div>
+                    <input type="text" class="form-control text-white w-100" 
+                           placeholder="Buscar equipo por nombre..." 
+                           oninput="filterTeamList(this.value)"
+                           style="background: rgba(255,255,255,0.04); 
+                                  border: 1px solid rgba(255,255,255,0.1); 
+                                  border-radius: 50px; 
+                                  padding: 15px 20px 15px 55px;
+                                  font-size: 1rem;
+                                  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                                  transition: all 0.3s ease;
+                                  outline: none;">
+                </div>
+            </div>
+            <div class="text-start" id="team-list-container" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+          `;
+          
+          Object.entries(teamSummary).forEach(([team, qty]) => {
+              listHtml += `
+                <div class="team-item-card d-flex justify-content-between align-items-center mb-3 p-3 rounded-4" 
+                     data-team="${team.toLowerCase()}"
+                     style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s ease;">
+                    <div>
+                        <div class="text-white fw-900 fs-6 text-uppercase" style="letter-spacing: 1px;">${team}</div>
+                        <div class="text-white-50 small">Lotes adquiridos</div>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-primary-glow text-white fw-900 px-3 py-2 fs-6 shadow-sm" style="min-width: 80px;">
+                            ${qty} PASES
+                        </span>
+                    </div>
+                </div>`;
+          });
+          listHtml += '</div>';
+
+          if (Object.keys(teamSummary).length === 0) {
+              listHtml = `
+                <div class="py-5 text-center">
+                    <i class="fas fa-users-slash text-white-50 mb-3 fs-1"></i>
+                    <p class="text-white-50">No hay pases registrados aún en el sistema.</p>
+                </div>`;
+          }
+
+          Swal.fire({
+              title: '<h4 class="text-white fw-900 text-uppercase tracking-widest mb-0">Equipos con Cartas Pases</h4>',
+              html: listHtml,
+              background: '#0f0f0f',
+              color: '#fff',
+              confirmButtonText: 'CERRAR LISTADO',
+              confirmButtonColor: '#2ecc71',
+              width: '550px',
+              customClass: {
+                  popup: 'rounded-5 border border-white border-opacity-10 shadow-2xl',
+                  confirmButton: 'rounded-pill px-5 fw-bold text-uppercase'
+              },
+              showClass: {
+                popup: 'animate__animated animate__fadeInDown animate__faster'
+              },
+              hideClass: {
+                popup: 'animate__animated animate__fadeOutUp animate__faster'
+              }
+          });
+      }
+
+      function filterTeamList(query) {
+          const q = query.toLowerCase();
+          const items = document.querySelectorAll('.team-item-card');
+          items.forEach(item => {
+              const teamName = item.getAttribute('data-team');
+              if (teamName.includes(q)) {
+                  item.style.setProperty('display', 'flex', 'important');
+              } else {
+                  item.style.setProperty('display', 'none', 'important');
+              }
+          });
+      }
+
+      function filterPasesTable(query) {
+          const q = query.toLowerCase();
+          const rows = document.querySelectorAll('#pases-body tr');
+          rows.forEach(row => {
+              if(row.cells.length === 1) return;
+              
+              // El nombre del equipo está en la segunda columna (índice 1)
+              const teamCell = row.cells[1];
+              if (teamCell) {
+                  const teamName = teamCell.textContent.toLowerCase();
+                  if (teamName.includes(q)) {
+                      row.style.setProperty('display', 'table-row', 'important');
+                  } else {
+                      row.style.setProperty('display', 'none', 'important');
+                  }
+              }
+          });
+      }
+
+      async function viewCPDetails(id) {
+          const doc = await db.collection("cartas_pases").doc(id).get();
+          if (!doc.exists) return;
+          const data = doc.data();
+          
+          const start = String(data.startSeq || data.seqNum).padStart(4, '0');
+          const end = String(data.endSeq || data.seqNum).padStart(4, '0');
+          const range = data.isBatch ? `${start} - ${end}` : start;
+          const qty = data.quantity || 1;
+          const totalVal = data.totalValue || (data.value * qty) || 0;
+
+          Swal.fire({
+              title: 'DETALLES DE CARTA PASE',
+              html: `
+                <div class="text-start p-3 glass-panel" style="background: rgba(0,0,0,0.2); border-radius: 15px;">
+                  <div class="mb-3 border-bottom border-white border-opacity-10 pb-2">
+                    <label class="text-white-50 small text-uppercase">Equipo Solicitante</label>
+                    <div class="fw-bold text-white fs-5">${data.teamName}</div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-6">
+                      <label class="text-white-50 small text-uppercase">Cantidad</label>
+                      <div class="fw-bold text-success fs-5">${qty}</div>
+                    </div>
+                    <div class="col-6">
+                      <label class="text-white-50 small text-uppercase">Valor Pagado</label>
+                      <div class="fw-bold text-white fs-5">$ ${totalVal.toFixed(2)}</div>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="text-white-50 small text-uppercase">Rango de Numeración</label>
+                    <div class="fw-bold text-primary-glow fs-4">${range}</div>
+                  </div>
+                  <div class="text-white-50 small">
+                    Registrado el ${data.createdAt ? data.createdAt.toDate().toLocaleString() : 'N/A'}
+                  </div>
+                </div>
+              `,
+              background: '#1a1a1a',
+              color: '#fff',
+              confirmButtonText: 'Cerrar',
+              confirmButtonColor: '#2ecc71'
+          });
+      }
+
+      // Eliminado filterPasesTable duplicado
+
+      let cpCurrentStep = 1;
+      let cpSelectedTeam = null;
+      let cpAllTeams = [];
+
+      async function openModalCartaPase() {
+        cpCurrentStep = 1;
+        cpSelectedTeam = null;
+        showCPStep(1);
+        
+        const container = document.getElementById('cp-championship-list');
+        container.innerHTML = `<div class="col-12 text-center py-4"><div class="spinner-border text-primary"></div></div>`;
+        
+        const modal = new bootstrap.Modal(document.getElementById('modalCartaPase'));
+        modal.show();
+
+        try {
+            const snapshot = await db.collection("championships").orderBy("createdAt", "desc").get();
+            container.innerHTML = "";
+            snapshot.forEach(doc => {
+                const c = doc.data();
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="col">
+                        <div class="selection-card-premium h-100 d-flex align-items-center" onclick="cpSelectChampionship('${doc.id}', '${c.name.replace(/'/g, "\\'")}')">
+                            <img src="${c.logo || 'img/logo.png'}" class="selection-card-logo me-3">
+                            <h6 class="text-white fw-800 small text-uppercase mb-0">${c.name}</h6>
+                        </div>
+                    </div>
+                `);
+            });
+        } catch (e) {
+            console.error(e);
+        }
+      }
+
+      async function cpSelectChampionship(id, name) {
+          cpCurrentStep = 2;
+          showCPStep(2);
+          
+          const container = document.getElementById('cp-team-list');
+          container.innerHTML = `<div class="col-12 text-center py-4"><div class="spinner-border text-primary"></div></div>`;
+          
+          try {
+              const snapshot = await db.collection("teams").where("championshipId", "==", id).get();
+              cpAllTeams = [];
+              snapshot.forEach(doc => cpAllTeams.push({ id: doc.id, ...doc.data() }));
+              renderCPTeams(cpAllTeams);
+          } catch (e) {
+              console.error(e);
+          }
+      }
+
+      function renderCPTeams(teams) {
+          const container = document.getElementById('cp-team-list');
+          container.innerHTML = "";
+          if(teams.length === 0) {
+              container.innerHTML = `<div class="col-12 text-center py-4 text-white-50">No hay equipos en este campeonato.</div>`;
+              return;
+          }
+          teams.forEach(t => {
+              container.insertAdjacentHTML('beforeend', `
+                  <div class="col">
+                    <div class="selection-card-premium h-100 d-flex align-items-center gap-3" onclick="cpSelectTeam('${t.id}', '${t.name.replace(/'/g, "\\'")}', '${t.logo || 'img/logo.png'}')">
+                        <img src="${t.logo || 'img/logo.png'}" class="selection-card-logo">
+                        <div class="text-start">
+                            <h6 class="text-white fw-800 small text-uppercase mb-0">${t.name}</h6>
+                            <span class="text-white-50 small" style="font-size: 0.65rem; font-weight: 600;">${t.category || 'Sin Cat.'}</span>
+                        </div>
+                    </div>
+                  </div>
+              `);
+          });
+      }
+
+      function filterCPTeams(query) {
+          const q = query.toLowerCase();
+          const filtered = cpAllTeams.filter(t => t.name.toLowerCase().includes(q));
+          renderCPTeams(filtered);
+      }
+
+      function cpSelectTeam(id, name, logo) {
+          cpSelectedTeam = { id, name, logo };
+          cpCurrentStep = 3;
+          showCPStep(3);
+          
+          document.getElementById('cp-final-team-name').textContent = name;
+          document.getElementById('cp-final-team-logo').src = logo;
+          document.getElementById('cp-final-team-logo-small').src = logo;
+          updateCPTotal();
+      }
+
+      function changeCPQty(val) {
+          const inp = document.getElementById('cp-quantity');
+          let current = parseInt(inp.value) || 1;
+          current = Math.max(1, current + val);
+          inp.value = current;
+          updateCPTotal();
+      }
+
+      function updateCPTotal() {
+          const qty = parseInt(document.getElementById('cp-quantity').value) || 1;
+          const total = qty * 0.50;
+          document.getElementById('cp-total-display').textContent = `$ ${total.toFixed(2)}`;
+      }
+
+      function showCPStep(step) {
+          document.getElementById('cp-step-1').classList.toggle('d-none', step !== 1);
+          document.getElementById('cp-step-2').classList.toggle('d-none', step !== 2);
+          document.getElementById('cp-step-3').classList.toggle('d-none', step !== 3);
+          
+          document.getElementById('cp-btn-back').classList.toggle('d-none', step === 1);
+          
+          // Update Stepper
+          for (let i = 1; i <= 3; i++) {
+              const dot = document.getElementById(`cp-dot-${i}`);
+              dot.classList.toggle('active', i === step);
+              dot.classList.toggle('completed', i < step);
+              if (i < step) dot.innerHTML = '<i class="fas fa-check"></i>';
+              else dot.textContent = i;
+          }
+
+          const titles = { 1: 'Seleccionar Campeonato', 2: 'Seleccionar Equipo', 3: 'Datos de la Carta Pase' };
+          document.getElementById('cp-modal-title').textContent = titles[step];
+      }
+
+      function cpPrevStep() {
+          if (cpCurrentStep > 1) {
+              cpCurrentStep--;
+              showCPStep(cpCurrentStep);
+          }
+      }
+
+      async function saveCartaPase() {
+        const teamId = cpSelectedTeam.id;
+        const teamName = cpSelectedTeam.name;
+        const quantity = parseInt(document.getElementById('cp-quantity').value) || 1;
+        const totalValue = quantity * 0.50;
+
+        const confirm = await Swal.fire({
+          title: '¿Confirmar adquisición?',
+          text: `Se generarán ${quantity} cartas pases en lote para el equipo ${teamName}. Total: $${totalValue.toFixed(2)}`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#2ecc71',
+          confirmButtonText: 'Sí, generar y registrar'
+        });
+
+        if (confirm.isConfirmed) {
+          Swal.fire({
+            title: 'Procesando Lote...',
+            html: 'Estamos asignando numeración secuencial y preparando el documento.',
+            didOpen: () => Swal.showLoading()
+          });
+
+          try {
+            // Obtener el último número de serie global
+            const snapshot = await db.collection("cartas_pases").orderBy("seqNum", "desc").limit(1).get();
+            let currentSeq = 0;
+            if (!snapshot.empty) {
+                currentSeq = snapshot.docs[0].data().endSeq || snapshot.docs[0].data().seqNum || 0;
+            }
+            const startSeq = currentSeq + 1;
+
+            // Contenedor temporal para multi-página
+            const pdfContainer = document.createElement('div');
+            pdfContainer.style.margin = '0';
+            pdfContainer.style.padding = '0';
+            const originalTemplate = document.getElementById('carta-pase-pdf-template');
+
+            for (let i = 0; i < quantity; i++) {
+                currentSeq++;
+                const seqStr = String(currentSeq).padStart(4, '0');
+                
+                // Clonar plantilla
+                const page = originalTemplate.cloneNode(true);
+                page.style.display = 'block';
+                page.querySelector('.pdf-seq-val').textContent = seqStr;
+                
+                pdfContainer.appendChild(page);
+                
+                // Añadir salto de página si no es el último
+                if (i < quantity - 1) {
+                    const pageBreak = document.createElement('div');
+                    pageBreak.className = 'html2pdf__page-break';
+                    pdfContainer.appendChild(pageBreak);
+                }
+            }
+
+            // Guardar Registro de Lote ÚNICO en Firestore
+            await db.collection("cartas_pases").add({
+                teamId,
+                teamName,
+                quantity,
+                startSeq: startSeq,
+                endSeq: currentSeq,
+                seqNum: currentSeq, // CRÍTICO: Necesario para que la query orderBy("seqNum", "desc") encuentre el último número global
+                value: 0.50,
+                totalValue: totalValue,
+                status: 'completed',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                isBatch: true
+            });
+
+            // Generar PDF del lote
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            const opt = {
+                margin:       0,
+                filename:     `Lote_Cartas_Pases_${teamName.replace(/\s+/g, '_')}_${Date.now()}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { 
+                    scale: 3, 
+                    useCORS: true,
+                    letterRendering: true,
+                    logging: false
+                },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            await html2pdf().set(opt).from(pdfContainer).save();
+
+            bootstrap.Modal.getInstance(document.getElementById('modalCartaPase')).hide();
+            await loadCartasPases();
+            Swal.fire('¡Éxito!', `${quantity} cartas pases generadas y registradas con éxito.`, 'success');
+          } catch (e) {
+            console.error(e);
+            Swal.fire('Error', 'No se pudo procesar el lote de cartas pases.', 'error');
+          }
+        }
+      }
+
+      function viewCartaPaseDetails(id) {
+        const p = allPases.find(x => x.id === id);
+        if (!p) return;
+
+        Swal.fire({
+          title: '<h4 class="text-white fw-800 text-uppercase mb-0">Detalles de Carta Pase</h4>',
+          html: `
+            <div class="text-start p-3 rounded-4 bg-dark bg-opacity-50 border border-white border-opacity-10 mt-3">
+              <div class="mb-3 border-bottom border-white border-opacity-5 pb-2">
+                <small class="text-white-50 text-uppercase fw-bold d-block">Equipo Solicitante</small>
+                <span class="fs-5 fw-900 text-white">${p.teamName}</span>
+              </div>
+              <div class="mb-3 border-bottom border-white border-opacity-5 pb-2">
+                <small class="text-white-50 text-uppercase fw-bold d-block">Jugador</small>
+                <span class="fs-5 fw-800 text-primary-glow">${p.playerName}</span>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-6">
+                  <small class="text-white-50 text-uppercase fw-bold d-block">Categoría</small>
+                  <span class="badge bg-primary-glass mt-1">${p.category}</span>
+                </div>
+                <div class="col-6 text-end">
+                  <small class="text-white-50 text-uppercase fw-bold d-block">Valor Pagado</small>
+                  <span class="fs-4 fw-900 text-white">$ ${parseFloat(p.value).toFixed(2)}</span>
+                </div>
+              </div>
+              <div class="mb-2">
+                <small class="text-white-50 text-uppercase fw-bold d-block">Observaciones</small>
+                <p class="text-white italic small mb-0">${p.observations || 'Sin observaciones adicionales.'}</p>
+              </div>
+              <div class="mt-3 text-center">
+                <small class="text-white-50 small">Registrado el ${p.createdAt ? new Date(p.createdAt.seconds * 1000).toLocaleString() : '---'}</small>
+              </div>
+            </div>
+          `,
+          background: '#111',
+          confirmButtonColor: '#2ecc71',
+          confirmButtonText: 'Cerrar'
+        });
+      }
+
+      function openCobrosGenerales() {
+          document.getElementById('otras-facturaciones-view').classList.add('d-none');
+          document.getElementById('cobros-generales-view').classList.remove('d-none');
+          loadCobrosAdicionales();
+      }
+
+      function closeCobrosGenerales() {
+          document.getElementById('cobros-generales-view').classList.add('d-none');
+          document.getElementById('otras-facturaciones-view').classList.remove('d-none');
+      }
+
+      function openModalCobro() {
+          document.getElementById('cobro-concepto').value = '';
+          document.getElementById('cobro-entidad').value = '';
+          document.getElementById('cobro-valor').value = '';
+          const modal = new bootstrap.Modal(document.getElementById('modalRegistrarCobro'));
+          modal.show();
+      }
+
+      async function saveCobroAdicional() {
+          const concepto = document.getElementById('cobro-concepto').value.trim();
+          const entidad = document.getElementById('cobro-entidad').value.trim();
+          const valorStr = document.getElementById('cobro-valor').value;
+          const valor = parseFloat(valorStr);
+
+          if (!concepto || !entidad || isNaN(valor) || valor <= 0) {
+              Swal.fire('Atención', 'Por favor, llena todos los campos correctamente con un valor mayor a cero.', 'warning');
+              return;
+          }
+
+          Swal.fire({
+            title: 'Procesando y Generando PDF...',
+            didOpen: () => Swal.showLoading()
+          });
+
+          try {
+              // Obtener Secuencia Global Compartida
+              const seqNum = await getNextGlobalInvoiceNumber();
+
+              const cobroData = {
+                  concepto,
+                  entidad,
+                  valor,
+                  seqNum,
+                  createdAt: firebase.firestore.FieldValue.serverTimestamp()
+              };
+
+              const docRef = await db.collection('cobros_generales').add(cobroData);
+              cobroData.id = docRef.id;
+              
+              bootstrap.Modal.getInstance(document.getElementById('modalRegistrarCobro')).hide();
+              await loadCobrosAdicionales();
+              
+              // Generar y descargar PDF
+              await generateCobroPDF(cobroData, new Date());
+
+              Swal.fire('¡Éxito!', 'El cobro ha sido registrado y el recibo generado.', 'success');
+          } catch(e) {
+              console.error(e);
+              Swal.fire('Error', 'No se pudo guardar el cobro.', 'error');
+          }
+      }
+
+      async function generateCobroPDF(data, dateObj) {
+          const template = document.getElementById('cobro-pdf-template').cloneNode(true);
+          template.classList.remove('d-none');
+          
+          const seq = String(data.seqNum || 1).padStart(9, '0');
+          const d = dateObj || new Date();
+          
+          template.querySelector('#pdf-cobro-secuencia').textContent = seq;
+          template.querySelector('#pdf-cobro-codigo').textContent = 'P' + seq;
+          
+          const dStr = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth()+1).padStart(2, '0')}/${d.getFullYear()}`;
+          const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+          
+          template.querySelector('#pdf-cobro-fecha-auth').textContent = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${timeStr}`;
+          template.querySelector('#pdf-cobro-entidad').textContent = data.entidad;
+          template.querySelector('#pdf-cobro-fecha').textContent = dStr;
+          
+          const clave = `${String(d.getDate()).padStart(2, '0')}${String(d.getMonth()+1).padStart(2, '0')}${d.getFullYear()}01171458374500120019010${seq}1234567811`;
+          template.querySelector('#pdf-cobro-clave').textContent = clave;
+
+          template.querySelector('#pdf-cobro-concepto').textContent = data.concepto;
+          
+          const valorFormat = `$${parseFloat(data.valor).toFixed(2)}`;
+          template.querySelector('#pdf-cobro-punitario').textContent = valorFormat;
+          template.querySelector('#pdf-cobro-ptotal').textContent = valorFormat;
+          template.querySelector('#pdf-cobro-subtotal').textContent = valorFormat;
+          template.querySelector('#pdf-cobro-gran-total').textContent = valorFormat;
+
+          const opt = {
+              margin: 0,
+              filename: `Factura_Adicional_${seq}_${data.entidad.replace(/\s+/g, '_')}.pdf`,
+              image: { type: 'jpeg', quality: 0.98 },
+              html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+              jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+              pagebreak: { mode: 'avoid-all' }
+          };
+
+          const container = document.createElement('div');
+          container.appendChild(template);
+          
+          await html2pdf().set(opt).from(container).save();
+      }
+
+      async function reprintCobroPDF(id) {
+          Swal.fire({ title: 'Generando PDF...', didOpen: () => Swal.showLoading() });
+          try {
+              const doc = await db.collection("cobros_generales").doc(id).get();
+              if (doc.exists) {
+                  await generateCobroPDF(doc.data(), doc.data().createdAt ? doc.data().createdAt.toDate() : new Date());
+                  Swal.close();
+              } else {
+                  Swal.fire('Error', 'Registro no encontrado.', 'error');
+              }
+          } catch(e) {
+              console.error(e);
+              Swal.fire('Error', 'Fallo al generar el PDF.', 'error');
+          }
+      }
+
+      let allCobros = [];
+      async function loadCobrosAdicionales() {
+          const tbody = document.getElementById('cobros-body');
+          tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>';
+
+          try {
+              const snapshot = await db.collection("cobros_generales").orderBy("createdAt", "desc").get();
+              tbody.innerHTML = '';
+              allCobros = [];
+              
+              if (snapshot.empty) {
+                  tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-white-50">No hay cobros registrados.</td></tr>';
+                  updateCobrosStats([]);
+                  return;
+              }
+
+              snapshot.forEach(doc => {
+                  const data = { id: doc.id, ...doc.data() };
+                  allCobros.push(data);
+                  const dateObj = data.createdAt ? data.createdAt.toDate() : new Date();
+                  const date = dateObj.toLocaleDateString();
+                  const time = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                  const tr = document.createElement('tr');
+                  tr.className = "border-bottom border-white border-opacity-5";
+                  tr.innerHTML = `
+                      <td class="ps-4">
+                        <div class="fw-bold text-white">${date}</div>
+                        <div class="small text-white-50">${time}</div>
+                      </td>
+                      <td>
+                        <div class="fw-bold text-white">${data.concepto}</div>
+                      </td>
+                      <td>
+                        <div class="text-white-50">${data.entidad}</div>
+                      </td>
+                      <td class="text-center text-white fw-bold fs-5 text-primary-glow">$ ${parseFloat(data.valor).toFixed(2)}</td>
+                      <td class="text-end pe-4">
+                        <div class="btn-group">
+                          <button class="btn btn-sm btn-outline-primary border-opacity-25 rounded-3 me-2" onclick="reprintCobroPDF('${doc.id}')" title="Descargar Recibo">
+                            <i class="fas fa-file-pdf"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger border-opacity-25 rounded-3" onclick="deleteCobro('${doc.id}')" title="Eliminar Cobro">
+                            <i class="fas fa-trash-alt"></i>
+                          </button>
+                        </div>
+                      </td>
+                  `;
+                  tbody.appendChild(tr);
+              });
+
+              updateCobrosStats(allCobros);
+          } catch(e) {
+              console.error(e);
+              tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-danger">Error al cargar cobros.</td></tr>';
+          }
+      }
+
+      function updateCobrosStats(data) {
+          let totalValue = 0;
+          let count = data.length;
+          let lastDate = '---';
+
+          data.forEach(c => {
+              totalValue += parseFloat(c.valor) || 0;
+          });
+
+          if (count > 0) {
+              if (data[0].createdAt) {
+                  lastDate = data[0].createdAt.toDate().toLocaleDateString();
+              }
+          }
+
+          document.getElementById('stat-total-cobros').textContent = count;
+          document.getElementById('stat-revenue-cobros').textContent = `$ ${totalValue.toFixed(2)}`;
+          document.getElementById('stat-last-cobro').textContent = lastDate;
+      }
+
+      function filterCobrosTable(query) {
+          const q = query.toLowerCase();
+          const rows = document.querySelectorAll('#cobros-body tr');
+          rows.forEach(row => {
+              if(row.cells.length === 1) return;
+              const conceptoCell = row.cells[1];
+              const entidadCell = row.cells[2];
+              if (conceptoCell && entidadCell) {
+                  const txt = conceptoCell.textContent.toLowerCase() + " " + entidadCell.textContent.toLowerCase();
+                  if (txt.includes(q)) {
+                      row.style.setProperty('display', 'table-row', 'important');
+                  } else {
+                      row.style.setProperty('display', 'none', 'important');
+                  }
+              }
+          });
+      }
+
+      async function deleteCobro(id) {
+          const res = await Swal.fire({
+              title: '¿Eliminar cobro?',
+              text: 'Esta acción no se puede deshacer.',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#d33',
+              cancelButtonColor: '#3085d6',
+              confirmButtonText: 'Sí, eliminar',
+              cancelButtonText: 'Cancelar'
+          });
+
+          if (res.isConfirmed) {
+              try {
+                  await db.collection('cobros_generales').doc(id).delete();
+                  loadCobrosAdicionales();
+                  Swal.fire('Eliminado', 'El cobro ha sido eliminado.', 'success');
+              } catch(e) {
+                  console.error(e);
+                  Swal.fire('Error', 'No se pudo eliminar.', 'error');
+              }
+          }
+      }
+
+      function openPagosGenerales() {
+        Swal.fire({
+          title: 'Pagos Generales',
+          text: 'Módulo de registro de pagos en desarrollo.',
+          icon: 'info',
+          confirmButtonColor: '#2ecc71'
+        });
       }
 
       async function loadChampionships() {
@@ -1072,7 +2746,30 @@
 
       let currentMatch = null;
       let logosMap = {};
-      let invoiceCounter = 1;
+
+      // Funciones de Contador Global Atómico
+      async function getCurrentGlobalInvoiceNumber() {
+          try {
+              const doc = await db.collection('config').doc('invoice_counter').get();
+              return doc.exists ? (doc.data().currentSeq || 0) : 0;
+          } catch(e) { return 0; }
+      }
+
+      async function getNextGlobalInvoiceNumber() {
+          const counterRef = db.collection('config').doc('invoice_counter');
+          let newSeq = 1;
+          await db.runTransaction(async (transaction) => {
+              const doc = await transaction.get(counterRef);
+              if (!doc.exists) {
+                  transaction.set(counterRef, { currentSeq: 1 });
+                  newSeq = 1;
+              } else {
+                  newSeq = (doc.data().currentSeq || 0) + 1;
+                  transaction.update(counterRef, { currentSeq: newSeq });
+              }
+          });
+          return newSeq;
+      }
 
       async function openMatchInvoice(match) {
         Swal.fire({
@@ -1093,9 +2790,10 @@
         document.getElementById('invoiceLogoLocal').src = logosMap[match.local] || 'img/logo.png';
         document.getElementById('invoiceLogoVisitor').src = logosMap[match.visitor] || 'img/logo.png';
         
-        // Initial Sequential Number preview
-        document.querySelector('.invoice-num-local').textContent = "001-001-" + String(invoiceCounter).padStart(9, '0');
-        document.querySelector('.invoice-num-visitor').textContent = "001-001-" + String(invoiceCounter + 1).padStart(9, '0');
+        // Initial Sequential Number preview (Global Shared Counter)
+        const currentSeq = await getCurrentGlobalInvoiceNumber();
+        document.querySelector('.invoice-num-local').textContent = "001-001-" + String(currentSeq + 1).padStart(9, '0');
+        document.querySelector('.invoice-num-visitor').textContent = "001-001-" + String(currentSeq + 2).padStart(9, '0');
 
         // Defaults based on category - Femenino 8.50, Primera/Maxima 9.50
         let defaultArb = 9.50; 
@@ -1288,7 +2986,7 @@
             })),
             total: totalValue,
             whatsapp: document.getElementById('inv_wa_' + team).value.trim(),
-            invoiceId: "001-001-" + String(invoiceCounter).padStart(9, '0')
+            invoiceId: "PENDIENTE" // Se asignará dinámicamente justo antes de guardar
         }));
         
         // Add timestamp as a standard Date object (serverTimestamp is not supported inside arrays)
@@ -1306,6 +3004,11 @@
 
         if (result.isConfirmed) {
             try {
+                // Obtener Secuencia Global Compartida atómicamente
+                const seqNum = await getNextGlobalInvoiceNumber();
+                const finalInvoiceNum = "001-001-" + String(seqNum).padStart(9, '0');
+                billingData.invoiceId = finalInvoiceNum;
+
                 // 1. Update match fixture (for Vocal visibility)
                 const docId = currentMatch._fixId;
                 const fieldName = team === 'local' ? 'billingLocal' : 'billingVisitor';
@@ -1356,7 +3059,7 @@
                     });
                 }
 
-                showDigitalReceipt(team);
+                showDigitalReceipt(team, finalInvoiceNum);
                 
                 Swal.fire({
                     toast: true,
@@ -1373,17 +3076,15 @@
         }
       }
 
-      function showDigitalReceipt(team) {
+      async function showDigitalReceipt(team, finalInvoiceNum) {
         const teamName = team === 'local' ? currentMatch.local : currentMatch.visitor;
         const cat = currentMatch._cat || 'N/A';
         const date = new Date().toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' });
         
-        const finalInvoiceNum = "001-001-" + String(invoiceCounter).padStart(9, '0');
-        invoiceCounter++;
-
-        // Update card preview with the next one
-        if(team === 'local') document.querySelector('.invoice-num-local').textContent = "001-001-" + String(invoiceCounter).padStart(9, '0');
-        else document.querySelector('.invoice-num-visitor').textContent = "001-001-" + String(invoiceCounter).padStart(9, '0');
+        // Update card preview with the next one asynchronously
+        const currentSeq = await getCurrentGlobalInvoiceNumber();
+        if(team === 'local') document.querySelector('.invoice-num-local').textContent = "001-001-" + String(currentSeq + 1).padStart(9, '0');
+        else document.querySelector('.invoice-num-visitor').textContent = "001-001-" + String(currentSeq + 1).padStart(9, '0');
 
         // Populate Header info
         document.getElementById('rec_client').textContent = teamName;
@@ -1532,6 +3233,106 @@
           console.error(e);
           Swal.fire("Error", "No se pudo generar la imagen.", "error");
         }
+      }
+
+      async function reprintCPBatch(id) {
+          const doc = await db.collection("cartas_pases").doc(id).get();
+          if (!doc.exists) return;
+          const data = doc.data();
+
+          Swal.fire({
+            title: 'Re-generando PDF...',
+            html: 'Preparando el lote original para descarga.',
+            didOpen: () => Swal.showLoading()
+          });
+
+          try {
+            const pdfContainer = document.createElement('div');
+            pdfContainer.style.margin = '0';
+            pdfContainer.style.padding = '0';
+            const originalTemplate = document.getElementById('carta-pase-pdf-template');
+            
+            const start = data.startSeq || data.seqNum;
+            const qty = data.quantity || 1;
+
+            for (let i = 0; i < qty; i++) {
+                const currentNum = start + i;
+                const seqStr = String(currentNum).padStart(4, '0');
+                
+                const page = originalTemplate.cloneNode(true);
+                page.style.display = 'block';
+                page.querySelector('.pdf-seq-val').textContent = seqStr;
+                
+                pdfContainer.appendChild(page);
+                
+                if (i < qty - 1) {
+                    const pageBreak = document.createElement('div');
+                    pageBreak.className = 'html2pdf__page-break';
+                    pdfContainer.appendChild(pageBreak);
+                }
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            const opt = {
+                margin:       0,
+                filename:     `Reimpresion_Lote_${data.teamName.replace(/\s+/g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 3, useCORS: true, letterRendering: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            await html2pdf().set(opt).from(pdfContainer).save();
+            Swal.close();
+          } catch (e) {
+            console.error(e);
+            Swal.fire('Error', 'No se pudo re-generar el PDF.', 'error');
+          }
+      }
+
+      async function viewCPDetails(id) {
+          const doc = await db.collection("cartas_pases").doc(id).get();
+          if (!doc.exists) return;
+          const data = doc.data();
+          
+          const start = String(data.startSeq || data.seqNum).padStart(4, '0');
+          const end = String(data.endSeq || data.seqNum).padStart(4, '0');
+          const range = data.isBatch ? `${start} - ${end}` : start;
+          const qty = data.quantity || 1;
+          const totalVal = data.totalValue || (data.value * qty) || 0;
+
+          Swal.fire({
+              title: 'DETALLES DE CARTA PASE',
+              html: `
+                <div class="text-start p-3 glass-panel" style="background: rgba(0,0,0,0.2); border-radius: 15px;">
+                  <div class="mb-3 border-bottom border-white border-opacity-10 pb-2">
+                    <label class="text-white-50 small text-uppercase">Equipo Solicitante</label>
+                    <div class="fw-bold text-white fs-5">${data.teamName}</div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-6">
+                      <label class="text-white-50 small text-uppercase">Cantidad</label>
+                      <div class="fw-bold text-success fs-5">${qty}</div>
+                    </div>
+                    <div class="col-6">
+                      <label class="text-white-50 small text-uppercase">Valor Pagado</label>
+                      <div class="fw-bold text-white fs-5">$ ${totalVal.toFixed(2)}</div>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="text-white-50 small text-uppercase">Rango de Numeración</label>
+                    <div class="fw-bold text-primary-glow fs-4">${range}</div>
+                  </div>
+                  <div class="text-white-50 small">
+                    Registrado el ${data.createdAt ? data.createdAt.toDate().toLocaleString() : 'N/A'}
+                  </div>
+                </div>
+              `,
+              background: '#1a1a1a',
+              color: '#fff',
+              confirmButtonText: 'Cerrar',
+              confirmButtonColor: '#2ecc71'
+          });
       }
 
       function logout() {
