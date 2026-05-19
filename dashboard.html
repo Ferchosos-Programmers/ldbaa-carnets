@@ -308,6 +308,54 @@
       </div>
     </div>
 
+    <!-- Modal para Comisión de Calificaciones (Documentación de Equipos) -->
+    <div class="modal fade" id="qualificationsModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content modal-premium">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-folder-open me-2 brand-accent"></i>COMISIÓN DE CALIFICACIONES
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle text-white">
+                <thead>
+                  <tr class="text-white-50 small text-uppercase" style="background: rgba(255,255,255,0.03)">
+                    <th class="ps-4">Equipo</th>
+                    <th>Tipo de Documento</th>
+                    <th>Notas</th>
+                    <th>Fecha</th>
+                    <th class="text-end pe-4">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="qualificationsList">
+                  <!-- Dynamic -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para ver Documento PDF/Imagen -->
+    <div class="modal fade" id="viewDocModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content modal-premium">
+          <div class="modal-header">
+            <h5 class="modal-title" id="viewDocTitle">Ver Documento</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-0 text-center" style="min-height: 500px">
+            <iframe id="docViewerFrame" src="" style="width: 100%; height: 80vh; display: none;" frameborder="0"></iframe>
+            <img id="docViewerImg" src="" style="max-width: 100%; display: none;" />
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -943,6 +991,157 @@
           }
         });
       }
+
+      // --- COMISIÓN DE CALIFICACIONES ---
+      async function showQualifications() {
+        const modal = new bootstrap.Modal(document.getElementById('qualificationsModal'));
+        modal.show();
+        
+        const list = document.getElementById('qualificationsList');
+        list.innerHTML = '<tr><td colspan="5" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>';
+        
+        try {
+          const snapshot = await db.collection("team_documentation").orderBy("timestamp", "desc").get();
+          list.innerHTML = "";
+          
+          if (snapshot.empty) {
+            list.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-white-50">No hay documentos pendientes.</td></tr>';
+            return;
+          }
+          
+          snapshot.forEach(doc => {
+            const d = doc.data();
+            const date = d.timestamp ? d.timestamp.toDate().toLocaleString() : 'N/A';
+            const statusBadge = d.status === 'Aprobado' ? '<span class="badge bg-success">Aprobado</span>' : '<span class="badge bg-warning text-dark">Pendiente</span>';
+            list.insertAdjacentHTML('beforeend', `
+              <tr>
+                <td class="ps-4 fw-bold text-primary">${d.teamName}</td>
+                <td class="text-uppercase small">${d.type} <br>${statusBadge}</td>
+                <td class="small opacity-75">${d.notes || '-'}</td>
+                <td class="small text-white-50">${date}</td>
+                <td class="text-end pe-4">
+                  <div class="btn-group">
+                    ${d.status !== 'Aprobado' ? `<button class="btn btn-sm btn-outline-success" onclick="approveTeamDoc('${doc.id}', '${d.type}')" title="Aprobar"><i class="fas fa-check"></i></button>` : ''}
+                    <button class="btn btn-sm btn-outline-info" onclick="viewTeamDoc('${doc.id}')" title="Ver">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteTeamDoc('${doc.id}')" title="Eliminar">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `);
+          });
+        } catch (e) {
+          console.error(e);
+          list.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-danger">Error al cargar documentos.</td></tr>';
+        }
+      }
+
+      async function viewTeamDoc(id) {
+        try {
+          const doc = await db.collection("team_documentation").doc(id).get();
+          if (!doc.exists) return;
+          const data = doc.data();
+          
+          const frame = document.getElementById('docViewerFrame');
+          const img = document.getElementById('docViewerImg');
+          
+          document.getElementById('viewDocTitle').textContent = `Documento: ${data.teamName} (${data.type})`;
+          
+          if (data.file.startsWith('data:application/pdf')) {
+            frame.src = data.file;
+            frame.style.display = 'block';
+            img.style.display = 'none';
+          } else {
+            img.src = data.file;
+            img.style.display = 'inline-block';
+            frame.style.display = 'none';
+          }
+          
+          const modal = new bootstrap.Modal(document.getElementById('viewDocModal'));
+          modal.show();
+        } catch (e) {
+          Swal.fire("Error", "No se pudo cargar el documento.", "error");
+        }
+      }
+
+      async function deleteTeamDoc(id) {
+        const result = await Swal.fire({
+          title: '¿Eliminar documento?',
+          text: "Esta acción no se puede deshacer.",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#e74c3c',
+          confirmButtonText: 'Sí, eliminar'
+        });
+        
+        if (result.isConfirmed) {
+          await db.collection("team_documentation").doc(id).delete();
+          Swal.fire("Eliminado", "El documento ha sido removido.", "success");
+          showQualifications();
+        }
+      }
+
+      async function approveTeamDoc(id, type) {
+        if (type === 'transferencia') {
+            const { value: formValues } = await Swal.fire({
+                title: 'Aprobar Carta Pase',
+                html: `
+                    <div class="mb-3">
+                      <label class="form-label text-start w-100 fw-bold">Número de Carta Pase</label>
+                      <input id="swal-num" class="form-control" placeholder="Ej: 0015">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label text-start w-100 fw-bold">Valor ($)</label>
+                      <input id="swal-val" type="number" step="0.01" class="form-control" placeholder="Ej: 2.50">
+                    </div>
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Aprobar Documento',
+                cancelButtonText: 'Cancelar',
+                preConfirm: () => {
+                    const num = document.getElementById('swal-num').value;
+                    const val = document.getElementById('swal-val').value;
+                    if (!num || !val) {
+                        Swal.showValidationMessage('Ambos campos son obligatorios');
+                    }
+                    return { num: num, val: parseFloat(val) };
+                }
+            });
+
+            if (formValues) {
+                await db.collection("team_documentation").doc(id).update({
+                    status: 'Aprobado',
+                    numeroCartaPase: formValues.num,
+                    valor: formValues.val,
+                    fechaAprobacion: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                Swal.fire('¡Aprobado!', 'La carta pase ha sido aprobada y registrada.', 'success');
+                showQualifications();
+            }
+        } else {
+            const result = await Swal.fire({
+                title: '¿Aprobar documento?',
+                text: 'Se marcará como aprobado por la comisión.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Aprobar',
+            });
+            if (result.isConfirmed) {
+                await db.collection("team_documentation").doc(id).update({
+                    status: 'Aprobado',
+                    fechaAprobacion: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                Swal.fire('¡Aprobado!', 'El documento ha sido aprobado.', 'success');
+                showQualifications();
+            }
+        }
+      }
+
+      // --- END COMISIÓN DE CALIFICACIONES ---
 
       // Función para exportar todos los jugadores a Excel
       async function exportarJugadoresExcel() {

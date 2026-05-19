@@ -225,7 +225,11 @@
         color: rgba(255, 255, 255, 0.6);
       }
       .vocalia-check-card.checked {
-        background: linear-gradient(145deg, rgba(46, 204, 113, 0.1), rgba(46, 204, 113, 0.02));
+        background: linear-gradient(
+          145deg,
+          rgba(46, 204, 113, 0.1),
+          rgba(46, 204, 113, 0.02)
+        );
         border-color: rgba(46, 204, 113, 0.3);
         box-shadow: 0 4px 15px rgba(46, 204, 113, 0.1);
       }
@@ -245,7 +249,11 @@
         transform: scale(0.98);
       }
       .vocalia-check-card.checked.no-ball-card {
-        background: linear-gradient(145deg, rgba(231, 76, 60, 0.15), rgba(231, 76, 60, 0.05));
+        background: linear-gradient(
+          145deg,
+          rgba(231, 76, 60, 0.15),
+          rgba(231, 76, 60, 0.05)
+        );
         border-color: rgba(231, 76, 60, 0.4);
         box-shadow: 0 4px 15px rgba(231, 76, 60, 0.15);
       }
@@ -267,8 +275,6 @@
       .italic {
         font-style: italic;
       }
-
-
     </style>
   </head>
   <body>
@@ -1250,7 +1256,7 @@
           teamType === "local"
             ? match.vocalReport?.localChecks
             : match.vocalReport?.visitorChecks;
-        
+
         if (!report || report.length === 0) {
           return `
             <div class="glass-panel p-3 text-center mt-3" style="background: rgba(255,193,7,0.05); border: 1px dashed rgba(255,193,7,0.2);">
@@ -1274,14 +1280,18 @@
         labels.forEach((label, i) => {
           const isChecked = report && report[i];
           const isNoBall = label === "No balón";
-          
+
           // Icono y estado
-          let iconClass = isChecked ? "fas fa-check-circle" : "fas fa-times-circle";
+          let iconClass = isChecked
+            ? "fas fa-check-circle"
+            : "fas fa-times-circle";
           if (isNoBall && isChecked) iconClass = "fas fa-exclamation-triangle";
-          
+
           const statusClass = isChecked ? "checked" : "unchecked";
-          const cardClass = isNoBall ? "vocalia-check-card no-ball-card" : "vocalia-check-card";
-          
+          const cardClass = isNoBall
+            ? "vocalia-check-card no-ball-card"
+            : "vocalia-check-card";
+
           html += `
             <div class="col-4 col-md-4">
               <div class="${cardClass} ${statusClass}">
@@ -1294,7 +1304,6 @@
         html += "</div>";
         return html;
       }
-
 
       window.obtenerIdEquipoYMultar = async function (nombreEquipo, categoria) {
         try {
@@ -1424,7 +1433,7 @@
                 const p = doc.data();
                 playersHtml += `
                     <button type="button" class="list-group-item list-group-item-action bg-dark text-white border-secondary border-opacity-25"
-                            onclick="Swal.clickConfirm(); window.manualSelectPlayerSancion('${doc.id}', '${p.nombres} ${p.apellidos}', '${tipo}')">
+                            onclick="Swal.clickConfirm(); window.manualSelectPlayerSancion('${doc.id}', '${p.nombres} ${p.apellidos}', '${tipo}', '${targetTeamId}')">
                       <div class="d-flex justify-content-between align-items-center">
                         <span>${p.nombres} ${p.apellidos}</span>
                         <span class="badge bg-secondary">#${p.numeroJugador || "N/A"}</span>
@@ -1468,11 +1477,13 @@
             db.collection("sanciones")
               .add({
                 jugadorId: pId,
+                teamId: targetTeamId || "",
                 tipo: "amarilla",
                 articulo: null,
                 literal: null,
                 valor: 0.5,
                 fecha: new Date(),
+                createdAt: new Date(),
                 estado: "activa",
                 campeonatoId: campeonatoActual,
               })
@@ -1487,7 +1498,12 @@
 
                 // Refrescar vistas
                 if (equipoActual) mostrarJugadores(equipoActual, "");
-                if (lastMatchId) verDetallesMatch(lastMatchId, lastMatchLocal, lastMatchVisitor);
+                if (lastMatchId)
+                  verDetallesMatch(
+                    lastMatchId,
+                    lastMatchLocal,
+                    lastMatchVisitor,
+                  );
               })
               .catch((error) => {
                 console.error("Error al aplicar amarilla:", error);
@@ -1496,7 +1512,7 @@
           } else {
             // Para rojas, abrir el modal con el contenedor de artículos visible y bloqueado
             setTimeout(() => {
-              abrirModalSancion(pId, pNombre, "roja", true);
+              abrirModalSancion(pId, pNombre, "roja", true, targetTeamId);
             }, 100);
           }
         } catch (e) {
@@ -1509,7 +1525,12 @@
         }
       };
 
-      window.manualSelectPlayerSancion = function (id, nombre, tipo) {
+      window.manualSelectPlayerSancion = function (
+        id,
+        nombre,
+        tipo,
+        teamId = "",
+      ) {
         Swal.close();
         if (tipo === "amarilla") {
           // Aplicación automática desde selección manual
@@ -1524,11 +1545,13 @@
           db.collection("sanciones")
             .add({
               jugadorId: id,
+              teamId: teamId || equipoActual || "",
               tipo: "amarilla",
               articulo: null,
               literal: null,
               valor: 0.5,
               fecha: new Date(),
+              createdAt: new Date(),
               estado: "activa",
               campeonatoId: campeonatoActual,
             })
@@ -1543,14 +1566,15 @@
 
               // Refrescar vistas
               if (equipoActual) mostrarJugadores(equipoActual, "");
-              if (lastMatchId) verDetallesMatch(lastMatchId, lastMatchLocal, lastMatchVisitor);
+              if (lastMatchId)
+                verDetallesMatch(lastMatchId, lastMatchLocal, lastMatchVisitor);
             })
             .catch((error) => {
               console.error("Error al aplicar amarilla manual:", error);
               Swal.fire("Error", "No se pudo aplicar la sanción.", "error");
             });
         } else {
-          abrirModalSancion(id, nombre, tipo, true);
+          abrirModalSancion(id, nombre, tipo, true, teamId);
         }
       };
 
@@ -1712,12 +1736,16 @@
         ?.addEventListener("change", filtrarEquipos);
 
       // Lógica de Sanciones (Modales y Firestore)
+      let sancionTeamId = "";
+
       window.abrirModalSancion = function (
         id,
         nombre,
         tipoPredeterminado = null,
         isLocked = false,
+        teamId = "",
       ) {
+        sancionTeamId = teamId || equipoActual || "";
         document.getElementById("jugadorId").value = id;
         document.getElementById("sancionJugadorNombre").textContent =
           nombre.toUpperCase();
@@ -1886,12 +1914,14 @@
         db.collection("sanciones")
           .add({
             jugadorId: id,
+            teamId: sancionTeamId || equipoActual || "",
             tipo: tipo,
             articulo: art || null,
             literal: lit || null,
             valor: valor,
             partidosSuspension: partidos,
             fecha: new Date(),
+            createdAt: new Date(),
             estado: "activa",
             campeonatoId: campeonatoActual,
           })
@@ -1911,7 +1941,8 @@
 
             // Refrescar vistas
             if (equipoActual) mostrarJugadores(equipoActual, "");
-            if (lastMatchId) verDetallesMatch(lastMatchId, lastMatchLocal, lastMatchVisitor);
+            if (lastMatchId)
+              verDetallesMatch(lastMatchId, lastMatchLocal, lastMatchVisitor);
           })
           .catch((error) => {
             console.error("Error al guardar sanción:", error);
@@ -2019,6 +2050,7 @@
             literal: lit,
             valor: valor,
             fecha: new Date(),
+            createdAt: new Date(),
             estado: "activa",
             campeonatoId: campeonatoActual,
           })
@@ -2037,7 +2069,8 @@
             if (modalInstance) modalInstance.hide();
 
             // Refrescar vistas
-            if (lastMatchId) verDetallesMatch(lastMatchId, lastMatchLocal, lastMatchVisitor);
+            if (lastMatchId)
+              verDetallesMatch(lastMatchId, lastMatchLocal, lastMatchVisitor);
           })
           .catch((error) => {
             console.error("Error al guardar multa:", error);

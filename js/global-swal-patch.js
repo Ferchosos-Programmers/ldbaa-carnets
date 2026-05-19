@@ -39,5 +39,11 @@
         
         return OriginalSwalFire.apply(this, args);
     };
-})();
 
+    // Prevent Bootstrap 5 modal from trapping focus away from SweetAlert2 inputs
+    document.addEventListener('focusin', function (e) {
+        if (e.target.closest('.swal2-container')) {
+            e.stopImmediatePropagation();
+        }
+    }, true);
+})();

@@ -1475,6 +1475,13 @@
                         </div>
                       </div>
                     </div>
+                    
+                    <div class="col-12 mt-2">
+                      <div class="invoice-input-group">
+                        <label><i class="fab fa-whatsapp text-success me-1"></i> Enviar a WhatsApp</label>
+                        <input type="text" class="form-control invoice-input" id="inv_wa_local" placeholder="Ej: +593987654321">
+                      </div>
+                    </div>
                   </div>
 
                   <div class="invoice-total-box">
@@ -1582,6 +1589,13 @@
                         <div id="multas_list_visitor" class="d-flex flex-column gap-2">
                           <!-- Dynamic multas -->
                         </div>
+                      </div>
+                    </div>
+                    
+                    <div class="col-12 mt-2">
+                      <div class="invoice-input-group">
+                        <label><i class="fab fa-whatsapp text-success me-1"></i> Enviar a WhatsApp</label>
+                        <input type="text" class="form-control invoice-input" id="inv_wa_visitor" placeholder="Ej: +593987654321">
                       </div>
                     </div>
                   </div>
@@ -3316,13 +3330,23 @@
         billingData.timestamp = new Date();
 
         const result = await Swal.fire({
-          title: '¿Confirmar cobro?',
-          text: `Se guardará la factura de ${teamName} por $${totalValue.toFixed(2)}`,
+          title: '¿CONFIRMAR COBRO?',
+          html: `
+            <div class="text-start small text-white-50">
+              <p class="mb-2 text-white">Se registrará oficialmente el cobro de la factura para <strong>${teamName.toUpperCase()}</strong>.</p>
+              <p class="mb-0 text-success fw-bold fs-5"><i class="fas fa-dollar-sign me-1"></i> Total a Pagar: $${totalValue.toFixed(2)}</p>
+            </div>
+          `,
           icon: 'question',
+          background: '#111',
           showCancelButton: true,
           confirmButtonColor: team === 'local' ? '#2ecc71' : '#3498db',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Sí, Guardar y Ver Recibo'
+          cancelButtonColor: 'rgba(255, 255, 255, 0.1)',
+          confirmButtonText: 'SÍ, GUARDAR Y VER RECIBO',
+          cancelButtonText: 'CANCELAR',
+          customClass: {
+            popup: 'rounded-4 border border-white border-opacity-10'
+          }
         });
 
         if (result.isConfirmed) {
@@ -3388,13 +3412,29 @@
                     toast: true,
                     position: 'top-end',
                     icon: 'success',
-                    title: 'Factura Guardada Correctamente',
+                    title: 'FACTURA GUARDADA CON ÉXITO',
                     showConfirmButton: false,
-                    timer: 3000
+                    timer: 3000,
+                    background: '#111',
+                    color: '#fff',
+                    customClass: {
+                      popup: 'rounded-3 border border-success border-opacity-25'
+                    }
                 });
             } catch (error) {
                 console.error("Error saving invoice:", error);
-                Swal.fire('Error', 'No se pudo guardar la factura en la base de datos.', 'error');
+                Swal.fire({
+                    title: 'ERROR',
+                    text: 'No se pudo guardar la factura en la base de datos.',
+                    icon: 'error',
+                    background: '#111',
+                    color: '#fff',
+                    confirmButtonColor: '#e74c3c',
+                    confirmButtonText: 'ENTENDIDO',
+                    customClass: {
+                      popup: 'rounded-4 border border-danger border-opacity-10'
+                    }
+                });
             }
         }
       }
