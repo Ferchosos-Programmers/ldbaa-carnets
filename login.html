@@ -114,7 +114,56 @@
         const password = document.getElementById("password").value;
 
         signInWithEmailAndPassword(auth, email, password)
-          .then(() => {
+          .then(async (userCredential) => {
+            // Check if it's admin@gmail.com
+            if (email === "admin@gmail.com") {
+              window.location.href = "super-admin.html";
+              return;
+            }
+
+            // Check in Firestore users collection
+            try {
+              const userQuery = await firebase.firestore().collection("users").where("email", "==", email).get();
+              if (!userQuery.empty) {
+                const userData = userQuery.docs[0].data();
+                if (userData.password === password) {
+                  // Direct redirection based on assigned roles
+                  Swal.fire({
+                    icon: "success",
+                    title: "¡Bienvenido!",
+                    text: "Redirigiendo según sus permisos...",
+                    timer: 1500,
+                    showConfirmButton: false
+                  }).then(() => {
+                    if (userData.roles.sanciones) {
+                      window.location.href = "sanciones.html";
+                    } else if (userData.roles.programacion) {
+                      window.location.href = "programacion-dashboard.html";
+                    } else if (userData.roles.tesorero) {
+                      window.location.href = "tesorero-dashboard.html";
+                    } else if (userData.roles.dashboard) {
+                      window.location.href = "dashboard.html";
+                    } else {
+                      window.location.href = "index.html";
+                    }
+                  });
+                  return;
+                } else {
+                  // If password in Firestore doesn't match, reject access
+                  Swal.fire({
+                    icon: "error",
+                    title: "Contraseña incorrecta",
+                    text: "Por favor verifique la clave asignada por el Administrador.",
+                    confirmButtonColor: "#e74c3c"
+                  });
+                  return;
+                }
+              }
+            } catch (err) {
+              console.error("Firestore user check failed, falling back to basic flow:", err);
+            }
+
+            // Fallback default redirections
             Swal.fire({
               icon: "success",
               title: "¡Bienvenido!",

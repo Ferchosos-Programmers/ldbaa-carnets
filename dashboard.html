@@ -58,8 +58,7 @@
             <span class="brand-accent small lh-1">ARGELIA ALTA</span>
           </div>
         </a>
-        <div class="nav-actions d-flex gap-3 align-items-center">
-
+        <div class="nav-actions d-flex gap-3 align-items-center" id="navActionsContainer">
           <button class="btn btn-logout" onclick="logout()">
             <i class="fas fa-power-off me-2"></i> <span>Salir</span>
           </button>
@@ -400,6 +399,19 @@
           return;
         }
         console.log("Usuario autenticado:", user.email);
+
+        // Si es el súper admin, agregar botón de acceso a la gestión de usuarios
+        if (user.email === "admin@gmail.com") {
+          const navActions = document.getElementById("navActionsContainer");
+          if (navActions && !document.getElementById("btnGoSuperAdmin")) {
+            const superAdminBtn = document.createElement("a");
+            superAdminBtn.href = "super-admin.html";
+            superAdminBtn.id = "btnGoSuperAdmin";
+            superAdminBtn.className = "btn btn-secondary-glass btn-sm me-2";
+            superAdminBtn.innerHTML = '<i class="fas fa-user-shield me-2"></i>Panel Súper Admin';
+            navActions.insertBefore(superAdminBtn, navActions.firstChild);
+          }
+        }
 
         // Verificar si el usuario es de sanciones
         if (user.email === "sanciones@gmail.com") {
