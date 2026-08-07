@@ -1099,6 +1099,201 @@
       document.addEventListener("DOMContentLoaded", () => {
         loadPlayers();
         loadCampeonatos();
+
+        // Listener para verificar cédula duplicada en otro equipo al perder el foco (blur)
+        const cedulaInput = document.getElementById("cedula");
+        if (cedulaInput) {
+          cedulaInput.addEventListener("blur", async function () {
+            const numCedula = this.value.trim().toUpperCase();
+            if (!numCedula) return;
+
+            try {
+              // Buscar si la cédula ya existe en la base de datos de jugadores
+              const playerQuery = await db.collection("players")
+                .where("cedula", "==", numCedula)
+                .get();
+
+              if (!playerQuery.empty) {
+                // Verificar si pertenece a otro equipo
+                let enOtroEquipo = false;
+                let originalPlayerDoc = null;
+                playerQuery.forEach(doc => {
+                  const data = doc.data();
+                  if (data.teamId !== teamId) {
+                    enOtroEquipo = true;
+                    originalPlayerDoc = { id: doc.id, ...data };
+                  }
+                });
+
+                if (enOtroEquipo) {
+                  // Mostrar modal automático para subir la carta pase con diseño premium y datos detallados
+                  const { value: fileData } = await Swal.fire({
+                    title: '<span style="color: #f39c12;"><i class="fas fa-exchange-alt me-2"></i>Jugador en Otro Club</span>',
+                    html: `
+                      <div class="text-start p-2" style="font-size: 0.95rem; color: #fff;">
+                        <p class="mb-3">El jugador con cédula <strong>${numCedula}</strong> ya está registrado en el sistema.</p>
+                        <div class="p-3 mb-3 rounded" style="background: rgba(255,255,255,0.05); border-left: 4px solid #f39c12;">
+                          <p class="mb-1 text-white-50 small">Club Anterior:</p>
+                          <p class="mb-0 fw-bold fs-5 text-warning"><i class="fas fa-shield-alt me-2"></i>${originalPlayerDoc.teamName || 'Sin asignar'}</p>
+                          <p class="mb-0 text-white-50 small mt-2">Nombre del Jugador:</p>
+                          <p class="mb-0 fw-bold text-white">${originalPlayerDoc.nombres} ${originalPlayerDoc.apellidos}</p>
+                        </div>
+                        <p class="mb-2">Para poder realizar la transferencia al equipo actual, es obligatorio que subas la <strong>Carta Pase</strong> oficial firmada por la directiva de la liga en formato PDF o Imagen.</p>
+                        <label class="form-label text-white-50 mt-3 small">Selecciona el archivo de la Carta Pase (PDF, JPG, PNG):</label>
+                      </div>
+                    `,
+                    input: 'file',
+                    inputAttributes: {
+                      accept: 'image/*,application/pdf',
+                      required: 'required',
+                      class: 'form-control text-white bg-dark border-secondary'
+                    },
+                    customClass: {
+                      popup: 'swal-premium',
+                      confirmButton: 'btn btn-success px-4 py-2 rounded-3',
+                      cancelButton: 'btn btn-outline-light px-4 py-2 rounded-3',
+                      input: 'form-control bg-dark text-white border-secondary'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fas fa-upload me-2"></i>Subir Carta Pase',
+                    cancelButtonText: 'Cancelar Registro',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    preConfirm: (file) => {
+                      if (!file) {
+                        Swal.showValidationMessage('Debe seleccionar un archivo de Carta Pase.');
+                        return false;
+                      }
+                      return file;
+                    }
+                  });
+
+                  if (fileData) {
+                    // Leer archivo en Base64
+                    const reader = new FileReader();
+                    reader.onload = async function (e) {
+                      try {
+                        Swal.fire({
+                          title: 'Registrando Carta Pase...',
+                          allowOutsideClick: false,
+                          didOpen: () => { Swal.showLoading(); }
+                        });
+
+                        // Guardar la carta pase en team_documentation
+                        await db.collection("team_documentation").add({
+                          teamId: teamId,
+                          teamName: document.getElementById("teamName").value,
+                          type: 'transferencia',
+                          file: e.target.result,
+                          status: 'Pendiente',
+                          notes: `Carta pase para transferencia del jugador con cédula ${numCedula}`,
+                          playerId: originalPlayerDoc.id,
+                          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+
+                        Swal.fire({
+                          icon: 'success',
+                          title: 'Carta Pase Subida',
+                          text: 'La carta pase ha sido registrada y está pendiente de aprobación por la comisión de calificaciones.',
+                          confirmButtonText: 'Entendido'
+                        });
+                      } catch (err) {
+                        console.error(err);
+                        Swal.fire('Error', 'No se pudo guardar el documento de transferencia.', 'error');
+                      }
+                    };
+                    reader.readAsDataURL(fileData);
+                  } else {
+                    // Si cancela, limpiar el campo de cédula para no permitir el registro
+                    cedulaInput.value = "";
+                  }
+                }
+              }
+            } catch (error) {
+              console.error("Error al validar cédula:", error);
+            }
+          });
+        }
+
+        // Listener para validar fecha de nacimiento (menores de 14 años)
+        const fechaNacInput = document.getElementById("fechaNacimiento");
+        if (fechaNacInput) {
+          fechaNacInput.addEventListener("change", async function () {
+            const fechaNac = this.value;
+            if (!fechaNac) return;
+
+            const edad = calcularEdad(fechaNac);
+            if (edad < 14) {
+              // Pedir autorización de padres obligatoria
+              const { value: fileData } = await Swal.fire({
+                title: 'Jugador Menor de 14 Años',
+                text: 'Para registrar un jugador menor de 14 años, es obligatorio subir la Autorización firmada por los padres de familia (PDF o Imagen).',
+                icon: 'info',
+                input: 'file',
+                inputAttributes: {
+                  accept: 'image/*,application/pdf',
+                  required: 'required',
+                  class: 'form-control text-white bg-dark border-secondary'
+                },
+                customClass: {
+                  popup: 'swal-premium',
+                  confirmButton: 'btn btn-success px-4 py-2 rounded-3',
+                  cancelButton: 'btn btn-outline-light px-4 py-2 rounded-3',
+                  input: 'form-control bg-dark text-white border-secondary'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Subir Autorización',
+                cancelButtonText: 'Cancelar',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                preConfirm: (file) => {
+                  if (!file) {
+                    Swal.showValidationMessage('Debe seleccionar un archivo de autorización.');
+                    return false;
+                  }
+                  return file;
+                }
+              });
+
+              if (fileData) {
+                const reader = new FileReader();
+                reader.onload = async function (e) {
+                  try {
+                    Swal.fire({
+                      title: 'Guardando Autorización...',
+                      allowOutsideClick: false,
+                      didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    // Guardar la autorización en team_documentation
+                    await db.collection("team_documentation").add({
+                      teamId: teamId,
+                      teamName: document.getElementById("teamName").value,
+                      type: 'autorizacion_padres',
+                      file: e.target.result,
+                      status: 'Pendiente',
+                      notes: `Autorización de padres de familia para jugador menor de 14 años`,
+                      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    Swal.fire({
+                      icon: 'success',
+                      title: 'Autorización Subida',
+                      text: 'La autorización se ha guardado correctamente.',
+                      confirmButtonText: 'Entendido'
+                    });
+                  } catch (err) {
+                    console.error(err);
+                    Swal.fire('Error', 'No se pudo guardar la autorización.', 'error');
+                  }
+                };
+                reader.readAsDataURL(fileData);
+              } else {
+                fechaNacInput.value = "";
+              }
+            }
+          });
+        }
       });
 
       // Función para cargar los campeonatos
