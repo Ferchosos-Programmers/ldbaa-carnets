@@ -2088,107 +2088,118 @@
         Swal.fire({
           title: "Cargando Factura...",
           didOpen: () => Swal.showLoading(),
+          allowOutsideClick: false
         });
+        let timeoutId;
         try {
-          const doc = await db.collection("invoices").doc(id).get();
-          if (!doc.exists)
-            return Swal.fire("Error", "Factura no encontrada", "error");
+          const timeoutPromise = new Promise((_, rej) => {
+            timeoutId = setTimeout(() => rej(new Error('Tiempo de espera agotado. Revisa tu conexión.')), 10000);
+          });
 
-          const data = doc.data();
-          document.getElementById("rec_number").textContent =
-            data.invoiceId || "N/A";
-          document.getElementById("rec_client").textContent =
-            data.team || "N/A";
-          document.getElementById("rec_cat").textContent =
-            data.category || "N/A";
-          document.getElementById("rec_date").textContent = data.timestamp
-            ? data.timestamp.toDate().toLocaleDateString()
-            : "N/A";
+          const fetchPromise = (async () => {
+            let doc = await db.collection("invoices").doc(id).get();
+            if (doc.exists) return doc.data();
+            const querySnap = await db.collection("invoices").where("invoiceId", "==", id).get();
+            if (!querySnap.empty) return querySnap.docs[0].data();
+            throw new Error('Factura no encontrada');
+          })();
+
+          const data = await Promise.race([fetchPromise, timeoutPromise]);
+          clearTimeout(timeoutId);
+
+          const setEl = (eid, val) => { const el = document.getElementById(eid); if (el) el.textContent = val; };
+
+          setEl("rec_number", data.invoiceId || "N/A");
+          setEl("rec_client", data.team || "N/A");
+          setEl("rec_cat", data.category || "N/A");
+
+          try {
+            const ts = data.timestamp;
+            let d;
+            if (ts && typeof ts.toDate === 'function') d = ts.toDate();
+            else if (ts) d = new Date(ts);
+            else d = new Date();
+            setEl("rec_date", isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString());
+          } catch (e) { setEl("rec_date", "N/A"); }
 
           const totalVal = parseFloat(data.total || 0);
-          document.getElementById("rec_total").textContent =
-            `$ ${totalVal.toFixed(2)}`;
-          document.getElementById("rec_subtotal_0").textContent =
-            `$ ${totalVal.toFixed(2)}`;
+          setEl("rec_total", `$ ${totalVal.toFixed(2)}`);
+          setEl("rec_subtotal_0", `$ ${totalVal.toFixed(2)}`);
 
-          // Reconstruir ítems a partir de campos individuales
           const items = [];
-          if (data.can > 0)
-            items.push({
-              concept: "Derecho de Cancha",
-              qty: 1,
-              unit: data.can,
-              total: data.can,
-            });
-          if (data.arb > 0)
-            items.push({
-              concept: "Vocalía / Arbitraje",
-              qty: 1,
-              unit: data.arb,
-              total: data.arb,
-            });
-          if (data.cem > 0)
-            items.push({
-              concept: "Cementina",
-              qty: 1,
-              unit: data.cem,
-              total: data.cem,
-            });
-
-          if (data.ta && data.ta.count > 0) {
-            items.push({
-              concept: `Tarjetas Amarillas (${data.ta.count})`,
-              qty: data.ta.count,
-              unit: data.ta.val,
-              total: data.ta.count * data.ta.val,
-            });
-          }
-
-          if (data.tr && data.tr.count > 0) {
-            items.push({
-              concept: `Tarjetas Rojas (${data.tr.count})`,
-              qty: data.tr.count,
-              unit: data.tr.val,
-              total: data.tr.count * data.tr.val,
-            });
-          }
-
-          if (data.extras && data.extras.length > 0) {
-            data.extras.forEach((ex) => {
-              items.push({
-                concept: ex.desc,
-                qty: 1,
-                unit: ex.val,
-                total: ex.val,
+          try {
+            if (parseFloat(data.can || 0) > 0) items.push({ concept: "Derecho de Cancha", qty: 1, unit: data.can, total: parseFloat(data.can) });
+            if (parseFloat(data.arb || 0) > 0) items.push({ concept: "Vocalía / Arbitraje", qty: 1, unit: data.arb, total: parseFloat(data.arb) });
+            if (parseFloat(data.cem || 0) > 0) items.push({ concept: "Cementina", qty: 1, unit: data.cem, total: parseFloat(data.cem) });
+            if (data.ta && parseInt(data.ta.count || 0) > 0) {
+              const qty = parseInt(data.ta.count || 0);
+              const unit = parseFloat(data.ta.val || 0);
+              items.push({ concept: `Tarjetas Amarillas (${qty})`, qty: qty, unit: unit, total: qty * unit });
+            }
+            if (data.tr && parseInt(data.tr.count || 0) > 0) {
+              const qty = parseInt(data.tr.count || 0);
+              const unit = parseFloat(data.tr.val || 0);
+              items.push({ concept: `Tarjetas Rojas (${qty})`, qty: qty, unit: unit, total: qty * unit });
+            }
+            if (data.extras && Array.isArray(data.extras) && data.extras.length > 0) {
+              data.extras.forEach((ex) => {
+                try {
+                  const v = parseFloat(ex.val || 0);
+                  if (v > 0) items.push({ concept: ex.desc || "Extra", qty: 1, unit: v, total: v });
+                } catch (e) {}
               });
-            });
-          }
+            }
+          } catch (ierr) { console.error(ierr); }
 
           const itemsBody = document.getElementById("rec_items_body");
-          itemsBody.innerHTML = "";
-
-          items.forEach((item, idx) => {
-            const code = `P${(idx + 1).toString().padStart(8, "0")}`;
-            itemsBody.insertAdjacentHTML(
-              "beforeend",
-              `
+          if (itemsBody) {
+            itemsBody.innerHTML = "";
+            items.forEach((item, idx) => {
+              const code = `P${(idx + 1).toString().padStart(8, "0")}`;
+              itemsBody.insertAdjacentHTML(
+                "beforeend",
+                `
               <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05);">
                 <td class="py-3 ps-3" style="color: #c9a227; font-weight: bold;">${code}</td>
                 <td class="py-3 text-white fw-bold">${item.concept}</td>
                 <td class="py-3 text-center text-white-50">${item.qty}</td>
-                <td class="py-3 text-end text-white-50">$ ${parseFloat(item.unit).toFixed(2)}</td>
+                <td class="py-3 text-end text-white-50">$ ${parseFloat(item.unit || 0).toFixed(2)}</td>
                 <td class="py-3 text-end text-white-50">$ 0.00</td>
-                <td class="py-3 text-end pe-3 text-white fw-bold">$ ${parseFloat(item.total).toFixed(2)}</td>
+                <td class="py-3 text-end pe-3 text-white fw-bold">$ ${parseFloat(item.total || 0).toFixed(2)}</td>
               </tr>
             `,
-            );
-          });
+              );
+            });
+          }
 
-          Swal.close();
-          new bootstrap.Modal(document.getElementById("receiptModal")).show();
+          try { Swal.close(); } catch (x) {}
+          const modalEl = document.getElementById("receiptModal");
+          if (modalEl) {
+            try {
+              const existing = bootstrap.Modal.getInstance(modalEl);
+              if (existing) existing.dispose();
+              document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+            } catch (e) {}
+            try { document.body.classList.remove('modal-open'); } catch (e) {}
+            try { modalEl.classList.remove('fade'); } catch(e){}
+            try { modalEl.classList.remove('show'); } catch(e){}
+            try { modalEl.style.display = 'none'; } catch(e){}
+            setTimeout(() => {
+              try { modalEl.classList.add('fade'); } catch(e){}
+              const bsModal = new bootstrap.Modal(modalEl);
+              bsModal.show();
+            }, 30);
+          }
         } catch (err) {
           console.error(err);
-          Swal.fire("Error", "No se pudo cargar la factura", "error");
+          if (timeoutId) clearTimeout(timeoutId);
+          try { Swal.close(); } catch (x) {}
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: (err && err.message) ? err.message : 'No se pudo cargar la factura',
+            confirmButtonText: 'Entendido'
+          });
         }
       }
 
