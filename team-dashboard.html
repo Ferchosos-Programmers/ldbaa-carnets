@@ -449,8 +449,9 @@
         padding: 15mm 25mm;
         background: white !important;
         color: #1a1a1a !important;
-        font-family: "Times New Roman", Times, serif;
+        font-family: 'Times New Roman', Times, serif;
         box-sizing: border-box;
+        overflow: hidden;
         position: relative;
       }
       .pdf-header-container {
@@ -461,12 +462,15 @@
         align-items: center;
       }
       .pdf-logo-box {
-        width: 60px;
+        width: 70px;
         margin-right: 20px;
       }
       .pdf-logo-box img {
         width: 100%;
         display: block;
+      }
+      .pdf-header-text {
+        flex: 1;
       }
       .pdf-header-text h2 {
         margin: 0;
@@ -514,6 +518,12 @@
         justify-content: space-between;
         text-align: center;
       }
+      .pdf-sig-item {
+        width: 30%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
       .pdf-sig-line-box {
         width: 100%;
         border-top: 1px solid #000;
@@ -528,9 +538,46 @@
         right: 25mm;
         border-bottom: 2px solid #2ecc71;
         padding: 2px 10px;
+        font-family: 'Times New Roman', Times, serif;
         font-weight: bold;
         color: #333;
         font-size: 16px;
+      }
+      .pdf-register-section {
+        margin-top: 25px;
+        border: 1px solid #ddd;
+        padding: 12px 25px;
+        border-radius: 10px;
+        background: #fafafa;
+      }
+      .pdf-register-title {
+        text-align: center;
+        font-size: 15px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        color: #2c3e50;
+        border-bottom: 2px solid #2ecc71;
+        display: inline-block;
+        padding-bottom: 3px;
+      }
+      .pdf-final-signature {
+        margin-top: 55px;
+        width: 250px;
+      }
+      .pdf-footer-info {
+        margin-top: 30px;
+        text-align: center;
+        border-top: 1px solid #eee;
+        padding-top: 8px;
+        font-size: 10px;
+        color: #95a5a6;
+      }
+      .pdf-line {
+        display: inline-block;
+        border-bottom: 1px solid #000;
+        height: 14px;
+        margin-bottom: -2px;
       }
       
       /* Notifications Styles */
@@ -831,11 +878,14 @@
           <div id="section-facturas" class="content-section d-none">
             <div class="glass-card">
               <div
-                class="d-flex justify-content-between align-items-center mb-4"
+                class="d-flex justify-content-between align-items-start mb-4 flex-column flex-md-row gap-2"
               >
-                <h5 class="text-white fw-bold mb-0">Historial de Facturas</h5>
+                <div>
+                  <h5 class="text-white fw-bold mb-1">Historial de Facturas</h5>
+                  <p class="text-white-50 small mb-0">Aquí aparecerán automáticamente todas las facturas generadas por tus pagos: cartas pases, partidos (derecho de cancha, arbitraje, cementina), multas y cobros adicionales. Cada factura incluye el detalle completo del gasto para tu control financiero.</p>
+                </div>
                 <i
-                  class="fas fa-file-invoice-dollar fa-2x text-primary opacity-50"
+                  class="fas fa-file-invoice-dollar fa-2x text-primary opacity-50 mt-1"
                 ></i>
               </div>
               <div class="table-responsive">
@@ -844,6 +894,7 @@
                     <tr>
                       <th># Factura</th>
                       <th>Fecha</th>
+                      <th>Concepto</th>
                       <th>Categoría</th>
                       <th>Monto Total</th>
                       <th>Acción</th>
@@ -857,16 +908,28 @@
 
           <!-- Cartas Pases Section -->
           <div id="section-cartas" class="content-section d-none">
+            <div class="glass-card mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="text-white fw-bold mb-0">Adquirir Cartas Pases</h5>
+                <button class="btn btn-save-invoice px-4 py-2" style="width: auto; background: var(--primary); border: 0; border-radius: 12px; font-weight: bold; color: white;" onclick="solicitarCartasPasesModal()">
+                  <i class="fas fa-shopping-cart me-2"></i> Solicitar Cartas Pases
+                </button>
+              </div>
+              <p class="text-white-50 small mb-0">Desde este apartado puedes solicitar nuevos lotes de cartas pases en blanco al tesorero de la liga para futuras transferencias de jugadores.</p>
+            </div>
+
             <div class="glass-card">
-              <h5 class="text-white fw-bold mb-4">Cartas Pases Generadas</h5>
+              <h5 class="text-white fw-bold mb-4">Mis Solicitudes y Cartas Adquiridas</h5>
               <div class="table-responsive">
                 <table class="table table-premium">
                   <thead>
                     <tr>
-                      <th>Fecha Envío</th>
-                      <th>Nº Carta Pase</th>
+                      <th>Fecha Solicitud</th>
+                      <th>Cantidad</th>
+                      <th>Monto Total</th>
+                      <th>Secuencia Asignada</th>
                       <th>Estado</th>
-                      <th>Acción</th>
+                      <th>Acción / Descarga</th>
                     </tr>
                   </thead>
                   <tbody id="passesList"></tbody>
@@ -1273,69 +1336,77 @@
 
     <!-- Hidden PDF Template Container -->
     <div id="pdf-render-container">
-      <div id="carta-pase-pdf-template">
-        <div class="pdf-seq-box">Nº <span class="pdf-seq-val">0000</span></div>
-        <div class="pdf-header-container">
-          <div class="pdf-logo-box"><img src="img/logo.png" /></div>
-          <div class="pdf-header-text">
-            <h2>LIGA DEPORTIVA BARRIAL "ARGELIA ALTA"</h2>
-            <p>FUNDADA EL 9 DE JULIO DE 1996</p>
-            <p>FILIAL A LA ASOCIACIÓN DE LIGAS DE MICROFÚTBOL DE QUITO</p>
-          </div>
+        <div id="carta-pase-pdf-template">
+            <div class="pdf-seq-box">Nº <span class="pdf-seq-val">0000</span></div>
+            <div class="pdf-header-container">
+                <div class="pdf-logo-box">
+                    <img src="img/logo.png">
+                </div>
+                <div class="pdf-header-text">
+                    <h2>LIGA DEPORTIVA BARRIAL "ARGELIA ALTA"</h2>
+                    <p>FUNDADA EL 9 DE JULIO DE 1996</p>
+                    <p>FILIAL A LA ASOCIACIÓN DE LIGAS DE MICROFÚTBOL DE QUITO</p>
+                    <p>ACUERDO MINISTERIAL 0049</p>
+                </div>
+            </div>
+
+            <h1 class="pdf-main-title">CARTA PASE</h1>
+
+            <div class="pdf-date-row">
+                Quito, <span class="pdf-line" style="width: 40px;"></span> de <span class="pdf-line" style="width: 120px;"></span> del 20<span class="pdf-line" style="width: 30px;"></span>
+            </div>
+
+            <div class="pdf-content-body">
+                <p>
+                    Yo <span class="pdf-line" style="width: 320px;"></span> 
+                    con Nro. de cedula <span class="pdf-line" style="width: 160px;"></span>, me 
+                    encuentro registrado(a) en el Club " <span class="pdf-line" style="width: 250px;"></span> " 
+                    perteneciente a la Liga Deportiva Barrial Argelia Alta, en virtud de que es mi voluntad seguir 
+                    participando en el Deporte Barrial solicito a usted señor <span class="pdf-line" style="width: 250px;"></span> 
+                    con C.C. <span class="pdf-line" style="width: 160px;"></span> presidente del Club " <span class="pdf-line" style="width: 250px;"></span> " 
+                    me conceda el PASE a préstamo <span class="pdf-line" style="width: 40px;"></span>, libre <span class="pdf-line" style="width: 40px;"></span> o compra definitiva <span class="pdf-line" style="width: 40px;"></span>
+                </p>
+
+                <p style="margin-top: 20px;">
+                    El mencionado deportista puede hacer uso del presente documento para los fines requeridos en el deporte barrial.
+                </p>
+
+                <div class="pdf-signature-grid">
+                    <div class="pdf-sig-item">
+                        <div class="pdf-sig-line-box">Presidente del Club</div>
+                    </div>
+                    <div class="pdf-sig-item">
+                        <div class="pdf-sig-line-box">Jugador</div>
+                    </div>
+                    <div class="pdf-sig-item">
+                        <div class="pdf-sig-line-box">Presidente del Club</div>
+                    </div>
+                </div>
+
+                <div class="pdf-register-section">
+                    <div style="text-align: center;"><span class="pdf-register-title">Registro del Pase</span></div>
+                    <p style="margin-top: 10px;">
+                        Certifico el registro del pase del deportista <span class="pdf-line" style="width: 380px;"></span>, 
+                        dejando constancia en nuestro archivo, el interesado participará o actuará desde la presente fecha en donde en el Club 
+                        " <span class="pdf-line" style="width: 300px;"></span> "
+                    </p>
+                    <p style="margin-top: 10px;">
+                        Fecha de Registro: <span class="pdf-line" style="width: 300px;"></span>
+                    </p>
+                </div>
+
+                <div class="pdf-final-signature">
+                    <strong style="font-size: 15px;">Sr. Javier Miño</strong><br>
+                    <span style="font-size: 12px;">Presidente L.B.A.A.</span><br>
+                    <span style="font-size: 11px; color: #7f8c8d;">Gestión 2025 - 2029</span>
+                </div>
+            </div>
+
+            <div class="pdf-footer-info">
+                Dir: Argelia Alta calle Cuyuja y Majúa altos de la casa barrial. / Telf.: 0984613518<br>
+                <strong>QUITO - ECUADOR</strong>
+            </div>
         </div>
-        <h1 class="pdf-main-title">CARTA PASE</h1>
-        <div class="pdf-date-row">
-          Quito, <span class="pdf-field-line" id="cp_pdf_date">______</span>
-        </div>
-        <div class="pdf-content-body">
-          <p>
-            Por la presente, la directiva del Club
-            <span
-              class="pdf-field-line"
-              style="width: 200px"
-              id="cp_pdf_team"
-            ></span>
-            otorga la respectiva <strong>CARTA PASE</strong> al jugador(a) cuyos
-            datos se detallan a continuación, para que pueda actuar en el club
-            de su preferencia:
-          </p>
-          <div style="margin: 30px 0; padding-left: 20px">
-            <p>
-              <strong>NOMBRES:</strong>
-              <span class="pdf-field-line" style="width: 350px"
-                >____________________________________</span
-              >
-            </p>
-            <p>
-              <strong>APELLIDOS:</strong>
-              <span class="pdf-field-line" style="width: 350px"
-                >____________________________________</span
-              >
-            </p>
-            <p>
-              <strong>CÉDULA:</strong>
-              <span class="pdf-field-line" style="width: 200px"
-                >____________________</span
-              >
-            </p>
-          </div>
-          <p>
-            Documento válido para el presente periodo deportivo. Las firmas al
-            pie de este documento certifican la veracidad de la transferencia.
-          </p>
-        </div>
-        <div class="pdf-signature-grid">
-          <div class="pdf-sig-item">
-            <div class="pdf-sig-line-box">PRESIDENTE SALIENTE</div>
-          </div>
-          <div class="pdf-sig-item">
-            <div class="pdf-sig-line-box">SECRETARIO SALIENTE</div>
-          </div>
-          <div class="pdf-sig-item">
-            <div class="pdf-sig-line-box">SELLO DEL CLUB</div>
-          </div>
-        </div>
-      </div>
     </div>
     <script>
       const firebaseConfig = {
@@ -1412,6 +1483,30 @@
         if (activeItem) activeItem.classList.add("active");
       }
 
+      function getInvoiceConcept(inv) {
+        if (inv.concept) return inv.concept;
+        if (inv.source === "cartas_pases") {
+          const qty = inv.quantity || 1;
+          return `Cartas Pases (${qty} uds. × $0.50)`;
+        }
+        if (inv.opponent) return `Cobro de Partido vs ${inv.opponent}`;
+        if (inv.extras && inv.extras.length > 0) return inv.extras[0].desc;
+        return "Servicios de Liga";
+      }
+
+      function getInvoiceSourceBadge(inv) {
+        if (inv.source === "cartas_pases") {
+          return `<span class="badge rounded-pill" style="background: rgba(155, 89, 182, 0.15); color: #9b59b6; border: 1px solid rgba(155, 89, 182, 0.3); font-size: 10px; padding: 4px 10px;"><i class="fas fa-id-card me-1"></i> CARTAS PASES</span>`;
+        }
+        if (inv.source === "cobro_general") {
+          return `<span class="badge rounded-pill" style="background: rgba(243, 156, 18, 0.15); color: #f39c12; border: 1px solid rgba(243, 156, 18, 0.3); font-size: 10px; padding: 4px 10px;"><i class="fas fa-receipt me-1"></i> COBRO ADICIONAL</span>`;
+        }
+        if (inv.opponent) {
+          return `<span class="badge rounded-pill" style="background: rgba(52, 152, 219, 0.15); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.3); font-size: 10px; padding: 4px 10px;"><i class="fas fa-futbol me-1"></i> PARTIDO</span>`;
+        }
+        return `<span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-20" style="font-size: 10px; padding: 4px 10px;">VARIOS</span>`;
+      }
+
       async function loadData() {
         try {
           // 1. Invoices
@@ -1430,73 +1525,111 @@
           document.getElementById("stat-invoices").textContent = invDocs.length;
           const invList = document.getElementById("invoicesList");
           invList.innerHTML = "";
+
+          if (invDocs.length === 0) {
+            invList.insertAdjacentHTML(
+              "beforeend",
+              `
+              <tr>
+                <td colspan="6" class="py-5">
+                  <div class="text-center">
+                    <div class="mb-3">
+                      <i class="fas fa-file-invoice-dollar fa-3x text-white-25 opacity-50"></i>
+                    </div>
+                    <div class="text-white-50 fw-semibold mb-1">Aún no hay facturas generadas</div>
+                    <div class="text-white-50 small" style="opacity: .7;">
+                      Tus facturas aparecerán aquí automáticamente cuando realices un pago (cartas pases, partidos, etc.)
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            `,
+            );
+          }
+
           invDocs.forEach((doc) => {
             const inv = doc.data();
             const date = inv.timestamp
               ? inv.timestamp.toDate().toLocaleDateString()
               : "N/A";
+            const concept = getInvoiceConcept(inv);
+            const sourceBadge = getInvoiceSourceBadge(inv);
+            const totalVal = parseFloat(inv.total || 0);
             invList.insertAdjacentHTML(
               "beforeend",
               `
-              <tr>
-                <td class="fw-bold">${inv.invoiceId}</td>
-                <td>${date}</td>
+              <tr class="align-middle border-bottom border-white border-opacity-5">
+                <td class="fw-bold font-monospace text-warning" style="font-size: 13px;">${inv.invoiceId || '---'}</td>
+                <td class="text-white-50 small">${date}</td>
+                <td>
+                  <div class="d-flex flex-column gap-1">
+                    <div class="text-white fw-semibold" style="font-size: 13px;">${concept}</div>
+                    <div>${sourceBadge}</div>
+                  </div>
+                </td>
                 <td><span class="badge-premium bg-paid">${inv.category}</span></td>
-                <td class="fw-bold">$ ${inv.total.toFixed(2)}</td>
-                <td><button class="btn btn-sm btn-outline-light" onclick="viewInvoice('${doc.id}')"><i class="fas fa-eye"></i></button></td>
+                <td class="fw-bold text-success">$ ${totalVal.toFixed(2)}</td>
+                <td><button class="btn btn-sm btn-outline-light rounded-3 border-opacity-25" onclick="viewInvoice('${doc.id}')" title="Ver detalle"><i class="fas fa-eye me-1"></i>Ver</button></td>
               </tr>
             `,
             );
           });
 
-          // 2. Cartas Pases (Desde Documentación Enviada)
+          // 2. Cartas Pases (Desde la colección de compras de Cartas Pases de Tesorería)
           const passSnapRaw = await db
-            .collection("team_documentation")
+            .collection("cartas_pases")
             .where("teamId", "==", currentTeam.id)
-            .where("type", "==", "transferencia")
             .get();
             
           let passDocs = [];
           passSnapRaw.forEach((doc) => { passDocs.push({id: doc.id, ...doc.data()}) });
           passDocs.sort((a, b) => {
-            const tA = a.timestamp ? a.timestamp.toMillis() : 0;
-            const tB = b.timestamp ? b.timestamp.toMillis() : 0;
+            const tA = a.createdAt ? a.createdAt.toMillis() : 0;
+            const tB = b.createdAt ? b.createdAt.toMillis() : 0;
             return tB - tA;
           });
-
+ 
           // Solo contamos las aprobadas para la estadística superior
-          const approvedCount = passDocs.filter((d) => d.status === "Aprobado").length;
+          const approvedCount = passDocs.filter((d) => d.status === "completed" || d.status === "Aprobado").length;
           document.getElementById("stat-passes").textContent = approvedCount;
-
+ 
           const passList = document.getElementById("passesList");
           passList.innerHTML = "";
           passDocs.forEach((cp) => {
-            const date = cp.timestamp
-              ? cp.timestamp.toDate().toLocaleDateString()
+            const date = cp.createdAt
+              ? cp.createdAt.toDate().toLocaleDateString()
               : "N/A";
             
-            const isApproved = cp.status === "Aprobado";
-            const isDenied = cp.status === "Denegado";
-            const numCarta = cp.numeroCartaPase || "-";
-            const valCarta = cp.valor ? `$ ${parseFloat(cp.valor).toFixed(2)}` : "-";
+            const isApproved = cp.status === "completed" || cp.status === "Aprobado";
+            const isPending = cp.status === "pending" || cp.status === "Pendiente";
             
             let badge = '';
             if (isApproved) {
                 badge = '<span class="badge-premium bg-paid">APROBADO</span>';
-            } else if (isDenied) {
-                badge = '<span class="badge-premium bg-unpaid" style="color: #e74c3c; border-color: rgba(231, 76, 60, 0.3); background: rgba(231, 76, 60, 0.1);">DENEGADO</span>';
+            } else if (isPending) {
+                badge = '<span class="badge-premium bg-active" style="color: #f39c12; border-color: rgba(243, 156, 18, 0.3); background: rgba(243, 156, 18, 0.1);">PENDIENTE DE VALIDACIÓN</span>';
             } else {
-                badge = '<span class="badge-premium bg-active" style="color: #f39c12; border-color: rgba(243, 156, 18, 0.3); background: rgba(243, 156, 18, 0.1);">PENDIENTE</span>';
+                badge = '<span class="badge-premium bg-unpaid" style="color: #e74c3c; border-color: rgba(231, 76, 60, 0.3); background: rgba(231, 76, 60, 0.1);">RECHAZADO</span>';
             }
 
+            const totalValueFormatted = cp.totalValue ? `$ ${parseFloat(cp.totalValue).toFixed(2)}` : `$ ${(cp.quantity * 0.5).toFixed(2)}`;
+            const seqRange = isApproved ? `Nº ${String(cp.startSeq).padStart(4, '0')} - ${String(cp.endSeq).padStart(4, '0')}` : 'Sin Asignar';
+            const invoiceInfo = isApproved && cp.invoiceId
+              ? `<div class="small text-white-50 mt-1"><i class="fas fa-file-invoice me-1"></i> Factura: <span class="text-warning font-monospace">${cp.invoiceId}</span></div>`
+              : '';
+ 
             passList.insertAdjacentHTML(
               "beforeend",
               `
               <tr>
                 <td>${date}</td>
-                <td class="fw-bold text-primary">${isApproved ? numCarta : '-'}</td>
+                <td class="fw-bold">${cp.quantity}</td>
+                <td class="fw-bold text-success">${totalValueFormatted}${invoiceInfo}</td>
+                <td><span class="font-monospace text-warning">${seqRange}</span></td>
                 <td>${badge}</td>
-                <td><button class="btn btn-sm btn-outline-light" onclick="viewMyDoc('${cp.id}')"><i class="fas fa-eye"></i></button></td>
+                <td>
+                  ${isApproved ? `<button class="btn btn-sm btn-outline-success" onclick="viewCP('${cp.id}')"><i class="fas fa-file-pdf me-1"></i> Descargar PDF</button>` : `<span class="text-white-50 small">Espera validación</span>`}
+                </td>
               </tr>
             `,
             );
@@ -2072,9 +2205,56 @@
         );
       }
 
+      async function generateAndDownloadCPPDF(teamName, quantity, startSeq, filename) {
+          const pdfContainer = document.createElement('div');
+          pdfContainer.style.margin = '0';
+          pdfContainer.style.padding = '0';
+          const originalTemplate = document.getElementById('carta-pase-pdf-template');
+          if (!originalTemplate) {
+            throw new Error('Plantilla PDF no encontrada');
+          }
+
+          let currentSeqNum = startSeq;
+          for (let i = 0; i < quantity; i++) {
+              const seqStr = String(currentSeqNum).padStart(4, '0');
+              currentSeqNum++;
+
+              const page = originalTemplate.cloneNode(true);
+              page.style.display = 'block';
+              page.querySelector('.pdf-seq-val').textContent = seqStr;
+
+              pdfContainer.appendChild(page);
+
+              if (i < quantity - 1) {
+                  const pageBreak = document.createElement('div');
+                  pageBreak.className = 'html2pdf__page-break';
+                  pdfContainer.appendChild(pageBreak);
+              }
+          }
+
+          await new Promise(resolve => setTimeout(resolve, 800));
+
+          const opt = {
+              margin:       0,
+              filename:     filename,
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  {
+                  scale: 3,
+                  useCORS: true,
+                  letterRendering: true,
+                  logging: false
+              },
+              jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+              pagebreak:    { mode: ['avoid-all', 'css'] }
+          };
+
+          await html2pdf().set(opt).from(pdfContainer).save();
+      }
+
       async function viewCP(id) {
         Swal.fire({
           title: "Generando Carta Pase...",
+          html: "Preparando archivo PDF con secuencia asignada...",
           didOpen: () => Swal.showLoading(),
         });
         try {
@@ -2083,31 +2263,14 @@
             return Swal.fire("Error", "Registro no encontrado", "error");
 
           const data = doc.data();
-          const template = document.getElementById("carta-pase-pdf-template");
+          const quantity = data.quantity || 1;
+          const startSeq = data.startSeq || data.seqNum || 1;
+          const endSeq = data.endSeq || startSeq;
+          const teamName = data.teamName || "Equipo";
+          const filename = `Cartas_Pases_${teamName.replace(/\s+/g, '_')}_${startSeq}_a_${endSeq}.pdf`;
 
-          // Fix toString error by ensuring ID exists
-          const displayId = data.id
-            ? data.id.toString().padStart(4, "0")
-            : "0000";
-          template.querySelector(".pdf-seq-val").textContent = displayId;
-          document.getElementById("cp_pdf_date").textContent = data.createdAt
-            ? data.createdAt.toDate().toLocaleDateString()
-            : "N/A";
-          document.getElementById("cp_pdf_team").textContent = data.teamName;
-
-          const opt = {
-            margin: 0,
-            filename: `Carta_Pase_${data.teamName}_${displayId}.pdf`,
-            image: { type: "jpeg", quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-          };
-
-          html2pdf()
-            .set(opt)
-            .from(template)
-            .save()
-            .then(() => Swal.close());
+          await generateAndDownloadCPPDF(teamName, quantity, startSeq, filename);
+          Swal.close();
         } catch (err) {
           console.error(err);
           Swal.fire("Error", "No se pudo generar el PDF", "error");
@@ -2219,6 +2382,140 @@
           if (result.isConfirmed) auth.signOut();
         });
       }
+
+      // Proceso de Solicitud de Cartas Pases con Pago QR
+      window.solicitarCartasPasesModal = async function() {
+        const { value: quantity } = await Swal.fire({
+          title: 'Solicitar Cartas Pases',
+          text: '¿Cuántas cartas pases deseas solicitar? (Valor unitario: $0.50)',
+          input: 'number',
+          inputAttributes: {
+            min: 1,
+            step: 1,
+            value: 5,
+            class: 'form-control bg-dark text-white border-secondary'
+          },
+          showCancelButton: true,
+          confirmButtonText: 'Siguiente',
+          cancelButtonText: 'Cancelar',
+          background: '#1a1a1a',
+          customClass: {
+            popup: 'rounded-4 border border-white border-opacity-10',
+            confirmButton: 'btn btn-success px-4 py-2',
+            cancelButton: 'btn btn-outline-light px-4 py-2'
+          },
+          preConfirm: (val) => {
+            if (!val || val < 1) {
+              Swal.showValidationMessage('Por favor ingresa una cantidad válida.');
+              return false;
+            }
+            return parseInt(val);
+          }
+        });
+
+        if (!quantity) return;
+
+        const totalValue = quantity * 0.50;
+
+        // Mostrar detalles de transferencia, cuenta bancaria, código QR de pago, y pedir comprobante
+        const { value: fileData } = await Swal.fire({
+          title: '<span style="color: #2ecc71;"><i class="fas fa-qrcode me-2"></i>Pagar Solicitud</span>',
+          html: `
+            <div class="text-start p-2" style="font-size: 0.95rem; color: #fff;">
+              <p class="mb-3">Has solicitado <strong>${quantity}</strong> cartas pases. El total a pagar es:</p>
+              <div class="p-3 mb-3 rounded text-center" style="background: rgba(46, 204, 113, 0.15); border: 1px solid rgba(46, 204, 113, 0.3);">
+                <span class="small text-white-50 text-uppercase d-block mb-1">Total a Transferir</span>
+                <span class="fs-3 fw-bold text-success">$ ${totalValue.toFixed(2)}</span>
+              </div>
+              <div class="p-3 mb-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                <p class="mb-1 fw-bold text-warning small"><i class="fas fa-university me-2"></i>Datos de Cuenta:</p>
+                <p class="mb-1 small">Banco Pichincha (Ahorros)</p>
+                <p class="mb-1 small">Nº Cuenta: 2204567891</p>
+                <p class="mb-0 small">Titular: Tesorería LDBAA</p>
+              </div>
+              <div class="text-center mb-3">
+                <p class="mb-2 small text-white-50">Escanea este código QR desde tu app bancaria:</p>
+                <img src="img/qr-pago.png" alt="Código QR de Pago" class="img-fluid rounded border border-white border-opacity-10 p-2 bg-white" style="max-height: 160px;" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=Transferencia%20LDBAA%20Total%20'+${totalValue}">
+              </div>
+              <label class="form-label text-white-50 small mt-2">Sube el comprobante de pago (Imagen o PDF):</label>
+            </div>
+          `,
+          input: 'file',
+          inputAttributes: {
+            accept: 'image/*,application/pdf',
+            required: 'required',
+            class: 'form-control text-white bg-dark border-secondary'
+          },
+          customClass: {
+            popup: 'swal-premium',
+            confirmButton: 'btn btn-success px-4 py-2 rounded-3',
+            cancelButton: 'btn btn-outline-light px-4 py-2 rounded-3',
+            input: 'form-control bg-dark text-white border-secondary'
+          },
+          showCancelButton: true,
+          confirmButtonText: '<i class="fas fa-paper-plane me-2"></i>Enviar Solicitud',
+          cancelButtonText: 'Cancelar',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          preConfirm: (file) => {
+            if (!file) {
+              Swal.showValidationMessage('Debe seleccionar un archivo de comprobante de pago.');
+              return false;
+            }
+            return file;
+          }
+        });
+
+        if (fileData) {
+          const reader = new FileReader();
+          reader.onload = async function (e) {
+            try {
+              Swal.fire({
+                title: 'Enviando Solicitud...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+              });
+
+              // Registrar solicitud de cartas pases en la colección 'cartas_pases' como 'pending'
+              await db.collection("cartas_pases").add({
+                teamId: currentTeam.id,
+                teamName: currentTeam.name,
+                quantity: quantity,
+                value: 0.50,
+                totalValue: totalValue,
+                status: 'pending',
+                comprobante: e.target.result, // Base64 del comprobante de pago
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                isBatch: true
+              });
+
+              // Además, registrar en team_documentation para que sea visible en auditorías si es necesario
+              await db.collection("team_documentation").add({
+                teamId: currentTeam.id,
+                teamName: currentTeam.name,
+                type: 'pago_cartas_pases',
+                file: e.target.result,
+                status: 'Pendiente',
+                notes: `Pago por solicitud de ${quantity} cartas pases. Total: $${totalValue.toFixed(2)}`,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+              });
+
+              Swal.fire({
+                icon: 'success',
+                title: 'Solicitud Enviada',
+                html: '<div class="text-start"><p class="mb-2">Tu solicitud y comprobante de pago han sido enviados correctamente.</p><p class="mb-0 small text-white-50"><i class="fas fa-info-circle me-1 text-primary"></i> Una vez que el tesorero valide el pago, se generará tu factura <b>automáticamente</b> y aparecerá en el apartado de <b>Facturas</b> del panel con el detalle completo del gasto.</p></div>',
+                confirmButtonText: 'Entendido'
+              }).then(() => {
+                loadData();
+              });
+            } catch (err) {
+              console.error(err);
+              Swal.fire('Error', 'No se pudo registrar la solicitud de cartas pases.', 'error');
+            }
+          };
+          reader.readAsDataURL(fileData);
+        }
+      };
     </script>
   </body>
 </html>

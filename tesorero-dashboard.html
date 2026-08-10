@@ -20,6 +20,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
 
     <link rel="icon" href="img/logo.png" />
     <link rel="stylesheet" href="css/global-theme.css" />
@@ -640,6 +641,11 @@
           </div>
         </a>
         <div class="nav-actions d-flex gap-3 align-items-center">
+          <!-- Notification Bell -->
+          <div class="position-relative me-3" id="notification-bubble-container" style="cursor: pointer;" onclick="openCartasPasesPendingView()">
+            <i class="fas fa-bell text-white fs-4" style="filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2)); transition: 0.3s;"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notification-badge-count" style="font-size: 0.65rem; padding: 4px 6px;">0</span>
+          </div>
           <button class="btn btn-logout-premium text-danger border border-danger border-opacity-25" style="background: rgba(220, 53, 69, 0.1);" onclick="logout()">
             <i class="fas fa-power-off me-2"></i> <span>Salir</span>
           </button>
@@ -674,6 +680,14 @@
             <i class="fas fa-receipt"></i>
             <h3>Otras Facturaciones</h3>
             <p>Gestión de cartas pases, cobros generales y pagos administrativos.</p>
+          </div>
+        </div>
+
+        <div class="col-md-5 col-lg-4">
+          <div class="dashboard-card" style="border-color: rgba(201, 162, 39, 0.3);" onmousedown="this.style.transform='translateY(-3px)';this.style.boxShadow='0 0 30px rgba(201,162,39,0.3)';" onmouseup="this.style.transform='';" onclick="window.__openHistorialSafe && window.__openHistorialSafe();">
+            <i class="fas fa-book" style="color: #c9a227;"></i>
+            <h3 style="color: #fff;">Historial de Facturas</h3>
+            <p>Consulta global de TODAS las facturas emitidas. Busca, filtra, visualiza y descarga cualquier comprobante.</p>
           </div>
         </div>
 
@@ -774,6 +788,31 @@
             <h6 class="text-white-50 text-uppercase small fw-800">Último Registro</h6>
             <h2 class="text-white fw-900 mb-0 fs-6" id="stat-last-date">---</h2>
           </div>
+        </div>
+      </div>
+
+      <!-- Pending Requests Section -->
+      <div class="glass-panel p-4 mb-4" id="pending-pases-section" style="background: rgba(255,255,255,0.03); border-radius: 25px; border: 1px solid rgba(255, 255, 255, 0.1);">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="text-white fw-800 mb-0 text-uppercase text-primary-glow">Solicitudes de Cartas Pases por Aprobar</h5>
+          <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill" id="pending-count-badge">0 Pendientes</span>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-dark table-hover align-middle border-0" id="table-pases-pending">
+            <thead>
+              <tr class="text-uppercase small text-white-50 border-bottom border-white border-opacity-10">
+                <th class="ps-4">Fecha</th>
+                <th>Equipo Solicitante</th>
+                <th class="text-center">Cant.</th>
+                <th class="text-center">Valor Total</th>
+                <th class="text-center">Comprobante</th>
+                <th class="text-end pe-4">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="pases-pending-body">
+              <!-- Content loaded dynamically -->
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -1723,9 +1762,15 @@
             </div>
           </div>
           <div class="modal-footer justify-content-center border-0 mt-3 flex-column gap-3">
-              <div class="d-flex gap-3">
+              <div class="d-flex gap-2 flex-wrap justify-content-center">
+                <button class="btn btn-primary rounded-pill px-4 shadow" onclick="downloadReceiptPNG()">
+                    <i class="fas fa-download me-2"></i> Descargar PNG
+                </button>
+                <button class="btn btn-danger rounded-pill px-4 shadow" onclick="downloadReceiptPDF()">
+                    <i class="fas fa-file-pdf me-2"></i> Descargar PDF
+                </button>
                 <button class="btn btn-success rounded-pill px-4 shadow" onclick="sendReceiptByWA()">
-                    <i class="fab fa-whatsapp me-2"></i> Enviar por WA (Imagen)
+                    <i class="fab fa-whatsapp me-2"></i> Enviar por WA
                 </button>
                 <button class="btn btn-dark rounded-pill px-4 shadow" onclick="window.print()">
                     <i class="fas fa-print me-2"></i> Imprimir
@@ -1751,25 +1796,25 @@
                     <h2>LIGA DEPORTIVA BARRIAL "ARGELIA ALTA"</h2>
                     <p>FUNDADA EL 9 DE JULIO DE 1996</p>
                     <p>FILIAL A LA ASOCIACIÓN DE LIGAS DE MICROFÚTBOL DE QUITO</p>
-                    <p>Acuerdo Ministerial 0049</p>
+                    <p>ACUERDO MINISTERIAL 0049</p>
                 </div>
             </div>
 
             <h1 class="pdf-main-title">CARTA PASE</h1>
 
             <div class="pdf-date-row">
-                Quito, <span class="pdf-line" style="width: 35px;"></span> de <span class="pdf-line" style="width: 100px;"></span> del 20<span class="pdf-line" style="width: 25px;"></span>
+                Quito, <span class="pdf-line" style="width: 40px;"></span> de <span class="pdf-line" style="width: 120px;"></span> del 20<span class="pdf-line" style="width: 30px;"></span>
             </div>
 
             <div class="pdf-content-body">
                 <p>
                     Yo <span class="pdf-line" style="width: 320px;"></span> 
-                    con Nro. de cedula <span class="pdf-line" style="width: 130px;"></span>, me 
-                    encuentro registrado(a) en el Club " <span class="pdf-line" style="width: 200px;"></span> " 
+                    con Nro. de cedula <span class="pdf-line" style="width: 160px;"></span>, me 
+                    encuentro registrado(a) en el Club " <span class="pdf-line" style="width: 250px;"></span> " 
                     perteneciente a la Liga Deportiva Barrial Argelia Alta, en virtud de que es mi voluntad seguir 
-                    participando en el Deporte Barrial solicito a usted señor <span class="pdf-line" style="width: 240px;"></span> 
-                    con C.C. <span class="pdf-line" style="width: 130px;"></span> presidente del Club " <span class="pdf-line" style="width: 200px;"></span> " 
-                    me conceda el PASE a préstamo <span class="pdf-line" style="width: 30px;"></span>, libre <span class="pdf-line" style="width: 30px;"></span> o compra definitiva <span class="pdf-line" style="width: 30px;"></span>
+                    participando en el Deporte Barrial solicito a usted señor <span class="pdf-line" style="width: 250px;"></span> 
+                    con C.C. <span class="pdf-line" style="width: 160px;"></span> presidente del Club " <span class="pdf-line" style="width: 250px;"></span> " 
+                    me conceda el PASE a préstamo <span class="pdf-line" style="width: 40px;"></span>, libre <span class="pdf-line" style="width: 40px;"></span> o compra definitiva <span class="pdf-line" style="width: 40px;"></span>
                 </p>
 
                 <p style="margin-top: 20px;">
@@ -1791,21 +1836,19 @@
                 <div class="pdf-register-section">
                     <div style="text-align: center;"><span class="pdf-register-title">Registro del Pase</span></div>
                     <p style="margin-top: 10px;">
-                        Certifico el registro del pase del deportista <span class="pdf-line" style="width: 280px;"></span>, 
+                        Certifico el registro del pase del deportista <span class="pdf-line" style="width: 380px;"></span>, 
                         dejando constancia en nuestro archivo, el interesado participará o actuará desde la presente fecha en donde en el Club 
-                        " <span class="pdf-line" style="width: 260px;"></span> "
+                        " <span class="pdf-line" style="width: 300px;"></span> "
                     </p>
                     <p style="margin-top: 10px;">
-                        Fecha de Registro: <span class="pdf-line" style="width: 260px;"></span>
+                        Fecha de Registro: <span class="pdf-line" style="width: 300px;"></span>
                     </p>
                 </div>
 
                 <div class="pdf-final-signature">
-                    <div style="width: 100%; border-top: 1px solid #000; padding-top: 10px;">
-                        <strong style="font-size: 15px;">Sr. Javier Miño</strong><br>
-                        <span style="font-size: 12px;">Presidente L.B.A.A.</span><br>
-                        <span style="font-size: 11px; color: #7f8c8d;">Gestión 2025 - 2029</span>
-                    </div>
+                    <strong style="font-size: 15px;">Sr. Javier Miño</strong><br>
+                    <span style="font-size: 12px;">Presidente L.B.A.A.</span><br>
+                    <span style="font-size: 11px; color: #7f8c8d;">Gestión 2025 - 2029</span>
                 </div>
             </div>
 
@@ -1816,9 +1859,108 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+    <!-- Historial de Facturas View Section -->
+    <div class="container py-5 d-none" id="historial-facturas-view">
+      <div class="d-flex align-items-center justify-content-between mb-5 flex-column flex-md-row gap-3">
+        <div class="d-flex align-items-center">
+          <button class="btn btn-outline-light rounded-pill px-4 me-4" onclick="closeHistorialFacturas()">
+            <i class="fas fa-arrow-left me-2"></i> Volver
+          </button>
+          <div>
+            <h2 class="section-title mb-0" style="font-size: 2rem;">
+              Historial de <span class="brand-accent">Facturas</span>
+            </h2>
+            <p class="text-white-50 mb-0">Consulta global de todas las facturas emitidas por LDBAA Finanzas.</p>
+          </div>
+        </div>
+        <button class="btn btn-save-invoice px-4 py-2" style="width: auto" onclick="loadAllInvoices()">
+          <i class="fas fa-sync-alt me-2"></i> Actualizar
+        </button>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="row g-4 mb-5">
+        <div class="col-md-3">
+          <div class="glass-panel p-4 text-center h-100" style="background: rgba(201, 162, 39, 0.05); border: 1px solid rgba(201, 162, 39, 0.2); border-radius: 20px;">
+            <i class="fas fa-file-invoice-dollar mb-2 fs-3" style="color: #c9a227;"></i>
+            <h6 class="text-white-50 text-uppercase small fw-800">Total Facturas</h6>
+            <h2 class="text-white fw-900 mb-0" id="hist-stat-total">0</h2>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="glass-panel p-4 text-center h-100" style="background: rgba(52, 152, 219, 0.05); border: 1px solid rgba(52, 152, 219, 0.2); border-radius: 20px;">
+            <i class="fas fa-futbol text-info mb-2 fs-3"></i>
+            <h6 class="text-white-50 text-uppercase small fw-800">Partidos / Vocalías</h6>
+            <h2 class="text-white fw-900 mb-0" id="hist-stat-partidos">0</h2>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="glass-panel p-4 text-center h-100" style="background: rgba(155, 89, 182, 0.05); border: 1px solid rgba(155, 89, 182, 0.2); border-radius: 20px;">
+            <i class="fas fa-id-card mb-2 fs-3" style="color: #9b59b6;"></i>
+            <h6 class="text-white-50 text-uppercase small fw-800">Cartas Pases</h6>
+            <h2 class="text-white fw-900 mb-0" id="hist-stat-pases">0</h2>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="glass-panel p-4 text-center h-100" style="background: rgba(46, 204, 113, 0.05); border: 1px solid rgba(46, 204, 113, 0.2); border-radius: 20px;">
+            <i class="fas fa-coins text-success mb-2 fs-3"></i>
+            <h6 class="text-white-50 text-uppercase small fw-800">Monto Total Emitido</h6>
+            <h2 class="text-white fw-900 mb-0 text-success">$ <span id="hist-stat-monto">0.00</span></h2>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="glass-panel p-4 mb-4 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <label class="text-white-50 small text-uppercase d-block mb-1 fw-800"><i class="fas fa-search me-1"></i> Buscar por equipo / concepto</label>
+            <input type="text" id="hist-search" class="form-control invoice-input" oninput="renderAllInvoices()" placeholder="Ej: Barcelona SC, Multa, Partido vs...">
+          </div>
+          <div class="col-md-3">
+            <label class="text-white-50 small text-uppercase d-block mb-1 fw-800"><i class="fas fa-filter me-1"></i> Tipo de Factura</label>
+            <select id="hist-filter-type" class="form-control invoice-input" onchange="renderAllInvoices()">
+              <option value="all">Todos los tipos</option>
+              <option value="partido">Partidos / Vocalías</option>
+              <option value="cartas_pases">Cartas Pases</option>
+              <option value="cobro_general">Cobros Adicionales</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="text-white-50 small text-uppercase d-block mb-1 fw-800"><i class="fas fa-layer-group me-1"></i> Categoría</label>
+            <select id="hist-filter-category" class="form-control invoice-input" onchange="renderAllInvoices()">
+              <option value="all">Todas las categorías</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-outline-light w-100 rounded-3 border-opacity-25" onclick="resetHistorialFilters()">
+              <i class="fas fa-eraser me-1"></i> Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de Facturas -->
+      <div class="glass-panel rounded-4 overflow-hidden" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08);">
+        <div class="table-responsive">
+          <table class="table table-premium mb-0" id="historial-table">
+            <thead>
+              <tr>
+                <th class="ps-4"># Factura</th>
+                <th>Fecha Emisión</th>
+                <th>Equipo / Cliente</th>
+                <th>Categoría</th>
+                <th>Concepto</th>
+                <th class="text-center">Monto</th>
+                <th class="text-end pe-4">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="historial-body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
     <script>
       const firebaseConfig = {
@@ -1832,9 +1974,13 @@
 
       if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
+      } else {
+        firebase.app(); // usa la app existente para evitar warning "already defined"
       }
-      const auth = firebase.auth();
-      const db = firebase.firestore();
+      window.auth = firebase.auth();
+      window.db = firebase.firestore();
+      const auth = window.auth;
+      const db = window.db;
 
       let fixturesMap = new Map();
 
@@ -1877,61 +2023,140 @@
 
       async function loadCartasPases() {
           const tbody = document.getElementById('pases-body');
+          const pendingTbody = document.getElementById('pases-pending-body');
+          const pendingCountBadge = document.getElementById('pending-count-badge');
+          
           tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>';
+          if (pendingTbody) {
+              pendingTbody.innerHTML = '<tr><td colspan="6" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>';
+          }
           
           try {
               const snapshot = await db.collection("cartas_pases").orderBy("createdAt", "desc").get();
               tbody.innerHTML = '';
-              allPases = [];
+              if (pendingTbody) pendingTbody.innerHTML = '';
               
-              if (snapshot.empty) {
-                  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-white-50">No hay registros de cartas pases.</td></tr>';
-                  updateCartasPasesStats([]);
-                  return;
-              }
-
+              allPases = [];
+              let pendingPases = [];
+              let completedPases = [];
+              
               snapshot.forEach(doc => {
                   const data = { id: doc.id, ...doc.data() };
                   allPases.push(data);
-                  const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'N/A';
-                  const start = String(data.startSeq || data.seqNum).padStart(4, '0');
-                  const end = String(data.endSeq || data.seqNum).padStart(4, '0');
-                  const range = data.isBatch ? `${start} - ${end}` : start;
-                  const qty = data.quantity || 1;
-                  const totalVal = data.totalValue || (data.value * qty) || 0;
-
-                  const tr = document.createElement('tr');
-                  tr.className = "border-bottom border-white border-opacity-5";
-                  tr.innerHTML = `
-                      <td class="ps-4">
-                        <div class="fw-bold text-white">${date}</div>
-                        <div class="small text-white-50">${data.createdAt ? data.createdAt.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</div>
-                      </td>
-                      <td>
-                        <div class="fw-bold text-white">${data.teamName}</div>
-                      </td>
-                      <td class="text-center fw-bold text-primary-glow">${qty}</td>
-                      <td class="text-center text-white fw-bold">$ ${totalVal.toFixed(2)}</td>
-                      <td class="text-center">
-                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2">
-                          <i class="fas fa-hashtag me-1"></i> ${range}
-                        </span>
-                      </td>
-                      <td class="text-end pe-4">
-                        <div class="btn-group">
-                          <button class="btn btn-sm btn-outline-primary border-opacity-25 rounded-3 me-2" onclick="viewCPDetails('${doc.id}')" title="Ver Detalles">
-                            <i class="fas fa-eye"></i>
-                          </button>
-                          <button class="btn btn-sm btn-primary rounded-3" onclick="reprintCPBatch('${doc.id}')" title="Re-descargar PDF">
-                            <i class="fas fa-file-pdf"></i>
-                          </button>
-                        </div>
-                      </td>
-                  `;
-                  tbody.appendChild(tr);
+                  if (data.status === 'pending') {
+                      pendingPases.push(data);
+                  } else if (data.status === 'completed') {
+                      completedPases.push(data);
+                  }
               });
 
-              updateCartasPasesStats(allPases);
+              // Update pending section counter
+              const pendingCount = pendingPases.length;
+              if (pendingCountBadge) pendingCountBadge.textContent = `${pendingCount} Pendientes`;
+              
+              // Notification elements
+              const pendingTeams = [];
+              pendingPases.forEach(p => {
+                  if (p.teamName && !pendingTeams.includes(p.teamName)) {
+                      pendingTeams.push(p.teamName);
+                  }
+              });
+              updateNotificationSystem(pendingCount, pendingTeams);
+
+              // Render Pending table
+              if (pendingTbody) {
+                  if (pendingCount === 0) {
+                      pendingTbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-white-50"><i class="fas fa-check-circle text-success me-2"></i>No hay solicitudes de cartas pases pendientes de aprobación.</td></tr>';
+                  } else {
+                      pendingPases.forEach(data => {
+                          const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'N/A';
+                          const qty = data.quantity || 1;
+                          const totalVal = data.totalValue || (data.value * qty) || 0;
+                          const safeImg = (data.comprobante || '').replace(/'/g, "\\'");
+                          
+                          const tr = document.createElement('tr');
+                          tr.className = "border-bottom border-white border-opacity-5";
+                          tr.innerHTML = `
+                              <td class="ps-4">
+                                <div class="fw-bold text-white">${date}</div>
+                                <div class="small text-white-50">${data.createdAt ? data.createdAt.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</div>
+                              </td>
+                              <td>
+                                <div class="fw-bold text-white">${data.teamName}</div>
+                              </td>
+                              <td class="text-center fw-bold text-warning">${qty}</td>
+                              <td class="text-center text-white fw-bold">$ ${totalVal.toFixed(2)}</td>
+                              <td class="text-center">
+                                <button class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="viewComprobante('${safeImg}')">
+                                    <i class="fas fa-image me-1"></i> Ver Comprobante
+                                </button>
+                              </td>
+                              <td class="text-end pe-4">
+                                <div class="btn-group">
+                                  <button class="btn btn-sm btn-success rounded-3 me-2 px-3 fw-bold" onclick="approvePendingCP('${data.id}')" title="Aprobar Solicitud">
+                                    <i class="fas fa-check-circle me-1"></i> Aprobar
+                                  </button>
+                                  <button class="btn btn-sm btn-outline-danger rounded-3" onclick="rejectPendingCP('${data.id}')" title="Rechazar Solicitud">
+                                    <i class="fas fa-times-circle"></i>
+                                  </button>
+                                </div>
+                              </td>
+                          `;
+                          pendingTbody.appendChild(tr);
+                      });
+                  }
+              }
+
+              // Render Completed table (Historial)
+              if (completedPases.length === 0) {
+                  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-white-50">No hay registros de cartas pases completadas.</td></tr>';
+              } else {
+                  completedPases.forEach(data => {
+                      const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'N/A';
+                      const start = String(data.startSeq || data.seqNum).padStart(4, '0');
+                      const end = String(data.endSeq || data.seqNum).padStart(4, '0');
+                      const range = data.isBatch ? `${start} - ${end}` : start;
+                      const qty = data.quantity || 1;
+                      const totalVal = data.totalValue || (data.value * qty) || 0;
+
+                      const tr = document.createElement('tr');
+                      tr.className = "border-bottom border-white border-opacity-5";
+                      tr.innerHTML = `
+                          <td class="ps-4">
+                            <div class="fw-bold text-white">${date}</div>
+                            <div class="small text-white-50">${data.createdAt ? data.createdAt.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</div>
+                          </td>
+                          <td>
+                            <div class="fw-bold text-white">${data.teamName}</div>
+                          </td>
+                          <td class="text-center fw-bold text-primary-glow">${qty}</td>
+                          <td class="text-center text-white fw-bold">$ ${totalVal.toFixed(2)}</td>
+                          <td class="text-center">
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2">
+                              <i class="fas fa-hashtag me-1"></i> ${range}
+                            </span>
+                          </td>
+                          <td class="text-end pe-4">
+                            <div class="btn-group">
+                              <button class="btn btn-sm btn-outline-primary border-opacity-25 rounded-3 me-2" onclick="viewCPDetails('${data.id}')" title="Ver Detalles">
+                                <i class="fas fa-eye"></i>
+                              </button>
+                              <button class="btn btn-sm btn-outline-success border-opacity-25 rounded-3 me-2" onclick="reprintCPBatch('${data.id}')" title="Re-descargar PDF">
+                                <i class="fas fa-file-pdf"></i>
+                              </button>
+                              ${data.invoiceId ? `
+                              <button class="btn btn-sm btn-outline-warning border-opacity-25 rounded-3" onclick="viewInvoiceFromHistory('${data.invoiceId}')" title="Ver Factura">
+                                <i class="fas fa-receipt"></i>
+                              </button>
+                              ` : ''}
+                            </div>
+                          </td>
+                      `;
+                      tbody.appendChild(tr);
+                  });
+              }
+
+              updateCartasPasesStats(completedPases);
           } catch (e) {
               console.error(e);
           }
@@ -1943,24 +2168,19 @@
           let lastDate = '---';
 
           data.forEach(p => {
-              // Sumar cantidad total de pases en el lote (default 1 si es registro antiguo)
               const qty = parseInt(p.quantity) || 1;
               totalPases += qty;
-
-              // Sumar valor total del lote
-              // Si no existe totalValue (registro antiguo), calcular como qty * 0.50
               const val = parseFloat(p.totalValue) || (qty * 0.50);
               totalRevenue += val;
           });
 
           if (data.length > 0) {
-              const last = data[0]; // data está ordenada desc (más reciente primero)
+              const last = data[0];
               if (last.createdAt) {
                   lastDate = last.createdAt.toDate().toLocaleDateString();
               }
           }
 
-          // Actualizar las tarjetas del dashboard
           const statTotal = document.getElementById('stat-total-pases');
           const statRevenue = document.getElementById('stat-total-revenue');
           const statLast = document.getElementById('stat-last-date');
@@ -1968,8 +2188,6 @@
           if(statTotal) statTotal.textContent = totalPases;
           if(statRevenue) statRevenue.textContent = `$ ${totalRevenue.toFixed(2)}`;
           if(statLast) statLast.textContent = lastDate;
-          
-          console.log(`Stats actualizadas: ${totalPases} pases, $${totalRevenue} recaudados.`);
       }
 
       function showTeamsWithPases() {
@@ -2258,6 +2476,101 @@
           }
       }
 
+      async function createCartasPasesInvoice(cartasPaseData, cartasPaseDocId) {
+          if (cartasPaseData.invoiceId) return cartasPaseData.invoiceId;
+
+          const teamId = cartasPaseData.teamId;
+          const teamName = cartasPaseData.teamName || "Equipo";
+          const quantity = cartasPaseData.quantity || 1;
+          const totalValue = parseFloat(cartasPaseData.totalValue || (quantity * 0.5));
+          const startSeq = cartasPaseData.startSeq;
+          const endSeq = cartasPaseData.endSeq;
+
+          let category = "N/A";
+          if (teamId) {
+              const teamDoc = await db.collection("teams").doc(teamId).get();
+              if (teamDoc.exists) category = teamDoc.data().category || "N/A";
+          }
+
+          const seqRange = startSeq && endSeq
+              ? ` Sec. ${String(startSeq).padStart(4, '0')}-${String(endSeq).padStart(4, '0')}`
+              : "";
+
+          const seqNum = await getNextGlobalInvoiceNumber();
+          const invoiceId = "001-001-" + String(seqNum).padStart(9, '0');
+
+          const invoiceData = {
+              team: teamName,
+              category: (category || "N/A").toUpperCase(),
+              total: totalValue,
+              invoiceId,
+              timestamp: new Date(),
+              source: "cartas_pases",
+              cartasPaseId: cartasPaseDocId,
+              quantity,
+              startSeq: startSeq || null,
+              endSeq: endSeq || null,
+              concept: `Cartas Pases (${quantity} uds. × $0.50)`,
+              can: 0,
+              arb: 0,
+              cem: 0,
+              ta: { count: 0, val: 0, players: [] },
+              tr: { count: 0, val: 0, players: [] },
+              extras: [{
+                  desc: `Cartas Pases (${quantity} uds. × $0.50)${seqRange}`,
+                  val: totalValue
+              }]
+          };
+
+          await db.collection("invoices").add(invoiceData);
+          await db.collection("cartas_pases").doc(cartasPaseDocId).update({ invoiceId });
+
+          return invoiceId;
+      }
+
+      async function generateAndDownloadPDF(teamName, quantity, startSeq, endSeq) {
+          const pdfContainer = document.createElement('div');
+          pdfContainer.style.margin = '0';
+          pdfContainer.style.padding = '0';
+          const originalTemplate = document.getElementById('carta-pase-pdf-template');
+
+          let currentSeqNum = startSeq;
+          for (let i = 0; i < quantity; i++) {
+              const seqStr = String(currentSeqNum).padStart(4, '0');
+              currentSeqNum++;
+              
+              const page = originalTemplate.cloneNode(true);
+              page.style.display = 'block';
+              page.querySelector('.pdf-seq-val').textContent = seqStr;
+              
+              pdfContainer.appendChild(page);
+              
+              if (i < quantity - 1) {
+                  const pageBreak = document.createElement('div');
+                  pageBreak.className = 'html2pdf__page-break';
+                  pdfContainer.appendChild(pageBreak);
+              }
+          }
+
+          await new Promise(resolve => setTimeout(resolve, 800));
+
+          const opt = {
+              margin:       0,
+              filename:     `Lote_Cartas_Pases_${teamName.replace(/\s+/g, '_')}_${Date.now()}.pdf`,
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { 
+                  scale: 3, 
+                  useCORS: true,
+                  letterRendering: true,
+                  logging: false
+              },
+              jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+              pagebreak:    { mode: ['avoid-all', 'css'] }
+          };
+          
+          await html2pdf().set(opt).from(pdfContainer).save();
+      }
+
       async function saveCartaPase() {
         const teamId = cpSelectedTeam.id;
         const teamName = cpSelectedTeam.name;
@@ -2281,47 +2594,21 @@
           });
 
           try {
-            // Obtener el último número de serie global
             const snapshot = await db.collection("cartas_pases").orderBy("seqNum", "desc").limit(1).get();
             let currentSeq = 0;
             if (!snapshot.empty) {
                 currentSeq = snapshot.docs[0].data().endSeq || snapshot.docs[0].data().seqNum || 0;
             }
             const startSeq = currentSeq + 1;
+            const endSeq = startSeq + quantity - 1;
 
-            // Contenedor temporal para multi-página
-            const pdfContainer = document.createElement('div');
-            pdfContainer.style.margin = '0';
-            pdfContainer.style.padding = '0';
-            const originalTemplate = document.getElementById('carta-pase-pdf-template');
-
-            for (let i = 0; i < quantity; i++) {
-                currentSeq++;
-                const seqStr = String(currentSeq).padStart(4, '0');
-                
-                // Clonar plantilla
-                const page = originalTemplate.cloneNode(true);
-                page.style.display = 'block';
-                page.querySelector('.pdf-seq-val').textContent = seqStr;
-                
-                pdfContainer.appendChild(page);
-                
-                // Añadir salto de página si no es el último
-                if (i < quantity - 1) {
-                    const pageBreak = document.createElement('div');
-                    pageBreak.className = 'html2pdf__page-break';
-                    pdfContainer.appendChild(pageBreak);
-                }
-            }
-
-            // Guardar Registro de Lote ÚNICO en Firestore
-            await db.collection("cartas_pases").add({
+            const docRef = await db.collection("cartas_pases").add({
                 teamId,
                 teamName,
                 quantity,
                 startSeq: startSeq,
-                endSeq: currentSeq,
-                seqNum: currentSeq, // CRÍTICO: Necesario para que la query orderBy("seqNum", "desc") encuentre el último número global
+                endSeq: endSeq,
+                seqNum: endSeq,
                 value: 0.50,
                 totalValue: totalValue,
                 status: 'completed',
@@ -2329,32 +2616,127 @@
                 isBatch: true
             });
 
-            // Generar PDF del lote
-            await new Promise(resolve => setTimeout(resolve, 800));
+            const invoiceId = await createCartasPasesInvoice({
+                teamId,
+                teamName,
+                quantity,
+                startSeq,
+                endSeq,
+                totalValue
+            }, docRef.id);
 
-            const opt = {
-                margin:       0,
-                filename:     `Lote_Cartas_Pases_${teamName.replace(/\s+/g, '_')}_${Date.now()}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { 
-                    scale: 3, 
-                    useCORS: true,
-                    letterRendering: true,
-                    logging: false
-                },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            
-            await html2pdf().set(opt).from(pdfContainer).save();
+            await generateAndDownloadPDF(teamName, quantity, startSeq, endSeq);
 
             bootstrap.Modal.getInstance(document.getElementById('modalCartaPase')).hide();
             await loadCartasPases();
-            Swal.fire('¡Éxito!', `${quantity} cartas pases generadas y registradas con éxito.`, 'success');
+            Swal.fire('¡Éxito!', `${quantity} cartas pases generadas. Factura ${invoiceId} registrada.`, 'success');
           } catch (e) {
             console.error(e);
             Swal.fire('Error', 'No se pudo procesar el lote de cartas pases.', 'error');
           }
         }
+      }
+
+      async function approvePendingCP(id) {
+          const doc = await db.collection("cartas_pases").doc(id).get();
+          if (!doc.exists) return;
+          const data = doc.data();
+
+          const confirm = await Swal.fire({
+              title: '¿Aprobar solicitud?',
+              html: `
+                <div class="text-start small text-white-50">
+                  <p class="text-white">Se autorizará el lote de <strong>${data.quantity}</strong> cartas pases para el club <strong>${data.teamName.toUpperCase()}</strong>.</p>
+                  <p class="text-success fw-bold"><i class="fas fa-coins me-1"></i> Total verificado: $${parseFloat(data.totalValue).toFixed(2)}</p>
+                </div>
+              `,
+              icon: 'question',
+              background: '#111',
+              showCancelButton: true,
+              confirmButtonColor: '#2ecc71',
+              confirmButtonText: 'Sí, Aprobar y Generar Numeración'
+          });
+
+          if (confirm.isConfirmed) {
+              Swal.fire({
+                  title: 'Procesando Aprobación...',
+                  html: 'Asignando números secuenciales de cartas pases.',
+                  didOpen: () => Swal.showLoading()
+              });
+
+              try {
+                  const snapshot = await db.collection("cartas_pases")
+                      .orderBy("seqNum", "desc")
+                      .limit(1)
+                      .get();
+                  
+                  let currentSeq = 0;
+                  if (!snapshot.empty) {
+                      currentSeq = snapshot.docs[0].data().endSeq || snapshot.docs[0].data().seqNum || 0;
+                  }
+                  
+                  const startSeq = currentSeq + 1;
+                  const endSeq = currentSeq + data.quantity;
+
+                  await db.collection("cartas_pases").doc(id).update({
+                      status: 'completed',
+                      startSeq: startSeq,
+                      endSeq: endSeq,
+                      seqNum: endSeq,
+                      approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+                  });
+
+                  const invoiceId = await createCartasPasesInvoice({
+                      ...data,
+                      startSeq,
+                      endSeq,
+                      seqNum: endSeq,
+                      status: 'completed'
+                  }, id);
+
+                  await generateAndDownloadPDF(data.teamName, data.quantity, startSeq, endSeq);
+
+                  await loadCartasPases();
+                  
+                  Swal.fire('¡Aprobado!', `Solicitud aprobada. Factura ${invoiceId} generada para el equipo.`, 'success');
+              } catch (e) {
+                  console.error(e);
+                  Swal.fire('Error', 'No se pudo procesar la aprobación.', 'error');
+              }
+          }
+      }
+
+      async function rejectPendingCP(id) {
+          const doc = await db.collection("cartas_pases").doc(id).get();
+          if (!doc.exists) return;
+          const data = doc.data();
+
+          const confirm = await Swal.fire({
+              title: '¿Rechazar solicitud?',
+              text: `Se rechazará la solicitud de ${data.quantity} cartas pases para el club ${data.teamName}. Esta acción no se puede deshacer.`,
+              icon: 'warning',
+              background: '#111',
+              showCancelButton: true,
+              confirmButtonColor: '#d33',
+              cancelButtonColor: '#3085d6',
+              confirmButtonText: 'Sí, Rechazar',
+              cancelButtonText: 'Cancelar'
+          });
+
+          if (confirm.isConfirmed) {
+              try {
+                  await db.collection("cartas_pases").doc(id).update({
+                      status: 'rejected',
+                      rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
+                  });
+
+                  await loadCartasPases();
+                  Swal.fire('Rechazada', 'La solicitud ha sido rechazada.', 'success');
+              } catch (e) {
+                  console.error(e);
+                  Swal.fire('Error', 'No se pudo rechazar la solicitud.', 'error');
+              }
+          }
       }
 
       function viewCartaPaseDetails(id) {
@@ -2417,6 +2799,53 @@
           modal.show();
       }
 
+      async function createCobroGeneralInvoice(seqNum, cobroData, cobroDocId) {
+          const teamName = cobroData.entidad;
+          const valor = parseFloat(cobroData.valor || 0);
+          const concepto = cobroData.concepto || 'Cobro Adicional';
+
+          let teamCategory = 'VARIOS';
+          let teamId = null;
+
+          try {
+              const teamsSnap = await db.collection("teams").where("name", "==", teamName).get();
+              if (!teamsSnap.empty) {
+                  const tData = teamsSnap.docs[0].data();
+                  teamCategory = tData.category || 'VARIOS';
+                  teamId = teamsSnap.docs[0].id;
+              }
+          } catch(e) { console.warn(e); }
+
+          const invoiceId = "001-001-" + String(seqNum).padStart(9, '0');
+
+          const invoiceData = {
+              team: teamName,
+              category: (teamCategory || 'VARIOS').toUpperCase(),
+              total: valor,
+              invoiceId,
+              timestamp: new Date(),
+              source: "cobro_general",
+              cobroGeneralId: cobroDocId,
+              teamId: teamId || null,
+              concept: concepto,
+              concepto: concepto,
+              can: 0,
+              arb: 0,
+              cem: 0,
+              ta: { count: 0, val: 0, players: [] },
+              tr: { count: 0, val: 0, players: [] },
+              extras: [{
+                  desc: concepto,
+                  val: valor
+              }]
+          };
+
+          await db.collection("invoices").add(invoiceData);
+          await db.collection('cobros_generales').doc(cobroDocId).update({ invoiceId, teamId, category: teamCategory });
+
+          return invoiceId;
+      }
+
       async function saveCobroAdicional() {
           const concepto = document.getElementById('cobro-concepto').value.trim();
           const entidad = document.getElementById('cobro-entidad').value.trim();
@@ -2434,7 +2863,6 @@
           });
 
           try {
-              // Obtener Secuencia Global Compartida
               const seqNum = await getNextGlobalInvoiceNumber();
 
               const cobroData = {
@@ -2447,14 +2875,16 @@
 
               const docRef = await db.collection('cobros_generales').add(cobroData);
               cobroData.id = docRef.id;
+
+              const invoiceId = await createCobroGeneralInvoice(seqNum, cobroData, docRef.id);
+              cobroData.invoiceId = invoiceId;
               
               bootstrap.Modal.getInstance(document.getElementById('modalRegistrarCobro')).hide();
               await loadCobrosAdicionales();
               
-              // Generar y descargar PDF
               await generateCobroPDF(cobroData, new Date());
 
-              Swal.fire('¡Éxito!', 'El cobro ha sido registrado y el recibo generado.', 'success');
+              Swal.fire('¡Éxito!', `El cobro ha sido registrado. Factura ${invoiceId} generada automáticamente.`, 'success');
           } catch(e) {
               console.error(e);
               Swal.fire('Error', 'No se pudo guardar el cobro.', 'error');
@@ -2543,6 +2973,10 @@
                   const date = dateObj.toLocaleDateString();
                   const time = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
+                  const invoiceBadge = data.invoiceId
+                    ? `<div class="small text-warning mt-1"><i class="fas fa-file-invoice me-1"></i> Factura: <span class="font-monospace">${data.invoiceId}</span></div>`
+                    : '';
+
                   const tr = document.createElement('tr');
                   tr.className = "border-bottom border-white border-opacity-5";
                   tr.innerHTML = `
@@ -2552,9 +2986,11 @@
                       </td>
                       <td>
                         <div class="fw-bold text-white">${data.concepto}</div>
+                        ${invoiceBadge}
                       </td>
                       <td>
                         <div class="text-white-50">${data.entidad}</div>
+                        ${data.category ? `<div class="small mt-1"><span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-2 py-1">${data.category}</span></div>` : ''}
                       </td>
                       <td class="text-center text-white fw-bold fs-5 text-primary-glow">$ ${parseFloat(data.valor).toFixed(2)}</td>
                       <td class="text-end pe-4">
@@ -3720,6 +4156,522 @@
           }
         });
       }
+
+      function updateNotificationSystem(pendingCount, teams = []) {
+          const badge = document.getElementById('notification-badge-count');
+          const bubble = document.getElementById('floating-pending-bubble');
+          const bubbleText = document.getElementById('floating-bubble-text');
+          
+          if (badge) {
+              if (pendingCount > 0) {
+                  badge.textContent = pendingCount;
+                  badge.classList.remove('d-none');
+              } else {
+                  badge.classList.add('d-none');
+              }
+          }
+          
+          if (bubble && bubbleText) {
+              if (pendingCount > 0) {
+                  const teamsStr = teams.join(', ');
+                  bubbleText.innerHTML = `El/Los equipo(s): <strong class="text-success">${teamsStr}</strong> ha(n) solicitado cartas pases.`;
+                  bubble.classList.remove('d-none');
+              } else {
+                  bubble.classList.add('d-none');
+              }
+          }
+      }
+
+      window.openCartasPasesPendingView = function() {
+          const mainView = document.getElementById('main-view');
+          const otrasView = document.getElementById('otras-facturaciones-view');
+          const cartasView = document.getElementById('cartas-pases-view');
+          
+          if (mainView && !mainView.classList.contains('d-none')) {
+              openOtrasFacturaciones();
+          }
+          
+          if (otrasView && !otrasView.classList.contains('d-none')) {
+              openCartasPases();
+          }
+          
+          setTimeout(() => {
+              const pendingSec = document.getElementById('pending-pases-section');
+              if (pendingSec) {
+                  pendingSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  pendingSec.style.border = '2px solid var(--primary)';
+                  pendingSec.style.boxShadow = '0 0 25px var(--primary-glow)';
+                  setTimeout(() => {
+                      pendingSec.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+                      pendingSec.style.boxShadow = 'none';
+                  }, 2000);
+              }
+          }, 400);
+      }
+
+      // Escuchar solicitudes pendientes en tiempo real
+      document.addEventListener("DOMContentLoaded", () => {
+          window.__openHistorialSafe = openHistorialFacturas;
+          if (typeof db !== 'undefined') {
+              db.collection("cartas_pases")
+                  .where("status", "==", "pending")
+                  .onSnapshot(snapshot => {
+                      const pendingCount = snapshot.size;
+                      const teams = [];
+                      snapshot.forEach(doc => {
+                          const name = doc.data().teamName;
+                          if (name && !teams.includes(name)) {
+                              teams.push(name);
+                          }
+                      });
+                      updateNotificationSystem(pendingCount, teams);
+                      
+                      const cartasView = document.getElementById('cartas-pases-view');
+                      if (cartasView && !cartasView.classList.contains('d-none')) {
+                          loadCartasPases();
+                      }
+                  }, err => {
+                      console.error("Real-time listener error:", err);
+                  });
+          }
+      });
+
+      /* ============================
+         HISTORIAL DE FACTURAS (TESORERO)
+         ============================ */
+      let __allInvoicesCache = [];
+
+      function openHistorialFacturas() {
+          try {
+              const sections = [
+                  'main-view',
+                  'facturacion-view',
+                  'otras-facturaciones-view',
+                  'cartas-pases-view',
+                  'cobros-generales-view',
+                  'pagos-generales-view',
+                  'historial-facturas-view'
+              ];
+              sections.forEach(id => {
+                  const el = document.getElementById(id);
+                  if (el) el.classList.add('d-none');
+              });
+              const histView = document.getElementById('historial-facturas-view');
+              if (histView) histView.classList.remove('d-none');
+          } catch (e) {
+              console.error("openHistorialFacturas - navigation error:", e);
+          }
+          loadAllInvoices();
+      }
+
+      function closeHistorialFacturas() {
+          const sections = [
+              'main-view',
+              'facturacion-view',
+              'otras-facturaciones-view',
+              'cartas-pases-view',
+              'cobros-generales-view',
+              'pagos-generales-view',
+              'historial-facturas-view'
+          ];
+          sections.forEach(id => {
+              const el = document.getElementById(id);
+              if (el) el.classList.add('d-none');
+          });
+          const mv = document.getElementById('main-view');
+          if (mv) mv.classList.remove('d-none');
+      }
+
+      function getInvoiceConcept(inv) {
+          if (inv.concept) return inv.concept;
+          if (inv.source === "cartas_pases") {
+              const qty = inv.quantity || 1;
+              return `Cartas Pases (${qty} uds. × $0.50)`;
+          }
+          if (inv.opponent) return `Cobro de Partido vs ${inv.opponent}`;
+          if (inv.extras && inv.extras.length > 0) return inv.extras[0].desc;
+          return "Servicios de Liga";
+      }
+
+      function getInvoiceSourceBadge(inv) {
+          if (inv.source === "cartas_pases") {
+              return `<span class="badge rounded-pill" style="background: rgba(155, 89, 182, 0.15); color: #9b59b6; border: 1px solid rgba(155, 89, 182, 0.3); font-size: 10px; padding: 4px 10px;"><i class="fas fa-id-card me-1"></i> CARTAS PASES</span>`;
+          }
+          if (inv.source === "cobro_general") {
+              return `<span class="badge rounded-pill" style="background: rgba(243, 156, 18, 0.15); color: #f39c12; border: 1px solid rgba(243, 156, 18, 0.3); font-size: 10px; padding: 4px 10px;"><i class="fas fa-receipt me-1"></i> COBRO ADICIONAL</span>`;
+          }
+          if (inv.opponent) {
+              return `<span class="badge rounded-pill" style="background: rgba(52, 152, 219, 0.15); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.3); font-size: 10px; padding: 4px 10px;"><i class="fas fa-futbol me-1"></i> PARTIDO</span>`;
+          }
+          return `<span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-20" style="font-size: 10px; padding: 4px 10px;">VARIOS</span>`;
+      }
+
+      function getInvoiceSourceType(inv) {
+          if (inv.source === "cartas_pases") return "cartas_pases";
+          if (inv.source === "cobro_general") return "cobro_general";
+          if (inv.opponent) return "partido";
+          return "varios";
+      }
+
+      function sortInvoicesDesc(list) {
+          return list.sort((a, b) => {
+              const tA = a.timestamp ? (a.timestamp.toMillis ? a.timestamp.toMillis() : new Date(a.timestamp).getTime()) : 0;
+              const tB = b.timestamp ? (b.timestamp.toMillis ? b.timestamp.toMillis() : new Date(b.timestamp).getTime()) : 0;
+              return tB - tA;
+          });
+      }
+
+      async function loadAllInvoices() {
+          Swal.fire({
+              title: 'Cargando Historial...',
+              didOpen: () => Swal.showLoading(),
+              allowOutsideClick: false
+          });
+          try {
+              if (typeof db === 'undefined') {
+                  throw new Error("Firebase Firestore (db) no está inicializado. Espera unos segundos y recarga.");
+              }
+
+              let snap = null;
+              let docs = [];
+              try {
+                  snap = await db.collection("invoices").orderBy("timestamp", "desc").limit(500).get();
+                  docs = snap.docs;
+              } catch (idxErr) {
+                  console.warn("fallo orderBy (probablemente falta índice), cargando sin ordenar:", idxErr && idxErr.message ? idxErr.message : idxErr);
+                  snap = await db.collection("invoices").limit(1000).get();
+                  docs = snap.docs;
+              }
+
+              __allInvoicesCache = docs.map(d => ({ id: d.id, ...d.data() }));
+              __allInvoicesCache = sortInvoicesDesc(__allInvoicesCache);
+
+              // Llenar filtro de categorías
+              const cats = new Set();
+              __allInvoicesCache.forEach(i => { if (i.category) cats.add(String(i.category).toUpperCase()); });
+              const sel = document.getElementById('hist-filter-category');
+              if (sel) {
+                  const current = sel.value || 'all';
+                  sel.innerHTML = '<option value="all">Todas las categorías</option>' +
+                      [...cats].sort().map(c => `<option value="${c}">${c}</option>`).join('');
+                  if ([...cats].includes(current) || current === 'all') sel.value = current;
+                  else sel.value = 'all';
+              }
+
+              // Estadísticas
+              let totalPartido = 0, totalPases = 0, totalMonto = 0;
+              __allInvoicesCache.forEach(inv => {
+                  const type = getInvoiceSourceType(inv);
+                  if (type === "partido") totalPartido++;
+                  if (type === "cartas_pases") totalPases++;
+                  totalMonto += parseFloat(inv.total || 0);
+              });
+              const elTotal = document.getElementById("hist-stat-total");
+              const elPartido = document.getElementById("hist-stat-partidos");
+              const elPases = document.getElementById("hist-stat-pases");
+              const elMonto = document.getElementById("hist-stat-monto");
+              if (elTotal) elTotal.textContent = __allInvoicesCache.length;
+              if (elPartido) elPartido.textContent = totalPartido;
+              if (elPases) elPases.textContent = totalPases;
+              if (elMonto) elMonto.textContent = totalMonto.toFixed(2);
+
+              renderAllInvoices();
+          } catch (e) {
+              console.error("loadAllInvoices error:", e);
+              __allInvoicesCache = [];
+              renderAllInvoices();
+              const errMsg = (e && e.message) ? e.message : "Error desconocido al cargar.";
+              Swal.fire({
+                  icon: 'error',
+                  title: 'No se pudo cargar el historial',
+                  html: `<div class="text-start small text-white-50">${errMsg}<br><br>Si el error menciona "missing index", usa el enlace que Firebase te da en consola para crear el índice, o funciona con el fallback.</div>`,
+                  confirmButtonText: 'Entendido'
+              });
+              return;
+          } finally {
+              try { Swal.close(); } catch (x) {}
+          }
+      }
+
+      function resetHistorialFilters() {
+          try {
+              const s = document.getElementById('hist-search');
+              const ft = document.getElementById('hist-filter-type');
+              const fc = document.getElementById('hist-filter-category');
+              if (s) s.value = '';
+              if (ft) ft.value = 'all';
+              if (fc) fc.value = 'all';
+          } catch (e) { console.error(e); }
+          renderAllInvoices();
+      }
+
+      function renderAllInvoices() {
+          const tbody = document.getElementById('historial-body');
+          if (!tbody) return;
+
+          let searchVal = '';
+          let typeVal = 'all';
+          let catVal = 'all';
+          try {
+              searchVal = (document.getElementById('hist-search')?.value || '').trim().toLowerCase();
+              typeVal = document.getElementById('hist-filter-type')?.value || 'all';
+              catVal = document.getElementById('hist-filter-category')?.value || 'all';
+          } catch (e) { console.warn(e); }
+
+          const filtered = __allInvoicesCache.filter(inv => {
+              try {
+                  if (typeVal !== 'all') {
+                      const t = getInvoiceSourceType(inv);
+                      if (typeVal === 'partido' && t !== 'partido') return false;
+                      if (typeVal === 'cartas_pases' && t !== 'cartas_pases') return false;
+                      if (typeVal === 'cobro_general' && t !== 'cobro_general') return false;
+                  }
+                  if (catVal !== 'all') {
+                      const c = (inv.category || '').toUpperCase();
+                      if (c !== catVal) return false;
+                  }
+                  if (searchVal) {
+                      const concept = getInvoiceConcept(inv).toLowerCase();
+                      const team = (inv.team || '').toLowerCase();
+                      const invId = (inv.invoiceId || '').toLowerCase();
+                      if (!concept.includes(searchVal) && !team.includes(searchVal) && !invId.includes(searchVal)) return false;
+                  }
+                  return true;
+              } catch (err) {
+                  console.warn("error filtro individual:", err);
+                  return true;
+              }
+          });
+
+          tbody.innerHTML = '';
+          if (filtered.length === 0) {
+              tbody.innerHTML = `
+                <tr>
+                  <td colspan="7" class="py-5">
+                    <div class="text-center">
+                      <div class="mb-3"><i class="fas fa-search fa-3x opacity-25 text-white-50"></i></div>
+                      <div class="text-white-50 fw-semibold mb-1">${__allInvoicesCache.length === 0 ? 'Aún no hay facturas emitidas' : 'Sin resultados con estos filtros'}</div>
+                      <div class="small text-white-50" style="opacity: .7;">${__allInvoicesCache.length === 0 ? 'Cuando emitas facturas (partidos, cartas pases, cobros) aparecerán aquí automáticamente.' : 'Ajusta los filtros o limpia para ver todas las facturas.'}</div>
+                      ${__allInvoicesCache.length === 0 ? '' : '<div class="mt-2"><button class="btn btn-outline-light btn-sm rounded-pill" onclick="resetHistorialFilters()"><i class="fas fa-eraser me-1"></i> Limpiar filtros</button></div>'}
+                    </div>
+                  </td>
+                </tr>`;
+              return;
+          }
+
+          filtered.forEach(inv => {
+              try {
+                  const date = inv.timestamp ? (inv.timestamp.toDate ? inv.timestamp.toDate() : new Date(inv.timestamp)).toLocaleDateString() : "N/A";
+                  const time = inv.timestamp ? (inv.timestamp.toDate ? inv.timestamp.toDate() : new Date(inv.timestamp)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "";
+                  const concept = getInvoiceConcept(inv);
+                  const sourceBadge = getInvoiceSourceBadge(inv);
+                  const totalVal = parseFloat(inv.total || 0);
+                  const tr = document.createElement('tr');
+                  tr.className = "border-bottom border-white border-opacity-5 align-middle";
+                  tr.innerHTML = `
+                    <td class="ps-4">
+                      <div class="fw-bold font-monospace" style="color: #c9a227; font-size: 13px;">${inv.invoiceId || '---'}</div>
+                    </td>
+                    <td>
+                      <div class="text-white small">${date}</div>
+                      <div class="text-white-50 small" style="font-size: 11px;">${time}</div>
+                    </td>
+                    <td>
+                      <div class="text-white fw-semibold">${inv.team || 'N/A'}</div>
+                    </td>
+                    <td>${inv.category ? `<span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-2 py-1 small">${inv.category}</span>` : '<span class="text-white-50 small">—</span>'}</td>
+                    <td>
+                      <div class="text-white small fw-semibold mb-1">${concept}</div>
+                      <div>${sourceBadge}</div>
+                    </td>
+                    <td class="text-center">
+                      <div class="text-success fw-bold">$ ${totalVal.toFixed(2)}</div>
+                    </td>
+                    <td class="text-end pe-4">
+                      <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary rounded-3 border-opacity-25 me-1" onclick='viewInvoiceFromHistory("${inv.id}")' title="Ver factura">
+                          <i class="fas fa-eye me-1"></i> Ver
+                        </button>
+                        <button class="btn btn-sm btn-outline-success rounded-3 border-opacity-25" onclick='quickDownloadInvoice("${inv.id}")' title="Descargar PDF rápido">
+                          <i class="fas fa-file-pdf"></i>
+                        </button>
+                      </div>
+                    </td>
+                  `;
+                  tbody.appendChild(tr);
+              } catch (rowErr) {
+                  console.error("fila error:", rowErr, inv);
+              }
+          });
+      }
+
+      async function viewInvoiceFromHistory(id) {
+          Swal.fire({ title: 'Cargando factura...', didOpen: () => Swal.showLoading() });
+          try {
+              let doc = await db.collection("invoices").doc(id).get();
+              let data;
+              if (doc.exists) {
+                  data = doc.data();
+              } else {
+                  // Fallback: search by invoiceId field
+                  const querySnap = await db.collection("invoices").where("invoiceId", "==", id).get();
+                  if (!querySnap.empty) {
+                      doc = querySnap.docs[0];
+                      data = doc.data();
+                  } else {
+                      Swal.fire('Error', 'Factura no encontrada en la base de datos.', 'error');
+                      return;
+                  }
+              }
+
+              const recNum = document.getElementById("rec_number");
+              const recClient = document.getElementById("rec_client");
+              const recCat = document.getElementById("rec_cat");
+              const recDate = document.getElementById("rec_date");
+              const recObs = document.getElementById("rec_obs");
+              const recTotal = document.getElementById("rec_total");
+              const recSub0 = document.getElementById("rec_subtotal_0");
+
+              if (recNum) recNum.textContent = data.invoiceId || "N/A";
+              if (recClient) recClient.textContent = data.team || "N/A";
+              if (recCat) recCat.textContent = data.category || "N/A";
+              if (recDate) recDate.textContent = data.timestamp
+                  ? (data.timestamp.toDate ? data.timestamp.toDate() : new Date(data.timestamp)).toLocaleDateString()
+                  : "N/A";
+              if (recObs) recObs.textContent = data.opponent
+                  ? `Cobro correspondiente al partido vs ${data.opponent}.`
+                  : (data.source === "cartas_pases"
+                      ? `Compra de ${data.quantity || 0} cartas pases.`
+                      : (data.concept || "Cobro procesado exitosamente."));
+
+              const totalVal = parseFloat(data.total || 0);
+              if (recTotal) recTotal.textContent = `$ ${totalVal.toFixed(2)}`;
+              if (recSub0) recSub0.textContent = `$ ${totalVal.toFixed(2)}`;
+
+              const items = [];
+              try {
+                  if (parseFloat(data.can || 0) > 0) items.push({ concept: "Derecho de Cancha", qty: 1, unit: data.can, total: parseFloat(data.can) });
+                  if (parseFloat(data.arb || 0) > 0) items.push({ concept: "Vocalía / Arbitraje", qty: 1, unit: data.arb, total: parseFloat(data.arb) });
+                  if (parseFloat(data.cem || 0) > 0) items.push({ concept: "Cementina", qty: 1, unit: data.cem, total: parseFloat(data.cem) });
+                  if (data.ta && parseInt(data.ta.count || 0) > 0) {
+                      const qty = parseInt(data.ta.count || 0);
+                      const unit = parseFloat(data.ta.val || 0);
+                      items.push({ concept: `Tarjetas Amarillas (${qty})`, qty: qty, unit: unit, total: qty * unit });
+                  }
+                  if (data.tr && parseInt(data.tr.count || 0) > 0) {
+                      const qty = parseInt(data.tr.count || 0);
+                      const unit = parseFloat(data.tr.val || 0);
+                      items.push({ concept: `Tarjetas Rojas (${qty})`, qty: qty, unit: unit, total: qty * unit });
+                  }
+                  if (data.extras && data.extras.length > 0) {
+                      data.extras.forEach(ex => {
+                          try {
+                              const v = parseFloat(ex.val || 0);
+                              if (v > 0) items.push({ concept: ex.desc || "Extra", qty: 1, unit: v, total: v });
+                          } catch (exerr) { console.warn(exerr); }
+                      });
+                  }
+              } catch (ierr) { console.error(ierr); }
+
+              const itemsBody = document.getElementById("rec_items_body");
+              if (itemsBody) {
+                  itemsBody.innerHTML = "";
+                  items.forEach((item, idx) => {
+                      try {
+                          const code = `P${(idx + 1).toString().padStart(8, "0")}`;
+                          itemsBody.insertAdjacentHTML("beforeend", `
+                            <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                              <td class="py-3 ps-3" style="color: #c9a227; font-weight: bold;">${code}</td>
+                              <td class="py-3 text-white fw-bold">${item.concept}</td>
+                              <td class="py-3 text-center text-white-50">${item.qty}</td>
+                              <td class="py-3 text-end text-white-50">$ ${parseFloat(item.unit || 0).toFixed(2)}</td>
+                              <td class="py-3 text-end text-white-50">$ 0.00</td>
+                              <td class="py-3 text-end pe-3 text-white fw-bold">$ ${parseFloat(item.total || 0).toFixed(2)}</td>
+                            </tr>
+                          `);
+                      } catch (rerr) { console.error(rerr); }
+                  });
+              }
+
+              try { Swal.close(); } catch (x) {}
+              const modalEl = document.getElementById("receiptDigitalModal");
+              if (modalEl) {
+                  const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                  bsModal.show();
+              }
+          } catch (err) {
+              console.error(err);
+              try { Swal.close(); } catch (x) {}
+              Swal.fire('Error', (err && err.message) ? err.message : 'No se pudo cargar la factura.', 'error');
+          }
+      }
+
+      function downloadReceiptPNG() {
+          try {
+              const element = document.getElementById("printableReceipt");
+              if (!element) throw new Error("No existe el elemento printableReceipt");
+              html2canvas(element, { backgroundColor: "#141414", scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
+                  const link = document.createElement("a");
+                  const num = document.getElementById("rec_number")?.textContent || "factura";
+                  link.download = `Factura_${num.replace(/[^0-9-]/g, '')}.png`;
+                  link.href = canvas.toDataURL("image/png");
+                  document.body.appendChild(link);
+                  link.click();
+                  setTimeout(() => link.remove(), 1000);
+              }).catch(err => {
+                  console.error(err);
+                  Swal.fire('Error', 'No se pudo generar la imagen. ' + (err && err.message ? err.message : ''), 'error');
+              });
+          } catch (err) {
+              console.error(err);
+              Swal.fire('Error', 'No se pudo generar la imagen.', 'error');
+          }
+      }
+
+      function downloadReceiptPDF() {
+          try {
+              if (typeof html2pdf === 'undefined') throw new Error("html2pdf.js no está cargado.");
+              const element = document.getElementById("printableReceipt");
+              if (!element) throw new Error("No existe el elemento printableReceipt");
+              const num = document.getElementById("rec_number")?.textContent || "factura";
+              const fileName = `Factura_${num.replace(/[^0-9-]/g, '')}.pdf`;
+              const opt = {
+                  margin: [5, 5, 5, 5],
+                  filename: fileName,
+                  image: { type: 'jpeg', quality: 0.98 },
+                  html2canvas: { scale: 2, backgroundColor: "#141414", useCORS: true, allowTaint: true },
+                  jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+              };
+              html2pdf().set(opt).from(element).save().catch(err => {
+                  console.error(err);
+                  Swal.fire('Error', 'No se pudo generar el PDF. ' + (err && err.message ? err.message : ''), 'error');
+              });
+          } catch (err) {
+              console.error(err);
+              Swal.fire('Error', 'No se pudo generar el PDF.', 'error');
+          }
+      }
+
+      async function quickDownloadInvoice(id) {
+          try {
+              await viewInvoiceFromHistory(id);
+              setTimeout(() => { try { downloadReceiptPDF(); } catch (e) { console.error(e); } }, 700);
+          } catch (e) { console.error(e); }
+      }
     </script>
+
+    <!-- Floating Notification Bubble -->
+    <div id="floating-pending-bubble" class="d-none" style="position: fixed; bottom: 30px; right: 30px; z-index: 1050; cursor: pointer; transition: all 0.3s ease;" onclick="openCartasPasesPendingView()">
+      <div class="d-flex align-items-center p-3 rounded-4 shadow-lg border border-success border-opacity-25" style="background: rgba(17, 17, 17, 0.95); backdrop-filter: blur(15px); max-width: 320px; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.2);">
+        <div class="rounded-circle bg-success bg-opacity-10 p-2 me-3 position-relative">
+          <i class="fas fa-envelope-open-text text-success fs-4"></i>
+          <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+        </div>
+        <div>
+          <h6 class="text-white fw-bold mb-1 small text-uppercase" style="letter-spacing: 1px;">Aprobaciones Pendientes</h6>
+          <p class="text-white-50 mb-0 small" id="floating-bubble-text">Tienes solicitudes de cartas pases por aprobar.</p>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
