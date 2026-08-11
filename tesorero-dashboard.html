@@ -683,13 +683,13 @@
           </div>
         </div>
 
-        <div class="col-md-5 col-lg-4">
+        <!-- <div class="col-md-5 col-lg-4">
           <div class="dashboard-card" style="border-color: rgba(201, 162, 39, 0.3);" onmousedown="this.style.transform='translateY(-3px)';this.style.boxShadow='0 0 30px rgba(201,162,39,0.3)';" onmouseup="this.style.transform='';" onclick="openHistorialFacturas()">
             <i class="fas fa-book" style="color: #c9a227;"></i>
             <h3 style="color: #fff;">Historial de Facturas</h3>
             <p>Consulta global de TODAS las facturas emitidas. Busca, filtra, visualiza y descarga cualquier comprobante.</p>
           </div>
-        </div>
+        </div> -->
 
         <div class="col-md-5 col-lg-4 d-none">
           <a href="ligabet-admin.html" class="dashboard-card text-decoration-none">
@@ -1972,7 +1972,7 @@
                 <th><i class="fas fa-tag me-1 text-info"></i> Categoría</th>
                 <th style="min-width: 220px;">Concepto</th>
                 <th class="text-center" style="min-width: 110px;"><i class="fas fa-dollar-sign me-1 text-success"></i> Monto</th>
-                <th class="text-end pe-4" style="min-width: 160px;"><i class="fas fa-cog me-1 text-white-50"></i> Acciones</th>
+                <th class="text-end pe-4" style="min-width: 240px;"><i class="fas fa-cog me-1 text-white-50"></i> Acciones</th>
               </tr>
             </thead>
             <tbody id="historial-body">
@@ -3075,7 +3075,7 @@
       async function deleteCobro(id) {
           const res = await Swal.fire({
               title: '¿Eliminar cobro?',
-              text: 'Esta acción no se puede deshacer.',
+              text: 'Se eliminará también la factura asociada. Esta acción no se puede deshacer.',
               icon: 'warning',
               showCancelButton: true,
               confirmButtonColor: '#d33',
@@ -3086,13 +3086,85 @@
 
           if (res.isConfirmed) {
               try {
+                  const cobroDoc = await db.collection('cobros_generales').doc(id).get();
+                  const cobroData = cobroDoc.data();
                   await db.collection('cobros_generales').doc(id).delete();
+                  if (cobroData && cobroData.invoiceId) {
+                      try {
+                          const qSnap = await db.collection('invoices').where('invoiceId', '==', cobroData.invoiceId).get();
+                          const deletePromises = [];
+                          qSnap.forEach(doc => deletePromises.push(db.collection('invoices').doc(doc.id).delete()));
+                          await Promise.all(deletePromises);
+                      } catch (invErr) {
+                          console.warn('No se pudo eliminar factura asociada al cobro:', invErr);
+                      }
+                  }
                   loadCobrosAdicionales();
-                  Swal.fire('Eliminado', 'El cobro ha sido eliminado.', 'success');
+                  Swal.fire('Eliminado', 'El cobro y su factura han sido eliminados.', 'success');
               } catch(e) {
                   console.error(e);
                   Swal.fire('Error', 'No se pudo eliminar.', 'error');
               }
+          }
+      }
+
+      async function deleteInvoiceFromHistory(docId) {
+          const res = await Swal.fire({
+              title: '¿Eliminar factura del historial?',
+              text: 'Esta acción no se puede deshacer. Se eliminará permanentemente de la base de datos.',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#e74c3c',
+              cancelButtonColor: '#555',
+              confirmButtonText: 'Sí, eliminar factura',
+              cancelButtonText: 'Cancelar'
+          });
+
+          if (!res.isConfirmed) return;
+
+          Swal.fire({ title: 'Eliminando...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+
+          try {
+              const invRef = db.collection('invoices').doc(docId);
+              const invSnap = await invRef.get();
+              const invData = invSnap.exists ? invSnap.data() : null;
+
+              await invRef.delete();
+
+              if (invData) {
+                  const invNumber = invData.invoiceId || null;
+                  if (invData.source === 'cobro_general' || invNumber) {
+                      try {
+                          let cobroQuery;
+                          if (invNumber) {
+                              cobroQuery = await db.collection('cobros_generales').where('invoiceId', '==', invNumber).get();
+                          } else {
+                              cobroQuery = await db.collection('cobros_generales').where('teamId', '==', invData.teamId || '').where('total', '==', invData.total || 0).limit(3).get();
+                          }
+                          const dels = [];
+                          cobroQuery.forEach(doc => dels.push(db.collection('cobros_generales').doc(doc.id).delete()));
+                          await Promise.all(dels);
+                      } catch (cgErr) {
+                          console.warn('No se pudo limpiar cobro_general asociado:', cgErr);
+                      }
+                  }
+
+                  __allInvoicesCache = __allInvoicesCache.filter(x => String(x.id) !== String(docId));
+              }
+
+              renderAllInvoices();
+              Swal.close();
+              Swal.fire({
+                  icon: 'success',
+                  title: 'Factura eliminada',
+                  text: 'La factura ha sido eliminada del historial correctamente.',
+                  timer: 2000,
+                  showConfirmButton: false
+              });
+          } catch (e) {
+              console.error('deleteInvoiceFromHistory error:', e);
+              Swal.close();
+              Swal.fire('Error', 'No se pudo eliminar la factura: ' + (e && e.message ? e.message : 'Error desconocido'), 'error');
           }
       }
 
@@ -4229,39 +4301,76 @@
           }, 400);
       }
 
-      // Escuchar solicitudes pendientes en tiempo real
+      window.__cartasPasesUnsub = null;
       document.addEventListener("DOMContentLoaded", () => {
           window.__openHistorialSafe = openHistorialFacturas;
           if (typeof db !== 'undefined') {
-              db.collection("cartas_pases")
-                  .where("status", "==", "pending")
-                  .onSnapshot(snapshot => {
-                      const pendingCount = snapshot.size;
-                      const teams = [];
-                      snapshot.forEach(doc => {
-                          const name = doc.data().teamName;
-                          if (name && !teams.includes(name)) {
-                              teams.push(name);
+              try {
+                  window.__cartasPasesUnsub = db.collection("cartas_pases")
+                      .where("status", "==", "pending")
+                      .onSnapshot(snapshot => {
+                          try {
+                              const pendingCount = snapshot.size;
+                              const teams = [];
+                              snapshot.forEach(doc => {
+                                  const name = doc.data().teamName;
+                                  if (name && teams.indexOf(name) === -1) {
+                                      teams.push(name);
+                                  }
+                              });
+                              updateNotificationSystem(pendingCount, teams);
+                              const cartasView = document.getElementById('cartas-pases-view');
+                              if (cartasView && !cartasView.classList.contains('d-none')) {
+                                  loadCartasPases();
+                              }
+                          } catch (innerErr) {
+                              console.warn("onSnapshot inner error:", innerErr);
                           }
+                      }, err => {
+                          console.warn("Real-time listener warning (fallback a get periódico):", err && err.message ? err.message : err);
                       });
-                      updateNotificationSystem(pendingCount, teams);
-                      
-                      const cartasView = document.getElementById('cartas-pases-view');
-                      if (cartasView && !cartasView.classList.contains('d-none')) {
-                          loadCartasPases();
-                      }
-                  }, err => {
-                      console.error("Real-time listener error:", err);
-                  });
+              } catch (setupErr) {
+                  console.warn("No se pudo iniciar onSnapshot. Fallback activado.", setupErr);
+                  window.__cartasPasesUnsub = null;
+              }
+              setInterval(() => {
+                  if (window.__cartasPasesUnsub) return;
+                  db.collection("cartas_pases").where("status", "==", "pending").get()
+                      .then(snap => {
+                          const pendingCount = snap.size;
+                          const teams = [];
+                          snap.forEach(doc => {
+                              const name = doc.data().teamName;
+                              if (name && teams.indexOf(name) === -1) teams.push(name);
+                          });
+                          updateNotificationSystem(pendingCount, teams);
+                      })
+                      .catch(() => {});
+              }, 15000);
           }
       });
+      window.__cleanupModalsGlobal = function() {
+          try {
+              const conts = document.querySelectorAll('.swal2-container, .swal2-backdrop-show, .swal2-modal');
+              for (let i = 0; i < conts.length; i++) { try { conts[i].parentNode.removeChild(conts[i]); } catch(e){} }
+              document.body.classList.remove('swal2-shown','swal2-height-auto','swal2-no-backdrop','swal2-toast-shown','modal-open');
+              document.documentElement.style.overflowY = '';
+              document.body.style.overflow = '';
+              document.body.style.paddingRight = '';
+              const bds = document.querySelectorAll('.modal-backdrop');
+              for (let i = 0; i < bds.length; i++) { try { bds[i].parentNode.removeChild(bds[i]); } catch(e){} }
+          } catch(e) {}
+      };
 
       /* ============================
          HISTORIAL DE FACTURAS (TESORERO)
          ============================ */
       let __allInvoicesCache = [];
+      let __historialLoadingNow = false;
 
       function openHistorialFacturas() {
+          window.__lastHistorialError = null;
+          try { if (window.__cleanupModalsGlobal) window.__cleanupModalsGlobal(); } catch(e) {}
           try {
               const sections = [
                   'main-view',
@@ -4272,16 +4381,56 @@
                   'pagos-generales-view',
                   'historial-facturas-view'
               ];
-              sections.forEach(id => {
-                  const el = document.getElementById(id);
-                  if (el) el.classList.add('d-none');
-              });
+              for (let i = 0; i < sections.length; i++) {
+                  const el = document.getElementById(sections[i]);
+                  if (el) {
+                      el.classList.add('d-none');
+                      el.style.display = 'none';
+                  }
+              }
               const histView = document.getElementById('historial-facturas-view');
-              if (histView) histView.classList.remove('d-none');
+              if (histView) {
+                  histView.classList.remove('d-none');
+                  histView.style.cssText = 'display: block !important; position: relative !important; z-index: 10 !important; opacity: 1 !important; visibility: visible !important;';
+              }
+              try {
+                  const stats = ['hist-stat-total','hist-stat-partidos','hist-stat-pases','hist-counter-total'];
+                  for (let i = 0; i < stats.length; i++) {
+                      const st = document.getElementById(stats[i]);
+                      if (st) st.textContent = '...';
+                  }
+                  const monto = document.getElementById('hist-stat-monto');
+                  if (monto) monto.textContent = '0.00';
+              } catch(e) {}
+              try {
+                  const fc = document.getElementById('hist-filter-category');
+                  if (fc) fc.innerHTML = '<option value="all">Cargando categorías...</option>';
+              } catch(e) {}
           } catch (e) {
               console.error("openHistorialFacturas - navigation error:", e);
           }
-          loadAllInvoices();
+          try {
+              const tb = document.getElementById('historial-body');
+              if (tb) {
+                  tb.innerHTML = `
+                    <tr>
+                      <td colspan="7" class="py-5">
+                        <div class="text-center">
+                          <div class="spinner-border text-warning mb-3" role="status" style="width: 3rem; height: 3rem; border-width: .3em;">
+                            <span class="visually-hidden">Cargando...</span>
+                          </div>
+                          <div class="text-white fw-semibold mb-2 h5">Cargando Historial de Facturas...</div>
+                          <div class="small text-white-50" style="opacity:.8;">Conectando con la base de datos, por favor espera un momento.</div>
+                          <div class="mt-4 d-flex gap-2 flex-wrap justify-content-center">
+                            <button class="btn btn-outline-warning btn-sm rounded-pill px-4" onclick="loadAllInvoices(true);"><i class="fas fa-sync-alt me-1"></i> Reintentar ahora</button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>`;
+              }
+          } catch(e) {}
+          try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch(e) {}
+          setTimeout(function() { loadAllInvoices(false); }, 120);
       }
 
       function closeHistorialFacturas() {
@@ -4341,82 +4490,157 @@
           });
       }
 
-      async function loadAllInvoices() {
-          Swal.fire({
-              title: 'Cargando Historial...',
-              didOpen: () => Swal.showLoading(),
-              allowOutsideClick: false
-          });
+      async function loadAllInvoices(force) {
+          if (__historialLoadingNow && !force) return;
+          __historialLoadingNow = true;
+          let showErrorAfterClose = null;
+          let timeoutId = null;
           try {
               if (typeof db === 'undefined') {
                   throw new Error("Firebase Firestore (db) no está inicializado. Espera unos segundos y recarga.");
               }
 
-              let snap = null;
-              let docs = [];
-              try {
-                  snap = await db.collection("invoices").orderBy("timestamp", "desc").limit(500).get();
-                  docs = snap.docs;
-              } catch (idxErr) {
-                  console.warn("fallo orderBy (probablemente falta índice), cargando sin ordenar:", idxErr && idxErr.message ? idxErr.message : idxErr);
-                  snap = await db.collection("invoices").limit(1000).get();
-                  docs = snap.docs;
-              }
+              const timeoutPromise = new Promise((_, rej) => {
+                  timeoutId = setTimeout(() => rej(new Error('Tiempo de espera agotado al conectar con Firestore. Revisa tu conexión a internet e intenta nuevamente.')), 18000);
+              });
 
-              __allInvoicesCache = docs.map(d => ({ id: d.id, ...d.data() }));
+              const fetchPromise = (async () => {
+                  let snap = null;
+                  let docs = [];
+                  let attempt = 0;
+                  while (attempt < 2) {
+                      attempt++;
+                      try {
+                          try {
+                              snap = await db.collection("invoices").orderBy("timestamp", "desc").limit(800).get();
+                              docs = snap.docs;
+                          } catch (idxErr) {
+                              console.warn("fallo orderBy, cargando sin ordenar (intento " + attempt + "):", idxErr && idxErr.message ? idxErr.message : idxErr);
+                              snap = await db.collection("invoices").limit(1500).get();
+                              docs = snap.docs;
+                          }
+                          break;
+                      } catch (netErr) {
+                          if (attempt >= 2) throw netErr;
+                          await new Promise(r => setTimeout(r, 900));
+                      }
+                  }
+                  return docs;
+              })();
+
+              const docs = await Promise.race([fetchPromise, timeoutPromise]);
+              if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+
+              __allInvoicesCache = docs.map(d => {
+                  try { return { id: d.id, ...d.data() }; }
+                  catch(e) { return { id: d.id }; }
+              });
               __allInvoicesCache = sortInvoicesDesc(__allInvoicesCache);
+              window.__lastHistorialError = null;
 
-              // Llenar filtro de categorías
               const cats = new Set();
-              __allInvoicesCache.forEach(i => { if (i.category) cats.add(String(i.category).toUpperCase()); });
+              for (let i = 0; i < __allInvoicesCache.length; i++) {
+                  try {
+                      const it = __allInvoicesCache[i];
+                      if (it.category) cats.add(String(it.category).toUpperCase());
+                  } catch(e) {}
+              }
               const sel = document.getElementById('hist-filter-category');
               if (sel) {
                   const current = sel.value || 'all';
                   sel.innerHTML = '<option value="all">Todas las categorías</option>' +
                       [...cats].sort().map(c => `<option value="${c}">${c}</option>`).join('');
-                  if ([...cats].includes(current) || current === 'all') sel.value = current;
+                  if ([...cats].indexOf(current) !== -1 || current === 'all') sel.value = current;
                   else sel.value = 'all';
               }
 
-              // Estadísticas
               let totalPartido = 0, totalPases = 0, totalMonto = 0;
-              __allInvoicesCache.forEach(inv => {
-                  const type = getInvoiceSourceType(inv);
-                  if (type === "partido") totalPartido++;
-                  if (type === "cartas_pases") totalPases++;
-                  totalMonto += parseFloat(inv.total || 0);
-              });
+              for (let i = 0; i < __allInvoicesCache.length; i++) {
+                  try {
+                      const inv = __allInvoicesCache[i];
+                      const type = getInvoiceSourceType(inv);
+                      if (type === "partido") totalPartido++;
+                      if (type === "cartas_pases") totalPases++;
+                      const t = parseFloat(inv.total || 0);
+                      if (!isNaN(t)) totalMonto += t;
+                  } catch(e){}
+              }
               const elTotal = document.getElementById("hist-stat-total");
               const elPartido = document.getElementById("hist-stat-partidos");
               const elPases = document.getElementById("hist-stat-pases");
               const elMonto = document.getElementById("hist-stat-monto");
-              if (elTotal) elTotal.textContent = __allInvoicesCache.length;
-              if (elPartido) elPartido.textContent = totalPartido;
-              if (elPases) elPases.textContent = totalPases;
+              if (elTotal) elTotal.textContent = String(__allInvoicesCache.length);
+              if (elPartido) elPartido.textContent = String(totalPartido);
+              if (elPases) elPases.textContent = String(totalPases);
               if (elMonto) elMonto.textContent = totalMonto.toFixed(2);
 
-              renderAllInvoices();
+              try { renderAllInvoices(); } catch(re) { console.error("render error:", re); __fallbackRenderError(re); }
+
           } catch (e) {
               console.error("loadAllInvoices error:", e);
+              if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
+              window.__lastHistorialError = e && e.message ? e.message : String(e);
               __allInvoicesCache = [];
-              renderAllInvoices();
-              const errMsg = (e && e.message) ? e.message : "Error desconocido al cargar.";
-              Swal.fire({
-                  icon: 'error',
-                  title: 'No se pudo cargar el historial',
-                  html: `<div class="text-start small text-white-50">${errMsg}<br><br>Si el error menciona "missing index", usa el enlace que Firebase te da en consola para crear el índice, o funciona con el fallback.</div>`,
-                  confirmButtonText: 'Entendido'
-              });
-              return;
-          } finally {
-              try { Swal.close(); } catch (x) {}
               try {
-                  document.querySelectorAll('.swal2-container, .swal2-backdrop-show, .swal2-modal').forEach(e => e.remove());
-                  document.body.classList.remove('swal2-shown','swal2-height-auto','swal2-no-backdrop','swal2-toast-shown');
-                  document.documentElement.style.overflowY = '';
-                  document.body.style.overflow = '';
-              } catch (x) {}
+                  const stats = ['hist-stat-total','hist-stat-partidos','hist-stat-pases','hist-counter-total'];
+                  for (let i = 0; i < stats.length; i++) {
+                      const st = document.getElementById(stats[i]);
+                      if (st) st.textContent = '0';
+                  }
+                  const monto = document.getElementById('hist-stat-monto');
+                  if (monto) monto.textContent = '0.00';
+                  const fc = document.getElementById('hist-filter-category');
+                  if (fc) fc.innerHTML = '<option value="all">Todas las categorías</option>';
+              } catch(x) {}
+              const errMsg = (e && e.message) ? e.message : "Error desconocido al cargar.";
+              __renderHistorialErrorState(errMsg);
+          } finally {
+              __historialLoadingNow = false;
           }
+      }
+
+      function __renderHistorialErrorState(errMsg) {
+          try {
+              const tbody = document.getElementById('historial-body');
+              if (!tbody) return;
+              tbody.innerHTML = `
+                <tr>
+                  <td colspan="7" class="py-5">
+                    <div class="text-center">
+                      <div class="mb-3" style="width: 64px; height: 64px; margin: 0 auto; display:flex; align-items:center; justify-content:center; border-radius:50%; background: rgba(220,53,69,0.1); border:1px solid rgba(220,53,69,0.3);">
+                        <i class="fas fa-exclamation-triangle text-danger" style="font-size: 2rem;"></i>
+                      </div>
+                      <div class="text-white fw-semibold mb-2 h5">No se pudo conectar con Firestore</div>
+                      <div class="small text-white-50 mb-3" style="max-width: 640px; margin: 0 auto; opacity:.85;">
+                        ${String(errMsg).replace(/[<>"']/g, '')}
+                      </div>
+                      <div class="small text-warning mb-4" style="opacity:.9;">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Si el error menciona "missing index" o "FAILED_PRECONDITION", accede al link que Firebase muestra en la consola del navegador (F12) para crear el índice.
+                      </div>
+                      <div class="mt-2 d-flex gap-2 flex-wrap justify-content-center">
+                        <button class="btn btn-warning btn-sm rounded-pill px-4 fw-bold" onclick="loadAllInvoices(true);" style="background:#c9a227; color:#141414; border:none;">
+                          <i class="fas fa-sync-alt me-1"></i> Reintentar carga
+                        </button>
+                        <button class="btn btn-outline-light btn-sm rounded-pill px-4" onclick="resetHistorialFilters();">
+                          <i class="fas fa-eraser me-1"></i> Limpiar filtros
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill px-4" onclick="closeHistorialFacturas(); setTimeout(() => openHistorialFacturas(), 200);">
+                          <i class="fas fa-redo me-1"></i> Reiniciar vista
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>`;
+              const cnt = document.getElementById('hist-counter-total');
+              if (cnt) cnt.textContent = '0';
+          } catch(e) {
+              console.error("fallback render error:", e);
+          }
+      }
+
+      function __fallbackRenderError(err) {
+          try { __renderHistorialErrorState("Error al renderizar la tabla: " + (err && err.message ? err.message : err)); } catch(e) {}
       }
 
       function resetHistorialFilters() {
@@ -4434,156 +4658,205 @@
       }
 
       function renderAllInvoices() {
-          const tbody = document.getElementById('historial-body');
-          if (!tbody) return;
-
-          let searchInvVal = '';
-          let searchVal = '';
-          let typeVal = 'all';
-          let catVal = 'all';
           try {
-              searchInvVal = (document.getElementById('hist-search-invoice')?.value || '').trim().toLowerCase();
-              searchVal = (document.getElementById('hist-search')?.value || '').trim().toLowerCase();
-              typeVal = document.getElementById('hist-filter-type')?.value || 'all';
-              catVal = document.getElementById('hist-filter-category')?.value || 'all';
-          } catch (e) { console.warn(e); }
-
-          const filtered = __allInvoicesCache.filter(inv => {
-              try {
-                  if (searchInvVal) {
-                      const invId = (inv.invoiceId || '').toString().toLowerCase();
-                      const docId = (inv.id || '').toString().toLowerCase();
-                      if (!invId.includes(searchInvVal) && !docId.includes(searchInvVal)) return false;
-                  }
-                  if (typeVal !== 'all') {
-                      const t = getInvoiceSourceType(inv);
-                      if (typeVal === 'partido' && t !== 'partido') return false;
-                      if (typeVal === 'cartas_pases' && t !== 'cartas_pases') return false;
-                      if (typeVal === 'cobro_general' && t !== 'cobro_general') return false;
-                  }
-                  if (catVal !== 'all') {
-                      const c = (inv.category || '').toUpperCase();
-                      if (c !== catVal) return false;
-                  }
-                  if (searchVal) {
-                      const concept = getInvoiceConcept(inv).toLowerCase();
-                      const team = (inv.team || '').toLowerCase();
-                      const opponent = (inv.opponent || '').toLowerCase();
-                      if (!concept.includes(searchVal) && !team.includes(searchVal) && !opponent.includes(searchVal)) return false;
-                  }
-                  return true;
-              } catch (err) {
-                  console.warn("error filtro individual:", err);
-                  return true;
+              const tbody = document.getElementById('historial-body');
+              if (!tbody) {
+                  console.error("renderAllInvoices: no existe #historial-body");
+                  return;
               }
-          });
 
-          // Contadores
-          try {
-              const elTotal = document.getElementById('hist-counter-total');
-              const elFilt = document.getElementById('hist-counter-filtered');
-              if (elTotal) elTotal.textContent = __allInvoicesCache.length;
-              if (elFilt) {
-                  if (filtered.length !== __allInvoicesCache.length || searchInvVal || searchVal || typeVal !== 'all' || catVal !== 'all') {
-                      elFilt.classList.remove('d-none');
-                      elFilt.querySelector('span').textContent = filtered.length;
-                  } else {
-                      elFilt.classList.add('d-none');
-                  }
-              }
-          } catch (e) {}
-
-          tbody.innerHTML = '';
-          if (filtered.length === 0) {
-              tbody.innerHTML = `
-                <tr>
-                  <td colspan="7" class="py-5">
-                    <div class="text-center">
-                      <div class="mb-3"><i class="fas fa-search fa-3x opacity-25 text-white-50"></i></div>
-                      <div class="text-white-50 fw-semibold mb-1">${__allInvoicesCache.length === 0 ? 'Aún no hay facturas emitidas' : 'Sin resultados con estos filtros'}</div>
-                      <div class="small text-white-50" style="opacity: .7;">${__allInvoicesCache.length === 0 ? 'Cuando emitas facturas (partidos, cartas pases, cobros) aparecerán aquí automáticamente.' : 'Prueba a escribir el número de factura, el nombre del equipo o limpia los filtros.'}</div>
-                      ${__allInvoicesCache.length === 0 ? '' : '<div class="mt-3 d-flex gap-2 flex-wrap justify-content-center"><button class="btn btn-outline-warning btn-sm rounded-pill" onclick="document.getElementById(&apos;hist-search-invoice&apos;).value=&apos;&apos;; document.getElementById(&apos;hist-search&apos;).value=&apos;&apos;; renderAllInvoices()"><i class="fas fa-search me-1"></i> Limpiar búsquedas</button><button class="btn btn-outline-light btn-sm rounded-pill" onclick="resetHistorialFilters()"><i class="fas fa-eraser me-1"></i> Limpiar filtros</button></div>'}
-                    </div>
-                  </td>
-                </tr>`;
-              return;
-          }
-
-          filtered.forEach(inv => {
+              let searchInvVal = '';
+              let searchVal = '';
+              let typeVal = 'all';
+              let catVal = 'all';
               try {
-                  let date = "N/A";
-                  let time = "";
+                  searchInvVal = (document.getElementById('hist-search-invoice')?.value || '').trim().toLowerCase();
+                  searchVal = (document.getElementById('hist-search')?.value || '').trim().toLowerCase();
+                  typeVal = document.getElementById('hist-filter-type')?.value || 'all';
+                  catVal = document.getElementById('hist-filter-category')?.value || 'all';
+              } catch (e) { console.warn(e); }
+
+              const filtered = [];
+              for (let i = 0; i < __allInvoicesCache.length; i++) {
                   try {
-                      const ts = inv.timestamp;
-                      let d;
-                      if (ts && typeof ts.toDate === 'function') d = ts.toDate();
-                      else if (ts) d = new Date(ts);
-                      if (d && !isNaN(d.getTime())) {
-                          date = d.toLocaleDateString();
-                          time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                      const inv = __allInvoicesCache[i];
+                      if (searchInvVal) {
+                          const invId = String(inv.invoiceId || '').toLowerCase();
+                          const docId = String(inv.id || '').toLowerCase();
+                          if (!invId.includes(searchInvVal) && !docId.includes(searchInvVal)) continue;
                       }
-                  } catch (de) {}
-                  const concept = getInvoiceConcept(inv);
-                  const sourceBadge = getInvoiceSourceBadge(inv);
-                  const totalVal = parseFloat(inv.total || 0);
-                  const invoiceNum = inv.invoiceId || 'PEND-' + (inv.id || '').substring(0, 8).toUpperCase();
-                  const team = inv.team || inv.teamName || 'CLIENTE';
-                  const tr = document.createElement('tr');
-                  tr.className = "border-bottom border-white border-opacity-5 align-middle hover-highlight";
-                  tr.innerHTML = `
-                    <td class="ps-4">
-                      <div class="d-flex align-items-center">
-                        <div class="d-flex align-items-center justify-content-center me-3 rounded-2" style="width: 40px; height: 40px; background: rgba(201,162,39,0.12); border: 1px solid rgba(201,162,39,0.3);">
-                          <i class="fas fa-receipt text-warning"></i>
-                        </div>
-                        <div>
-                          <div class="fw-bold font-monospace text-warning" style="font-size: 14px; letter-spacing: 0.5px;">${invoiceNum}</div>
-                          <div class="text-white-50" style="font-size: 10px;">ID: ${inv.id ? inv.id.substring(0,10) : '-'}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="text-white fw-semibold small">${date}</div>
-                      <div class="text-white-50 small" style="font-size: 11px;"><i class="far fa-clock me-1"></i> ${time || '--:--'}</div>
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center me-2 text-primary fw-bold" style="width: 34px; height: 34px; background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.25); font-size: 11px;">
-                          ${team.substring(0,2).toUpperCase()}
-                        </div>
-                        <div>
-                          <div class="text-white fw-bold">${team}</div>
-                          ${inv.teamId ? `<div class="text-white-50" style="font-size: 10px;"><i class="fas fa-id-badge me-1"></i> ${inv.teamId}</div>` : ''}
-                        </div>
-                      </div>
-                    </td>
-                    <td>${inv.category ? `<span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-2 py-1 small">${inv.category}</span>` : '<span class="text-white-50 small">—</span>'}</td>
-                    <td>
-                      <div class="text-white small fw-semibold mb-1">${concept}</div>
-                      <div>${sourceBadge}</div>
-                    </td>
-                    <td class="text-center">
-                      <div class="text-success fw-bold fs-6" style="letter-spacing: 0.3px;">$ ${totalVal.toFixed(2)}</div>
-                    </td>
-                    <td class="text-end pe-4">
-                      <div class="btn-group" role="group">
-                        <button class="btn btn-sm btn-outline-primary rounded-3 border-opacity-25 me-1 px-3" onclick='viewInvoiceFromHistory("${inv.id}")' title="Ver factura completa">
-                          <i class="fas fa-eye me-1"></i> Ver
-                        </button>
-                        <button class="btn btn-sm btn-outline-success rounded-3 border-opacity-25 me-1 px-3" onclick='quickDownloadInvoice("${inv.id}")' title="Descargar PDF">
-                          <i class="fas fa-file-pdf me-1"></i> PDF
-                        </button>
-                        <button class="btn btn-sm btn-outline-info rounded-3 border-opacity-25 px-3" title="Copiar número de factura" onclick='navigator.clipboard && navigator.clipboard.writeText("${invoiceNum}"); Swal.fire({icon:"success", title:"Copiado", text:"Número de factura copiado al portapapeles", timer:1200, showConfirmButton:false, toast:true, position:"top-end"});'>
-                          <i class="fas fa-copy"></i>
-                        </button>
-                      </div>
-                    </td>
-                  `;
-                  tbody.appendChild(tr);
-              } catch (rowErr) {
-                  console.error("fila error:", rowErr, inv);
+                      if (typeVal !== 'all') {
+                          const t = getInvoiceSourceType(inv);
+                          if (typeVal === 'partido' && t !== 'partido') continue;
+                          if (typeVal === 'cartas_pases' && t !== 'cartas_pases') continue;
+                          if (typeVal === 'cobro_general' && t !== 'cobro_general') continue;
+                      }
+                      if (catVal !== 'all') {
+                          const c = String(inv.category || '').toUpperCase();
+                          if (c !== catVal) continue;
+                      }
+                      if (searchVal) {
+                          const concept = String(getInvoiceConcept(inv) || '').toLowerCase();
+                          const team = String(inv.team || '').toLowerCase();
+                          const teamName = String(inv.teamName || '').toLowerCase();
+                          const opponent = String(inv.opponent || '').toLowerCase();
+                          const entidad = String(inv.entidad || '').toLowerCase();
+                          if (!concept.includes(searchVal) &&
+                              !team.includes(searchVal) &&
+                              !teamName.includes(searchVal) &&
+                              !opponent.includes(searchVal) &&
+                              !entidad.includes(searchVal)) continue;
+                      }
+                      filtered.push(inv);
+                  } catch (err) {
+                      console.warn("error filtro individual:", err);
+                      filtered.push(__allInvoicesCache[i]);
+                  }
               }
-          });
+
+              try {
+                  const elTotal = document.getElementById('hist-counter-total');
+                  const elFilt = document.getElementById('hist-counter-filtered');
+                  if (elTotal) elTotal.textContent = String(__allInvoicesCache.length);
+                  if (elFilt) {
+                      const isFiltered = filtered.length !== __allInvoicesCache.length ||
+                                        searchInvVal || searchVal ||
+                                        typeVal !== 'all' || catVal !== 'all';
+                      if (isFiltered) {
+                          elFilt.classList.remove('d-none');
+                          const sp = elFilt.querySelector('span');
+                          if (sp) sp.textContent = String(filtered.length);
+                      } else {
+                          elFilt.classList.add('d-none');
+                      }
+                  }
+              } catch (e) {}
+
+              tbody.innerHTML = '';
+              if (filtered.length === 0) {
+                  const isEmpty = __allInvoicesCache.length === 0;
+                  tbody.innerHTML = `
+                    <tr>
+                      <td colspan="7" class="py-5">
+                        <div class="text-center">
+                          <div class="mb-3"><i class="fas fa-inbox fa-3x opacity-25 text-white-50"></i></div>
+                          <div class="text-white-50 fw-semibold mb-1">${isEmpty ? 'Aún no hay facturas emitidas en el sistema' : 'Sin resultados con estos filtros'}</div>
+                          <div class="small text-white-50" style="opacity: .8;">${isEmpty ? 'Las facturas generadas por partidos, cartas pases y cobros adicionales aparecerán listadas aquí automáticamente.' : 'Prueba a escribir el número de factura, el nombre del equipo o limpia los filtros.'}</div>
+                          ${isEmpty ? `<div class="mt-3 small text-warning" style="opacity:.85;"><i class="fas fa-info-circle me-1"></i> Total en caché: <strong>${__allInvoicesCache.length}</strong> facturas. Clic en <strong>Actualizar</strong> arriba para refrescar.</div>` : `<div class="mt-3 d-flex gap-2 flex-wrap justify-content-center"><button class="btn btn-outline-warning btn-sm rounded-pill" onclick="document.getElementById('hist-search-invoice').value=''; document.getElementById('hist-search').value=''; renderAllInvoices()"><i class="fas fa-search-minus me-1"></i> Limpiar búsquedas</button><button class="btn btn-outline-light btn-sm rounded-pill" onclick="resetHistorialFilters()"><i class="fas fa-eraser me-1"></i> Limpiar filtros</button></div>`}
+                        </div>
+                      </td>
+                    </tr>`;
+                  return;
+              }
+
+              const frag = document.createDocumentFragment();
+              for (let i = 0; i < filtered.length; i++) {
+                  try {
+                      const inv = filtered[i];
+
+                      let date = "N/A";
+                      let time = "";
+                      try {
+                          const ts = inv.timestamp;
+                          let d = null;
+                          if (ts && typeof ts.toDate === 'function') d = ts.toDate();
+                          else if (ts) d = new Date(ts);
+                          if (d && !isNaN(d.getTime())) {
+                              date = d.toLocaleDateString();
+                              time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                          }
+                      } catch (de) {}
+
+                      let concept = "";
+                      try { concept = String(getInvoiceConcept(inv) || '-').replace(/[<>"']/g, ''); } catch(e) { concept = "—"; }
+                      let sourceBadge = "";
+                      try { sourceBadge = getInvoiceSourceBadge(inv); } catch(e) { sourceBadge = ''; }
+                      const totalVal = isNaN(parseFloat(inv.total)) ? 0 : parseFloat(inv.total);
+                      const invoiceNumRaw = inv.invoiceId || inv.numerofactura || ('PEND-' + String(inv.id || '').substring(0, 8).toUpperCase());
+                      const invoiceNum = String(invoiceNumRaw).replace(/[<>"']/g, '');
+                      const teamRaw = inv.team || inv.teamName || inv.entidad || inv.cliente || inv.beneficiario || 'CLIENTE';
+                      const team = String(teamRaw).replace(/[<>"']/g, '');
+                      const teamInitials = team.substring(0, 2).toUpperCase().replace(/\s/g, '') || '--';
+                      const teamIdRaw = inv.teamId ? String(inv.teamId).replace(/[<>"']/g, '') : '';
+                      const categoryRaw = inv.category ? String(inv.category).replace(/[<>"']/g, '') : '';
+                      const docIdEsc = String(inv.id || '').replace(/[<>"']/g, '');
+
+                      const tr = document.createElement('tr');
+                      tr.className = "border-bottom border-white border-opacity-5 align-middle";
+                      tr.style.transition = "background .2s";
+                      tr.onmouseover = function() { this.style.background = "rgba(46,204,113,0.05)"; };
+                      tr.onmouseout = function() { this.style.background = ""; };
+                      tr.innerHTML = `
+                        <td class="ps-4">
+                          <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-center justify-content-center me-3 rounded-2" style="width: 40px; height: 40px; background: rgba(201,162,39,0.12); border: 1px solid rgba(201,162,39,0.3); flex-shrink: 0;">
+                              <i class="fas fa-receipt text-warning"></i>
+                            </div>
+                            <div>
+                              <div class="fw-bold font-monospace text-warning" style="font-size: 14px; letter-spacing: 0.5px;">${invoiceNum}</div>
+                              <div class="text-white-50" style="font-size: 10px;">ID: ${docIdEsc ? docIdEsc.substring(0,10) : '-'}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="text-white fw-semibold small">${date}</div>
+                          <div class="text-white-50 small" style="font-size: 11px;"><i class="far fa-clock me-1"></i> ${time || '--:--'}</div>
+                        </td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-2 text-primary fw-bold" style="width: 34px; height: 34px; background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.25); font-size: 11px; flex-shrink: 0;">
+                              ${teamInitials}
+                            </div>
+                            <div>
+                              <div class="text-white fw-bold">${team}</div>
+                              ${teamIdRaw ? `<div class="text-white-50" style="font-size: 10px;"><i class="fas fa-id-badge me-1"></i> ${teamIdRaw}</div>` : ''}
+                            </div>
+                          </div>
+                        </td>
+                        <td>${categoryRaw ? `<span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-2 py-1 small">${categoryRaw}</span>` : '<span class="text-white-50 small">—</span>'}</td>
+                        <td>
+                          <div class="text-white small fw-semibold mb-1">${concept}</div>
+                          <div>${sourceBadge}</div>
+                        </td>
+                        <td class="text-center">
+                          <div class="text-success fw-bold fs-6" style="letter-spacing: 0.3px;">$ ${totalVal.toFixed(2)}</div>
+                        </td>
+                        <td class="text-end pe-4">
+                          <div class="d-inline-flex gap-1">
+                            <button class="btn btn-sm btn-outline-primary rounded-3 border-opacity-25 px-3" onclick='viewInvoiceFromHistory(${JSON.stringify(docIdEsc)})' title="Ver factura completa">
+                              <i class="fas fa-eye me-1"></i> Ver
+                            </button>
+                            <button class="btn btn-sm btn-outline-success rounded-3 border-opacity-25 px-3" onclick='quickDownloadInvoice(${JSON.stringify(docIdEsc)})' title="Descargar PDF">
+                              <i class="fas fa-file-pdf me-1"></i> PDF
+                            </button>
+                            <button class="btn btn-sm btn-outline-info rounded-3 border-opacity-25 px-3" title="Copiar N° Factura"
+                              onclick='try{navigator.clipboard.writeText(${JSON.stringify(invoiceNum)});Swal.fire({icon:"success",title:"Copiado al portapapeles",text:${JSON.stringify(invoiceNum)},timer:1200,showConfirmButton:false,toast:true,position:"top-end"});}catch(e){}'>
+                              <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger rounded-3 border-opacity-25 px-3" onclick='deleteInvoiceFromHistory(${JSON.stringify(docIdEsc)})' title="Eliminar factura del historial">
+                              <i class="fas fa-trash-alt"></i>
+                            </button>
+                          </div>
+                        </td>
+                      `;
+                      frag.appendChild(tr);
+                  } catch (rowErr) {
+                      console.error("fila error:", rowErr, filtered[i]);
+                  }
+              }
+              tbody.appendChild(frag);
+          } catch (outerErr) {
+              console.error("renderAllInvoices FATAL error:", outerErr);
+              try {
+                  const tbody = document.getElementById('historial-body');
+                  if (tbody) {
+                      tbody.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-warning small">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Error al renderizar la tabla. Revisa la consola (F12).
+                      </td></tr>`;
+                  }
+              } catch (x) {}
+          }
       }
 
       async function viewInvoiceFromHistory(id) {
