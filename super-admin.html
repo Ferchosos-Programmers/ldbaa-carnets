@@ -95,82 +95,259 @@
         </div>
       </div>
     </nav>
-
     <div class="container py-5">
-      <div class="text-center mb-5 mt-4">
-        <p
-          class="text-uppercase tracking-widest text-white-50 mb-2 fw-bold"
-          style="letter-spacing: 3px; font-size: 0.8rem"
-        >
-          Control de Accesos y Cuentas
-        </p>
-        <h1 class="section-title">
-          Gestión de <span class="brand-accent">Usuarios y Roles</span>
-        </h1>
-        <p
-          class="text-white-50 mx-auto"
-          style="max-width: 600px; font-size: 1.1rem"
-        >
-          Crea, edita, elimina y gestiona los roles y credenciales para el
-          acceso a las distintas áreas de la plataforma.
-        </p>
-
-        <div class="mt-5">
-          <button class="btn-premium px-5 py-3" onclick="openCreateUserModal()">
-            <i class="fas fa-user-plus fa-lg me-2"></i> CREAR NUEVO USUARIO
-          </button>
+      <!-- Selector de Módulos (Cards de Navegación) -->
+      <div class="row justify-content-center g-4 mb-5">
+        <div class="col-md-5">
+          <div class="dashboard-card p-4 text-center cursor-pointer border border-primary border-opacity-25" id="nav-btn-usuarios" onclick="switchSection('usuarios')" style="background: rgba(46, 204, 113, 0.1); border-color: var(--primary);">
+            <i class="fas fa-users-cog fs-1 text-primary mb-3"></i>
+            <h3 class="h4 text-white fw-bold uppercase">Gestión de Usuarios</h3>
+            <p class="text-white-50 small mb-0">Crea, edita, elimina y gestiona roles de acceso de la liga.</p>
+          </div>
+        </div>
+        <div class="col-md-5">
+          <div class="dashboard-card p-4 text-center cursor-pointer border border-white border-opacity-10" id="nav-btn-database" onclick="switchSection('database')">
+            <i class="fas fa-database fs-1 text-danger mb-3"></i>
+            <h3 class="h4 text-white fw-bold uppercase">Base de Datos General</h3>
+            <p class="text-white-50 small mb-0">Manipulación completa de documentos, vaciado de colecciones y depuración.</p>
+          </div>
         </div>
       </div>
 
-      <!-- Users Table Card -->
-      <div class="row justify-content-center">
-        <div class="col-lg-10">
-          <div
-            class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-4"
-          >
-            <h4 class="text-white mb-0 fw-bold">
-              <i class="fas fa-users me-2 text-primary text-gradient"></i>
-              Cuentas del Sistema
-            </h4>
-            <div class="search-box position-relative" style="min-width: 280px">
-              <input
-                type="text"
-                id="userSearch"
-                class="glass-input py-2 ps-5 pe-3 w-100"
-                placeholder="Buscar por correo electrónico..."
-                onkeyup="filterUsers()"
-              />
-              <i
-                class="fas fa-search position-absolute text-white-50"
-                style="left: 18px; top: 50%; transform: translateY(-50%)"
-              ></i>
+      <!-- SECCIÓN 1: GESTIÓN DE USUARIOS -->
+      <div id="section-usuarios">
+        <div class="text-center mb-5 mt-2">
+          <p class="text-uppercase tracking-widest text-white-50 mb-2 fw-bold" style="letter-spacing: 3px; font-size: 0.8rem">
+            Control de Accesos y Cuentas
+          </p>
+          <h1 class="section-title">
+            Gestión de <span class="brand-accent">Usuarios y Roles</span>
+          </h1>
+          <p class="text-white-50 mx-auto" style="max-width: 600px; font-size: 1.1rem">
+            Crea, edita, elimina y gestiona los roles y credenciales para el acceso a las distintas áreas de la plataforma.
+          </p>
+
+          <div class="mt-4">
+            <button class="btn-premium px-5 py-3" onclick="openCreateUserModal()">
+              <i class="fas fa-user-plus fa-lg me-2"></i> CREAR NUEVO USUARIO
+            </button>
+          </div>
+        </div>
+
+        <!-- Users Table Card -->
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-4">
+              <h4 class="text-white mb-0 fw-bold">
+                <i class="fas fa-users me-2 text-primary text-gradient"></i>
+                Cuentas del Sistema
+              </h4>
+              <div class="search-box position-relative" style="min-width: 280px">
+                <input type="text" id="userSearch" class="glass-input py-2 ps-5 pe-3 w-100" placeholder="Buscar por correo electrónico..." onkeyup="filterUsers()" />
+                <i class="fas fa-search position-absolute text-white-50" style="left: 18px; top: 50%; transform: translateY(-50%)"></i>
+              </div>
+            </div>
+
+            <div class="table-premium-container p-0 overflow-hidden mb-5" style="background: transparent; border: none; box-shadow: none">
+              <div class="table-responsive">
+                <table class="table-premium">
+                  <thead>
+                    <tr>
+                      <th class="py-3 text-start ps-4">Usuario / Correo</th>
+                      <th class="py-3 text-center">Roles / Permisos de Acceso</th>
+                      <th class="py-3 text-end pe-4">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usersListTable">
+                    <tr>
+                      <td colspan="3" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div
-            class="table-premium-container p-0 overflow-hidden"
-            style="background: transparent; border: none; box-shadow: none"
-          >
-            <div class="table-responsive">
-              <table class="table-premium">
-                <thead>
-                  <tr>
-                    <th class="py-3 text-start ps-4">Usuario / Correo</th>
-                    <th class="py-3 text-center">Roles / Permisos de Acceso</th>
-                    <th class="py-3 text-end pe-4">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody id="usersListTable">
-                  <tr>
-                    <td colspan="3" class="text-center py-5">
-                      <div
-                        class="spinner-border text-primary"
-                        role="status"
-                      ></div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+      <!-- SECCIÓN 2: BASE DE DATOS -->
+      <div id="section-database" class="d-none">
+        <div class="text-center mb-5 mt-2">
+          <p class="text-uppercase tracking-widest text-white-50 mb-2 fw-bold" style="letter-spacing: 3px; font-size: 0.8rem">
+            Administración Crítica de Firestore
+          </p>
+          <h1 class="section-title">
+            Control de <span class="brand-accent">Base de Datos</span>
+          </h1>
+          <p class="text-white-50 mx-auto" style="max-width: 600px; font-size: 1.1rem">
+            Modulo de mantenimiento global. Busca, edita o elimina documentos de cualquier colección de forma directa y en tiempo real.
+          </p>
+        </div>
+
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <!-- Mantenimiento de Base de Datos -->
+            <div class="glass-panel p-5 rounded-4 mb-5" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.1);">
+              <div class="d-flex align-items-center mb-4">
+                <div class="rounded-circle bg-danger bg-opacity-10 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; border: 1px solid rgba(231, 76, 60, 0.25);">
+                  <i class="fas fa-database text-danger fs-4"></i>
+                </div>
+                <div>
+                  <h4 class="text-white mb-1 fw-bold">Vaciar Colecciones a Cero</h4>
+                  <p class="text-white-50 mb-0 small">Módulo crítico para restaurar colecciones completas a cero.</p>
+                </div>
+              </div>
+
+              <div class="row g-4 mb-5">
+                <div class="col-md-6 col-lg-3">
+                  <div class="glass-panel p-4 text-center h-100 d-flex flex-column justify-content-between align-items-center" style="background: rgba(231, 76, 60, 0.03); border: 1px solid rgba(231, 76, 60, 0.2); border-radius: 20px;">
+                    <div>
+                      <i class="fas fa-file-invoice-dollar mb-3 text-danger fs-3"></i>
+                      <h6 class="text-white fw-bold mb-2">Facturas</h6>
+                      <p class="text-white-50 small mb-3">Vacía la colección 'invoices' de Firestore por completo.</p>
+                    </div>
+                    <button class="btn btn-outline-danger w-100 py-2 btn-sm rounded-pill fw-bold" onclick="clearCollection('invoices')">
+                      <i class="fas fa-trash-alt me-1"></i> Vaciar Facturas
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                  <div class="glass-panel p-4 text-center h-100 d-flex flex-column justify-content-between align-items-center" style="background: rgba(231, 76, 60, 0.03); border: 1px solid rgba(231, 76, 60, 0.2); border-radius: 20px;">
+                    <div>
+                      <i class="fas fa-envelope-open-text mb-3 text-danger fs-3"></i>
+                      <h6 class="text-white fw-bold mb-2">Cartas Pases</h6>
+                      <p class="text-white-50 small mb-3">Elimina todas las transferencias generadas y pendientes.</p>
+                    </div>
+                    <button class="btn btn-outline-danger w-100 py-2 btn-sm rounded-pill fw-bold" onclick="clearCollection('cartas_pases')">
+                      <i class="fas fa-trash-alt me-1"></i> Vaciar Pases
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                  <div class="glass-panel p-4 text-center h-100 d-flex flex-column justify-content-between align-items-center" style="background: rgba(231, 76, 60, 0.03); border: 1px solid rgba(231, 76, 60, 0.2); border-radius: 20px;">
+                    <div>
+                      <i class="fas fa-money-bill-wave mb-3 text-danger fs-3"></i>
+                      <h6 class="text-white fw-bold mb-2">Pagos</h6>
+                      <p class="text-white-50 small mb-3">Vacía la colección 'pagos' o comprobantes de egreso.</p>
+                    </div>
+                    <button class="btn btn-outline-danger w-100 py-2 btn-sm rounded-pill fw-bold" onclick="clearCollection('pagos')">
+                      <i class="fas fa-trash-alt me-1"></i> Vaciar Pagos
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                  <div class="glass-panel p-4 text-center h-100 d-flex flex-column justify-content-between align-items-center" style="background: rgba(231, 76, 60, 0.03); border: 1px solid rgba(231, 76, 60, 0.2); border-radius: 20px;">
+                    <div>
+                      <i class="fas fa-gavel mb-3 text-danger fs-3"></i>
+                      <h6 class="text-white fw-bold mb-2">Sanciones</h6>
+                      <p class="text-white-50 small mb-3">Limpia el registro de tarjetas y multas de jugadores/vocalias.</p>
+                    </div>
+                    <button class="btn btn-outline-danger w-100 py-2 btn-sm rounded-pill fw-bold" onclick="clearCollection('sanciones')">
+                      <i class="fas fa-trash-alt me-1"></i> Vaciar Sanciones
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Segunda Fila de Colecciones para Vaciar -->
+              <div class="row g-4 mb-5">
+                <div class="col-md-6 col-lg-3">
+                  <div class="glass-panel p-4 text-center h-100 d-flex flex-column justify-content-between align-items-center" style="background: rgba(231, 76, 60, 0.03); border: 1px solid rgba(231, 76, 60, 0.2); border-radius: 20px;">
+                    <div>
+                      <i class="fas fa-users mb-3 text-danger fs-3"></i>
+                      <h6 class="text-white fw-bold mb-2">Equipos</h6>
+                      <p class="text-white-50 small mb-3">Vacía la colección 'teams' de Firestore por completo.</p>
+                    </div>
+                    <button class="btn btn-outline-danger w-100 py-2 btn-sm rounded-pill fw-bold" onclick="clearCollection('teams')">
+                      <i class="fas fa-trash-alt me-1"></i> Vaciar Equipos
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                  <div class="glass-panel p-4 text-center h-100 d-flex flex-column justify-content-between align-items-center" style="background: rgba(231, 76, 60, 0.03); border: 1px solid rgba(231, 76, 60, 0.2); border-radius: 20px;">
+                    <div>
+                      <i class="fas fa-trophy mb-3 text-danger fs-3"></i>
+                      <h6 class="text-white fw-bold mb-2">Campeonatos</h6>
+                      <p class="text-white-50 small mb-3">Elimina todas las copas y categorías creadas.</p>
+                    </div>
+                    <button class="btn btn-outline-danger w-100 py-2 btn-sm rounded-pill fw-bold" onclick="clearCollection('championships')">
+                      <i class="fas fa-trash-alt me-1"></i> Vaciar Torneos
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                  <div class="glass-panel p-4 text-center h-100 d-flex flex-column justify-content-between align-items-center" style="background: rgba(231, 76, 60, 0.03); border: 1px solid rgba(231, 76, 60, 0.2); border-radius: 20px;">
+                    <div>
+                      <i class="fas fa-running mb-3 text-danger fs-3"></i>
+                      <h6 class="text-white fw-bold mb-2">Jugadores</h6>
+                      <p class="text-white-50 small mb-3">Vacía la colección 'players' o credenciales de la liga.</p>
+                    </div>
+                    <button class="btn btn-outline-danger w-100 py-2 btn-sm rounded-pill fw-bold" onclick="clearCollection('players')">
+                      <i class="fas fa-trash-alt me-1"></i> Vaciar Jugadores
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                  <div class="glass-panel p-4 text-center h-100 d-flex flex-column justify-content-between align-items-center" style="background: rgba(231, 76, 60, 0.03); border: 1px solid rgba(231, 76, 60, 0.2); border-radius: 20px;">
+                    <div>
+                      <i class="fas fa-calendar-alt mb-3 text-danger fs-3"></i>
+                      <h6 class="text-white fw-bold mb-2">Calendarios/Jornadas</h6>
+                      <p class="text-white-50 small mb-3">Limpia las programaciones de partidos y fixtures creados.</p>
+                    </div>
+                    <button class="btn btn-outline-danger w-100 py-2 btn-sm rounded-pill fw-bold" onclick="clearCollection('fixtures')">
+                      <i class="fas fa-trash-alt me-1"></i> Vaciar Fixtures
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Buscador y Manipulación Directa de Documentos -->
+              <div class="border-top border-white border-opacity-10 pt-4 mt-3">
+                <h5 class="text-white mb-3 fw-bold"><i class="fas fa-edit me-2 text-warning"></i>Manipulación Directa de Documentos</h5>
+                <div class="row g-3 align-items-end">
+                  <div class="col-md-4">
+                    <label class="text-white-50 small text-uppercase mb-2 d-block fw-bold" style="letter-spacing: 0.5px;">Colección</label>
+                    <select id="direct-collection" class="form-select bg-dark border-secondary text-white py-2 rounded-3">
+                      <option value="invoices">Facturas (invoices)</option>
+                      <option value="cartas_pases">Cartas Pases (cartas_pases)</option>
+                      <option value="pagos">Pagos (pagos)</option>
+                      <option value="sanciones">Sanciones (sanciones)</option>
+                      <option value="teams">Equipos (teams)</option>
+                      <option value="championships">Campeonatos (championships)</option>
+                      <option value="players">Jugadores (players)</option>
+                      <option value="fixtures">Calendario/Jornadas (fixtures)</option>
+                    </select>
+                  </div>
+                  <div class="col-md-5">
+                    <label class="text-white-50 small text-uppercase mb-2 d-block fw-bold" style="letter-spacing: 0.5px;">ID del Documento (Dejar vacío para listar últimos 15)</label>
+                    <input type="text" id="direct-doc-id" class="form-control bg-dark border-secondary text-white py-2 rounded-3" placeholder="Ej: ID de Firestore o código de factura">
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-warning w-100 py-2 rounded-3 fw-bold text-dark d-flex align-items-center justify-content-center" style="height: calc(2.25rem + 10px);" onclick="searchOrListDocuments()">
+                      <i class="fas fa-search me-2"></i> Buscar / Listar
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Resultados de la búsqueda -->
+                <div id="direct-results-container" class="mt-4 d-none">
+                  <h6 class="text-white-50 mb-2 small text-uppercase">Documentos Encontrados</h6>
+                  <div class="table-responsive">
+                    <table class="table table-dark table-striped table-hover rounded-3 overflow-hidden align-middle">
+                      <thead>
+                        <tr>
+                          <th>ID Documento</th>
+                          <th>Campos Principales</th>
+                          <th class="text-end">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody id="direct-results-body"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -709,6 +886,29 @@
         }
       }
 
+      function switchSection(target) {
+        const secUsuarios = document.getElementById('section-usuarios');
+        const secDatabase = document.getElementById('section-database');
+        const btnUsuarios = document.getElementById('nav-btn-usuarios');
+        const btnDatabase = document.getElementById('nav-btn-database');
+
+        if (target === 'usuarios') {
+          secUsuarios.classList.remove('d-none');
+          secDatabase.classList.add('d-none');
+          btnUsuarios.style.background = 'rgba(46, 204, 113, 0.1)';
+          btnUsuarios.style.borderColor = 'var(--primary)';
+          btnDatabase.style.background = '';
+          btnDatabase.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        } else {
+          secUsuarios.classList.add('d-none');
+          secDatabase.classList.remove('d-none');
+          btnUsuarios.style.background = '';
+          btnUsuarios.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+          btnDatabase.style.background = 'rgba(231, 76, 60, 0.1)';
+          btnDatabase.style.borderColor = '#e74c3c';
+        }
+      }
+
       function togglePasswordVisibility() {
         const passInput = document.getElementById("userPassword");
         const icon = document.getElementById("togglePasswordIcon");
@@ -718,6 +918,229 @@
         } else {
           passInput.type = "password";
           icon.className = "fas fa-eye";
+        }
+      }
+
+      // --- MANTENIMIENTO DE BASE DE DATOS ---
+      async function clearCollection(colName) {
+        // Confirmation alert
+        const confirmResult = await Swal.fire({
+          title: `¿Vaciar colección '${colName}'?`,
+          text: "¡Esta acción eliminará permanentemente TODOS los registros de esta tabla en Firestore! No se puede deshacer.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#e74c3c",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Sí, vaciar de todas formas",
+          cancelButtonText: "Cancelar",
+          input: 'text',
+          inputPlaceholder: 'Escriba "VACIAR" para confirmar',
+          inputValidator: (value) => {
+            if (value !== 'VACIAR') {
+              return 'Debe escribir exactamente "VACIAR" para confirmar la eliminación masiva';
+            }
+          }
+        });
+
+        if (confirmResult.isConfirmed) {
+          Swal.fire({
+            title: "Eliminando registros...",
+            html: "Conectando con Firestore y borrando documentos por lotes...",
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+
+          try {
+            const querySnapshot = await db.collection(colName).limit(500).get();
+            if (querySnapshot.empty) {
+              Swal.fire("Colección Vacía", `No hay documentos en la colección '${colName}' para eliminar.`, "info");
+              return;
+            }
+
+            const batch = db.batch();
+            querySnapshot.forEach((doc) => {
+              batch.delete(doc.ref);
+            });
+
+            await batch.commit();
+
+            // Si hay más de 500, notificar que se eliminó el primer bloque y sugerir reintentar
+            if (querySnapshot.size >= 500) {
+              Swal.fire(
+                "Lote Parcial Eliminado",
+                `Se eliminaron los primeros 500 documentos de '${colName}'. Si hay más registros en esta tabla, por favor repita el proceso hasta que quede vacía.`,
+                "warning"
+              );
+            } else {
+              Swal.fire(
+                "¡Éxito!",
+                `Se han eliminado todos los documentos (${querySnapshot.size}) de la colección '${colName}' correctamente.`,
+                "success"
+              );
+            }
+          } catch (err) {
+            console.error("Error al vaciar colección:", err);
+            Swal.fire("Error", "No se pudieron eliminar los documentos: " + (err.message || err), "error");
+          }
+        }
+      }
+
+      let currentSearchedDocs = [];
+
+      async function searchOrListDocuments() {
+        const colName = document.getElementById("direct-collection").value;
+        const docId = document.getElementById("direct-doc-id").value.trim();
+        const resultsContainer = document.getElementById("direct-results-container");
+        const resultsBody = document.getElementById("direct-results-body");
+
+        resultsBody.innerHTML = '<tr><td colspan="3" class="text-center py-4"><div class="spinner-border text-warning"></div></td></tr>';
+        resultsContainer.classList.remove("d-none");
+
+        try {
+          currentSearchedDocs = [];
+          if (docId) {
+            // Buscar documento específico por ID
+            const docRef = await db.collection(colName).doc(docId).get();
+            if (!docRef.exists) {
+              resultsBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-warning">No se encontró ningún documento con ese ID.</td></tr>';
+              return;
+            }
+            const data = docRef.data();
+            data._docId = docRef.id;
+            currentSearchedDocs.push(data);
+          } else {
+            // Listar últimos 15 documentos
+            const snapshot = await db.collection(colName).limit(15).get();
+            if (snapshot.empty) {
+              resultsBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-white-50">La colección seleccionada está vacía.</td></tr>';
+              return;
+            }
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              data._docId = doc.id;
+              currentSearchedDocs.push(data);
+            });
+          }
+
+          renderDirectResults();
+        } catch (err) {
+          console.error("Error al buscar/listar:", err);
+          resultsBody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-danger">Error: ${err.message || err}</td></tr>`;
+        }
+      }
+
+      function renderDirectResults() {
+        const resultsBody = document.getElementById("direct-results-body");
+        resultsBody.innerHTML = "";
+
+        currentSearchedDocs.forEach((doc) => {
+          const colName = document.getElementById("direct-collection").value;
+          const tr = document.createElement("tr");
+
+          // Formatear campos principales del documento para visualizarlo
+          let summary = "";
+          try {
+            const keys = Object.keys(doc).filter(k => k !== '_docId');
+            summary = keys.slice(0, 4).map(k => {
+              let val = doc[k];
+              if (val && typeof val.toDate === 'function') val = val.toDate().toLocaleDateString();
+              else if (typeof val === 'object') val = JSON.stringify(val).substring(0, 40) + "...";
+              return `<strong>${k}:</strong> ${String(val).substring(0, 60)}`;
+            }).join(" | ");
+          } catch(e) { summary = "Error al resumir objeto"; }
+
+          tr.innerHTML = `
+            <td class="font-monospace text-warning small">${doc._docId}</td>
+            <td class="small text-white-50">${summary || 'Sin campos adicionales'}</td>
+            <td class="text-end">
+              <div class="d-inline-flex gap-2">
+                <button class="btn btn-sm btn-outline-warning" onclick="editDocumentDirectly('${colName}', '${doc._docId}')" title="Editar Campos">
+                  <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteDocumentDirectly('${colName}', '${doc._docId}')" title="Eliminar de Firestore">
+                  <i class="fas fa-trash-alt"></i> Borrar
+                </button>
+              </div>
+            </td>
+          `;
+          resultsBody.appendChild(tr);
+        });
+      }
+
+      async function editDocumentDirectly(colName, docId) {
+        const doc = currentSearchedDocs.find(d => d._docId === docId);
+        if (!doc) return;
+
+        // Limpiar metadatos internos de JS para no mostrarlos al usuario
+        const cleanDoc = {};
+        Object.keys(doc).forEach(k => {
+          if (k !== '_docId' && k !== '_tsMs' && k !== '_dateObj') {
+            cleanDoc[k] = doc[k];
+          }
+        });
+
+        const { value: jsonString } = await Swal.fire({
+          title: `Editar Documento: ${docId}`,
+          input: 'textarea',
+          inputLabel: `Edite los campos en formato JSON en la colección '${colName}'`,
+          inputValue: JSON.stringify(cleanDoc, null, 2),
+          inputAttributes: {
+            'rows': 12,
+            'style': 'font-family: monospace; font-size: 13px; background-color: #1a1a1a; color: #2ecc71;'
+          },
+          showCancelButton: true,
+          confirmButtonText: 'Actualizar en Firestore',
+          cancelButtonText: 'Cancelar',
+          inputValidator: (value) => {
+            try {
+              JSON.parse(value);
+            } catch (err) {
+              return 'Formato JSON inválido. Por favor, corrija los errores de sintaxis.';
+            }
+          }
+        });
+
+        if (jsonString) {
+          Swal.fire({
+            title: "Actualizando documento...",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+          });
+
+          try {
+            const updatedData = JSON.parse(jsonString);
+            await db.collection(colName).doc(docId).set(updatedData);
+            Swal.fire("¡Actualizado!", "El documento ha sido modificado en la base de datos.", "success");
+            searchOrListDocuments();
+          } catch (err) {
+            console.error("Error al actualizar:", err);
+            Swal.fire("Error", "No se pudo guardar: " + (err.message || err), "error");
+          }
+        }
+      }
+
+      async function deleteDocumentDirectly(colName, docId) {
+        const confirmResult = await Swal.fire({
+          title: `¿Borrar documento?`,
+          text: `Se eliminará el registro con ID '${docId}' de la colección '${colName}' permanentemente.`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#e74c3c",
+          confirmButtonText: "Sí, borrar",
+          cancelButtonText: "Cancelar"
+        });
+
+        if (confirmResult.isConfirmed) {
+          try {
+            await db.collection(colName).doc(docId).delete();
+            Swal.fire("Eliminado", "El registro ha sido removido de Firestore.", "success");
+            searchOrListDocuments();
+          } catch (err) {
+            console.error("Error al borrar:", err);
+            Swal.fire("Error", "No se pudo borrar el documento.", "error");
+          }
         }
       }
 
