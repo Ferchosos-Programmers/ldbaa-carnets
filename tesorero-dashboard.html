@@ -724,6 +724,317 @@
       }
     }
 
+/* =========================================================
+   TABLA HISTORIAL DE FACTURAS
+   ========================================================= */
+
+.hf-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 10px;
+}
+
+.hf-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  color: #fff;
+  background: rgba(20, 25, 29, 0.92);
+}
+
+/* ENCABEZADO */
+
+.hf-history-table thead th {
+  background: rgba(28, 33, 38, 0.98);
+  color: #ffffff;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 11px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  white-space: nowrap;
+}
+
+/* FILAS */
+
+.hf-history-table tbody tr {
+  background: rgba(31, 36, 40, 0.92);
+  transition: all 0.2s ease;
+}
+
+.hf-history-table tbody tr:hover {
+  background: rgba(45, 51, 56, 0.98);
+}
+
+/* CELDAS */
+
+.hf-history-table tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.14);
+  vertical-align: middle;
+}
+
+/* FECHA */
+
+.hf-date {
+  color: #ffffff;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  font-size: 0.84rem;
+}
+
+.hf-time {
+  color: rgba(255,255,255,0.52);
+  font-size: 0.72rem;
+  margin-top: 2px;
+}
+
+/* CLIENTE */
+
+.hf-client-name {
+  color: #ffffff;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hf-concept {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.68rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+  margin-top: 2px;
+}
+
+/* TIPO */
+
+.hf-type-badge {
+  display: inline-block;
+  margin-top: 5px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.58rem;
+  font-weight: 700;
+}
+
+.hf-badge-match {
+  color: #3db2ff;
+  background: rgba(61,178,255,0.10);
+  border: 1px solid rgba(61,178,255,0.25);
+}
+
+.hf-badge-pase {
+  color: #b073d9;
+  background: rgba(176,115,217,0.10);
+  border: 1px solid rgba(176,115,217,0.25);
+}
+
+.hf-badge-cobro {
+  color: #2ecc71;
+  background: rgba(46,204,113,0.10);
+  border: 1px solid rgba(46,204,113,0.25);
+}
+
+/* CANTIDAD */
+
+.hf-quantity {
+  color: #ffffff;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+/* TOTAL */
+
+.hf-total {
+  color: #ffffff;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+/* NUMERACIÓN */
+
+.hf-number {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+
+  color: #2ecc71;
+
+  background: rgba(46,204,113,0.08);
+
+  border: 1px solid rgba(46,204,113,0.22);
+
+  font-family: monospace;
+  font-size: 0.70rem;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.hf-number i {
+  font-size: 0.65rem;
+}
+
+/* ACCIONES */
+
+.hf-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.hf-action-btn {
+  width: 34px;
+  height: 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+
+  font-size: 0.78rem;
+}
+
+/* VER */
+
+.hf-action-view {
+  color: #168cff;
+
+  border: 1px solid rgba(22,140,255,0.8);
+
+  background: rgba(22,140,255,0.04);
+}
+
+.hf-action-view:hover {
+  color: #ffffff;
+
+  background: rgba(22,140,255,0.18);
+
+  box-shadow: 0 0 10px rgba(22,140,255,0.20);
+
+  transform: translateY(-1px);
+}
+
+/* PDF */
+
+.hf-action-pdf {
+  color: #20c879;
+
+  border: 1px solid rgba(32,200,121,0.7);
+
+  background: rgba(32,200,121,0.04);
+}
+
+.hf-action-pdf:hover {
+  color: #ffffff;
+
+  background: rgba(32,200,121,0.18);
+
+  box-shadow: 0 0 10px rgba(32,200,121,0.20);
+
+  transform: translateY(-1px);
+}
+
+/* EXTRA */
+
+.hf-action-extra {
+  color: #c9a227;
+
+  border: 1px solid rgba(201,162,39,0.8);
+
+  background: rgba(201,162,39,0.04);
+}
+
+.hf-action-extra:hover {
+  color: #ffffff;
+
+  background: rgba(201,162,39,0.18);
+
+  box-shadow: 0 0 10px rgba(201,162,39,0.20);
+
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   ANCHO DE COLUMNAS
+   ========================================================= */
+
+.hf-history-table th:nth-child(1),
+.hf-history-table td:nth-child(1) {
+  width: 13%;
+}
+
+.hf-history-table th:nth-child(2),
+.hf-history-table td:nth-child(2) {
+  width: 29%;
+}
+
+.hf-history-table th:nth-child(3),
+.hf-history-table td:nth-child(3) {
+  width: 9%;
+}
+
+.hf-history-table th:nth-child(4),
+.hf-history-table td:nth-child(4) {
+  width: 15%;
+}
+
+.hf-history-table th:nth-child(5),
+.hf-history-table td:nth-child(5) {
+  width: 18%;
+}
+
+.hf-history-table th:nth-child(6),
+.hf-history-table td:nth-child(6) {
+  width: 16%;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .hf-history-table {
+    min-width: 850px;
+  }
+
+  .hf-table-wrapper {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .hf-history-table {
+    min-width: 780px;
+  }
+
+  .hf-history-table thead th {
+    font-size: 0.70rem;
+    padding: 9px 10px;
+  }
+
+  .hf-history-table tbody td {
+    padding: 8px 10px;
+  }
+}
+
     /* Fix SweetAlert Input Visibility */
     .swal2-input {
       color: white !important;
@@ -5500,95 +5811,502 @@
         } catch (ei) { return '?'; }
       }
 
-      window.renderCardsFacturas = function () {
-        console.log("[renderCardsFacturas] INICIO. __hfCache length=" + (Array.isArray(window.__hfCache) ? window.__hfCache.length : 0));
-        try {
-          var c = document.getElementById('hfCardsContainer');
-          if (!c) { console.error("[renderCardsFacturas] ERROR: falta #hfCardsContainer"); return; }
-          var cache = Array.isArray(window.__hfCache) ? window.__hfCache : [];
-          var fNum = (document.getElementById('hfFilterNum') ? (document.getElementById('hfFilterNum').value || '').trim().toUpperCase() : '');
-          var fText = (document.getElementById('hfFilterText') ? (document.getElementById('hfFilterText').value || '').trim().toLowerCase() : '');
-          var fTipo = (document.getElementById('hfFilterTipo') ? (document.getElementById('hfFilterTipo').value || 'all') : 'all');
-          var arr = [];
-          for (var i = 0; i < cache.length; i++) {
-            var it = cache[i];
-            var ok = true;
-            if (fNum && fTipo !== 'none') {
-              var idInv = String(it.invoiceId || it.number || it._docId || '').toUpperCase();
-              if (idInv.indexOf(fNum) === -1) ok = false;
-            }
-            if (ok && fText) {
-              var blob = (String(it.concept || '') + ' ' + String(it.client || it.teamName || it.team || '') + ' ' + String(it.category || '') + ' ' + String(it.opponent || '') + ' ' + String(it.invoiceId || '') + ' ' + String(it._docId || '')).toLowerCase();
-              if (blob.indexOf(fText) === -1) ok = false;
-            }
-            if (ok && fTipo !== 'all' && it._tipoClasif !== fTipo) ok = false;
-            if (ok) arr.push(it);
-          }
-          if (arr.length === 0) {
-            if (cache.length === 0) {
-              showHfEmpty("<div class='h5 text-white-50 mb-2'><i class='fas fa-info-circle me-1'></i> Historial vacío</div><div class='small text-white-50 mb-3'>Aún no se han cargado las facturas.</div><button class='btn btn-warning btn-sm rounded-pill px-4 fw-bold' onclick='loadFacturasModal(true);' style='color:#1a1a1a;'><i class='fas fa-cloud-download-alt me-1'></i> Cargar ahora</button>");
-              return;
-            }
-            showHfEmpty("<div class='h5 text-white-50 mb-2'><i class='fas fa-search-minus me-1'></i> Sin coincidencias</div><div class='small text-white-50'>No hay facturas que coincidan con los filtros.<br>Prueba cambiar N° Factura, el texto o el tipo.</div>");
-            return;
-          }
-          var html = "<div class='row g-2 hf-cards-grid'>";
-          for (var j = 0; j < arr.length; j++) {
-            var inv = arr[j];
-            var tipoBadge = '';
-            var tipoColor = '';
-            if (inv._tipoClasif === 'match') { tipoBadge = 'Partido'; tipoColor = 'background: rgba(61,178,255,0.12); color:#3db2ff; border: 1px solid rgba(61,178,255,0.3);'; }
-            else if (inv._tipoClasif === 'pase') { tipoBadge = 'Carta Pase'; tipoColor = 'background: rgba(176,115,217,0.1); color:#b073d9; border: 1px solid rgba(176,115,217,0.3);'; }
-            else { tipoBadge = 'Cobro'; tipoColor = 'background: rgba(46,204,113,0.1); color:#2ecc71; border: 1px solid rgba(46,204,113,0.3);'; }
-            var cat = escapeAttr(inv.category || 'Sin categoría');
-            var concepto = escapeAttr(inv.concept || '-');
-            var client = escapeAttr(inv.client || inv.teamName || inv.team || inv.entity || '-');
-            var docIdEsc = escapeAttr(inv._docId);
-            var numEsc = escapeAttr(inv.invoiceId || inv.number || '-');
-            var fecTxt = formatHfFecha(inv._dateObj);
-            var montoTxt = formatCurrencyFixed(inv.totalAmount || 0);
-            var iniciales = inicialesDe(client);
-            html += "<div class='col-6 col-sm-4 col-md-3 col-lg-2 col-xl-2'>";
-            html += "<div class='h-100 rounded-4 p-2 hf-card-box' style='background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border:1px solid rgba(201, 162, 39, 0.2); box-shadow:0 8px 24px rgba(0,0,0,0.4); transition: all 0.3s ease;'>";
-            html += "<div class='d-flex justify-content-between align-items-start mb-2'>";
-            html += "<div class='rounded-pill px-2 py-1 hf-tipo-badge' style='" + tipoColor + " font-size: 0.62rem; font-weight: 700; letter-spacing: 0.3px;'>" + tipoBadge + "</div>";
-            html += "<span class='small text-white-50 hf-fec-txt' title='" + fecTxt + "' style='font-size:0.62rem;'>" + fecTxt + "</span>";
-            html += "</div>";
-            html += "<div class='mb-1'>";
-            html += "<div class='small text-white-50 mb-1 hf-lbl' style='font-size:0.6rem;'>N° FACTURA</div>";
-            html += "<div class='fw-bold font-monospace hf-num' style='color:#c9a227; letter-spacing:0.3px; font-size:0.78rem;'><i class='fas fa-file-invoice-dollar me-1' style='font-size: 0.75em;'></i>" + numEsc + "</div>";
-            html += "</div>";
-            html += "<div class='d-flex align-items-center gap-2 mb-2'>";
-            html += "<div class='rounded-circle d-inline-flex align-items-center justify-content-center fw-bold text-white hf-avatar' style='width: 26px; height: 26px; font-size: 0.68rem; background: linear-gradient(135deg, rgba(201,162,39,0.35), rgba(61,178,255,0.35));'>" + iniciales + "</div>";
-            html += "<div style='min-width:0; flex:1;'>";
-            html += "<div class='text-white fw-semibold hf-client' style='font-size:0.75rem; white-space: nowrap; overflow:hidden; text-overflow: ellipsis;'>" + client + "</div>";
-            html += "<div class='small text-white-50 hf-cat' style='font-size:0.62rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;'><i class='fas fa-tag me-1' style='opacity:0.7;'></i>" + cat + "</div>";
-            html += "</div>";
-            html += "</div>";
-            html += "<div class='mb-2 p-2 rounded-3 hf-concepto' style='background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255,255,255,0.06);'>";
-            html += "<div class='small text-white-50 mb-1 hf-lbl' style='font-size:0.6rem;'>Concepto</div>";
-            html += "<div class='text-white hf-concepto-txt' style='line-height:1.25; min-height: 30px; font-size:0.7rem;'>" + concepto + "</div>";
-            html += "</div>";
-            html += "<div class='d-flex justify-content-between align-items-center mb-2'>";
-            html += "<div class='small text-white-50 hf-lbl' style='font-size:0.62rem;'>Total</div>";
-            html += "<div class='fw-bold text-success hf-total' style='font-size:0.95rem;'>$ " + montoTxt + "</div>";
-            html += "</div>";
-            html += "<div class='row g-1'>";
-            html += "<div class='col-6'><button class='btn btn-sm w-100 rounded-pill fw-bold hf-btn hf-btn-ver' style='background: linear-gradient(135deg,#3db2ff,#1976d2); color:#fff; border: 0; box-shadow:0 4px 12px rgba(61,178,255,0.25); padding: 4px 6px; font-size:0.68rem;' onclick=\"viewInvoiceFromHistory('" + docIdEsc + "');\"><i class='fas fa-eye me-1'></i> Ver</button></div>";
-            html += "<div class='col-6'><button class='btn btn-sm w-100 rounded-pill fw-bold hf-btn hf-btn-pdf' style='background: linear-gradient(135deg,#2ecc71,#1aa95a); color:#fff; border: 0; box-shadow:0 4px 12px rgba(46,204,113,0.25); padding: 4px 6px; font-size:0.68rem;' onclick=\"try{generateReceiptFromInvoice('" + docIdEsc + "');}catch(eG){Swal.fire('PDF no disponible',String(eG.message || eG),'error');}\"><i class='fas fa-file-pdf me-1'></i> PDF</button></div>";
-            html += "</div>";
-            html += "</div>";
-            html += "</div>";
-          }
-          html += "</div>";
-          c.innerHTML = html;
-          console.log("[renderCardsFacturas] FIN OK. Cards filtradas=" + arr.length + ". HTML inyectado en #hfCardsContainer.");
-        } catch (renderE) {
-          console.error("renderCardsFacturas:", renderE);
-          var c2 = document.getElementById('hfCardsContainer');
-          if (c2) c2.innerHTML = "<div class='text-center py-4 rounded-4' style='background: rgba(255,0,0,0.08); border:1px solid rgba(255,60,60,0.25); color:#ff8d8d;'>Error al renderizar facturas: " + String(renderE.message || renderE).replace(/[<>"']/g, '') + "</div>";
+window.renderCardsFacturas = function () {
+  console.log(
+    "[renderCardsFacturas] INICIO. __hfCache length=" +
+    (Array.isArray(window.__hfCache) ? window.__hfCache.length : 0)
+  );
+
+  try {
+
+    var c = document.getElementById('hfCardsContainer');
+
+    if (!c) {
+      console.error("[renderCardsFacturas] ERROR: falta #hfCardsContainer");
+      return;
+    }
+
+    var cache = Array.isArray(window.__hfCache)
+      ? window.__hfCache
+      : [];
+
+    // =========================================================
+    // FILTROS
+    // =========================================================
+
+    var fNum = (
+      document.getElementById('hfFilterNum')
+        ? (
+            document.getElementById('hfFilterNum').value || ''
+          ).trim().toUpperCase()
+        : ''
+    );
+
+    var fText = (
+      document.getElementById('hfFilterText')
+        ? (
+            document.getElementById('hfFilterText').value || ''
+          ).trim().toLowerCase()
+        : ''
+    );
+
+    var fTipo = (
+      document.getElementById('hfFilterTipo')
+        ? (
+            document.getElementById('hfFilterTipo').value || 'all'
+          )
+        : 'all'
+    );
+
+    var arr = [];
+
+    // =========================================================
+    // APLICAR FILTROS
+    // =========================================================
+
+    for (var i = 0; i < cache.length; i++) {
+
+      var it = cache[i];
+      var ok = true;
+
+      // FILTRO NUMERO FACTURA
+      if (fNum && fTipo !== 'none') {
+
+        var idInv = String(
+          it.invoiceId ||
+          it.number ||
+          it._docId ||
+          ''
+        ).toUpperCase();
+
+        if (idInv.indexOf(fNum) === -1) {
+          ok = false;
         }
-      };
+      }
+
+      // FILTRO TEXTO
+      if (ok && fText) {
+
+        var blob = (
+          String(it.concept || '') + ' ' +
+          String(
+            it.client ||
+            it.teamName ||
+            it.team ||
+            ''
+          ) + ' ' +
+          String(it.category || '') + ' ' +
+          String(it.opponent || '') + ' ' +
+          String(it.invoiceId || '') + ' ' +
+          String(it._docId || '')
+        ).toLowerCase();
+
+        if (blob.indexOf(fText) === -1) {
+          ok = false;
+        }
+      }
+
+      // FILTRO TIPO
+      if (
+        ok &&
+        fTipo !== 'all' &&
+        it._tipoClasif !== fTipo
+      ) {
+        ok = false;
+      }
+
+      if (ok) {
+        arr.push(it);
+      }
+    }
+
+    // =========================================================
+    // SIN RESULTADOS
+    // =========================================================
+
+    if (arr.length === 0) {
+
+      if (cache.length === 0) {
+
+        showHfEmpty(
+          "<div class='h5 text-white-50 mb-2'>" +
+            "<i class='fas fa-info-circle me-1'></i>" +
+            " Historial vacío" +
+          "</div>" +
+
+          "<div class='small text-white-50 mb-3'>" +
+            "Aún no se han cargado las facturas." +
+          "</div>" +
+
+          "<button class='btn btn-warning btn-sm rounded-pill px-4 fw-bold' " +
+            "onclick='loadFacturasModal(true);' " +
+            "style='color:#1a1a1a;'>" +
+
+            "<i class='fas fa-cloud-download-alt me-1'></i>" +
+            " Cargar ahora" +
+
+          "</button>"
+        );
+
+        return;
+      }
+
+      showHfEmpty(
+        "<div class='h5 text-white-50 mb-2'>" +
+          "<i class='fas fa-search-minus me-1'></i>" +
+          " Sin coincidencias" +
+        "</div>" +
+
+        "<div class='small text-white-50'>" +
+          "No hay facturas que coincidan con los filtros.<br>" +
+          "Prueba cambiar N° Factura, el texto o el tipo." +
+        "</div>"
+      );
+
+      return;
+    }
+
+    // =========================================================
+    // TABLA
+    // =========================================================
+
+    var html = "";
+
+    html += "<div class='hf-table-wrapper'>";
+
+    html += "<table class='hf-history-table'>";
+
+    // =========================================================
+    // ENCABEZADO
+    // =========================================================
+
+    html += "<thead>";
+
+    html += "<tr>";
+
+    html += "<th>FECHA</th>";
+
+    html += "<th>EQUIPO / CLIENTE</th>";
+
+    html += "<th class='text-center'>CANT.</th>";
+
+    html += "<th class='text-center'>VALOR TOTAL</th>";
+
+    html += "<th>NUMERACIÓN</th>";
+
+    html += "<th class='text-center'>ACCIONES</th>";
+
+    html += "</tr>";
+
+    html += "</thead>";
+
+    // =========================================================
+    // CUERPO
+    // =========================================================
+
+    html += "<tbody>";
+
+    for (var j = 0; j < arr.length; j++) {
+
+      var inv = arr[j];
+
+      // =====================================================
+      // DATOS
+      // =====================================================
+
+      var client = escapeAttr(
+        inv.client ||
+        inv.teamName ||
+        inv.team ||
+        inv.entity ||
+        '-'
+      );
+
+      var concepto = escapeAttr(
+        inv.concept ||
+        '-'
+      );
+
+      var docIdEsc = escapeAttr(
+        inv._docId
+      );
+
+      var numEsc = escapeAttr(
+        inv.invoiceId ||
+        inv.number ||
+        '-'
+      );
+var fecTxt = inv._dateObj
+  ? inv._dateObj.toLocaleDateString('es-EC', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  : '-';
+
+      var montoTxt = formatCurrencyFixed(
+        inv.totalAmount || 0
+      );
+
+      var cantidad =
+        inv.quantity ||
+        inv.cantidad ||
+        inv.qty ||
+        1;
+
+      // =====================================================
+      // TIPO
+      // =====================================================
+
+      var tipoBadge = "";
+      var tipoClass = "";
+
+      if (inv._tipoClasif === "match") {
+
+        tipoBadge = "Partido";
+        tipoClass = "hf-badge-match";
+
+      } else if (inv._tipoClasif === "pase") {
+
+        tipoBadge = "Carta Pase";
+        tipoClass = "hf-badge-pase";
+
+      } else {
+
+        tipoBadge = "Cobro";
+        tipoClass = "hf-badge-cobro";
+      }
+
+      // =====================================================
+      // FILA
+      // =====================================================
+
+      html += "<tr>";
+
+      // =====================================================
+      // FECHA
+      // =====================================================
+
+      html += "<td>";
+
+      html += "<div class='hf-date'>" +
+        fecTxt +
+      "</div>";
+
+      if (
+  inv._dateObj &&
+  typeof inv._dateObj.toLocaleTimeString === "function"
+) {
+
+  html += "<div class='hf-time'>" +
+    inv._dateObj.toLocaleTimeString(
+      'es-EC',
+      {
+        hour: "2-digit",
+        minute: "2-digit"
+      }
+    ) +
+    "</div>";
+
+}
+
+      html += "</td>";
+
+      // =====================================================
+      // CLIENTE / EQUIPO
+      // =====================================================
+
+      html += "<td>";
+
+      html += "<div class='hf-client-name'>" +
+        client +
+      "</div>";
+
+      html += "<div class='hf-concept'>" +
+        concepto +
+      "</div>";
+
+      html += "<span class='hf-type-badge " +
+        tipoClass +
+        "'>" +
+        tipoBadge +
+      "</span>";
+
+      html += "</td>";
+
+      // =====================================================
+      // CANTIDAD
+      // =====================================================
+
+      html += "<td class='text-center'>";
+
+      html += "<span class='hf-quantity'>" +
+        cantidad +
+      "</span>";
+
+      html += "</td>";
+
+      // =====================================================
+      // TOTAL
+      // =====================================================
+
+      html += "<td class='text-center'>";
+
+      html += "<span class='hf-total'>" +
+        "$ " +
+        montoTxt +
+      "</span>";
+
+      html += "</td>";
+
+      // =====================================================
+      // NUMERACIÓN
+      // =====================================================
+
+      html += "<td>";
+
+      html += "<span class='hf-number'>";
+
+      html += "<i class='fas fa-hashtag'></i> ";
+
+      html += numEsc;
+
+      html += "</span>";
+
+      html += "</td>";
+
+      // =====================================================
+      // ACCIONES
+      // =====================================================
+
+      html += "<td class='text-center'>";
+
+      html += "<div class='hf-actions'>";
+
+      // VER
+      html +=
+        "<button " +
+          "type='button' " +
+          "class='hf-action-btn hf-action-view' " +
+          "title='Ver factura' " +
+          "onclick=\"viewInvoiceFromHistory('" +
+            docIdEsc +
+          "');\">" +
+
+          "<i class='fas fa-eye'></i>" +
+
+        "</button>";
+
+      // PDF
+      html +=
+        "<button " +
+          "type='button' " +
+          "class='hf-action-btn hf-action-pdf' " +
+          "title='Generar PDF' " +
+          "onclick=\"try{" +
+
+            "generateReceiptFromInvoice('" +
+              docIdEsc +
+            "')" +
+
+          "}catch(eG){" +
+
+            "Swal.fire(" +
+              "'PDF no disponible'," +
+              "String(eG.message || eG)," +
+              "'error'" +
+            ")" +
+
+          "}\">" +
+
+          "<i class='fas fa-file-pdf'></i>" +
+
+        "</button>";
+
+      // =====================================================
+      // BOTON EXTRA PARA COBROS
+      // =====================================================
+
+      if (inv._tipoClasif === "cobro") {
+
+        html +=
+          "<button " +
+            "type='button' " +
+            "class='hf-action-btn hf-action-extra' " +
+            "title='Ver detalle' " +
+            "onclick=\"viewInvoiceFromHistory('" +
+              docIdEsc +
+            "');\">" +
+
+            "<i class='fas fa-receipt'></i>" +
+
+          "</button>";
+      }
+
+      html += "</div>";
+
+      html += "</td>";
+
+      // =====================================================
+      // FIN FILA
+      // =====================================================
+
+      html += "</tr>";
+    }
+
+    html += "</tbody>";
+
+    html += "</table>";
+
+    html += "</div>";
+
+    // =========================================================
+    // INSERTAR EN CONTENEDOR
+    // =========================================================
+
+    c.innerHTML = html;
+
+    console.log(
+      "[renderCardsFacturas] FIN OK. " +
+      "Registros mostrados=" +
+      arr.length
+    );
+
+  } catch (renderE) {
+
+    console.error(
+      "renderCardsFacturas:",
+      renderE
+    );
+
+    var c2 = document.getElementById(
+      'hfCardsContainer'
+    );
+
+    if (c2) {
+
+      c2.innerHTML =
+        "<div class='text-center py-4 rounded-4' " +
+        "style='" +
+          "background:rgba(255,0,0,0.08);" +
+          "border:1px solid rgba(255,60,60,0.25);" +
+          "color:#ff8d8d;" +
+        "'>" +
+
+        "Error al renderizar facturas: " +
+
+        String(
+          renderE.message ||
+          renderE
+        ).replace(
+          /[<>"']/g,
+          ''
+        ) +
+
+        "</div>";
+    }
+  }
+};
 
       function getInvoiceConcept(inv) {
         if (inv.concept) return inv.concept;
@@ -6365,7 +7083,7 @@
         }
         function estaOtraVistaVisible() {
           try {
-            var ids = ['historial-facturas-view', 'pagos-generales-view', 'cobros-generales-view', 'facturacion-partidos-view', 'otras-facturaciones-view', 'cartas-pases-pending-view'];
+            var ids = ['historial-facturas-view', 'pagos-generales-view', 'cobros-generales-view', 'facturacion-partidos-view', 'otras-facturaciones-view', 'cartas-pases-pending-view', 'facturacion-view', 'cartas-pases-view'];
             for (var i = 0; i < ids.length; i++) {
               var el = document.getElementById(ids[i]);
               if (!el) continue;
@@ -6395,7 +7113,7 @@
                 mv.style.setProperty('opacity', '1', 'important');
               }
             }
-            var viewsIds = ['historial-facturas-view', 'pagos-generales-view', 'cobros-generales-view', 'facturacion-partidos-view', 'otras-facturaciones-view', 'cartas-pases-pending-view'];
+            var viewsIds = ['historial-facturas-view', 'pagos-generales-view', 'cobros-generales-view', 'facturacion-partidos-view', 'otras-facturaciones-view', 'cartas-pases-pending-view', 'facturacion-view', 'cartas-pases-view'];
             for (var vi = 0; vi < viewsIds.length; vi++) {
               var v = document.getElementById(viewsIds[vi]);
               if (!v) continue;
@@ -6433,21 +7151,15 @@
           }
         }
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          setTimeout(garantizarVisibilidad, 200);
-          setTimeout(garantizarVisibilidad, 1200);
-          setTimeout(garantizarVisibilidad, 3000);
-          setTimeout(garantizarVisibilidad, 6000);
+          setTimeout(garantizarVisibilidad, 150);
           setInterval(function () { try { syncBadgeModal(); } catch (x) { } }, 1500);
         } else {
           document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(garantizarVisibilidad, 200);
-            setTimeout(garantizarVisibilidad, 1200);
-            setTimeout(garantizarVisibilidad, 3000);
-            setTimeout(garantizarVisibilidad, 6000);
+            setTimeout(garantizarVisibilidad, 150);
             setInterval(function () { try { syncBadgeModal(); } catch (x) { } }, 1500);
           }, false);
         }
-        document.addEventListener('load', function () { setTimeout(garantizarVisibilidad, 500); }, false);
+        document.addEventListener('load', function () { setTimeout(garantizarVisibilidad, 300); }, false);
       })();
     </script>
 
@@ -6477,7 +7189,7 @@
         style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.88); z-index:0; "
         onclick="closeHistorialModal();"></div>
       <div id="hfDialog" role="dialog" aria-modal="true"
-        style="position: relative !important; z-index: 2 !important; width: 100% !important; height: 100% !important; display: flex !important; flex-direction: column !important; justify-content: flex-start !important; align-items: stretch !important; padding: 0px !important; margin: 0px !important; overflow: hidden !important; pointer-events: auto !important; ba !important; border: none !important; border-width: 0px !important; border-radius: 12px !important; outline: none !important; box-shadow: none !important;">
+        style="position: relative !important; z-index: 2 !important; width: 100% !important; height: 100% !important; display: flex !important; flex-direction: column !important; justify-content: flex-start !important; align-items: stretch !important; padding: 0px !important; margin: 0px !important; overflow: hidden !important; pointer-events: auto !important;border: none !important; border-width: 0px !important; border-radius: 12px !important; outline: none !important; box-shadow: none !important;">
         <div style="
     flex:1 1 auto;
     width:100% !important;
@@ -6632,70 +7344,86 @@
                 </h2>
               </div>
             </div>
-            <div class="row g-3 mb-4">
-              <div class="col-6 col-md-3">
-                <div class="glass-panel p-3 rounded-3 text-center" style="border-color: rgba(201,162,39,0.25);">
-                  <div class="small text-white-50 mb-1">TOTAL FACTURAS</div>
-                  <div class="h3 fw-bold mb-0" style="color:#c9a227;" id="hfStatTotal">0</div>
-                </div>
-              </div>
-              <div class="col-6 col-md-3">
-                <div class="glass-panel p-3 rounded-3 text-center" style="border-color: rgba(61,178,255,0.2);">
-                  <div class="small text-white-50 mb-1">PARTIDOS / VOCALÍAS</div>
-                  <div class="h3 fw-bold mb-0 text-info" id="hfStatPartidos">0</div>
-                </div>
-              </div>
-              <div class="col-6 col-md-3">
-                <div class="glass-panel p-3 rounded-3 text-center" style="border-color: rgba(155,89,182,0.2);">
-                  <div class="small text-white-50 mb-1">CARTAS PASES</div>
-                  <div class="h3 fw-bold mb-0" style="color:#b073d9;" id="hfStatPases">0</div>
-                </div>
-              </div>
-              <div class="col-6 col-md-3">
-                <div class="glass-panel p-3 rounded-3 text-center" style="border-color: rgba(46,204,113,0.25);">
-                  <div class="small text-white-50 mb-1">MONTO TOTAL</div>
-                  <div class="h3 fw-bold mb-0 text-success" id="hfStatMonto">$0.00</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="glass-panel p-3 rounded-4 mb-4" style="">
-              <div class="row g-3 align-items-end">
-                <div class="col-12 col-md-4">
-                  <label class="small text-white-50 mb-1 d-block">N° FACTURA</label>
-                  <input type="text" id="hfFilterNum" class="form-control bg-dark border-0 text-white"
-                    placeholder="Ej: FAC-2025-000123" oninput="try{renderCardsFacturas();}catch(eh){}">
-                </div>
-                <div class="col-12 col-md-4">
-                  <label class="small text-white-50 mb-1 d-block">BUSCAR TEXTO</label>
-                  <input type="text" id="hfFilterText" class="form-control bg-dark border-0 text-white"
-                    placeholder="Nombre, concepto, categoría..." oninput="try{renderCardsFacturas();}catch(eh){}">
-                </div>
-                <div class="col-12 col-md-2">
-                  <label class="small text-white-50 mb-1 d-block">TIPO</label>
-                  <select id="hfFilterTipo" class="form-select bg-dark border-0 text-white"
-                    onchange="try{renderCardsFacturas();}catch(eh){}">
-                    <option value="all">Todos</option>
-                    <option value="match">Partido</option>
-                    <option value="pase">Carta Pase</option>
-                    <option value="cobro">Cobro General</option>
-                  </select>
-                </div>
-                <div class="col-6 col-md-1">
-                  <button class="btn btn-outline-light w-100" style="border-color: rgba(201,162,39,0.4); color:#c9a227;"
-                    onclick="document.getElementById('hfFilterNum').value='';document.getElementById('hfFilterText').value='';document.getElementById('hfFilterTipo').value='all';try{renderCardsFacturas();}catch(eh){};">
-                    <i class="fas fa-eraser"></i>
-                  </button>
-                </div>
-                <div class="col-6 col-md-1">
-                  <button class="btn btn-success w-100"
-                    onclick="try{loadFacturasModal(true);}catch(eh){alert('No se puede recargar: '+eh.message);}"><i
-                      class="fas fa-sync-alt"></i></button>
+            <div class="row mb-4 justify-content-center">
+              <div class="col-12 col-md-8">
+                <div class="row g-3">
+                  <div class="col-6 col-md-3">
+                    <div class="glass-panel p-4 rounded-4 text-center h-100 d-flex flex-column justify-content-center align-items-center" 
+                         style="background: rgba(46, 204, 113, 0.03); border: 1px solid rgba(46, 204, 113, 0.2); border-radius: 20px; transition: all 0.3s ease;">
+                      <i class="fas fa-file-invoice-dollar mb-2 fs-4" style="color: #2ecc71;"></i>
+                      <div class="small text-white-50 text-uppercase fw-600 mb-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">TOTAL FACTURAS</div>
+                      <div class="h3 fw-bold mb-0 text-white" id="hfStatTotal">0</div>
+                    </div>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <div class="glass-panel p-4 rounded-4 text-center h-100 d-flex flex-column justify-content-center align-items-center" 
+                         style="background: rgba(52, 152, 219, 0.03); border: 1px solid rgba(52, 152, 219, 0.2); border-radius: 20px; transition: all 0.3s ease;">
+                      <i class="fas fa-futbol mb-2 fs-4 text-info"></i>
+                      <div class="small text-white-50 text-uppercase fw-600 mb-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">PARTIDOS / VOCALÍAS</div>
+                      <div class="h3 fw-bold mb-0 text-white" id="hfStatPartidos">0</div>
+                    </div>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <div class="glass-panel p-4 rounded-4 text-center h-100 d-flex flex-column justify-content-center align-items-center" 
+                         style="background: rgba(241, 196, 15, 0.03); border: 1px solid rgba(241, 196, 15, 0.2); border-radius: 20px; transition: all 0.3s ease;">
+                      <i class="fas fa-id-card mb-2 fs-4" style="color: #f1c40f;"></i>
+                      <div class="small text-white-50 text-uppercase fw-600 mb-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">CARTAS PASES</div>
+                      <div class="h3 fw-bold mb-0 text-white" id="hfStatPases">0</div>
+                    </div>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <div class="glass-panel p-4 rounded-4 text-center h-100 d-flex flex-column justify-content-center align-items-center" 
+                         style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; transition: all 0.3s ease;">
+                      <i class="fas fa-coins mb-2 fs-4 text-white-50"></i>
+                      <div class="small text-white-50 text-uppercase fw-600 mb-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">MONTO TOTAL</div>
+                      <div class="h3 fw-bold mb-0 text-white" id="hfStatMonto">$0.00</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div id="hfCardsContainer"></div>
+            <div class="row justify-content-center">
+              <div class="col-12 col-md-8">
+                <div class="glass-panel p-3 rounded-4 mb-4" style="">
+                  <div class="row g-3 align-items-end">
+                    <div class="col-12 col-md-4">
+                      <label class="small text-white-50 mb-1 d-block">N° FACTURA</label>
+                      <input type="text" id="hfFilterNum" class="form-control bg-dark border-0 text-white"
+                        placeholder="Ej: FAC-2025-000123" oninput="try{renderCardsFacturas();}catch(eh){}">
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <label class="small text-white-50 mb-1 d-block">BUSCAR TEXTO</label>
+                      <input type="text" id="hfFilterText" class="form-control bg-dark border-0 text-white"
+                        placeholder="Nombre, concepto, categoría..." oninput="try{renderCardsFacturas();}catch(eh){}">
+                    </div>
+                    <div class="col-12 col-md-2">
+                      <label class="small text-white-50 mb-1 d-block">TIPO</label>
+                      <select id="hfFilterTipo" class="form-select bg-dark border-0 text-white"
+                        onchange="try{renderCardsFacturas();}catch(eh){}">
+                        <option value="all">Todos</option>
+                        <option value="match">Partido</option>
+                        <option value="pase">Carta Pase</option>
+                        <option value="cobro">Cobro General</option>
+                      </select>
+                    </div>
+                    <div class="col-6 col-md-1">
+                      <button class="btn btn-outline-light w-100" style="border-color: rgba(201,162,39,0.4); color:#c9a227;"
+                        onclick="document.getElementById('hfFilterNum').value='';document.getElementById('hfFilterText').value='';document.getElementById('hfFilterTipo').value='all';try{renderCardsFacturas();}catch(eh){};">
+                        <i class="fas fa-eraser"></i>
+                      </button>
+                    </div>
+                    <div class="col-6 col-md-1">
+                      <button class="btn btn-success w-100"
+                        onclick="try{loadFacturasModal(true);}catch(eh){alert('No se puede recargar: '+eh.message);}"><i
+                          class="fas fa-sync-alt"></i></button>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="hfCardsContainer"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
