@@ -710,20 +710,7 @@
           renacerId = renacerDoc.id;
         }
 
-        // Asignar todos los equipos existentes a este campeonato si no tienen championshipId
-        const teamsSnapshot = await db.collection("teams").get();
-        const batch = db.batch();
-        teamsSnapshot.forEach((doc) => {
-          const data = doc.data();
-          if (!data.championshipId || data.championshipId !== renacerId) {
-            batch.update(db.collection("teams").doc(doc.id), {
-              championshipId: renacerId,
-            });
-          }
-        });
-        if (!teamsSnapshot.empty) {
-          await batch.commit();
-        }
+        // Modificar: no reasignar automáticamente los equipos a "Renacer 2025" si ya pertenecen a otros campeonatos
       }
 
       // Modificar la carga inicial para asegurar el campeonato y equipos

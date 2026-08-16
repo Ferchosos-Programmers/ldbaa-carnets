@@ -91,6 +91,9 @@
           <button class="btn-secondary-glass px-3" onclick="exportarJugadoresCampeonatoExcel()">
             <i class="fas fa-file-excel me-2"></i>Reporte
           </button>
+          <button class="btn-secondary-glass px-3" data-bs-toggle="modal" data-bs-target="#championshipDocumentsModal">
+            <i class="fas fa-file-pdf me-2"></i>Formatos de Documentos
+          </button>
           <button class="btn-premium px-3" data-bs-toggle="modal" data-bs-target="#addTeamModal">
             <i class="fas fa-plus-circle me-2"></i>Agregar Equipo
           </button>
@@ -155,6 +158,12 @@
                 <label class="form-label">CONTRASEÑA (AUTO)</label>
                 <input type="text" class="input-premium" id="teamPasswordPreview" readonly style="background: rgba(255,255,255,0.05); color: #f1c40f; font-weight: bold;" />
               </div>
+              <div class="mb-4">
+                <label class="form-label text-white-50">FORMATOS DE DOCUMENTOS A ENVIAR</label>
+                <div id="teamDocsChecklist" class="p-3 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); max-height: 200px; overflow-y: auto;">
+                  <!-- Checkboxes cargados dinámicamente -->
+                </div>
+              </div>
             </div>
             <div class="modal-footer border-0">
               <button type="submit" class="btn-premium w-100 justify-content-center py-3">
@@ -201,6 +210,42 @@
             <h6>Archivos Subidos</h6>
             <div id="filesList" class="list-group">
               <!-- Los archivos se cargarán dinámicamente aquí -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para gestionar formatos de documentos del campeonato -->
+    <div class="modal fade" id="championshipDocumentsModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content modal-premium">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-file-pdf me-2 brand-accent"></i>FORMATOS DE DOCUMENTOS DEL CAMPEONATO
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="champDocUploadForm">
+              <div class="mb-4">
+                <label for="champDocName" class="form-label">NOMBRE DEL FORMATO</label>
+                <input type="text" class="input-premium" id="champDocName" placeholder="Ej: Ficha de Inscripción, Formato de Protesta" required />
+              </div>
+              <div class="mb-4">
+                <label for="champDocUpload" class="form-label">ARCHIVO PDF</label>
+                <input type="file" class="input-premium" id="champDocUpload" accept=".pdf" required />
+              </div>
+              <button type="submit" class="btn-premium w-100 justify-content-center py-3">
+                <i class="fas fa-upload me-2"></i> SUBIR FORMATO
+              </button>
+            </form>
+
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.1);" />
+
+            <h6 class="text-white mb-3">Formatos Disponibles</h6>
+            <div id="champDocsList" class="list-group">
+              <!-- Los formatos se cargarán dinámicamente aquí -->
             </div>
           </div>
         </div>
@@ -603,12 +648,43 @@
               secondaryApp = firebase.initializeApp(firebaseConfig, secondaryAppName);
             }
 
+            // Helper function to save checked formats
+            function saveTeamFormats(teamId) {
+              const checkedCheckboxes = Array.from(document.querySelectorAll(".champ-doc-cb:checked"));
+              if (checkedCheckboxes.length > 0) {
+                const promises = checkedCheckboxes.map(cb => {
+                  const docId = cb.value;
+                  const fileName = cb.getAttribute("data-filename");
+                  
+                  return db.collection("championshipDocuments").doc(docId).get()
+                    .then(docSnap => {
+                      if (docSnap.exists) {
+                        const docData = docSnap.data();
+                        return db.collection("teamFiles").add({
+                          teamId: teamId,
+                          fileName: fileName + ".pdf",
+                          fileType: "FORMATO",
+                          fileBase64: docData.fileBase64,
+                          uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                      }
+                    });
+                });
+                return Promise.all(promises);
+              }
+              return Promise.resolve();
+            }
+
             secondaryApp.auth().createUserWithEmailAndPassword(email, password)
               .then(() => {
                 return secondaryApp.auth().signOut();
               })
               .then(() => {
                 return db.collection("teams").add(teamData);
+              })
+              .then((teamDocRef) => {
+                const teamId = teamDocRef.id;
+                return saveTeamFormats(teamId);
               })
               .then(() => {
                 Swal.fire({
@@ -648,6 +724,10 @@
                 if (error.code === 'auth/email-already-in-use') {
                   // Si el correo ya existe, intentamos guardar solo en Firestore (posible re-registro)
                   db.collection("teams").add(teamData)
+                    .then((teamDocRef) => {
+                      const teamId = teamDocRef.id;
+                      return saveTeamFormats(teamId);
+                    })
                     .then(() => {
                       Swal.fire({
                         title: "¡Equipo Registrado!",
@@ -1382,6 +1462,195 @@
         });
       }
 
+      // Cargar los formatos de documentos del campeonato
+      function loadChampionshipDocuments() {
+        const list = document.getElementById("champDocsList");
+        list.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-success" role="status"></div></div>';
+
+        db.collection("championshipDocuments")
+          .where("championshipId", "==", championshipId)
+          .get()
+          .then((querySnapshot) => {
+            list.innerHTML = "";
+            if (querySnapshot.empty) {
+              list.innerHTML = '<p class="text-center text-white-50 py-3">No hay formatos subidos para este campeonato</p>';
+              return;
+            }
+
+            const docs = [];
+            querySnapshot.forEach((doc) => {
+              docs.push({ id: doc.id, ...doc.data() });
+            });
+
+            // Ordenar localmente por fecha de subida de forma descendente
+            docs.sort((a, b) => {
+              const dateA = a.uploadedAt ? a.uploadedAt.toDate() : new Date(0);
+              const dateB = b.uploadedAt ? b.uploadedAt.toDate() : new Date(0);
+              return dateB - dateA;
+            });
+
+            docs.forEach((file) => {
+              const item = document.createElement("div");
+              item.className = "list-group-item d-flex justify-content-between align-items-center bg-dark text-white border-secondary mb-2 rounded";
+              item.innerHTML = `
+                <div>
+                  <strong class="text-white">${file.fileName}</strong>
+                  <br>
+                  <small class="text-white-50">Subido: ${file.uploadedAt ? file.uploadedAt.toDate().toLocaleDateString() : 'N/A'}</small>
+                </div>
+                <div>
+                  <button class="btn btn-info btn-sm me-2" onclick="verFormatoCampeonato('${file.fileBase64}')">
+                    <i class="fas fa-eye"></i> Ver
+                  </button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteChampionshipDocument('${file.id}')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              `;
+              list.appendChild(item);
+            });
+          })
+          .catch((error) => {
+            console.error("Error al cargar formatos:", error);
+            list.innerHTML = '<p class="text-center text-danger py-3">Error al cargar formatos</p>';
+          });
+      }
+
+      // Eliminar formato del campeonato
+      function deleteChampionshipDocument(docId) {
+        Swal.fire({
+          title: "¿Eliminar formato?",
+          text: "Esta acción eliminará el formato de documento de este campeonato de forma permanente",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            db.collection("championshipDocuments")
+              .doc(docId)
+              .delete()
+              .then(() => {
+                Swal.fire("Eliminado", "El formato de documento ha sido eliminado", "success");
+                loadChampionshipDocuments();
+              })
+              .catch((error) => {
+                console.error("Error al eliminar formato:", error);
+                Swal.fire("Error", "No se pudo eliminar el formato", "error");
+              });
+          }
+        });
+      }
+
+      // Ver archivo en iframe de ver PDF
+      function verFormatoCampeonato(base64PDF) {
+        const champModal = bootstrap.Modal.getInstance(
+          document.getElementById("championshipDocumentsModal"),
+        );
+        if (champModal) {
+          champModal.hide();
+        }
+
+        document.getElementById("pdfViewerFrame").src = base64PDF;
+        const pdfModal = new bootstrap.Modal(
+          document.getElementById("viewPdfModal"),
+        );
+        pdfModal.show();
+      }
+
+      // Inicializar el formulario y eventos para los documentos del campeonato
+      document.addEventListener("DOMContentLoaded", () => {
+        const addTeamModalEl = document.getElementById("addTeamModal");
+        if (addTeamModalEl) {
+          addTeamModalEl.addEventListener("show.bs.modal", () => {
+            const checklistContainer = document.getElementById("teamDocsChecklist");
+            checklistContainer.innerHTML = '<div class="text-white-50 small">Cargando formatos disponibles...</div>';
+            
+            db.collection("championshipDocuments")
+              .where("championshipId", "==", championshipId)
+              .get()
+              .then((querySnapshot) => {
+                checklistContainer.innerHTML = "";
+                if (querySnapshot.empty) {
+                  checklistContainer.innerHTML = '<div class="text-white-50 small">No hay formatos de documentos creados para este campeonato.</div>';
+                  return;
+                }
+                
+                querySnapshot.forEach((doc) => {
+                  const data = doc.data();
+                  const div = document.createElement("div");
+                  div.className = "form-check mb-2";
+                  div.innerHTML = `
+                    <input class="form-check-input champ-doc-cb" type="checkbox" value="${doc.id}" id="cb_${doc.id}" data-filename="${data.fileName}">
+                    <label class="form-check-label text-white small" for="cb_${doc.id}">
+                      ${data.fileName}
+                    </label>
+                  `;
+                  checklistContainer.appendChild(div);
+                });
+              })
+              .catch((err) => {
+                console.error(err);
+                checklistContainer.innerHTML = '<div class="text-danger small">Error al cargar formatos.</div>';
+              });
+          });
+        }
+
+        const modalEl = document.getElementById("championshipDocumentsModal");
+        if (modalEl) {
+          modalEl.addEventListener("show.bs.modal", () => {
+            loadChampionshipDocuments();
+          });
+        }
+
+        const uploadForm = document.getElementById("champDocUploadForm");
+        if (uploadForm) {
+          uploadForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const name = document.getElementById("champDocName").value.trim();
+            const fileInput = document.getElementById("champDocUpload");
+            const file = fileInput.files[0];
+
+            if (!file || !name) {
+              Swal.fire("Error", "Por favor ingresa un nombre y selecciona un archivo PDF", "error");
+              return;
+            }
+
+            Swal.fire({
+              title: "Subiendo...",
+              text: "Subiendo formato de documento...",
+              allowOutsideClick: false,
+              didOpen: () => {
+                Swal.showLoading();
+              }
+            });
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+              const base64PDF = event.target.result;
+
+              db.collection("championshipDocuments")
+                .add({
+                  championshipId: championshipId,
+                  fileName: name,
+                  fileBase64: base64PDF,
+                  uploadedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                })
+                .then(() => {
+                  Swal.fire("Éxito", "Formato de documento subido correctamente", "success");
+                  uploadForm.reset();
+                  loadChampionshipDocuments();
+                })
+                .catch((error) => {
+                  console.error("Error al subir formato:", error);
+                  Swal.fire("Error", "No se pudo subir el formato de documento", "error");
+                });
+            };
+            reader.readAsDataURL(file);
+          });
+        }
+      });
+
       // Función para ver el archivo PDF
       function verArchivo(base64PDF) {
         // Cierra el modal de gestionar archivos si está abierto
@@ -1437,14 +1706,38 @@
         }
       });
 
+      // Track which modal was open before viewing a PDF
+      let lastOpenModal = null;
+      document.addEventListener("DOMContentLoaded", () => {
+        const teamFilesModalEl = document.getElementById("manageFilesModal");
+        if (teamFilesModalEl) {
+          teamFilesModalEl.addEventListener("show.bs.modal", () => {
+            lastOpenModal = "teamFiles";
+          });
+        }
+        const champDocsModalEl = document.getElementById("championshipDocumentsModal");
+        if (champDocsModalEl) {
+          champDocsModalEl.addEventListener("show.bs.modal", () => {
+            lastOpenModal = "champDocs";
+          });
+        }
+      });
+
       document
         .getElementById("viewPdfModal")
         .addEventListener("hidden.bs.modal", function () {
-          // Reabrir el modal de gestionar archivos si lo deseas
-          const manageFilesModal = new bootstrap.Modal(
-            document.getElementById("manageFilesModal"),
-          );
-          manageFilesModal.show();
+          // Reabrir el modal correspondiente anterior
+          if (lastOpenModal === "champDocs") {
+            const champDocsModal = new bootstrap.Modal(
+              document.getElementById("championshipDocumentsModal"),
+            );
+            champDocsModal.show();
+          } else {
+            const manageFilesModal = new bootstrap.Modal(
+              document.getElementById("manageFilesModal"),
+            );
+            manageFilesModal.show();
+          }
         });
 
       // Toast de nuevos jugadores registrados
