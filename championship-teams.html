@@ -151,6 +151,10 @@
                 </select>
               </div>
               <div class="mb-4">
+                <label for="teamFoundationDate" class="form-label">FECHA DE FUNDACIÓN</label>
+                <input type="date" class="input-premium text-white" id="teamFoundationDate" style="background: rgba(255,255,255,0.05);" />
+              </div>
+              <div class="mb-4">
                 <label class="form-label">CORREO DE ACCESO (AUTO)</label>
                 <input type="text" class="input-premium" id="teamEmailPreview" readonly style="background: rgba(255,255,255,0.05); color: #2ecc71; font-weight: bold;" />
               </div>
@@ -539,6 +543,71 @@
         renderTeams(filtered);
       }
 
+      function formatDate(dateString) {
+         if (!dateString) return '---';
+         const parts = dateString.split('-');
+         if (parts.length === 3) {
+           return `${parts[2]}/${parts[1]}/${parts[0]}`;
+         }
+         return dateString;
+       }
+
+       async function editFoundationDate(teamId, teamName) {
+         try {
+           const doc = await db.collection("teams").doc(teamId).get();
+           if (!doc.exists) {
+             Swal.fire("Error", "El equipo no existe", "error");
+             return;
+           }
+           const team = doc.data();
+           const currentVal = team.foundationDate || "";
+
+           const { value: dateStr } = await Swal.fire({
+             title: 'FECHA DE FUNDACIÓN',
+             html: `
+               <div class="text-start mb-3">
+                 <p class="text-white-50 small mb-2">Ingresa o edita la fecha de fundación para <b>${teamName}</b>:</p>
+                 <input type="date" id="swal-foundation-date" class="form-control text-white bg-dark border-secondary" value="${currentVal}" />
+               </div>
+             `,
+             background: '#111',
+             color: '#fff',
+             showCancelButton: true,
+             confirmButtonText: 'GUARDAR',
+             cancelButtonText: 'CANCELAR',
+             confirmButtonColor: '#2ecc71',
+             customClass: {
+               popup: 'glass-popup rounded-4',
+               confirmButton: 'btn btn-premium px-4 py-2',
+               cancelButton: 'btn btn-outline-light px-4 py-2'
+             },
+             preConfirm: () => {
+               return document.getElementById('swal-foundation-date').value;
+             }
+           });
+
+           if (dateStr !== undefined) {
+             Swal.fire({
+               title: 'Guardando...',
+               allowOutsideClick: false,
+               didOpen: () => Swal.showLoading()
+             });
+
+             await db.collection("teams").doc(teamId).update({
+               foundationDate: dateStr
+             });
+
+             Swal.fire('¡Éxito!', 'Fecha de fundación actualizada correctamente.', 'success');
+             loadTeams();
+           }
+         } catch (e) {
+           console.error(e);
+           Swal.fire('Error', 'No se pudo actualizar la fecha de fundación.', 'error');
+         }
+       }
+
+       window.editFoundationDate = editFoundationDate;
+
       function renderTeams(teams) {
         const container = document.getElementById("teamCardsContainer");
         container.innerHTML = "";
@@ -549,12 +618,14 @@
       function createTeamCard(id, team) {
         const card = document.createElement("div");
         card.className = "col-md-4 mb-4";
+        const dateDisplay = team.foundationDate ? formatDate(team.foundationDate) : 'No registrada';
         card.innerHTML = `
         <div class="glass-card text-center" style="position: relative; height: 100%; display: flex; flex-direction: column; justify-content: space-between; background: rgba(0, 0, 0, 0.15); backdrop-filter: blur(3px); border: 1px solid rgba(255, 255, 255, 0.1);">
           <div>
             <img src="${team.logo || 'img/logo.png'}" class="mb-3" alt="Logo" style="height: 100px; width: auto; max-width: 100%; object-fit: contain; border-radius: 8px;">
             <h5 class="text-white mb-2 fw-bold text-uppercase">${team.name}</h5>
-            <p class="text-white-50 small mb-4"><span class="badge" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">${team.category}</span></p>
+            <p class="text-white-50 small mb-2"><span class="badge" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">${team.category}</span></p>
+            <p class="text-white-50 small mb-4" style="font-size: 0.85rem;"><i class="far fa-calendar-alt me-1 text-info"></i> Fundación: <strong class="text-white">${dateDisplay}</strong></p>
           </div>
           
           <div class="d-grid gap-2 w-100 mt-auto">
@@ -567,6 +638,9 @@
               </button>
               <button class="btn btn-outline-warning border-0 flex-grow-1" style="background: rgba(243, 156, 18, 0.1);" title="Resetear Clave" onclick="resetAdminKey('${id}')">
                 <i class="fas fa-key"></i>
+              </button>
+              <button class="btn btn-outline-info border-0 flex-grow-1" style="background: rgba(52, 152, 219, 0.1);" title="Fecha de Fundación" onclick="editFoundationDate('${id}', '${team.name}')">
+                <i class="far fa-calendar-alt"></i>
               </button>
               <button class="btn btn-outline-danger border-0 flex-grow-1" style="background: rgba(231, 76, 60, 0.1);" title="Eliminar Equipo" onclick="deleteTeam('${id}')">
                 <i class="fas fa-trash"></i>
@@ -617,6 +691,7 @@
           const category = document
             .getElementById("teamCategory")
             .value.toUpperCase();
+          const foundationDate = document.getElementById("teamFoundationDate").value || "";
           const email = document.getElementById("teamEmailPreview").value;
           const password = document.getElementById("teamPasswordPreview").value;
           const logoInput = document.getElementById("teamLogo");
@@ -633,6 +708,7 @@
             const teamData = {
               name,
               category,
+              foundationDate,
               logo: logoURL,
               championshipId,
               email: email,
