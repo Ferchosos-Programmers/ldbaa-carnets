@@ -1117,11 +1117,25 @@
                 // Verificar si pertenece a otro equipo
                 let enOtroEquipo = false;
                 let originalPlayerDoc = null;
+                const currentTeamName = document.getElementById("teamName").value || "";
+
+                function cleanTextForComparison(str) {
+                  return (str || "").toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9]/g, '')
+                    .trim();
+                }
+
                 playerQuery.forEach(doc => {
                   const data = doc.data();
                   if (data.teamId !== teamId) {
-                    enOtroEquipo = true;
-                    originalPlayerDoc = { id: doc.id, ...data };
+                    const cleanPrev = cleanTextForComparison(data.teamName);
+                    const cleanCurr = cleanTextForComparison(currentTeamName);
+                    if (cleanPrev !== cleanCurr) {
+                      enOtroEquipo = true;
+                      originalPlayerDoc = { id: doc.id, ...doc.data() };
+                    }
                   }
                 });
 
