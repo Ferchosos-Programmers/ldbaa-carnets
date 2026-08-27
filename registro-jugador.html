@@ -1215,7 +1215,7 @@
           });
         }
 
-        // Listener para validar fecha de nacimiento (menores de 14 años)
+        // Listener para validar fecha de nacimiento (menores de 12 años o que tengan 12 años)
         const fechaNacInput = document.getElementById("fechaNacimiento");
         if (fechaNacInput) {
           fechaNacInput.addEventListener("change", async function () {
@@ -1223,11 +1223,11 @@
             if (!fechaNac) return;
 
             const edad = calcularEdad(fechaNac);
-            if (edad < 14) {
+            if (edad <= 12) {
               // Pedir autorización de padres obligatoria
               const { value: fileData } = await Swal.fire({
-                title: 'Jugador Menor de 14 Años',
-                text: 'Para registrar un jugador menor de 14 años, es obligatorio subir la Autorización firmada por los padres de familia (PDF o Imagen).',
+                title: 'Jugador de 12 Años o Menor',
+                text: 'Para registrar un jugador de 12 años o menor, es obligatorio subir la Autorización firmada por los padres de familia (PDF o Imagen).',
                 icon: 'info',
                 input: 'file',
                 inputAttributes: {
@@ -1272,7 +1272,7 @@
                       type: 'autorizacion_padres',
                       file: e.target.result,
                       status: 'Pendiente',
-                      notes: `Autorización de padres de familia para jugador menor de 14 años`,
+                      notes: `Autorización de padres de familia para jugador de 12 años o menor`,
                       timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     });
 
