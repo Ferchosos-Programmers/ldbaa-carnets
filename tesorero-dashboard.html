@@ -31,6 +31,11 @@
       --primary-glow: rgba(46, 204, 113, 0.5);
     }
 
+    select option {
+      background-color: #111111 !important;
+      color: #ffffff !important;
+    }
+
     body {
       font-family: "Times New Roman", Times, serif !important;
     }
@@ -1393,7 +1398,7 @@
     </div>
   </nav>
 
-  <div class="container py-5" id="main-view">
+  <div class="container-fluid py-5 px-4 px-md-5 px-lg-5" id="main-view">
     <div class="text-center mb-5 mt-4">
       <p class="text-uppercase tracking-widest text-white-50 mb-2 fw-bold"
         style="letter-spacing: 3px; font-size: 0.8rem">
@@ -1449,18 +1454,38 @@
   </div>
 
   <!-- Otras Facturaciones View Section -->
-  <div class="container py-5 d-none" id="otras-facturaciones-view">
-    <div class="d-flex align-items-center mb-5">
-      <button class="btn btn-outline-light rounded-pill px-4 me-4" onclick="closeOtrasFacturaciones()">
-        <i class="fas fa-arrow-left me-2"></i> Volver
-      </button>
-      <div>
-        <h2 class="section-title mb-0" style="font-size: 2rem;">
-          Facturación <span class="brand-accent">General</span>
-        </h2>
-        <p class="text-white-50 mb-0">Gestión de cartas pases, cobros y pagos diversos.</p>
+  <div class="container-fluid py-5 px-4 px-md-5 px-lg-5 d-none" id="otras-facturaciones-view">
+    <div class="d-flex align-items-center mb-5 flex-column flex-md-row gap-3">
+      <div class="d-flex align-items-center">
+        <button class="btn btn-outline-light rounded-pill px-4 me-4" onclick="closeOtrasFacturaciones()">
+          <i class="fas fa-arrow-left me-2"></i> Volver
+        </button>
+        <div>
+          <h2 class="section-title mb-0" style="font-size: 2rem;">
+            Facturación <span class="brand-accent">General</span>
+          </h2>
+          <p class="text-white-50 mb-0">Gestión de cartas pases, cobros y pagos diversos.</p>
+        </div>
       </div>
     </div>
+
+    <!-- Championship Selector Global para Facturación General -->
+    <!-- <div class="glass-panel mb-5 p-4"
+      style="background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);">
+      <div class="row align-items-center">
+        <div class="col-md-5">
+          <label class="form-label mb-2 text-white-50 fw-bold small text-uppercase"
+            style="letter-spacing: 1px;"><i class="fas fa-trophy text-warning me-2"></i>Seleccionar Campeonato</label>
+          <select id="generalCampSelect" class="form-select bg-dark text-white border-secondary rounded-3"
+            onchange="onGeneralCampChange()">
+            <option value="">Cargando campeonatos...</option>
+          </select>
+        </div>
+        <div class="col-md-7 text-md-end mt-3 mt-md-0">
+          <span class="badge bg-primary-glass px-3 py-2"><i class="fas fa-layer-group me-1"></i> CAMPEONATO ACTIVO: <span id="generalCampName" class="ms-1 fw-900">---</span></span>
+        </div>
+      </div>
+    </div> -->
 
     <div class="row justify-content-center g-4 mt-4">
       <div class="col-md-4">
@@ -1488,8 +1513,8 @@
   </div>
 
   <!-- Cartas Pases View Section -->
-  <div class="container py-5 d-none" id="cartas-pases-view">
-    <div class="d-flex align-items-center justify-content-between mb-5">
+  <div class="container-fluid py-5 px-4 px-md-5 px-lg-5 d-none" id="cartas-pases-view">
+    <div class="d-flex align-items-center justify-content-between mb-5 flex-column flex-md-row gap-3">
       <div class="d-flex align-items-center">
         <button class="btn btn-outline-light rounded-pill px-4 me-4" onclick="closeCartasPases()">
           <i class="fas fa-arrow-left me-2"></i> Volver
@@ -1504,6 +1529,25 @@
       <button class="btn btn-save-invoice px-4 py-2" style="width: auto" onclick="openModalCartaPase()">
         <i class="fas fa-plus-circle me-2"></i> Generar Nueva Carta Pase
       </button>
+    </div>
+
+    <!-- Championship Selector Cartas Pases -->
+    <div class="glass-panel mb-5 p-4"
+      style="background: rgba(46, 204, 113, 0.04); border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.2);">
+      <div class="row align-items-center g-3">
+        <div class="col-md-5">
+          <label class="form-label mb-2 text-white-50 fw-bold small text-uppercase"
+            style="letter-spacing: 1px;"><i class="fas fa-trophy text-warning me-2"></i>Filtrar por Campeonato</label>
+          <select id="cpCampSelect" class="form-select bg-dark text-white border-secondary rounded-3"
+            onchange="loadCartasPases()">
+            <option value="__all__">Todos los campeonatos</option>
+          </select>
+        </div>
+        <div class="col-md-7 text-md-end">
+          <span class="badge bg-primary-glass px-3 py-2 me-2 mb-1"><i class="fas fa-hashtag me-1"></i> CAMPEONATO PARA NUEVOS: <span id="cpCampNewName" class="fw-900 ms-1">---</span></span>
+          <span class="text-white-50 small d-block d-md-inline">Las nuevas cartas pases usarán el campeonato seleccionado en Facturación General.</span>
+        </div>
+      </div>
     </div>
 
     <!-- Stats Grid -->
@@ -1743,8 +1787,8 @@
   </div>
 
   <!-- Cobros Generales View Section -->
-  <div class="container py-5 d-none" id="cobros-generales-view">
-    <div class="d-flex align-items-center justify-content-between mb-5">
+  <div class="container-fluid py-5 px-4 px-md-5 px-lg-5 d-none" id="cobros-generales-view">
+    <div class="d-flex align-items-center justify-content-between mb-5 flex-column flex-md-row gap-3">
       <div class="d-flex align-items-center">
         <button class="btn btn-outline-light rounded-pill px-4 me-4" onclick="closeCobrosGenerales()">
           <i class="fas fa-arrow-left me-2"></i> Volver
@@ -1759,6 +1803,24 @@
       <button class="btn btn-save-invoice px-4 py-2" style="width: auto" onclick="openModalCobro()">
         <i class="fas fa-plus-circle me-2"></i> Registrar Nuevo Cobro
       </button>
+    </div>
+
+    <!-- Championship Selector Cobros -->
+    <div class="glass-panel mb-5 p-4"
+      style="background: rgba(201, 162, 39, 0.04); border-radius: 20px; border: 1px solid rgba(201, 162, 39, 0.2);">
+      <div class="row align-items-center g-3">
+        <div class="col-md-5">
+          <label class="form-label mb-2 text-white-50 fw-bold small text-uppercase"
+            style="letter-spacing: 1px;"><i class="fas fa-trophy text-warning me-2"></i>Filtrar por Campeonato</label>
+          <select id="cobrosCampSelect" class="form-select bg-dark text-white border-secondary rounded-3"
+            onchange="loadCobrosAdicionales()">
+            <option value="__all__">Todos los campeonatos</option>
+          </select>
+        </div>
+        <div class="col-md-7 text-md-end">
+          <span class="badge bg-primary-glass px-3 py-2"><i class="fas fa-hashtag me-1"></i> PRÓXIMA NUEVA FACTURA USARÁ: <span id="cobrosCampNewName" class="fw-900 ms-1">---</span></span>
+        </div>
+      </div>
     </div>
 
     <!-- Stats Grid -->
@@ -1837,6 +1899,13 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body p-4 pt-4">
+          <div class="mb-3">
+            <label class="form-label text-white-50 text-uppercase small fw-bold"><i class="fas fa-trophy text-warning me-1"></i> Campeonato</label>
+            <select class="form-select invoice-input" id="cobro-campeonato">
+              <option value="">Cargando...</option>
+            </select>
+            <div class="form-text small text-white-50 mt-1"><i class="fas fa-info-circle me-1"></i>La numeración de facturas comenzará desde 001 en cada campeonato.</div>
+          </div>
           <div class="mb-3">
             <label class="form-label text-white-50 text-uppercase small fw-bold">Concepto / Motivo</label>
             <input type="text" class="form-control invoice-input" id="cobro-concepto"
@@ -2058,8 +2127,8 @@
   </div>
 
   <!-- Pagos Generales View Section -->
-  <div class="container py-5 d-none" id="pagos-generales-view">
-    <div class="d-flex align-items-center justify-content-between mb-5">
+  <div class="container-fluid py-5 px-4 px-md-5 px-lg-5 d-none" id="pagos-generales-view">
+    <div class="d-flex align-items-center justify-content-between mb-5 flex-column flex-md-row gap-3">
       <div class="d-flex align-items-center">
         <button class="btn btn-outline-light rounded-pill px-4 me-4" onclick="closePagosGenerales()">
           <i class="fas fa-arrow-left me-2"></i> Volver
@@ -2076,6 +2145,24 @@
         onclick="openModalPago()">
         <i class="fas fa-minus-circle me-2"></i> Registrar Nuevo Pago
       </button>
+    </div>
+
+    <!-- Championship Selector Pagos -->
+    <div class="glass-panel mb-5 p-4"
+      style="background: rgba(231, 76, 60, 0.04); border-radius: 20px; border: 1px solid rgba(231, 76, 60, 0.2);">
+      <div class="row align-items-center g-3">
+        <div class="col-md-5">
+          <label class="form-label mb-2 text-white-50 fw-bold small text-uppercase"
+            style="letter-spacing: 1px;"><i class="fas fa-trophy text-warning me-2"></i>Filtrar por Campeonato</label>
+          <select id="pagosCampSelect" class="form-select bg-dark text-white border-secondary rounded-3"
+            onchange="loadPagosGenerales()">
+            <option value="__all__">Todos los campeonatos</option>
+          </select>
+        </div>
+        <div class="col-md-7 text-md-end">
+          <span class="badge px-3 py-2" style="background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.3); color: #e74c3c; font-weight: 600;"><i class="fas fa-hashtag me-1"></i> PRÓXIMO PAGO ASOCIADO A: <span id="pagosCampNewName" class="fw-900 ms-1">---</span></span>
+        </div>
+      </div>
     </div>
 
     <!-- Stats Grid -->
@@ -2148,6 +2235,13 @@
         </div>
         <div class="modal-body p-4 pt-4">
           <div class="mb-3">
+            <label class="form-label text-white-50 text-uppercase small fw-bold"><i class="fas fa-trophy text-warning me-1"></i> Campeonato</label>
+            <select class="form-select invoice-input" id="pago-campeonato">
+              <option value="">Cargando...</option>
+            </select>
+            <div class="form-text small text-white-50 mt-1"><i class="fas fa-info-circle me-1"></i>Asocia este egreso al campeonato seleccionado.</div>
+          </div>
+          <div class="mb-3">
             <label class="form-label text-white-50 text-uppercase small fw-bold">Concepto / Motivo del Pago</label>
             <input type="text" class="form-control invoice-input" id="pago-concepto"
               placeholder="Ej: Pago Arbitraje, Compra de Balones, etc.">
@@ -2196,7 +2290,7 @@
   </div>
 
   <!-- Facturación View Section -->
-  <div class="container py-5 d-none" id="facturacion-view">
+  <div class="container-fluid py-5 px-4 px-md-5 px-lg-5 d-none" id="facturacion-view">
     <div class="d-flex align-items-center mb-5">
       <button class="btn btn-outline-light rounded-pill px-4 me-4" onclick="closeFacturacion()">
         <i class="fas fa-arrow-left me-2"></i> Volver
@@ -2757,8 +2851,8 @@
     </div>
 
     <!-- Historial de Facturas View Section -->
-    <div class="container py-5 d-none" id="historial-facturas-view"
-      style="background: linear-gradient(180deg, #0d0f18 0%, #10131f 100%); min-height: 95vh; position: relative; z-index: 30; display: none;">
+    <div class="container-fluid py-5 px-4 px-md-5 px-lg-5 d-none" id="historial-facturas-view"
+      style="background: linear-gradient(180deg, #0d0f18 0%, #10131f 100%); min-height: 95vh; position: relative; z-index: 30; display: none; margin: 0 !important; max-width: 100% !important; width: 100% !important;">
       <div class="d-flex align-items-center justify-content-between mb-5 flex-column flex-md-row gap-3">
         <div class="d-flex align-items-center">
           <button class="btn btn-outline-light rounded-pill px-4 me-4" onclick="closeHistorialFacturas()">
@@ -2816,21 +2910,28 @@
       <div class="glass-panel p-4 mb-4 rounded-4"
         style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);">
         <div class="row g-3 align-items-end mb-3">
-          <div class="col-md-4">
+          <div class="col-md-3">
+            <label class="text-white-50 small text-uppercase d-block mb-1 fw-800"><i
+                class="fas fa-trophy me-1 text-warning"></i> Campeonato</label>
+            <select id="hist-filter-camp" class="form-control invoice-input" onchange="renderAllInvoices()">
+              <option value="__all__">Todos los campeonatos</option>
+            </select>
+          </div>
+          <div class="col-md-3">
             <label class="text-white-50 small text-uppercase d-block mb-1 fw-800"><i
                 class="fas fa-hashtag me-1 text-warning"></i> N° DE FACTURA</label>
             <input type="text" id="hist-search-invoice" class="form-control invoice-input" oninput="renderAllInvoices()"
               placeholder="Ej: 001-001-000000001" style="border-color: rgba(201,162,39,0.4); font-family: monospace;">
           </div>
-          <div class="col-md-5">
+          <div class="col-md-4">
             <label class="text-white-50 small text-uppercase d-block mb-1 fw-800"><i class="fas fa-search me-1"></i>
               Buscar por destinatario / concepto</label>
             <input type="text" id="hist-search" class="form-control invoice-input" oninput="renderAllInvoices()"
               placeholder="Ej: Atlético Madrid, Multa, Partido vs...">
           </div>
-          <div class="col-md-3">
+          <div class="col-md-2">
             <button class="btn btn-outline-light w-100 rounded-3 border-opacity-25" onclick="resetHistorialFilters()">
-              <i class="fas fa-eraser me-1"></i> Limpiar filtros
+              <i class="fas fa-eraser me-1"></i> Limpiar
             </button>
           </div>
         </div>
@@ -2913,6 +3014,198 @@
       const auth = window.auth;
       const db = window.db;
 
+      // ===== ESTADO GLOBAL DE CAMPEONATO =====
+      let __activeGeneralCampeonatoId = "";
+      let __activeGeneralCampeonatoName = "";
+      let __campeonatoCache = []; // [{id, name, ...data}]
+
+      /**
+       * Helper: carga campeonatos de Firestore y cachea.
+       * @returns {Promise<Array>} lista de campeonatos
+       */
+      async function fetchAllCampeonatos() {
+        if (__campeonatoCache && __campeonatoCache.length > 0) {
+          return __campeonatoCache;
+        }
+        try {
+          const snap = await db.collection("championships").orderBy("createdAt", "desc").get();
+          __campeonatoCache = [];
+          snap.forEach(d => __campeonatoCache.push({ id: d.id, ...d.data() }));
+          return __campeonatoCache;
+        } catch (e) {
+          console.error("fetchAllCampeonatos error:", e);
+          return [];
+        }
+      }
+
+      /**
+       * Carga campeonatos en un <select> dado.
+       * @param {string} selectId - id del select
+       * @param {object} opts - { includeAll:boolean, allLabel:string, onChange:fn, autoSelectFirstId:string }
+       */
+      async function loadCampeonatosToSelect(selectId, opts) {
+        opts = opts || {};
+        const sel = document.getElementById(selectId);
+        if (!sel) return;
+        try {
+          const currentVal = sel.value;
+          const camps = await fetchAllCampeonatos();
+          let html = "";
+          if (opts.includeAll !== false) {
+            html += `<option value="__all__">${opts.allLabel || "Todos los campeonatos"}</option>`;
+          } else if (opts.includeEmptyFirst) {
+            html += `<option value="">${opts.emptyLabel || "Seleccionar campeonato..."}</option>`;
+          }
+          camps.forEach(c => {
+            html += `<option value="${c.id}">${c.name || c.nombre || "Sin nombre"}</option>`;
+          });
+          if (camps.length === 0 && opts.includeAll === false && !opts.includeEmptyFirst) {
+            html = '<option value="">No hay campeonatos disponibles</option>';
+          }
+          sel.innerHTML = html;
+          if (opts.autoSelectFirstId) {
+            sel.value = opts.autoSelectFirstId;
+          } else if (currentVal && currentVal !== "__all__" && currentVal !== "") {
+            // si ya tenía selección válida la mantenemos
+            if ([...camps].some(c => c.id === currentVal)) sel.value = currentVal;
+            else if (opts.includeAll !== false) sel.value = "__all__";
+          } else if (camps.length > 0) {
+            if (opts.includeAll === false) sel.value = camps[0].id;
+            else if (opts.autoSelectFirst) sel.value = camps[0].id;
+          }
+          if (typeof opts.onChange === "function") {
+            setTimeout(() => opts.onChange(sel.value), 30);
+          }
+        } catch (e) { console.error(`loadCampeonatosToSelect ${selectId}:`, e); }
+      }
+
+      /**
+       * Contador de facturas por campeonato.
+       * Si no se pasa campeonatoId usa el contador global legacy.
+       */
+      async function getCurrentInvoiceNumber(campeonatoId) {
+        try {
+          if (!campeonatoId) {
+            const doc = await db.collection('config').doc('invoice_counter').get();
+            return doc.exists ? (doc.data().currentSeq || 0) : 0;
+          }
+          const docRef = db.collection('config').doc('invoice_counters');
+          const doc = await docRef.get();
+          if (!doc.exists) return 0;
+          const data = doc.data() || {};
+          const byCamp = data.byChampionship || {};
+          return (byCamp[campeonatoId] && typeof byCamp[campeonatoId].currentSeq === "number") ? byCamp[campeonatoId].currentSeq : 0;
+        } catch (e) { return 0; }
+      }
+
+      async function getNextInvoiceNumber(campeonatoId) {
+        if (!campeonatoId) {
+          // fallback legacy global counter
+          return getNextGlobalInvoiceNumber();
+        }
+        const counterRef = db.collection('config').doc('invoice_counters');
+        let newSeq = 1;
+        try {
+          await db.runTransaction(async (tx) => {
+            const doc = await tx.get(counterRef);
+            let data = doc.exists ? (doc.data() || {}) : {};
+            data.byChampionship = data.byChampionship || {};
+            const prev = (data.byChampionship[campeonatoId] && typeof data.byChampionship[campeonatoId].currentSeq === "number")
+              ? data.byChampionship[campeonatoId].currentSeq
+              : 0;
+            newSeq = prev + 1;
+            data.byChampionship[campeonatoId] = {
+              currentSeq: newSeq,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            tx.set(counterRef, data, { merge: true });
+          });
+          return newSeq;
+        } catch (txErr) {
+          console.warn("tx counter falló -> fallback simple read-then-write", txErr);
+          const cur = await getCurrentInvoiceNumber(campeonatoId);
+          newSeq = cur + 1;
+          try {
+            await db.collection('config').doc('invoice_counters').set({
+              byChampionship: {
+                [campeonatoId]: {
+                  currentSeq: newSeq,
+                  updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }
+              }
+            }, { merge: true });
+          } catch (e2) { /* ignore */ }
+          return newSeq;
+        }
+      }
+
+      /**
+       * Dado un id de campeonato devuelve la parte de establecimiento / punto emisión
+       * (primeros dos bloques de la numeración) para que cada campeonato tenga su propia
+       * "serie" visual.
+       */
+      function getCampNumberPrefix(campeonatoId) {
+        if (!campeonatoId) return "001-001";
+        // índice determinístico por posición en el caché ordenado cronológicamente (1-based)
+        const camps = [...__campeonatoCache].sort((a, b) => {
+          const tA = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime()) : 0;
+          const tB = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime()) : 0;
+          return tA - tB;
+        });
+        const idx = camps.findIndex(c => c.id === campeonatoId);
+        const n = idx >= 0 ? idx + 1 : 1;
+        const establecimiento = String(Math.min(999, n)).padStart(3, "0");
+        const puntoEmision = "001";
+        return `${establecimiento}-${puntoEmision}`;
+      }
+
+      function getChampionshipNumberPrefix(campeonatoId) {
+        if (!campeonatoId) return "001";
+        const camps = [...__campeonatoCache].sort((a, b) => {
+          const tA = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime()) : 0;
+          const tB = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime()) : 0;
+          return tA - tB;
+        });
+        const idx = camps.findIndex(c => c.id === campeonatoId);
+        const n = idx >= 0 ? idx + 1 : 1;
+        return String(Math.min(999, n)).padStart(3, "0");
+      }
+
+      function buildInvoiceFullNumber(prefix, seqNum) {
+        return `${prefix}-${String(seqNum).padStart(9, "0")}`;
+      }
+
+      // ===== NAV HELPERS =====
+      function setActiveGeneralCampeonato(campId) {
+        __activeGeneralCampeonatoId = campId || "";
+        const camp = __campeonatoCache.find(c => c.id === campId);
+        __activeGeneralCampeonatoName = camp ? (camp.name || camp.nombre || "") : "";
+        try { localStorage.setItem("tesorero_last_camp_id", campId || ""); } catch (e) { /* ignore */ }
+        const nameSpan = document.getElementById("generalCampName");
+        if (nameSpan) nameSpan.textContent = __activeGeneralCampeonatoName || "SIN SELECCIÓN";
+        // actualiza badges de otras vistas
+        const cpName = document.getElementById("cpCampNewName");
+        if (cpName) cpName.textContent = __activeGeneralCampeonatoName || "---";
+        const coName = document.getElementById("cobrosCampNewName");
+        if (coName) coName.textContent = __activeGeneralCampeonatoName || "---";
+        const paName = document.getElementById("pagosCampNewName");
+        if (paName) paName.textContent = __activeGeneralCampeonatoName || "---";
+      }
+
+      function onGeneralCampChange() {
+        const sel = document.getElementById("generalCampSelect");
+        if (!sel) return;
+        setActiveGeneralCampeonato(sel.value);
+      }
+
+      // ===== FILTER / QUERY HELPERS =====
+      function applyCampeonatoFilter(items, selectId) {
+        const sel = document.getElementById(selectId);
+        if (!sel || sel.value === "__all__" || sel.value === "" || !items) return items;
+        const campId = sel.value;
+        return items.filter(it => (it && it.championshipId) === campId);
+      }
+
       let fixturesMap = new Map();
 
       let currentJornada = null;
@@ -2932,6 +3225,25 @@
       function openOtrasFacturaciones() {
         document.getElementById('main-view').classList.add('d-none');
         document.getElementById('otras-facturaciones-view').classList.remove('d-none');
+        // cargar selector de campeonato y restaurar última selección
+        (async () => {
+          try {
+            let lastId = "";
+            try { lastId = localStorage.getItem("tesorero_last_camp_id") || ""; } catch (e) {}
+            await loadCampeonatosToSelect("generalCampSelect", {
+              includeAll: false, includeEmptyFirst: true, emptyLabel: "Selecciona un campeonato...",
+              autoSelectFirst: false
+            });
+            const sel = document.getElementById("generalCampSelect");
+            if (sel) {
+              // si hay un lastId válido úsalo
+              if (lastId && sel.querySelector(`option[value="${lastId}"]`)) sel.value = lastId;
+              else if (!sel.value && sel.options.length > 1) sel.value = sel.options[1].value; // skip placeholder
+              setActiveGeneralCampeonato(sel.value);
+              sel.onchange = onGeneralCampChange;
+            }
+          } catch (e) { console.error(e); }
+        })();
       }
 
       function closeOtrasFacturaciones() {
@@ -2942,7 +3254,13 @@
       function openCartasPases() {
         document.getElementById('otras-facturaciones-view').classList.add('d-none');
         document.getElementById('cartas-pases-view').classList.remove('d-none');
-        loadCartasPases();
+        // cargar selector de campeonato para filtrar listado
+        (async () => {
+          await loadCampeonatosToSelect("cpCampSelect", { includeAll: true });
+          const nm = document.getElementById("cpCampNewName");
+          if (nm) nm.textContent = __activeGeneralCampeonatoName || "---";
+          await loadCartasPases();
+        })();
       }
 
       function closeCartasPases() {
@@ -2971,8 +3289,14 @@
           let pendingPases = [];
           let completedPases = [];
 
+          const selectedCampId = document.getElementById("cpCampSelect")?.value || "__all__";
+
           snapshot.forEach(doc => {
             const data = { id: doc.id, ...doc.data() };
+            // Filtrar por campeonato
+            if (selectedCampId !== "__all__" && data.championshipId !== selectedCampId) {
+              return;
+            }
             allPases.push(data);
             if (data.status === 'pending') {
               pendingPases.push(data);
@@ -3044,9 +3368,10 @@
           } else {
             completedPases.forEach(data => {
               const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'N/A';
-              const start = String(data.startSeq || data.seqNum).padStart(4, '0');
-              const end = String(data.endSeq || data.seqNum).padStart(4, '0');
-              const range = data.isBatch ? `${start} - ${end}` : start;
+              const prefix = getChampionshipNumberPrefix(data.championshipId);
+              const start = String(data.startSeq || data.seqNum || 1).padStart(3, '0');
+              const end = String(data.endSeq || data.seqNum || 1).padStart(3, '0');
+              const range = data.isBatch ? `${prefix}-${start} - ${prefix}-${end}` : `${prefix}-${start}`;
               const qty = data.quantity || 1;
               const totalVal = data.totalValue || (data.value * qty) || 0;
 
@@ -3278,11 +3603,13 @@
 
       let cpCurrentStep = 1;
       let cpSelectedTeam = null;
+      let cpSelectedChampionship = null; // { id, name }
       let cpAllTeams = [];
 
       async function openModalCartaPase() {
         cpCurrentStep = 1;
         cpSelectedTeam = null;
+        cpSelectedChampionship = null;
         showCPStep(1);
 
         const container = document.getElementById('cp-championship-list');
@@ -3294,6 +3621,13 @@
         try {
           const snapshot = await db.collection("championships").orderBy("createdAt", "desc").get();
           container.innerHTML = "";
+          // auto-pick if general has a selection
+          if (__activeGeneralCampeonatoId && snapshot.docs.some(d => d.id === __activeGeneralCampeonatoId)) {
+            setTimeout(() => {
+              const d = snapshot.docs.find(x => x.id === __activeGeneralCampeonatoId);
+              if (d) cpSelectChampionship(d.id, d.data().name || "Campeonato");
+            }, 200);
+          }
           snapshot.forEach(doc => {
             const c = doc.data();
             container.insertAdjacentHTML('beforeend', `
@@ -3311,6 +3645,7 @@
       }
 
       async function cpSelectChampionship(id, name) {
+        cpSelectedChampionship = { id, name };
         cpCurrentStep = 2;
         showCPStep(2);
 
@@ -3416,6 +3751,7 @@
         const totalValue = parseFloat(cartasPaseData.totalValue || (quantity * 0.5));
         const startSeq = cartasPaseData.startSeq;
         const endSeq = cartasPaseData.endSeq;
+        const championshipId = cartasPaseData.championshipId || "";
 
         let category = "N/A";
         if (teamId) {
@@ -3423,18 +3759,21 @@
           if (teamDoc.exists) category = teamDoc.data().category || "N/A";
         }
 
+        const prefixNum = getChampionshipNumberPrefix(championshipId);
         const seqRange = startSeq && endSeq
-          ? ` Sec. ${String(startSeq).padStart(4, '0')}-${String(endSeq).padStart(4, '0')}`
+          ? ` Sec. ${prefixNum}-${String(startSeq).padStart(3, '0')}-${prefixNum}-${String(endSeq).padStart(3, '0')}`
           : "";
 
-        const seqNum = await getNextGlobalInvoiceNumber();
-        const invoiceId = "001-001-" + String(seqNum).padStart(9, '0');
+        const seqNum = await getNextInvoiceNumber(championshipId);
+        const prefix = getCampNumberPrefix(championshipId);
+        const invoiceId = buildInvoiceFullNumber(prefix, seqNum);
 
         const invoiceData = {
           team: teamName,
           category: (category || "N/A").toUpperCase(),
           total: totalValue,
           invoiceId,
+          championshipId: championshipId || null,
           timestamp: new Date(),
           source: "cartas_pases",
           cartasPaseId: cartasPaseDocId,
@@ -3454,20 +3793,25 @@
         };
 
         await db.collection("invoices").add(invoiceData);
-        await db.collection("cartas_pases").doc(cartasPaseDocId).update({ invoiceId });
+        await db.collection("cartas_pases").doc(cartasPaseDocId).update({
+          invoiceId,
+          championshipId: championshipId || null
+        });
 
         return invoiceId;
       }
 
-      async function generateAndDownloadPDF(teamName, quantity, startSeq, endSeq) {
+      async function generateAndDownloadPDF(teamName, quantity, startSeq, endSeq, championshipId) {
         const pdfContainer = document.createElement('div');
         pdfContainer.style.margin = '0';
         pdfContainer.style.padding = '0';
         const originalTemplate = document.getElementById('carta-pase-pdf-template');
 
+        const prefixNum = getChampionshipNumberPrefix(championshipId);
+
         let currentSeqNum = startSeq;
         for (let i = 0; i < quantity; i++) {
-          const seqStr = String(currentSeqNum).padStart(4, '0');
+          const seqStr = `${prefixNum}-${String(currentSeqNum).padStart(3, '0')}`;
           currentSeqNum++;
 
           const page = originalTemplate.cloneNode(true);
@@ -3503,6 +3847,13 @@
       }
 
       async function saveCartaPase() {
+        if (!cpSelectedChampionship) {
+          Swal.fire('Atención', 'Debes seleccionar un campeonato en el Paso 1.', 'warning');
+          cpCurrentStep = 1;
+          showCPStep(1);
+          return;
+        }
+        const championshipId = cpSelectedChampionship.id;
         const teamId = cpSelectedTeam.id;
         const teamName = cpSelectedTeam.name;
         const quantity = parseInt(document.getElementById('cp-quantity').value) || 1;
@@ -3510,7 +3861,7 @@
 
         const confirm = await Swal.fire({
           title: '¿Confirmar adquisición?',
-          text: `Se generarán ${quantity} cartas pases en lote para el equipo ${teamName}. Total: $${totalValue.toFixed(2)}`,
+          html: `Se generarán <b>${quantity}</b> cartas pases en lote para el equipo <b>${teamName}</b>.<br>Campeonato: <b class="text-warning">${cpSelectedChampionship.name}</b><br>Total: <b>$${totalValue.toFixed(2)}</b>`,
           icon: 'question',
           showCancelButton: true,
           confirmButtonColor: '#2ecc71',
@@ -3525,10 +3876,26 @@
           });
 
           try {
-            const snapshot = await db.collection("cartas_pases").orderBy("seqNum", "desc").limit(1).get();
+            // obtener última carta pase POR CAMPEONATO para la secuencia interna de CP (0001-0050)
+            const snapAll = await db.collection("cartas_pases").where("championshipId", "==", championshipId).get();
             let currentSeq = 0;
-            if (!snapshot.empty) {
-              currentSeq = snapshot.docs[0].data().endSeq || snapshot.docs[0].data().seqNum || 0;
+            snapAll.forEach(d => {
+              const v = d.data();
+              const m = Math.max(v.endSeq || 0, v.seqNum || 0);
+              if (m > currentSeq) currentSeq = m;
+            });
+            // fallback por si el where requiere indice
+            if (currentSeq === 0 && !snapAll.size) {
+              try {
+                const snapshot = await db.collection("cartas_pases").orderBy("seqNum", "desc").limit(50).get();
+                snapshot.forEach(d => {
+                  const v = d.data();
+                  if ((v.championshipId || "") === championshipId) {
+                    const m = Math.max(v.endSeq || 0, v.seqNum || 0);
+                    if (m > currentSeq) currentSeq = m;
+                  }
+                });
+              } catch (e2) { /* ignore */ }
             }
             const startSeq = currentSeq + 1;
             const endSeq = startSeq + quantity - 1;
@@ -3537,6 +3904,8 @@
               teamId,
               teamName,
               quantity,
+              championshipId,
+              championshipName: cpSelectedChampionship.name || "",
               startSeq: startSeq,
               endSeq: endSeq,
               seqNum: endSeq,
@@ -3550,13 +3919,14 @@
             const invoiceId = await createCartasPasesInvoice({
               teamId,
               teamName,
+              championshipId,
               quantity,
               startSeq,
               endSeq,
               totalValue
             }, docRef.id);
 
-            await generateAndDownloadPDF(teamName, quantity, startSeq, endSeq);
+            await generateAndDownloadPDF(teamName, quantity, startSeq, endSeq, championshipId);
 
             bootstrap.Modal.getInstance(document.getElementById('modalCartaPase')).hide();
             await loadCartasPases();
@@ -3572,12 +3942,24 @@
         const doc = await db.collection("cartas_pases").doc(id).get();
         if (!doc.exists) return;
         const data = doc.data();
+        let championshipId = data.championshipId || "";
+        if (!championshipId && __activeGeneralCampeonatoId) championshipId = __activeGeneralCampeonatoId;
+        if (!championshipId) {
+          Swal.fire({
+            title: 'Asigna un campeonato',
+            text: 'Esta solicitud no tiene campeonato. Debes asignarlo manualmente o seleccionar uno desde el panel principal.',
+            icon: 'warning',
+            background: '#111'
+          });
+          return;
+        }
 
         const confirm = await Swal.fire({
           title: '¿Aprobar solicitud?',
           html: `
                 <div class="text-start small text-white-50">
                   <p class="text-white">Se autorizará el lote de <strong>${data.quantity}</strong> cartas pases para el club <strong>${data.teamName.toUpperCase()}</strong>.</p>
+                  <p class="text-warning"><i class="fas fa-trophy me-1"></i> Campeonato: <b>${data.championshipName || "—"}</b></p>
                   <p class="text-success fw-bold"><i class="fas fa-coins me-1"></i> Total verificado: $${parseFloat(data.totalValue).toFixed(2)}</p>
                 </div>
               `,
@@ -3596,14 +3978,24 @@
           });
 
           try {
-            const snapshot = await db.collection("cartas_pases")
-              .orderBy("seqNum", "desc")
-              .limit(1)
-              .get();
-
+            const snapAll = await db.collection("cartas_pases").where("championshipId", "==", championshipId).get();
             let currentSeq = 0;
-            if (!snapshot.empty) {
-              currentSeq = snapshot.docs[0].data().endSeq || snapshot.docs[0].data().seqNum || 0;
+            snapAll.forEach(d => {
+              const v = d.data();
+              const m = Math.max(v.endSeq || 0, v.seqNum || 0);
+              if (m > currentSeq) currentSeq = m;
+            });
+            if (currentSeq === 0) {
+              try {
+                const snapshot = await db.collection("cartas_pases").orderBy("seqNum", "desc").limit(50).get();
+                snapshot.forEach(d => {
+                  const v = d.data();
+                  if ((v.championshipId || "") === championshipId) {
+                    const m = Math.max(v.endSeq || 0, v.seqNum || 0);
+                    if (m > currentSeq) currentSeq = m;
+                  }
+                });
+              } catch (e2) { /* ignore */ }
             }
 
             const startSeq = currentSeq + 1;
@@ -3611,6 +4003,7 @@
 
             await db.collection("cartas_pases").doc(id).update({
               status: 'completed',
+              championshipId,
               startSeq: startSeq,
               endSeq: endSeq,
               seqNum: endSeq,
@@ -3619,13 +4012,14 @@
 
             const invoiceId = await createCartasPasesInvoice({
               ...data,
+              championshipId,
               startSeq,
               endSeq,
               seqNum: endSeq,
               status: 'completed'
             }, id);
 
-            await generateAndDownloadPDF(data.teamName, data.quantity, startSeq, endSeq);
+            await generateAndDownloadPDF(data.teamName, data.quantity, startSeq, endSeq, championshipId);
 
             await loadCartasPases();
 
@@ -3714,7 +4108,12 @@
       function openCobrosGenerales() {
         document.getElementById('otras-facturaciones-view').classList.add('d-none');
         document.getElementById('cobros-generales-view').classList.remove('d-none');
-        loadCobrosAdicionales();
+        (async () => {
+          await loadCampeonatosToSelect("cobrosCampSelect", { includeAll: true });
+          const nm = document.getElementById("cobrosCampNewName");
+          if (nm) nm.textContent = __activeGeneralCampeonatoName || "---";
+          await loadCobrosAdicionales();
+        })();
       }
 
       function closeCobrosGenerales() {
@@ -3728,12 +4127,23 @@
         document.getElementById('cobro-valor').value = '';
         const modal = new bootstrap.Modal(document.getElementById('modalRegistrarCobro'));
         modal.show();
+        (async () => {
+          await loadCampeonatosToSelect("cobro-campeonato", {
+            includeAll: false, includeEmptyFirst: true, emptyLabel: "Selecciona un campeonato..."
+          });
+          const sel = document.getElementById("cobro-campeonato");
+          if (sel && !sel.value && __activeGeneralCampeonatoId) {
+            if (sel.querySelector(`option[value="${__activeGeneralCampeonatoId}"]`)) sel.value = __activeGeneralCampeonatoId;
+          }
+          if (sel && !sel.value && sel.options.length > 1) sel.value = sel.options[1].value;
+        })();
       }
 
       async function createCobroGeneralInvoice(seqNum, cobroData, cobroDocId) {
         const teamName = cobroData.entidad;
         const valor = parseFloat(cobroData.valor || 0);
         const concepto = cobroData.concepto || 'Cobro Adicional';
+        const championshipId = cobroData.championshipId || "";
 
         let teamCategory = 'VARIOS';
         let teamId = null;
@@ -3747,13 +4157,15 @@
           }
         } catch (e) { console.warn(e); }
 
-        const invoiceId = "001-001-" + String(seqNum).padStart(9, '0');
+        const prefix = getCampNumberPrefix(championshipId);
+        const invoiceId = buildInvoiceFullNumber(prefix, seqNum);
 
         const invoiceData = {
           team: teamName,
           category: (teamCategory || 'VARIOS').toUpperCase(),
           total: valor,
           invoiceId,
+          championshipId: championshipId || null,
           timestamp: new Date(),
           source: "cobro_general",
           cobroGeneralId: cobroDocId,
@@ -3772,7 +4184,10 @@
         };
 
         await db.collection("invoices").add(invoiceData);
-        await db.collection('cobros_generales').doc(cobroDocId).update({ invoiceId, teamId, category: teamCategory });
+        await db.collection('cobros_generales').doc(cobroDocId).update({
+          invoiceId, teamId, category: teamCategory,
+          championshipId: championshipId || null
+        });
 
         return invoiceId;
       }
@@ -3782,7 +4197,13 @@
         const entidad = document.getElementById('cobro-entidad').value.trim();
         const valorStr = document.getElementById('cobro-valor').value;
         const valor = parseFloat(valorStr);
+        const campSel = document.getElementById('cobro-campeonato');
+        const championshipId = campSel ? campSel.value : "";
 
+        if (!championshipId) {
+          Swal.fire('Atención', 'Debes seleccionar un campeonato para generar la numeración.', 'warning');
+          return;
+        }
         if (!concepto || !entidad || isNaN(valor) || valor <= 0) {
           Swal.fire('Atención', 'Por favor, llena todos los campos correctamente con un valor mayor a cero.', 'warning');
           return;
@@ -3794,13 +4215,14 @@
         });
 
         try {
-          const seqNum = await getNextGlobalInvoiceNumber();
+          const seqNum = await getNextInvoiceNumber(championshipId);
 
           const cobroData = {
             concepto,
             entidad,
             valor,
             seqNum,
+            championshipId: championshipId || null,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           };
 
@@ -3891,15 +4313,24 @@
           tbody.innerHTML = '';
           allCobros = [];
 
-          if (snapshot.empty) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-white-50">No hay cobros registrados.</td></tr>';
+          const selectedCampId = document.getElementById("cobrosCampSelect")?.value || "__all__";
+
+          snapshot.forEach(doc => {
+            const data = { id: doc.id, ...doc.data() };
+            // Filtrar por campeonato
+            if (selectedCampId !== "__all__" && data.championshipId !== selectedCampId) {
+              return;
+            }
+            allCobros.push(data);
+          });
+
+          if (allCobros.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-white-50">No hay cobros registrados para este campeonato.</td></tr>';
             updateCobrosStats([]);
             return;
           }
 
-          snapshot.forEach(doc => {
-            const data = { id: doc.id, ...doc.data() };
-            allCobros.push(data);
+          allCobros.forEach(data => {
             const dateObj = data.createdAt ? data.createdAt.toDate() : new Date();
             const date = dateObj.toLocaleDateString();
             const time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -3926,10 +4357,10 @@
                       <td class="text-center text-white fw-bold fs-5 text-primary-glow">$ ${parseFloat(data.valor).toFixed(2)}</td>
                       <td class="text-end pe-4">
                         <div class="btn-group">
-                          <button class="btn btn-sm btn-outline-primary border-opacity-25 rounded-3 me-2" onclick="reprintCobroPDF('${doc.id}')" title="Descargar Recibo">
+                          <button class="btn btn-sm btn-outline-primary border-opacity-25 rounded-3 me-2" onclick="reprintCobroPDF('${data.id}')" title="Descargar Recibo">
                             <i class="fas fa-file-pdf"></i>
                           </button>
-                          <button class="btn btn-sm btn-outline-danger border-opacity-25 rounded-3" onclick="deleteCobro('${doc.id}')" title="Eliminar Cobro">
+                          <button class="btn btn-sm btn-outline-danger border-opacity-25 rounded-3" onclick="deleteCobro('${data.id}')" title="Eliminar Cobro">
                             <i class="fas fa-trash-alt"></i>
                           </button>
                         </div>
@@ -4085,7 +4516,12 @@
       function openPagosGenerales() {
         document.getElementById('otras-facturaciones-view').classList.add('d-none');
         document.getElementById('pagos-generales-view').classList.remove('d-none');
-        loadPagosGenerales();
+        (async () => {
+          await loadCampeonatosToSelect("pagosCampSelect", { includeAll: true });
+          const nm = document.getElementById("pagosCampNewName");
+          if (nm) nm.textContent = __activeGeneralCampeonatoName || "---";
+          await loadPagosGenerales();
+        })();
       }
 
       function closePagosGenerales() {
@@ -4105,6 +4541,16 @@
 
         const modal = new bootstrap.Modal(document.getElementById('modalRegistrarPago'));
         modal.show();
+        (async () => {
+          await loadCampeonatosToSelect("pago-campeonato", {
+            includeAll: false, includeEmptyFirst: true, emptyLabel: "Selecciona un campeonato..."
+          });
+          const sel = document.getElementById("pago-campeonato");
+          if (sel && !sel.value && __activeGeneralCampeonatoId) {
+            if (sel.querySelector(`option[value="${__activeGeneralCampeonatoId}"]`)) sel.value = __activeGeneralCampeonatoId;
+          }
+          if (sel && !sel.value && sel.options.length > 1) sel.value = sel.options[1].value;
+        })();
       }
 
       function handleFileSelect(event) {
@@ -4155,7 +4601,13 @@
         const concepto = document.getElementById('pago-concepto').value.trim();
         const valorStr = document.getElementById('pago-valor').value;
         const valor = parseFloat(valorStr);
+        const campSel = document.getElementById('pago-campeonato');
+        const championshipId = campSel ? campSel.value : "";
 
+        if (!championshipId) {
+          Swal.fire('Atención', 'Debes seleccionar un campeonato.', 'warning');
+          return;
+        }
         if (!concepto || isNaN(valor) || valor <= 0) {
           Swal.fire('Advertencia', 'Por favor, ingresa un concepto y un valor válido mayor a 0.', 'warning');
           return;
@@ -4174,6 +4626,7 @@
           const pagoData = {
             concepto,
             valor,
+            championshipId: championshipId || null,
             comprobante: base64Comprobante,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           };
@@ -4204,9 +4657,15 @@
           todosLosPagos = [];
           let totalValor = 0;
 
+          const selectedCampId = document.getElementById("pagosCampSelect")?.value || "__all__";
+
           snapshot.forEach(doc => {
             const data = doc.data();
             data.id = doc.id;
+            // Filtrar por campeonato
+            if (selectedCampId !== "__all__" && data.championshipId !== selectedCampId) {
+              return;
+            }
             todosLosPagos.push(data);
             totalValor += (data.valor || 0);
           });
@@ -4225,7 +4684,7 @@
         tbody.innerHTML = "";
 
         if (pagos.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" class="text-center text-white-50 py-4">No hay pagos registrados.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center text-white-50 py-4">No hay pagos registrados para este campeonato.</td></tr>`;
           return;
         }
 
@@ -5067,12 +5526,13 @@
           pdfContainer.style.padding = '0';
           const originalTemplate = document.getElementById('carta-pase-pdf-template');
 
+          const prefixNum = getChampionshipNumberPrefix(data.championshipId);
           const start = data.startSeq || data.seqNum;
           const qty = data.quantity || 1;
 
           for (let i = 0; i < qty; i++) {
             const currentNum = start + i;
-            const seqStr = String(currentNum).padStart(4, '0');
+            const seqStr = `${prefixNum}-${String(currentNum).padStart(3, '0')}`;
 
             const page = originalTemplate.cloneNode(true);
             page.style.display = 'block';
@@ -5110,9 +5570,10 @@
         if (!doc.exists) return;
         const data = doc.data();
 
-        const start = String(data.startSeq || data.seqNum).padStart(4, '0');
-        const end = String(data.endSeq || data.seqNum).padStart(4, '0');
-        const range = data.isBatch ? `${start} - ${end}` : start;
+        const prefixNum = getChampionshipNumberPrefix(data.championshipId);
+        const start = String(data.startSeq || data.seqNum || 1).padStart(3, '0');
+        const end = String(data.endSeq || data.seqNum || 1).padStart(3, '0');
+        const range = data.isBatch ? `${prefixNum}-${start} - ${prefixNum}-${end}` : `${prefixNum}-${start}`;
         const qty = data.quantity || 1;
         const totalVal = data.totalValue || (data.value * qty) || 0;
 

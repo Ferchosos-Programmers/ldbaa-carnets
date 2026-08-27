@@ -40,6 +40,11 @@
         --glass-border: rgba(255, 255, 255, 0.1);
       }
 
+      select option {
+        background-color: #111111 !important;
+        color: #ffffff !important;
+      }
+
       body {
         font-family: "Times New Roman", Times, serif;
         background-color: #0a0a0a;
@@ -1639,7 +1644,17 @@
             }
 
             const totalValueFormatted = cp.totalValue ? `$ ${parseFloat(cp.totalValue).toFixed(2)}` : `$ ${(cp.quantity * 0.5).toFixed(2)}`;
-            const seqRange = isApproved ? `Nº ${String(cp.startSeq).padStart(4, '0')} - ${String(cp.endSeq).padStart(4, '0')}` : 'Sin Asignar';
+            let prefix = '001';
+            if (isApproved && cp.invoiceId) {
+              const parts = cp.invoiceId.split('-');
+              if (parts.length > 0 && parts[0].length === 3) {
+                prefix = parts[0];
+              }
+            }
+            const start = String(cp.startSeq || cp.seqNum || 1).padStart(3, '0');
+            const end = String(cp.endSeq || cp.seqNum || 1).padStart(3, '0');
+            const isBatch = cp.isBatch || (cp.startSeq && cp.endSeq && cp.startSeq !== cp.endSeq);
+            const seqRange = isApproved ? (isBatch ? `Nº ${prefix}-${start} - ${prefix}-${end}` : `Nº ${prefix}-${start}`) : 'Sin Asignar';
             const invoiceInfo = isApproved && cp.invoiceId
               ? `<div class="small text-white-50 mt-1"><i class="fas fa-file-invoice me-1"></i> Factura: <span class="text-warning font-monospace">${cp.invoiceId}</span></div>`
               : '';
@@ -2299,7 +2314,7 @@
         );
       }
 
-      async function generateAndDownloadCPPDF(teamName, quantity, startSeq, filename) {
+      async function generateAndDownloadCPPDF(teamName, quantity, startSeq, filename, prefix) {
           const pdfContainer = document.createElement('div');
           pdfContainer.style.margin = '0';
           pdfContainer.style.padding = '0';
@@ -2310,7 +2325,7 @@
 
           let currentSeqNum = startSeq;
           for (let i = 0; i < quantity; i++) {
-              const seqStr = String(currentSeqNum).padStart(4, '0');
+              const seqStr = `${prefix}-${String(currentSeqNum).padStart(3, '0')}`;
               currentSeqNum++;
 
               const page = originalTemplate.cloneNode(true);
@@ -2361,9 +2376,18 @@
           const startSeq = data.startSeq || data.seqNum || 1;
           const endSeq = data.endSeq || startSeq;
           const teamName = data.teamName || "Equipo";
-          const filename = `Cartas_Pases_${teamName.replace(/\s+/g, '_')}_${startSeq}_a_${endSeq}.pdf`;
 
-          await generateAndDownloadCPPDF(teamName, quantity, startSeq, filename);
+          let prefix = '001';
+          if (data.invoiceId) {
+            const parts = data.invoiceId.split('-');
+            if (parts.length > 0 && parts[0].length === 3) {
+              prefix = parts[0];
+            }
+          }
+
+          const filename = `Cartas_Pases_${teamName.replace(/\s+/g, '_')}_${prefix}-${String(startSeq).padStart(3, '0')}_a_${prefix}-${String(endSeq).padStart(3, '0')}.pdf`;
+
+          await generateAndDownloadCPPDF(teamName, quantity, startSeq, filename, prefix);
           Swal.close();
         } catch (err) {
           console.error(err);
