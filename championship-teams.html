@@ -578,9 +578,10 @@
         document.getElementById("teamCardsContainer").appendChild(card);
       }
 
-      // Generar correo y clave en tiempo real
-      document.getElementById("teamName").addEventListener("input", function (e) {
-        const name = e.target.value;
+      // Generar correo y clave en tiempo real incluyendo la categoría para evitar duplicados
+      function updateEmailAndPasswordPreview() {
+        const name = document.getElementById("teamName").value;
+        const category = document.getElementById("teamCategory").value;
         if (!name) {
           document.getElementById("teamEmailPreview").value = "";
           document.getElementById("teamPasswordPreview").value = "";
@@ -592,9 +593,19 @@
           .replace(/[\u0300-\u036f]/g, '')
           .replace(/[^a-z0-9]/g, '');
         
-        document.getElementById("teamEmailPreview").value = `${cleanName}@ldbaa.com`;
-        document.getElementById("teamPasswordPreview").value = `${cleanName}${currentYear}`;
-      });
+        const cleanCategory = category.toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]/g, '');
+
+        const suffix = cleanCategory ? `.${cleanCategory}` : "";
+
+        document.getElementById("teamEmailPreview").value = `${cleanName}${suffix}@ldbaa.com`;
+        document.getElementById("teamPasswordPreview").value = `${cleanName}${suffix}${currentYear}`;
+      }
+
+      document.getElementById("teamName").addEventListener("input", updateEmailAndPasswordPreview);
+      document.getElementById("teamCategory").addEventListener("change", updateEmailAndPasswordPreview);
 
       // Manejar el envío del formulario de equipo
       document
