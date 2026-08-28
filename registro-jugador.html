@@ -178,6 +178,15 @@
                 <div id="newPlayerForm" style="display: none">
                   <h5 class="mb-3 mt-4">Datos del Nuevo Jugador</h5>
 
+                  <div class="mb-3" id="prevYearAutofillContainer">
+                    <label class="form-label text-warning" style="font-weight: 600;">
+                      <i class="fas fa-history me-2"></i>¿Jugador de la Temporada Anterior?
+                    </label>
+                    <button type="button" class="btn btn-outline-warning w-100 py-2" id="btnAutofillPlayer" style="border-radius: 8px; font-weight: 600;">
+                      <i class="fas fa-search-plus me-2"></i>Buscar y Cargar Datos del Año Anterior
+                    </button>
+                  </div>
+
                   <div class="mb-3">
                     <label for="teamName" class="form-label">Equipo</label>
                     <input
@@ -366,27 +375,27 @@
                   <div class="col-md-4">
                     <div class="cupo-card">
                       <h6 class="text-success mb-3">
-                        <i class="fas fa-child me-2"></i><15
+                        <i class="fas fa-user-shield me-2"></i>Master
                       </h6>
                       <div
                         class="d-flex justify-content-between align-items-center"
                       >
                         <span
                           class="h2 fw-bold mb-0"
-                          id="jugadoresJuvenilesCount"
+                          id="jugadoresMasterCount"
                           >0</span
                         >
                       </div>
                       <div class="progress mt-3" style="height: 6px">
                         <div
                           class="progress-bar bg-success"
-                          id="jugadoresJuvenilesProgress"
+                          id="jugadoresMasterProgress"
                           style="width: 0%"
                         ></div>
                       </div>
                       <small
                         class="text-white-50 mt-2 d-block"
-                        id="jugadoresJuvenilesStatus"
+                        id="jugadoresMasterStatus"
                         >Cupo disponible</small
                       >
                     </div>
@@ -512,7 +521,7 @@
                           >0</span
                         >
                         <span class="text-light"
-                          >(Senior + <15 + Recalificados)</span
+                          >(Senior + Master + Recalificados)</span
                         >
                       </div>
                       <div
@@ -1854,8 +1863,8 @@
 
       // Función para actualizar el contador de cupo
       function actualizarContadorCupo(jugadores) {
-        let senior = 0;
-        let menores15 = 0;
+        let regular = 0;
+        let master = 0;
         let recalificados = 0;
         let nuevosJugadores = 0;
 
@@ -1868,25 +1877,23 @@
               nuevosJugadores++;
             }
 
-            if (esJuvenilMenor15(player.fechaNacimiento)) {
-              menores15++;
+            if (esMaster(player.fechaNacimiento)) {
+              master++;
             } else {
-              senior++;
+              regular++;
             }
           }
         });
 
-        const maxTotal = 27;
-        const totalJugadores = senior + menores15;
-        const totalRegistrados = senior + menores15 + recalificados; // Total incluyendo recalificados
+        const maxTotal = 25;
+        const totalJugadores = regular + master;
+        const totalRegistrados = regular + master + recalificados; // Total incluyendo recalificados
         const faltanTotal = maxTotal - totalJugadores;
 
         // Actualizar contadores principales
-        document.getElementById("jugadoresRegularesCount").textContent = senior;
-        document.getElementById("jugadoresJuvenilesCount").textContent =
-          menores15;
-        document.getElementById("jugadoresTotalCount").textContent =
-          totalJugadores;
+        document.getElementById("jugadoresRegularesCount").textContent = regular;
+        document.getElementById("jugadoresMasterCount").textContent = master;
+        document.getElementById("jugadoresTotalCount").textContent = totalJugadores;
 
         // Actualizar contador de total de jugadores registrados
         document.getElementById("jugadoresRegistradosTotalCount").textContent =
@@ -1920,24 +1927,31 @@
         }
 
         // Actualizar barras de progreso principales
-        const progresoSenior = (senior / maxTotal) * 100;
-        const progresoMenores = (menores15 / maxTotal) * 100;
+        const progresoRegular = (regular / 24) * 100;
+        const progresoMaster = (master / 1) * 100;
         const progresoTotal = (totalJugadores / maxTotal) * 100;
         const progresoTotalRegistrados =
           (totalRegistrados / (maxTotal + recalificados)) * 100; // Progreso del total registrado
+        
         document.getElementById("jugadoresRegularesProgress").style.width =
-          `${Math.min(progresoSenior, 100)}%`;
-        document.getElementById("jugadoresJuvenilesProgress").style.width =
-          `${Math.min(progresoMenores, 100)}%`;
+          `${Math.min(progresoRegular, 100)}%`;
+        document.getElementById("jugadoresMasterProgress").style.width =
+          `${Math.min(progresoMaster, 100)}%`;
         document.getElementById("jugadoresTotalProgress").style.width =
           `${Math.min(progresoTotal, 100)}%`;
         document.getElementById(
           "jugadoresRegistradosTotalProgress",
         ).style.width = `${Math.min(progresoTotalRegistrados, 100)}%`;
 
+        // Actualizar estados textuales de los cupos
+        document.getElementById("jugadoresRegularesStatus").textContent = 
+          regular >= 24 ? "Cupo máximo alcanzado (24/24)" : `${24 - regular} cupos libres de 24`;
+        document.getElementById("jugadoresMasterStatus").textContent = 
+          master >= 1 ? `Cupo cubierto (${master} registrado/s)` : "Falta mínimo 1 jugador Master";
+
         // Actualizar estado del total de registrados
         document.getElementById("jugadoresRegistradosTotalStatus").textContent =
-          `Total: ${senior} senior + ${menores15} <15 + ${recalificados} recalificados = ${totalRegistrados} jugadores`;
+          `Total: ${regular} regulares + ${master} master + ${recalificados} recalificados = ${totalRegistrados} jugadores`;
 
         // Actualizar estados y alertas
         const cupoAlert = document.getElementById("cupoAlert");
@@ -1957,19 +1971,24 @@
           cupoAlert.style.display = "block";
         } else if (totalJugadores >= maxTotal) {
           cupoAlert.className = "alert alert-success mt-3";
-          cupoAlertText.innerHTML = `<strong>¡Cupo completo!</strong> Tu equipo tiene el máximo de 27 jugadores permitidos. No puedes registrar más jugadores ni eliminarlos.`;
+          cupoAlertText.innerHTML = `<strong>¡Cupo completo!</strong> Tu equipo tiene el máximo de 25 jugadores permitidos (24 regulares y ${master} master). No puedes registrar más jugadores ni eliminarlos.`;
           cupoAlert.style.display = "block";
         } else {
-          let mensaje = `<strong>Progreso del cupo:</strong> Tienes ${totalJugadores} jugador${totalJugadores !== 1 ? "es" : ""} registrados: ${senior} senior y ${menores15} menor${menores15 !== 1 ? "es" : ""} de 15 años. Te faltan ${faltanTotal} jugador${faltanTotal !== 1 ? "es" : ""} para completar el máximo de 27.`;
+          let mensaje = `<strong>Progreso del cupo:</strong> Tienes ${totalJugadores} jugador${totalJugadores !== 1 ? "es" : ""} registrados: ${regular} regular${regular !== 1 ? "es" : ""} y ${master} master (>=40 años). Te faltan ${faltanTotal} jugador${faltanTotal !== 1 ? "es" : ""} para completar el máximo de 25.`;
+          if (master < 1) {
+            mensaje += ` <strong class="text-danger">¡Recuerda que requieres al menos 1 jugador Master!</strong>`;
+          }
           if (recalificados > 0) {
             mensaje += ` <strong>Total de jugadores en el equipo: ${totalRegistrados} (incluyendo ${recalificados} recalificado${recalificados !== 1 ? "s" : ""}).</strong>`;
           }
-          cupoAlert.className = "alert alert-info mt-3";
+          cupoAlert.className = master < 1 ? "alert alert-warning mt-3" : "alert alert-info mt-3";
           cupoAlertText.innerHTML = mensaje;
           cupoAlert.style.display = "block";
         }
 
         window.cupoCompleto = totalJugadores >= maxTotal;
+        window.cupoRegularesCompleto = regular >= 24;
+        window.cupoMasterCompleto = master >= 1;
         manejarEstadoFormulario();
       }
 
@@ -2284,6 +2303,8 @@
             document.getElementById("currentPlayerForm").style.display = "none";
             document.getElementById("newPlayerForm").style.display = "none";
             document.getElementById("playerForm").reset(); // Limpiar el formulario del nuevo jugador
+            document.getElementById("playerPhoto").setAttribute("required", "");
+            document.getElementById("cedulaPhoto").setAttribute("required", "");
             document
               .getElementById("playerPhotoPreview")
               .classList.add("d-none");
@@ -2298,6 +2319,179 @@
               .classList.remove("d-none");
           }
         });
+
+      // Lógica de Autocompletar jugador del año anterior
+      const btnAutofill = document.getElementById("btnAutofillPlayer");
+      if (btnAutofill) {
+        btnAutofill.addEventListener("click", async function () {
+          if (!teamId) {
+            Swal.fire("Error", "No se ha detectado el ID del equipo en la URL.", "error");
+            return;
+          }
+
+          Swal.fire({
+            title: "Buscando jugadores...",
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+
+          try {
+            // Obtener datos del equipo actual para conocer el club y la categoría
+            const teamDoc = await db.collection("teams").doc(teamId).get();
+            if (!teamDoc.exists) {
+              Swal.fire("Error", "No se encontró la información del equipo actual.", "error");
+              return;
+            }
+            const currentTeamData = teamDoc.data();
+            const currentTeamName = currentTeamData.name;
+            const currentTeamCategory = currentTeamData.category; // Ej: "Primera", "Máxima", "Femenina"
+
+            // Consulta directa indexada en Firestore por el nombre del club
+            const querySnapshot = await db.collection("players")
+              .where("teamName", "==", currentTeamName)
+              .get();
+
+            const playerList = [];
+
+            function cleanTextForComparison(str) {
+              return (str || "").toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]/g, '')
+                .trim();
+            }
+
+            const cleanCurrentCategory = cleanTextForComparison(currentTeamCategory);
+
+            querySnapshot.forEach(doc => {
+              const p = doc.data();
+              const cleanPlayerCategory = cleanTextForComparison(p.teamCategory);
+              
+              // Filtrar para mostrar solo jugadores que coincidan con la categoría (Masculina, Femenina, etc.)
+              if (cleanPlayerCategory === cleanCurrentCategory) {
+                // Evitar duplicados por número de cédula
+                if (!playerList.some(added => added.cedula === p.cedula)) {
+                  playerList.push({ id: doc.id, ...p });
+                }
+              }
+            });
+
+            if (playerList.length === 0) {
+              Swal.fire({
+                icon: "info",
+                title: "Sin Registros",
+                text: `No se encontraron jugadores registrados anteriormente para el club "${currentTeamName}" en la categoría "${currentTeamCategory}".`,
+                confirmButtonColor: "#28a745"
+              });
+              return;
+            }
+
+            // Ordenar alfabéticamente
+            playerList.sort((a, b) => `${a.nombres} ${a.apellidos}`.localeCompare(`${b.nombres} ${b.apellidos}`));
+
+            let optionsHtml = '<option value="" style="padding: 8px; margin-bottom: 5px; color: #888;">Seleccione un jugador...</option>';
+            playerList.forEach(p => {
+              optionsHtml += `<option value="${p.id}" style="padding: 10px 12px; margin-bottom: 8px; border-radius: 6px; background-color: rgba(255, 255, 255, 0.05); color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer;">${p.nombres} ${p.apellidos} [${p.teamCategory || 'Sin Categoría'}]</option>`;
+            });
+
+            Swal.fire({
+              title: '<span style="color: #ffc107; font-weight: 800; font-size: 1.5rem;"><i class="fas fa-history me-2"></i>Jugadores del Club</span>',
+              html: `
+                <div class="text-start mb-2 text-white-50" style="font-size: 0.85rem;">
+                  Busca por nombre o apellido para cargar sus datos automáticamente:
+                </div>
+                <input type="text" id="swalSearchInput" class="form-control bg-dark text-white border-secondary mb-3 py-2 px-3" placeholder="🔍 Escribe nombre o apellido..." style="border-radius: 8px; font-size: 0.95rem;">
+                <select id="swalPlayerSelect" class="form-select bg-dark text-white border-secondary mb-2" size="6" style="height: 220px; border-radius: 8px; font-size: 0.9rem; padding: 8px; line-height: 2;">
+                  ${optionsHtml}
+                </select>
+              `,
+              customClass: {
+                popup: 'swal-premium',
+                confirmButton: 'btn btn-success px-4 py-2 rounded-3',
+                cancelButton: 'btn btn-outline-light px-4 py-2 rounded-3'
+              },
+              showCancelButton: true,
+              confirmButtonText: '<i class="fas fa-check-circle me-2"></i>Cargar Datos',
+              cancelButtonText: 'Cancelar',
+              didOpen: () => {
+                const searchInput = document.getElementById("swalSearchInput");
+                const selectElement = document.getElementById("swalPlayerSelect");
+                
+                // Evento de filtrado en tiempo real por Nombre o Apellido únicamente
+                searchInput.addEventListener("input", function() {
+                  const query = searchInput.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                  let filteredHtml = '<option value="" style="padding: 8px; margin-bottom: 5px; color: #888;">Seleccione un jugador...</option>';
+                  
+                  playerList.forEach(p => {
+                    const text = `${p.nombres} ${p.apellidos}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                    if (text.includes(query)) {
+                      filteredHtml += `<option value="${p.id}" style="padding: 10px 12px; margin-bottom: 8px; border-radius: 6px; background-color: rgba(255, 255, 255, 0.05); color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer;">${p.nombres} ${p.apellidos} [${p.teamCategory || 'Sin Categoría'}]</option>`;
+                    }
+                  });
+                  selectElement.innerHTML = filteredHtml;
+                });
+              },
+              preConfirm: () => {
+                const selectedId = document.getElementById("swalPlayerSelect").value;
+                if (!selectedId) {
+                  Swal.showValidationMessage("Debes seleccionar un jugador de la lista.");
+                  return false;
+                }
+                return selectedId;
+              }
+            }).then((result) => {
+              if (result.isConfirmed) {
+                const player = playerList.find(p => p.id === result.value);
+                if (player) {
+                  // Cargar campos de texto
+                  document.getElementById("nombres").value = player.nombres || "";
+                  document.getElementById("apellidos").value = player.apellidos || "";
+                  document.getElementById("cedula").value = player.cedula || "";
+                  document.getElementById("fechaNacimiento").value = player.fechaNacimiento || "";
+                  document.getElementById("numeroJugador").value = player.numeroJugador || "";
+
+                  // Cargar imágenes
+                  if (player.playerPhoto) {
+                    const pPreview = document.getElementById("playerPhotoPreview");
+                    pPreview.src = player.playerPhoto;
+                    pPreview.classList.remove("d-none");
+                    document.getElementById("playerPhotoText").classList.add("d-none");
+                    // Desactivar requerido para fotos ya cargadas
+                    document.getElementById("playerPhoto").removeAttribute("required");
+                  } else {
+                    document.getElementById("playerPhoto").setAttribute("required", "");
+                  }
+
+                  if (player.cedulaPhoto) {
+                    const cPreview = document.getElementById("cedulaPhotoPreview");
+                    cPreview.src = player.cedulaPhoto;
+                    cPreview.classList.remove("d-none");
+                    document.getElementById("cedulaPhotoText").classList.add("d-none");
+                    // Desactivar requerido para cédula ya cargada
+                    document.getElementById("cedulaPhoto").removeAttribute("required");
+                  } else {
+                    document.getElementById("cedulaPhoto").setAttribute("required", "");
+                  }
+
+                  Swal.fire({
+                    icon: "success",
+                    title: "Datos Cargados",
+                    text: `Se han cargado los datos de ${player.nombres} ${player.apellidos}. Ahora puedes modificar su número de camiseta o lo que necesites.`,
+                    confirmButtonColor: "#28a745",
+                    timer: 3000
+                  });
+                }
+              }
+            });
+
+          } catch (err) {
+            console.error("Error al obtener jugadores del club:", err);
+            Swal.fire("Error", "Ocurrió un error al buscar los jugadores.", "error");
+          }
+        });
+      }
 
       // Función para manejar el estado del formulario según el cupo
       function manejarEstadoFormulario() {
@@ -2334,7 +2528,7 @@
               <div class="text-center">
                 <i class="fas fa-users-slash text-muted" style="font-size: 3rem; margin-bottom: 1rem;"></i>
                 <h5 class="text-muted">Cupo Completo</h5>
-                <p class="text-muted mb-0">Máximo 27 jugadores alcanzado</p>
+                <p class="text-muted mb-0">Máximo 25 jugadores alcanzado</p>
               </div>
             `;
             form.parentElement.style.position = "relative";
@@ -2361,7 +2555,7 @@
           } else {
             Swal.fire({
               title: "Cupo Disponible",
-              text: "Puedes registrar jugadores de cualquier edad. El cupo máximo es de 27 jugadores en total.",
+              text: "El equipo tiene un cupo máximo de 25 jugadores en total. Se permiten 24 jugadores regulares y mínimo 1 jugador Master (>=40 años).",
               icon: "info",
               confirmButtonColor: "#28a745",
               timer: 4000,
@@ -2393,45 +2587,15 @@
         const submitButton = document.getElementById("submitButton");
 
         if (fechaNacInput) {
-          const esJuvenil = esJuvenilMenor15(fechaNacInput);
+          const esMasterPlayer = esMaster(fechaNacInput);
 
-          if (
-            esJuvenil &&
-            window.cupoJuvenilesCompleto &&
-            window.cupoRegularesCompleto
-          ) {
-            // Si es juvenil pero ambos cupos están completos
+          if (!esMasterPlayer && window.cupoRegularesCompleto) {
+            // Si es regular pero el cupo de regulares está lleno
             submitButton.disabled = true;
-            submitButton.textContent = "Cupo Completo";
+            submitButton.textContent = "Cupo Regulares Completo";
             Swal.fire({
-              title: "Cupo Completo",
-              text: "Ya tienes el máximo de jugadores permitidos. No puedes registrar más jugadores.",
-              icon: "warning",
-              confirmButtonColor: "#28a745",
-            });
-          } else if (
-            esJuvenil &&
-            window.cupoJuvenilesCompleto &&
-            !window.cupoRegularesCompleto
-          ) {
-            // Si es juvenil pero el cupo especial está completo, pero aún hay espacio en el principal
-            submitButton.disabled = false;
-            submitButton.textContent =
-              mode === "reclassify"
-                ? "Recalificar Jugador"
-                : "Registrar Jugador";
-            // No mostrar alerta, solo permitir el registro
-          } else if (
-            !esJuvenil &&
-            window.cupoRegularesCompleto &&
-            !window.cupoJuvenilesCompleto
-          ) {
-            // Si es mayor de 15 pero el cupo principal está completo, solo permitir menores de 15
-            submitButton.disabled = true;
-            submitButton.textContent = "Solo Menores de 15";
-            Swal.fire({
-              title: "Cupo Principal Completo",
-              text: "Ya tienes 25 jugadores. Solo puedes registrar jugadores menores de 15 años (cupos especiales).",
+              title: "Cupo de Regulares Completo",
+              text: "Ya tienes 24 jugadores regulares. Solo puedes registrar un jugador Master (>= 40 años) para completar el cupo.",
               icon: "warning",
               confirmButtonColor: "#28a745",
             });
