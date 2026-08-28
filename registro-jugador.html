@@ -821,80 +821,25 @@
         });
       }
 
-      // Verificar si ya existe una clave de administrador
+      // Obtener y sincronizar la clave del equipo (adminKey / password) desde Firestore
       let adminKey = localStorage.getItem("adminKey");
 
-      // Si no hay clave o no hay teamId, solicitar la clave
-      if (!adminKey || !teamId) {
-        solicitarClaveAdmin().then((result) => {
-          if (result.isConfirmed) {
-            adminKey = result.value;
-            localStorage.setItem("adminKey", adminKey);
-
-            // Guardar la clave en el documento del equipo
-            if (teamId) {
-              db.collection("teams")
-                .doc(teamId)
-                .update({
-                  adminKey: adminKey,
-                })
-                .then(() => {
-                  Swal.fire({
-                    title: "¡Clave establecida!",
-                    text: "Tu clave de administrador ha sido guardada.",
-                    icon: "success",
-                    confirmButtonColor: "#28a745",
-                    didOpen: () => {
-                      const denyBtn = document.querySelector(".swal2-deny");
-                      if (denyBtn) denyBtn.remove();
-                    },
-                  });
-                })
-                .catch((error) => {
-                  console.error("Error al guardar la clave:", error);
-                  Swal.fire(
-                    "Error",
-                    "No se pudo guardar la clave. Por favor, intenta de nuevo.",
-                    "error",
-                    {
-                      didOpen: () => {
-                        const denyBtn = document.querySelector(".swal2-deny");
-                        if (denyBtn) denyBtn.remove();
-                      },
-                    },
-                  );
-                });
-            }
-          }
-        });
-      } else {
-        // Si ya existe una clave, verificar si coincide con la del equipo
-        if (teamId) {
-          db.collection("teams")
-            .doc(teamId)
-            .get()
-            .then((doc) => {
-              if (doc.exists) {
-                const teamData = doc.data();
-                if (!teamData.adminKey) {
-                  // Si el equipo no tiene clave, solicitar una nueva
-                  solicitarClaveAdmin().then((result) => {
-                    if (result.isConfirmed) {
-                      adminKey = result.value;
-                      localStorage.setItem("adminKey", adminKey);
-                      db.collection("teams").doc(teamId).update({
-                        adminKey: adminKey,
-                      });
-                    }
-                  });
-                } else if (teamData.adminKey !== adminKey) {
-                  // Si la clave no coincide, actualizar con la del equipo
-                  adminKey = teamData.adminKey;
-                  localStorage.setItem("adminKey", adminKey);
-                }
+      if (teamId) {
+        db.collection("teams")
+          .doc(teamId)
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+              const teamData = doc.data();
+              if (teamData.adminKey) {
+                adminKey = teamData.adminKey;
+                localStorage.setItem("adminKey", adminKey);
               }
-            });
-        }
+            }
+          })
+          .catch((error) => {
+            console.error("Error al obtener la clave del equipo:", error);
+          });
       }
 
       // Cargar información del equipo
