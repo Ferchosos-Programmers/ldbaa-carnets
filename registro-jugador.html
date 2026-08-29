@@ -2293,19 +2293,48 @@
             const currentTeamName = currentTeamData.name;
             const currentTeamCategory = currentTeamData.category; // Ej: "Primera", "Máxima", "Femenina"
 
-            // Consulta directa indexada en Firestore por el nombre del club
-            const querySnapshot = await db.collection("players")
-              .where("teamName", "==", currentTeamName)
-              .get();
-
-            const playerList = [];
-
+            // Optimizar la consulta buscando únicamente jugadores que coincidan con la primera palabra clave del equipo
             function cleanTextForComparison(str) {
               return (str || "").toLowerCase()
                 .normalize('NFD')
                 .replace(/[\u0300-\u036f]/g, '')
-                .replace(/[^a-z0-9]/g, '')
+                .replace(/[^a-z0-9\s]/g, '')
                 .trim();
+            }
+
+            const cleanName = cleanTextForComparison(currentTeamName);
+            const words = cleanName.split(/\s+/).filter(w => w.length > 2);
+            let querySnapshot;
+
+            if (words.length > 0) {
+              // Si tenemos palabras significativas (ej: "NAPOLES", "INTER"), buscamos de manera que empiece por ese término
+              const searchWord = words[0].toUpperCase();
+              querySnapshot = await db.collection("players")
+                .where("teamName", ">=", searchWord)
+                .where("teamName", "<=", searchWord + "\uf8ff")
+                .get();
+              
+              // Si la consulta optimizada no trae nada, hacemos fallback a una más abierta
+              if (querySnapshot.empty) {
+                querySnapshot = await db.collection("players").get();
+              }
+            } else {
+              querySnapshot = await db.collection("players").get();
+            }
+
+            const playerList = [];
+
+            // Función para verificar si hay coincidencia flexible (al menos una palabra significativa en común de longitud > 2)
+            function matchesFlexible(name1, name2) {
+              const clean1 = cleanTextForComparison(name1);
+              const clean2 = cleanTextForComparison(name2);
+              if (clean1 === clean2) return true;
+
+              const words1 = clean1.split(/\s+/).filter(w => w.length > 2);
+              const words2 = clean2.split(/\s+/).filter(w => w.length > 2);
+
+              // Si alguna palabra de words1 coincide con words2, hay coincidencia
+              return words1.some(w1 => words2.includes(w1));
             }
 
             const cleanCurrentCategory = cleanTextForComparison(currentTeamCategory);
@@ -2314,11 +2343,14 @@
               const p = doc.data();
               const cleanPlayerCategory = cleanTextForComparison(p.teamCategory);
               
-              // Filtrar para mostrar solo jugadores que coincidan con la categoría (Masculina, Femenina, etc.)
-              if (cleanPlayerCategory === cleanCurrentCategory) {
-                // Evitar duplicados por número de cédula
-                if (!playerList.some(added => added.cedula === p.cedula)) {
-                  playerList.push({ id: doc.id, ...p });
+              // Verificar si el equipo coincide de forma flexible (ej. "C.D. NAPOLES" con "CD NAPOLES")
+              if (matchesFlexible(p.teamName, currentTeamName)) {
+                // Filtrar para mostrar solo jugadores que coincidan con la categoría (Masculina, Femenina, etc.)
+                if (cleanPlayerCategory === cleanCurrentCategory) {
+                  // Evitar duplicados por número de cédula
+                  if (!playerList.some(added => added.cedula === p.cedula)) {
+                    playerList.push({ id: doc.id, ...p });
+                  }
                 }
               }
             });
