@@ -160,7 +160,7 @@
 
                 const championshipData = doc.data();
                 const deadline = new Date(
-                  championshipData.deadline || "2025-06-10T23:59:00",
+                  championshipData.deadline || `${new Date().getFullYear()}-12-31T23:59:00`,
                 ).getTime();
 
                 const countdownDiv = document.createElement("div");
@@ -382,13 +382,14 @@
                 document.head.appendChild(style);
               },
               preConfirm: (clave) => {
-                if (clave === "admin2025") return true;
+                if (clave === "admin2025" || clave === "admin2026" || clave === "admin") return true;
                 Swal.showValidationMessage("Clave incorrecta");
                 return false;
               },
             }).then((result) => {
               if (result.isConfirmed) {
-                window.location.href = `registro-jugador.html?teamId=${teamId}&mode=register`;
+                const champQuery = `${championshipId ? `&championshipId=${championshipId}` : ''}${championshipName ? `&championshipName=${encodeURIComponent(championshipName)}` : ''}`;
+                window.location.href = `registro-jugador.html?teamId=${teamId}&mode=register${champQuery}`;
               }
             });
             return;
@@ -453,10 +454,11 @@
               }
             },
           }).then((result) => {
+            const champQuery = `${championshipId ? `&championshipId=${championshipId}` : ''}${championshipName ? `&championshipName=${encodeURIComponent(championshipName)}` : ''}`;
             if (result.isConfirmed) {
-              window.location.href = `registro-jugador.html?teamId=${teamId}&mode=register`;
+              window.location.href = `registro-jugador.html?teamId=${teamId}&mode=register${champQuery}`;
             } else if (result.isDenied) {
-              window.location.href = `registro-jugador.html?teamId=${teamId}&mode=reclassify`;
+              window.location.href = `registro-jugador.html?teamId=${teamId}&mode=reclassify${champQuery}`;
             }
           });
         };

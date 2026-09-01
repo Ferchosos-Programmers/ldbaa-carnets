@@ -688,29 +688,31 @@
           });
       }
 
-      // Función para crear o asegurar el campeonato Renacer 2025 y asignar equipos
+      // Función para crear o asegurar el campeonato del año actual
       async function ensureRenacer2025AndAssignTeams() {
-        // Buscar si existe el campeonato Renacer 2025
-        let renacerId = null;
-        const renacerQuery = await db
-          .collection("championships")
-          .where("name", "==", "Renacer 2025")
-          .limit(1)
-          .get();
-        if (!renacerQuery.empty) {
-          renacerId = renacerQuery.docs[0].id;
-        } else {
-          // Crear el campeonato si no existe
-          const renacerDoc = await db.collection("championships").add({
-            name: "Renacer 2025",
-            year: 2025,
-            description: "Campeonato principal de la temporada 2025",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          });
-          renacerId = renacerDoc.id;
-        }
+        const currentYear = new Date().getFullYear();
+        const defaultName = `Renacer ${currentYear}`;
+        
+        try {
+          // Prellenar el año actual en los formularios de campeonatos si existen
+          const yearInput = document.getElementById("championshipYear");
+          if (yearInput && !yearInput.value) {
+            yearInput.value = currentYear;
+          }
 
-        // Modificar: no reasignar automáticamente los equipos a "Renacer 2025" si ya pertenecen a otros campeonatos
+          // Verificar si ya existe al menos un campeonato en Firestore
+          const snap = await db.collection("championships").limit(1).get();
+          if (snap.empty) {
+            await db.collection("championships").add({
+              name: defaultName,
+              year: currentYear,
+              description: `Campeonato principal de la temporada ${currentYear}`,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+          }
+        } catch (e) {
+          console.error("Error al asegurar campeonato inicial:", e);
+        }
       }
 
       // Modificar la carga inicial para asegurar el campeonato y equipos
