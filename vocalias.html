@@ -776,17 +776,27 @@
       let fixturesMap = new Map();
       let currentJornada = null;
 
-      window.addEventListener("DOMContentLoaded", async () => {
-        await loadChampionships();
-      });
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", loadChampionships);
+      } else {
+        loadChampionships();
+      }
 
       async function loadChampionships() {
         const select = document.getElementById("campSelect");
+        if (!select) return;
         try {
-          const snapshot = await db
-            .collection("championships")
-            .orderBy("createdAt", "desc")
-            .get();
+          let snapshot;
+          try {
+            snapshot = await db
+              .collection("championships")
+              .orderBy("createdAt", "desc")
+              .get();
+          } catch (errOrder) {
+            console.warn("Falling back to unordered query:", errOrder);
+            snapshot = await db.collection("championships").get();
+          }
+
           select.innerHTML = "";
           if (snapshot.empty) {
             select.innerHTML = '<option value="">No hay campeonatos</option>';
@@ -795,7 +805,8 @@
           snapshot.forEach((doc) => {
             const opt = document.createElement("option");
             opt.value = doc.id;
-            opt.textContent = doc.data().name;
+            opt.textContent =
+              doc.data().name || doc.data().nombre || "Campeonato";
             select.appendChild(opt);
           });
           if (select.options.length > 0) {
@@ -803,7 +814,9 @@
             resetAndLoad();
           }
         } catch (e) {
-          console.error(e);
+          console.error("Error al cargar campeonatos:", e);
+          select.innerHTML =
+            '<option value="">Error cargando campeonatos</option>';
         }
       }
 
@@ -1072,12 +1085,24 @@
             </div>
         `;
 
-        const modal = new bootstrap.Modal(
+        renderActaInterior(match);
+        const modal = bootstrap.Modal.getOrCreateInstance(
           document.getElementById("vocaliaModal"),
         );
         modal.show();
 
-        renderActaInterior(match);
+        // Precarga en segundo plano para apertura inmediata (<10ms) de carnets y cédulas
+        const campSelect = document.getElementById("campSelect");
+        const campId = campSelect?.value || match._campId || "";
+        if (typeof preloadMatchData === "function") {
+          preloadMatchData(
+            match.local,
+            match.visitor,
+            match._cat,
+            campId,
+            match.jornada,
+          );
+        }
       };
 
       function renderActaInterior(m) {
@@ -1984,7 +2009,242 @@
         window.calcRefereeGoles(m.visitor);
       }
 
+      // ==========================================
+      // MOTOR DE DISCIPLINA Y SANCIONES ANTIFRAUDE (OPTIMIZADO)
+      // ==========================================
+      let sanctionedPlayersMap = new Map();
+      let lastSanctionsKey = null;
+      const teamPlayersMemoryCache = new Map();
+
+      async function fetchTeamPlayers(teamName, category, currentCampId) {
+        if (!teamName) return [];
+        const cacheKey = `${teamName}_${category || ""}_${currentCampId || ""}`.toUpperCase();
+        if (teamPlayersMemoryCache.has(cacheKey)) {
+          return teamPlayersMemoryCache.get(cacheKey);
+        }
+
+        try {
+          const cleanTeam = teamName.trim().toUpperCase();
+
+          // Consultas paralelas ultra-rápidas
+          const [snap, tSnap1, tSnap2] = await Promise.all([
+            db.collection("players").where("teamName", "==", teamName).get(),
+            currentCampId
+              ? db.collection("teams").where("championshipId", "==", currentCampId).get()
+              : Promise.resolve({ forEach: () => {} }),
+            currentCampId
+              ? db.collection("teams").where("campeonatoId", "==", currentCampId).get()
+              : Promise.resolve({ forEach: () => {} }),
+          ]);
+
+          const validTeamIds = new Set();
+          tSnap1.forEach((tDoc) => {
+            const tData = tDoc.data();
+            if (tData.name && tData.name.trim().toUpperCase() === cleanTeam) {
+              validTeamIds.add(tDoc.id);
+            }
+          });
+          tSnap2.forEach((tDoc) => {
+            const tData = tDoc.data();
+            if (tData.name && tData.name.trim().toUpperCase() === cleanTeam) {
+              validTeamIds.add(tDoc.id);
+            }
+          });
+
+          const playersList = [];
+          const addedPlayerDocIds = new Set();
+
+          const processPlayerDoc = (doc) => {
+            if (addedPlayerDocIds.has(doc.id)) return;
+            const p = doc.data();
+
+            if (p.status && p.status.toUpperCase() === "RECALIFICADO") return;
+
+            if (
+              category &&
+              p.teamCategory &&
+              p.teamCategory.toUpperCase() !== category.toUpperCase()
+            ) {
+              return;
+            }
+
+            if (currentCampId) {
+              const pCampId = p.campeonatoId || p.championshipId || "";
+              const pTeamId = p.teamId || "";
+
+              let matchCamp = false;
+              if (pCampId && pCampId === currentCampId) {
+                matchCamp = true;
+              } else if (pTeamId && validTeamIds.has(pTeamId)) {
+                matchCamp = true;
+              }
+
+              if (!matchCamp) return;
+            }
+
+            addedPlayerDocIds.add(doc.id);
+            playersList.push({ ...p, id: doc.id });
+          };
+
+          snap.forEach(processPlayerDoc);
+
+          if (validTeamIds.size > 0) {
+            const idPromises = Array.from(validTeamIds).map((tId) =>
+              db.collection("players").where("teamId", "==", tId).get(),
+            );
+            const idSnaps = await Promise.all(idPromises);
+            idSnaps.forEach((s) => s.forEach(processPlayerDoc));
+          }
+
+          playersList.sort((a, b) => {
+            const numA = parseInt(a.numeroJugador) || 999;
+            const numB = parseInt(b.numeroJugador) || 999;
+            return numA - numB;
+          });
+
+          teamPlayersMemoryCache.set(cacheKey, playersList);
+          return playersList;
+        } catch (err) {
+          console.warn("Error in fetchTeamPlayers:", err);
+          return [];
+        }
+      }
+
+      async function loadSanctionsForChampionship(
+        campId,
+        category,
+        currentJornada,
+      ) {
+        const key = `${campId}_${category}_${currentJornada}`;
+        if (lastSanctionsKey === key && sanctionedPlayersMap.size > 0) {
+          return;
+        }
+
+        try {
+          let sancionQuery = db
+            .collection("sanciones")
+            .where("estado", "==", "activa");
+          if (campId) {
+            sancionQuery = sancionQuery.where("campeonatoId", "==", campId);
+          }
+
+          const [sancionSnap, fixSnap] = await Promise.all([
+            sancionQuery.get(),
+            campId
+              ? db.collection("fixtures").where("championshipId", "==", campId).get()
+              : Promise.resolve({ forEach: () => {} }),
+          ]);
+
+          sanctionedPlayersMap.clear();
+
+          sancionSnap.forEach((sDoc) => {
+            const s = sDoc.data();
+            const jId = s.jugadorId;
+            const partidos =
+              parseInt(s.partidosSuspension) || (s.tipo === "roja" ? 1 : 1);
+            let reasonText = "";
+            if (s.tipo === "roja") {
+              reasonText = `Tarjeta Roja ${s.articulo ? "(Art. " + s.articulo + (s.literal ? " " + s.literal : "") + ")" : ""} - ${partidos} fecha(s) de suspensión`;
+            } else if (s.tipo === "amarilla") {
+              reasonText = `Acumulación de Tarjetas Amarillas (${partidos} fecha de suspensión)`;
+            } else {
+              reasonText = `Sanción Disciplinaria ${s.articulo ? "(Art. " + s.articulo + ")" : ""} (${partidos} fecha(s))`;
+            }
+
+            if (jId) {
+              sanctionedPlayersMap.set(jId, {
+                reason: reasonText,
+                tipo: s.tipo,
+                partidos: partidos,
+                articulo: s.articulo,
+                sancionId: sDoc.id,
+              });
+            }
+          });
+
+          fixSnap.forEach((doc) => {
+            const fData = doc.data();
+            if (
+              category &&
+              fData.category &&
+              fData.category.toUpperCase() !== category.toUpperCase()
+            )
+              return;
+
+            const matches = fData.data || [];
+            matches.forEach((m) => {
+              if (!m.isFinalized) return;
+
+              const checkPlayerCards = (playersList, teamName) => {
+                if (!playersList) return;
+                playersList.forEach((p) => {
+                  const num = String(
+                    p.num || p.numeroJugador || p.dorsal || "",
+                  ).trim();
+                  const name = (
+                    p.name ||
+                    p.nombre ||
+                    p.nombres + " " + (p.apellidos || "") ||
+                    ""
+                  ).trim();
+                  const tr = parseInt(p.tr || 0);
+                  const ta = parseInt(p.ta || 0);
+
+                  if (tr >= 1 || ta >= 2) {
+                    const reason =
+                      tr >= 1
+                        ? `Expulsión (Tarjeta Roja directa) en Jornada ${m.jornada}`
+                        : `Doble Tarjeta Amarilla en Jornada ${m.jornada}`;
+                    if (num)
+                      sanctionedPlayersMap.set(
+                        num + "_" + teamName.toUpperCase(),
+                        {
+                          reason,
+                          team: teamName,
+                          num,
+                          name,
+                          jornada: m.jornada,
+                        },
+                      );
+                    if (p.cedula)
+                      sanctionedPlayersMap.set(p.cedula.replace(/\s+/g, ""), {
+                        reason,
+                        team: teamName,
+                        num,
+                        name,
+                        jornada: m.jornada,
+                      });
+                  }
+                });
+              };
+
+              checkPlayerCards(m.playersLocal, m.local);
+              checkPlayerCards(m.playersVisitor, m.visitor);
+              checkPlayerCards(m.changesLocal, m.local);
+              checkPlayerCards(m.changesVisitor, m.visitor);
+            });
+          });
+
+          lastSanctionsKey = key;
+        } catch (err) {
+          console.warn("Error cargando sanciones:", err);
+        }
+      }
+
+      function preloadMatchData(localTeam, visitorTeam, category, campId, jornada) {
+        if (localTeam) fetchTeamPlayers(localTeam, category, campId);
+        if (visitorTeam) fetchTeamPlayers(visitorTeam, category, campId);
+        if (campId) loadSanctionsForChampionship(campId, category, jornada);
+      }
+
       let currentTargetInput = null;
+      let currentRosterTbodyId = null;
+      let currentSubstitutionRow = null;
+      let currentEnteringPlayer = null;
+      let currentTeamPlayersList = [];
+      let currentTeamName = "";
+      let currentTeamCategory = "";
+      let currentCampName = "";
 
       async function openPlayerSelector(
         teamName,
@@ -1993,18 +2253,16 @@
         rosterTbodyIdToFilter = null,
       ) {
         currentTargetInput = inputElement;
+        currentRosterTbodyId = rosterTbodyIdToFilter;
+        currentTeamName = teamName;
+        currentTeamCategory = category;
 
-        // Obtener números de jugadores en cancha si se pasa el rosterTbodyId
-        let numbersOnField = [];
-        if (rosterTbodyIdToFilter) {
-          const tbody = document.getElementById(rosterTbodyIdToFilter);
-          if (tbody) {
-            tbody.querySelectorAll("tr").forEach((tr) => {
-              const num = tr.querySelectorAll("input")[0].value.trim();
-              if (num) numbersOnField.push(num);
-            });
-          }
-        }
+        const isSubstitution =
+          inputElement?.closest("tbody")?.id?.includes("Cambios") || false;
+        currentSubstitutionRow = isSubstitution
+          ? inputElement.closest("tr")
+          : null;
+        currentEnteringPlayer = null;
 
         let modalEl = document.getElementById("playerSelectorModal");
         if (!modalEl) {
@@ -2013,19 +2271,13 @@
           modalEl.className = "modal fade";
           modalEl.style.zIndex = "1060";
           modalEl.innerHTML = `
-                  <div class="modal-dialog modal-xl modal-dialog-centered">
-                      <div class="modal-content border border-secondary" style="background: rgba(10,10,10,0.95); backdrop-filter: blur(10px)">
-                          <div class="modal-header border-bottom border-secondary border-opacity-50 flex-wrap gap-2">
-                              <h5 class="modal-title fw-bold text-uppercase text-white" id="playerSelectorTitle"></h5>
-                              <div class="d-flex align-items-center gap-2 ms-auto">
-                                  <div class="input-group input-group-sm">
-                                      <span class="input-group-text bg-transparent text-white-50 border-secondary"><i class="fas fa-search"></i></span>
-                                      <input type="text" id="carnetSearchInput" class="form-control bg-transparent text-white border-secondary shadow-none" placeholder="Número..." oninput="window.filterCarnets(this.value)" style="width:120px;" autocomplete="off">
-                                  </div>
-                                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                              </div>
+                  <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 1080px;">
+                      <div class="modal-content border border-secondary" style="background: rgba(10,10,10,0.96); backdrop-filter: blur(15px); border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
+                          <div class="modal-header border-bottom border-secondary border-opacity-50 flex-wrap gap-2 px-4 py-3">
+                              <h5 class="modal-title fw-bold text-uppercase text-white mb-0" id="playerSelectorTitle"></h5>
+                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                           </div>
-                          <div class="modal-body p-4 bg-dark" id="playerSelectorBody" style="max-height:75vh; overflow-y:auto">
+                          <div class="modal-body p-4 bg-dark" id="playerSelectorBody" style="max-height:82vh; overflow-y:auto">
                           </div>
                       </div>
                   </div>
@@ -2034,144 +2286,571 @@
         }
 
         document.getElementById("playerSelectorTitle").innerHTML =
-          `<i class="fas fa-id-badge me-2 text-primary-glow"></i> CARNETS DIGITALES: ${teamName}`;
-        const modalBody = document.getElementById("playerSelectorBody");
-        modalBody.innerHTML = `<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-4x text-primary-glow"></i><p class="mt-3 fs-5 text-white-50">Cargando carnets digitales...</p></div>`;
+          isSubstitution
+            ? `<i class="fas fa-exchange-alt me-2 text-warning"></i> REGISTRO DE CAMBIO (ENTRA): <span class="text-primary-glow">${teamName}</span>`
+            : `<i class="fas fa-id-card me-2 text-warning"></i> AUTENTICACIÓN POR CÉDULA: <span class="text-primary-glow">${teamName}</span>`;
 
-        const bsModal = new bootstrap.Modal(modalEl);
+        // Renderizado 100% INMEDIATO: sin esperar peticiones de red
+        renderCedulaSearchView();
+
+        const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
         bsModal.show();
 
-        try {
-          const snap = await db
-            .collection("players")
-            .where("teamName", "==", teamName)
-            .get();
+        setTimeout(() => {
+          const inp = document.getElementById("cedulaAuthInput");
+          if (inp) inp.focus();
+        }, 50);
 
+        try {
           const campSelect = document.getElementById("campSelect");
-          const campName =
+          const currentCampId =
+            campSelect?.value ||
+            window.currentMatchOpened?._campId ||
+            (window.currentMatchOpened?._fixId &&
+              fixturesMap.get(window.currentMatchOpened._fixId)
+                ?.championshipId) ||
+            "";
+
+          currentCampName =
             campSelect && campSelect.selectedIndex >= 0
               ? campSelect.options[campSelect.selectedIndex].text
-              : "CAMPEONATO ACTIVO";
+              : window.currentMatchOpened?.championshipName ||
+                "CAMPEONATO ACTIVO";
 
-          let html =
-            '<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">';
-          let validCount = 0;
+          // Obtenemos jugadores al instante (desde caché o fetching paralelo)
+          currentTeamPlayersList = await fetchTeamPlayers(teamName, category, currentCampId);
 
-          snap.forEach((doc) => {
-            const p = doc.data();
-
-            // Filtrar los que están recalificados
-            if (p.status && p.status.toUpperCase() === "RECALIFICADO") return;
-
-            // Filtrar los que ya están en cancha (para cambios)
-            if (numbersOnField.includes(String(p.numeroJugador))) return;
-
-            if (
-              p.teamCategory &&
-              p.teamCategory.toUpperCase() !== category.toUpperCase()
-            )
-              return;
-
-            validCount++;
-            const photo = p.playerPhoto || p.fotoUrl || "img/default-user.png";
-            const nombre = (
-              (p.nombres || "") +
-              " " +
-              (p.apellidos || "")
-            ).trim();
-            const safeNombre = nombre.replace(/'/g, "\\'");
-            const num = p.numeroJugador || "";
-            const cedula = p.cedula || "N/A";
-
-            let fNac = "N/A";
-            let badgeHtml = "";
-            if (p.fechaNacimiento) {
-              const parts = p.fechaNacimiento.split("-");
-              if (parts.length === 3) {
-                fNac = `${parts[2]}/${parts[1]}/${parts[0]}`;
-              } else {
-                fNac = p.fechaNacimiento;
-              }
-
-              // Calcular la edad para las etiquetas "MASTER" o "JUVENIL"
-              const hoy = new Date();
-              const fechaNac = new Date(p.fechaNacimiento);
-              let edad = hoy.getFullYear() - fechaNac.getFullYear();
-              const mes = hoy.getMonth() - fechaNac.getMonth();
-              if (
-                mes < 0 ||
-                (mes === 0 && hoy.getDate() < fechaNac.getDate())
-              ) {
-                edad--;
-              }
-
-              if (edad < 18) {
-                badgeHtml =
-                  '<span class="badge position-absolute rounded-pill bg-light text-dark border border-secondary fw-bold z-2" style="bottom: 12px; right: 12px; font-size: 0.65rem; padding: 4px 8px; font-family: sans-serif; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">JUVENIL</span>';
-              } else if (edad > 40) {
-                badgeHtml =
-                  '<span class="badge position-absolute rounded-pill bg-warning text-dark fw-bold z-2" style="bottom: 12px; right: 12px; font-size: 0.65rem; padding: 4px 8px; font-family: sans-serif; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">MASTER</span>';
-              }
-            }
-
-            html += `
-                      <div class="col carnet-col-filter" data-dorsal="${num}" style="min-width:320px; max-width:380px;">
-                          <div class="card h-100 text-center position-relative overflow-hidden p-0 shadow-lg mx-auto" 
-                               onclick="selectPlayer('${safeNombre}', '${num}')" 
-                               style="cursor:pointer; border: 2px solid #111; border-radius: 12px; background: linear-gradient(135deg, #b5e877 0%, #4caf50 100%); color: black; transition: transform 0.2s;"
-                               onmouseover="this.style.transform='scale(1.03)'"
-                               onmouseout="this.style.transform='scale(1)'">
-                              
-                              <!-- Watermarks -->
-                              <i class="fas fa-futbol position-absolute" style="font-size: 8rem; color: white; opacity: 0.15; right: 55%; top: 30%;"></i>
-                              <i class="fas fa-trophy position-absolute" style="font-size: 10rem; color: white; opacity: 0.15; right: -10%; bottom: -10%;"></i>
-                              
-                              ${badgeHtml}
-
-                              <div class="position-relative z-1 p-2 pt-3">
-                                  <div class="fw-bold text-uppercase" style="font-size: 1.1rem; font-family: 'Times New Roman', serif;">LIGA BARRIAL ARGELIA ALTA</div>
-                                  <div style="font-size: 0.95rem; font-family: 'Times New Roman', serif; margin-top: 2px;" class="fw-bold text-uppercase">${campName}</div>
-                                  <hr style="border-top: 2px solid black; opacity: 1; margin: 4px 15px;">
-                                  
-                                  <div class="d-flex w-100 px-1 mt-2 gap-1 text-start">
-                                      <!-- Foto -->
-                                      <div class="d-flex flex-column align-items-center" style="width: 125px;">
-                                          <div style="border: 3px solid #14802c; border-radius: 12px; padding: 0px; background: white; width: 110px; height: 135px; display:flex; justify-content:center; align-items:center; overflow:hidden;">
-                                              <img src="${photo}" style="width: 100%; height: 100%; object-fit: cover;">
-                                          </div>
-                                          <div class="fw-bold mt-2 text-dark" style="font-size: 1.6rem; font-family: 'Times New Roman', serif;">${num}</div>
-                                      </div>
-                                      
-                                      <!-- Detalles -->
-                                      <div class="flex-grow-1 ps-1 pt-1 pb-1" style="font-size: 0.75rem; font-family: 'Times New Roman', serif; line-height: 1.5;">
-                                          <div class="fw-bold text-center mb-1 text-uppercase" style="font-size: 1.1rem;">${teamName}</div>
-                                          <div class="mb-1"><span class="fw-bold">CATEGORIA:</span> ${category.toUpperCase()}</div>
-                                          <div class="mb-1 text-truncate" style="max-width:180px;"><span class="fw-bold">NOM:</span> ${(p.nombres || "").toUpperCase()}</div>
-                                          <div class="mb-1 text-truncate" style="max-width:180px;"><span class="fw-bold">APELL:</span> ${(p.apellidos || "").toUpperCase()}</div>
-                                          <div class="mb-1"><span class="fw-bold">FECHA NAC:</span> ${fNac}</div>
-                                          <div class="mt-2 text-center pb-2"><span class="fw-bold" style="font-size:0.95rem;">CI: ${cedula}</span></div>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  `;
-          });
-          html += "</div>";
-
-          if (validCount === 0) {
-            modalBody.innerHTML = `<div class="text-center text-white-50 py-5"><i class="fas fa-users-slash text-warning mb-3" style="font-size: 4rem;"></i><br><h5 class="fw-bold">No hay carnets digitales</h5><p>No se encontraron jugadores registrados en esta categoría para ${teamName}.</p></div>`;
-            return;
+          // Actualizar contador visual de jugadores registrados
+          const countBadge = document.getElementById("teamPlayersCountBadge");
+          if (countBadge) {
+            countBadge.textContent = `${currentTeamPlayersList.length} registrados`;
           }
 
-          modalBody.innerHTML = html;
+          // Cargar / refrescar sanciones en segundo plano sin bloquear al usuario
+          loadSanctionsForChampionship(
+            currentCampId,
+            category,
+            window.currentMatchOpened?.jornada,
+          );
+
+          // Si el usuario ya digitó la cédula antes de que termine el fetch, resolver de inmediato
+          const currentVal = document.getElementById("cedulaAuthInput")?.value;
+          if (currentVal && currentVal.trim()) {
+            window.handleCedulaInput(currentVal);
+          }
         } catch (e) {
-          console.error(e);
-          modalBody.innerHTML = `<div class="text-danger text-center py-4"><i class="fas fa-exclamation-triangle fs-1 mb-2"></i><br>Error al cargar carnets digitales</div>`;
+          console.error("Error en openPlayerSelector:", e);
         }
       }
 
+      function getActivePlayersOnField(rosterTbodyId) {
+        const tbody = document.getElementById(rosterTbodyId);
+        const isLocal = rosterTbodyId && rosterTbodyId.includes("Local");
+        const cambiosTbody = document.getElementById(
+          isLocal ? "listaCambiosLocal" : "listaCambiosVisitante",
+        );
+
+        const titulares = [];
+        if (tbody) {
+          tbody.querySelectorAll("tr").forEach((tr) => {
+            const inputs = tr.querySelectorAll("input");
+            if (inputs.length >= 2) {
+              const num = inputs[0].value.trim();
+              const name = inputs[1].value.trim();
+              if (num && name && name !== "Seleccionar...") {
+                titulares.push({ num, name });
+              }
+            }
+          });
+        }
+
+        const exitedNumbers = new Set();
+        const enteredPlayers = [];
+        if (cambiosTbody) {
+          cambiosTbody.querySelectorAll("tr").forEach((tr) => {
+            if (currentSubstitutionRow && tr === currentSubstitutionRow) return;
+            const inputs = tr.querySelectorAll("input");
+            if (inputs.length >= 3) {
+              const entraNum = inputs[0].value.trim();
+              const entraName = inputs[1].value.trim();
+              const saleNum = inputs[2].value.trim();
+              if (saleNum) exitedNumbers.add(saleNum);
+              if (
+                entraNum &&
+                entraName &&
+                entraName !== "Seleccionar Entra..."
+              ) {
+                enteredPlayers.push({ num: entraNum, name: entraName });
+              }
+            }
+          });
+        }
+
+        const activePlayers = [];
+        titulares.forEach((p) => {
+          if (!exitedNumbers.has(p.num)) {
+            activePlayers.push(p);
+          }
+        });
+        enteredPlayers.forEach((p) => {
+          if (!exitedNumbers.has(p.num)) {
+            activePlayers.push(p);
+          }
+        });
+
+        return activePlayers;
+      }
+
+      function getCambiosFillStatus() {
+        if (!currentSubstitutionRow)
+          return { filled: 0, total: 8, nextRow: null, currentIndex: 0 };
+        const tbody = currentSubstitutionRow.closest("tbody");
+        if (!tbody)
+          return { filled: 0, total: 8, nextRow: null, currentIndex: 0 };
+
+        let filled = 0;
+        let nextRow = null;
+        let currentIndex = 0;
+
+        const rows = tbody.querySelectorAll("tr");
+        rows.forEach((tr, idx) => {
+          const inputs = tr.querySelectorAll("input");
+          if (inputs.length >= 3) {
+            const entraName = inputs[1].value.trim();
+            const saleNum = inputs[2].value.trim();
+            if (entraName && entraName !== "Seleccionar Entra..." && saleNum) {
+              filled++;
+            } else if (!nextRow) {
+              nextRow = tr;
+              currentIndex = idx;
+            }
+          }
+        });
+
+        return { filled, total: rows.length, nextRow, currentIndex };
+      }
+
+      function getRosterFillStatus() {
+        if (currentSubstitutionRow) {
+          const cStatus = getCambiosFillStatus();
+          return {
+            filled: cStatus.filled,
+            total: cStatus.total,
+            nextInput: cStatus.nextRow
+              ? cStatus.nextRow.querySelectorAll("input")[1]
+              : null,
+            currentIndex: cStatus.currentIndex,
+            isChanges: true,
+          };
+        }
+
+        if (!currentRosterTbodyId)
+          return {
+            filled: 0,
+            total: 9,
+            nextInput: currentTargetInput,
+            currentIndex: 0,
+            isChanges: false,
+          };
+        const tbody = document.getElementById(currentRosterTbodyId);
+        if (!tbody)
+          return {
+            filled: 0,
+            total: 9,
+            nextInput: currentTargetInput,
+            currentIndex: 0,
+            isChanges: false,
+          };
+
+        const isChanges = currentRosterTbodyId.includes("Cambios");
+        const total = isChanges ? 8 : 9;
+        let filled = 0;
+        let nextInput = null;
+        let currentIndex = 0;
+
+        const rows = tbody.querySelectorAll("tr");
+        rows.forEach((tr, idx) => {
+          const inputs = tr.querySelectorAll("input");
+          if (inputs.length >= 2) {
+            const nameVal = inputs[1].value.trim();
+            if (
+              nameVal &&
+              nameVal !== "Seleccionar..." &&
+              nameVal !== "Seleccionar Entra..."
+            ) {
+              filled++;
+            } else if (!nextInput) {
+              nextInput = inputs[1];
+              currentIndex = idx;
+            }
+          }
+        });
+
+        return { filled, total, nextInput, currentIndex, isChanges };
+      }
+
+      function renderCedulaSearchView(lastAddedMessage = "") {
+        const modalBody = document.getElementById("playerSelectorBody");
+        const status = getRosterFillStatus();
+
+        modalBody.innerHTML = `
+          <!-- Barra de Progreso y Estado de Nómina en Cancha -->
+          <div class="d-flex justify-content-between align-items-center mb-3 p-2 px-3 rounded-4 flex-wrap gap-2" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(46,204,113,0.3);">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <span class="badge bg-success px-3 py-1.5 rounded-pill fs-6 fw-bold">
+                      <i class="fas fa-users me-1"></i> ${status.filled} / ${status.total} ${status.isChanges ? "Cambios Realizados" : "Jugadores en Cancha"}
+                  </span>
+                  ${status.filled < status.total ? `<small class="text-warning fw-bold"><i class="fas fa-arrow-right me-1"></i> ${status.isChanges ? "Registrando Cambio #" + (status.currentIndex + 1) : "Casillero actual #" + (status.currentIndex + 1)}</small>` : `<small class="text-success fw-bold"><i class="fas fa-check-double me-1"></i> ¡Completado!</small>`}
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" data-bs-dismiss="modal">
+                  <i class="fas fa-check-circle text-success me-1"></i> Terminar / Cerrar
+              </button>
+          </div>
+
+          ${lastAddedMessage ? `<div class="alert alert-success py-2 px-3 mb-3 rounded-pill text-center fw-bold animate__animated animate__fadeIn" style="font-size:0.9rem; background: rgba(46,204,113,0.2); border: 1px solid #2ecc71; color:#2ecc71;"><i class="fas fa-check-circle me-1"></i> ${lastAddedMessage}</div>` : ""}
+
+          <!-- Buscador de Cédula Principal -->
+          <div class="p-3 mb-4 rounded-4" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 193, 7, 0.3);">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                  <label for="cedulaAuthInput" class="form-label text-warning small fw-bold text-uppercase mb-0" style="letter-spacing:1px;">
+                      <i class="fas fa-id-card me-1"></i> ${currentSubstitutionRow ? "Ingrese la Cédula del Jugador que ENTRA:" : "Ingrese el Número de Cédula del Jugador:"}
+                  </label>
+                  <span class="badge bg-dark border border-secondary text-white-50 small">${currentTeamPlayersList.length} registrados</span>
+              </div>
+              
+              <div class="input-group input-group-lg my-2">
+                  <span class="input-group-text bg-dark border-secondary text-warning"><i class="fas fa-address-card fs-4"></i></span>
+                  <input type="text" id="cedulaAuthInput" class="form-control bg-dark text-white border-secondary fw-bold fs-3 text-center shadow-none" 
+                         placeholder="Ej: 1753673167..." maxlength="15" autocomplete="off"
+                         oninput="window.handleCedulaInput(this.value)" 
+                         onkeydown="if(event.key==='Enter') window.handleCedulaInput(this.value, true)" autofocus>
+                  <button class="btn btn-warning px-4 fw-bold" type="button" onclick="window.handleCedulaInput(document.getElementById('cedulaAuthInput').value, true)">
+                      <i class="fas fa-search me-1"></i> BUSCAR
+                  </button>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mt-2 pt-1 border-top border-secondary border-opacity-25 flex-wrap gap-2">
+                  <small class="text-white-50"><i class="fas fa-shield-alt text-success me-1"></i> Digite la cédula para cargar automáticamente el carnet.</small>
+                  <button type="button" class="btn btn-link btn-sm text-info text-decoration-none p-0 fw-bold" onclick="window.showAllCarnetsGrid()">
+                      <i class="fas fa-th-large me-1"></i> Ver todos los carnets
+                  </button>
+              </div>
+          </div>
+
+          <!-- Contenedor del Carnet Resultante -->
+          <div id="cedulaResultContainer" class="d-flex justify-content-center align-items-center">
+              <div class="text-center py-5 text-white-50">
+                  <i class="fas fa-id-badge text-warning opacity-25 mb-3" style="font-size: 5rem;"></i>
+                  <h5 class="fw-bold text-white mb-1">Esperando Número de Cédula</h5>
+                  <p class="small text-white-50 mb-0">${currentSubstitutionRow ? "Digite la cédula del jugador suplente que entrará al campo de juego." : "Digite la cédula en el campo superior para cargar el carnet digital del jugador."}</p>
+              </div>
+          </div>
+        `;
+      }
+
+      function getPlayerSanction(p) {
+        if (!p || !sanctionedPlayersMap || sanctionedPlayersMap.size === 0)
+          return null;
+        const numKey =
+          String(p.numeroJugador || p.num || "").trim() +
+          "_" +
+          currentTeamName.toUpperCase();
+        const ciKey = (p.cedula || "").replace(/\s+/g, "");
+        return (
+          sanctionedPlayersMap.get(numKey) ||
+          (ciKey ? sanctionedPlayersMap.get(ciKey) : null)
+        );
+      }
+
+      window.showSanctionAlert = function (name, number, reason) {
+        Swal.fire({
+          icon: "error",
+          title: "¡Jugador Sancionado!",
+          html: `
+            <div class="text-start p-3 rounded-3" style="background: rgba(231,76,60,0.15); border: 1.5px solid #e74c3c;">
+              <div class="text-white fw-bold mb-1"><i class="fas fa-user-times text-danger me-2"></i>#${number} ${name}</div>
+              <div class="text-warning small fw-bold mb-2"><i class="fas fa-gavel me-1"></i> Motivo: ${reason}</div>
+              <div class="small text-white-50">El sistema de control antifraude bloquea la inclusión de jugadores suspendidos en el acta de juego.</div>
+            </div>
+          `,
+          confirmButtonText: "Entendido",
+          confirmButtonColor: "#e74c3c",
+          background: "#121212",
+          color: "#ffffff",
+        });
+      };
+
+      window.handleCedulaInput = function (typedVal, isSubmit = false) {
+        const val = (typedVal || "").trim();
+        const container = document.getElementById("cedulaResultContainer");
+        if (!container) return;
+
+        if (!val) {
+          container.innerHTML = `
+              <div class="text-center py-5 text-white-50">
+                  <i class="fas fa-id-badge text-warning opacity-25 mb-3" style="font-size: 5rem;"></i>
+                  <h5 class="fw-bold text-white mb-1">Esperando Número de Cédula</h5>
+                  <p class="small text-white-50 mb-0">${currentSubstitutionRow ? "Digite la cédula del jugador suplente que entrará al campo de juego." : "Digite la cédula en el campo superior para cargar el carnet digital del jugador."}</p>
+              </div>
+          `;
+          return;
+        }
+
+        // Buscar coincidencia exacta primero, o que contenga la cédula
+        const cleanVal = val.replace(/\s+/g, "");
+        let matchedPlayer = currentTeamPlayersList.find(
+          (p) => (p.cedula || "").replace(/\s+/g, "") === cleanVal,
+        );
+
+        // Si no hay coincidencia exacta pero está escribiendo o dio buscar
+        if (!matchedPlayer && isSubmit) {
+          matchedPlayer = currentTeamPlayersList.find((p) =>
+            (p.cedula || "").replace(/\s+/g, "").includes(cleanVal),
+          );
+        }
+
+        if (matchedPlayer) {
+          const nombreCompleto = (
+            (matchedPlayer.nombres || "") +
+            " " +
+            (matchedPlayer.apellidos || "")
+          ).trim();
+          const safeNombre = nombreCompleto.replace(/'/g, "\\'");
+          const num = matchedPlayer.numeroJugador || "";
+          const sanction = getPlayerSanction(matchedPlayer);
+
+          if (sanction) {
+            container.innerHTML = `
+              <div class="d-flex flex-column align-items-center justify-content-center w-100 animate__animated animate__shakeX">
+                <div class="text-danger small fw-bold mb-2 fs-5">
+                  <i class="fas fa-ban me-1"></i> ¡JUGADOR SANCIONADO / NO HABILITADO!
+                </div>
+                <div style="max-width: 440px; width: 100%;">
+                  ${renderSingleCarnetHtml(matchedPlayer)}
+                </div>
+                <div class="mt-3 text-center" style="max-width: 440px;">
+                  <div class="alert alert-danger py-2 px-3 rounded-4 shadow fw-bold text-start mb-3" style="font-size:0.88rem; background: rgba(231,76,60,0.2); border: 1px solid #e74c3c;">
+                    <i class="fas fa-exclamation-triangle me-1"></i> <b>SANCIÓN REGLAMENTARIA:</b><br>
+                    <span class="text-white">${sanction.reason}</span>
+                    <div class="small fw-normal text-white-50 mt-1">Este jugador no puede participar en este partido por sanción de la liga.</div>
+                  </div>
+                  <button type="button" class="btn btn-secondary btn-lg rounded-pill px-5 py-3 fw-bold disabled opacity-50 shadow" disabled>
+                    <i class="fas fa-lock me-2"></i> INCLUSIÓN BLOQUEADA
+                  </button>
+                </div>
+              </div>
+            `;
+            return;
+          }
+
+          // Renderizar carnet habilitado
+          container.innerHTML = `
+            <div class="d-flex flex-column align-items-center justify-content-center w-100 animate__animated animate__fadeIn">
+              <div class="text-success small fw-bold mb-3">
+                <i class="fas fa-check-circle me-1"></i> ¡CARNET ENCONTRADO Y AUTENTICADO!
+              </div>
+              <div style="max-width: 440px; width: 100%;">
+                ${renderSingleCarnetHtml(matchedPlayer)}
+              </div>
+              <div class="mt-4 text-center">
+                <button type="button" class="btn btn-success btn-lg rounded-pill px-5 py-3 fw-bold shadow-lg fs-5" 
+                        onclick="selectPlayer('${safeNombre}', '${num}')">
+                  <i class="fas fa-check-circle me-2"></i> ${currentSubstitutionRow ? "SELECCIONAR JUGADOR QUE ENTRA (#" + (num || "--") + ")" : "HABILITAR JUGADOR EN ACTA (#" + (num || "--") + ")"}
+                </button>
+              </div>
+            </div>
+          `;
+        } else {
+          // Si no coincide
+          if (cleanVal.length >= 6 || isSubmit) {
+            container.innerHTML = `
+              <div class="text-center py-5 text-danger animate__animated animate__shakeX">
+                <i class="fas fa-user-xmark mb-3" style="font-size: 4rem;"></i>
+                <h5 class="fw-bold text-white">No se encontró ningún carnet</h5>
+                <p class="text-white-50 small mb-2">No existe ningún jugador registrado con la cédula <b class="text-warning">"${val}"</b> en ${currentTeamName} (${currentTeamCategory}).</p>
+                <div class="badge bg-danger bg-opacity-20 text-danger border border-danger px-3 py-1">Verifique que el número de cédula esté bien escrito</div>
+              </div>
+            `;
+          } else {
+            container.innerHTML = `
+              <div class="text-center py-4 text-white-50">
+                <i class="fas fa-search text-warning opacity-50 mb-2 fs-2"></i>
+                <p class="small mb-0">Buscando jugador con cédula <b>${val}</b>...</p>
+              </div>
+            `;
+          }
+        }
+      };
+
+      function renderSingleCarnetHtml(p) {
+        const defaultPhoto =
+          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2314802c'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+        const photo = p.playerPhoto || p.fotoUrl || defaultPhoto;
+        const nombre = ((p.nombres || "") + " " + (p.apellidos || "")).trim();
+        const safeNombre = nombre.replace(/'/g, "\\'");
+        const num = p.numeroJugador || "";
+        const cedula = p.cedula || "N/A";
+        const sanction = getPlayerSanction(p);
+        const isSanctioned = !!sanction;
+
+        let fNac = "N/A";
+        let badgeText = "SENIOR";
+        let badgeStyle =
+          "background: #14802c; color: #ffffff; border: 1.5px solid #0a3d13;";
+
+        if (p.fechaNacimiento) {
+          const parts = p.fechaNacimiento.split("-");
+          if (parts.length === 3) {
+            fNac = `${parts[2]}/${parts[1]}/${parts[0]}`;
+          } else {
+            fNac = p.fechaNacimiento;
+          }
+
+          const hoy = new Date();
+          const fechaNac = new Date(p.fechaNacimiento);
+          let edad = hoy.getFullYear() - fechaNac.getFullYear();
+          const mes = hoy.getMonth() - fechaNac.getMonth();
+          if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+            edad--;
+          }
+
+          if (edad < 18) {
+            badgeText = "JUVENIL";
+            badgeStyle =
+              "background: #ffffff; color: #111; border: 1.5px solid #14802c;";
+          } else if (edad > 40) {
+            badgeText = "MASTER";
+            badgeStyle =
+              "background: #ffc107; color: #000; border: 1.5px solid #d39e00;";
+          } else {
+            badgeText = "SENIOR";
+            badgeStyle =
+              "background: #14802c; color: #ffffff; border: 1.5px solid #0d541c;";
+          }
+        }
+
+        const borderStyle = isSanctioned
+          ? "border: 3.5px solid #e74c3c; box-shadow: 0 0 30px rgba(231,76,60,0.85);"
+          : "border: 2px solid #14802c; box-shadow: 0 8px 25px rgba(0,0,0,0.5);";
+
+        const clickAction = isSanctioned
+          ? `window.showSanctionAlert('${safeNombre}', '${num}', '${(sanction.reason || "").replace(/'/g, "\\'")}')`
+          : `selectPlayer('${safeNombre}', '${num}')`;
+
+        return `
+          <div class="card text-center position-relative overflow-hidden p-0 shadow-lg mx-auto w-100" 
+               onclick="${clickAction}" 
+               style="cursor:pointer; ${borderStyle} border-radius: 16px; background: #ffffff url('img/carnet-bg-futbol.png') no-repeat right bottom; background-size: cover; color: #111; transition: all 0.22s ease-in-out;"
+               onmouseover="this.style.transform='translateY(-3px)';"
+               onmouseout="this.style.transform='translateY(0)';">
+
+              ${
+                isSanctioned
+                  ? `
+                <div class="position-absolute bg-danger text-white fw-bold py-1 px-3 rounded-bottom shadow" 
+                     style="top: 0; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 0.72rem; letter-spacing: 0.5px; white-space:nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+                    <i class="fas fa-ban me-1"></i> SANCIONADO (${sanction.reason})
+                </div>
+              `
+                  : ""
+              }
+
+              <div class="position-relative z-1 p-3 ${isSanctioned ? "pt-4 opacity-75" : ""}">
+                  <!-- Encabezado Oficial -->
+                  <div class="fw-bold text-uppercase" style="font-size: 1.12rem; font-family: 'Times New Roman', serif; color: #0a3d13; letter-spacing: 0.5px; line-height: 1.1;">LIGA BARRIAL ARGELIA ALTA</div>
+                  <div style="font-size: 0.92rem; font-family: 'Times New Roman', serif; margin-top: 2px; color: #1b6b27;" class="fw-bold text-uppercase">${currentCampName}</div>
+                  <hr style="border-top: 2px solid #14802c; opacity: 0.85; margin: 4px 15px 8px 15px;">
+                  
+                  <div class="d-flex w-100 px-1 gap-2 text-start align-items-center">
+                      <!-- Foto y Dorsal -->
+                      <div class="d-flex flex-column align-items-center" style="width: 120px; flex-shrink: 0;">
+                          <div style="border: 2.5px solid ${isSanctioned ? "#e74c3c" : "#14802c"}; border-radius: 12px; padding: 0px; background: white; width: 110px; height: 135px; display:flex; justify-content:center; align-items:center; overflow:hidden; box-shadow: 0 3px 8px rgba(0,0,0,0.15); position:relative;">
+                              <img src="${photo}" onerror="this.onerror=null; this.src='${defaultPhoto}';" style="width: 100%; height: 100%; object-fit: cover;">
+                              ${isSanctioned ? `<div class="position-absolute d-flex align-items-center justify-content-center w-100 h-100 bg-danger bg-opacity-25"><i class="fas fa-ban text-danger fa-3x"></i></div>` : ""}
+                          </div>
+                          <!-- Dorsal con fondo nítido para máximo contraste -->
+                          <div class="fw-bold mt-1 text-center rounded-pill px-3" style="font-size: 1.4rem; font-family: 'Times New Roman', serif; color: ${isSanctioned ? "#e74c3c" : "#0a3d13"}; background: rgba(255,255,255,0.92); border: 1.5px solid rgba(20,128,44,0.4); line-height: 1.2;">#${num}</div>
+                      </div>
+                      
+                      <!-- Detalles del Jugador -->
+                      <div class="flex-grow-1 ps-1 d-flex flex-column justify-content-between" style="font-size: 0.78rem; font-family: 'Times New Roman', serif; line-height: 1.45; min-width: 0;">
+                          <div>
+                              <div class="fw-bold text-center mb-1 text-uppercase text-truncate px-2 py-0.5" style="font-size: 1.05rem; background: rgba(20, 128, 44, 0.12); color: #0a3d13; border: 1px solid rgba(20, 128, 44, 0.25); border-radius: 6px;">${currentTeamName}</div>
+                              <div class="mb-0.5"><b style="color: #0a3d13;">CATEGORIA:</b> <span class="fw-bold text-dark">${currentTeamCategory.toUpperCase()}</span></div>
+                              <div class="mb-0.5 text-truncate" style="max-width:190px;"><b style="color: #0a3d13;">NOM:</b> <span class="fw-bold text-dark">${(p.nombres || "").toUpperCase()}</span></div>
+                              <div class="mb-0.5 text-truncate" style="max-width:190px;"><b style="color: #0a3d13;">APELL:</b> <span class="fw-bold text-dark">${(p.apellidos || "").toUpperCase()}</span></div>
+                              <div class="mb-1"><b style="color: #0a3d13;">FECHA NAC:</b> <span class="fw-bold text-dark">${fNac}</span></div>
+                          </div>
+                          
+                          <!-- Bloque de Cédula -->
+                          <div class="text-center py-1 px-2 rounded-2 mt-auto" style="background: rgba(255, 255, 255, 0.95); border: 1.5px solid ${isSanctioned ? "#e74c3c" : "#14802c"}; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
+                              <b style="font-size: 0.95rem; color: ${isSanctioned ? "#c0392b" : "#0a3d13"}; letter-spacing: 0.5px;">CI: ${cedula}</b>
+                          </div>
+                          
+                          <!-- Badge de Edad DEBAJO de la Cédula -->
+                          <div class="text-center mt-1">
+                              <span class="badge rounded-pill fw-bold" style="${badgeStyle} font-size: 0.72rem; padding: 3px 14px; letter-spacing: 1px; box-shadow: 0 2px 4px rgba(0,0,0,0.12);">
+                                  ${badgeText}
+                              </span>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        `;
+      }
+
+      window.showAllCarnetsGrid = function () {
+        const modalBody = document.getElementById("playerSelectorBody");
+        if (!modalBody) return;
+        const status = getRosterFillStatus();
+
+        let gridHtml = `
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-50 flex-wrap gap-2 sticky-top bg-dark pt-1" style="z-index: 10;">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-3 fw-bold" onclick="renderCedulaSearchView()">
+                <i class="fas fa-arrow-left me-1"></i> Buscador por Cédula
+              </button>
+              <span class="badge bg-success px-2.5 py-1 rounded-pill small fw-bold">
+                <i class="fas fa-users me-1"></i> ${status.filled} / ${status.total} ${status.isChanges ? "Cambios" : ""}
+              </span>
+            </div>
+            <div class="input-group input-group-sm" style="width: 240px;">
+              <span class="input-group-text bg-dark text-white-50 border-secondary"><i class="fas fa-search"></i></span>
+              <input type="text" class="form-control bg-dark text-white border-secondary shadow-none" placeholder="Filtrar número o CI..." oninput="window.filterCarnets(this.value)">
+            </div>
+          </div>
+          <div class="row row-cols-1 row-cols-md-2 g-3 justify-content-center">
+        `;
+
+        currentTeamPlayersList.forEach((p) => {
+          const num = p.numeroJugador || "";
+          const ci = p.cedula || "";
+          gridHtml += `
+            <div class="col carnet-col-filter d-flex justify-content-center" data-dorsal="${num}" data-ci="${ci}">
+              ${renderSingleCarnetHtml(p)}
+            </div>
+          `;
+        });
+
+        gridHtml += "</div>";
+        modalBody.innerHTML = gridHtml;
+      };
+
       function selectPlayer(name, number) {
+        // Verificación de seguridad antifraude
+        const matchedP = currentTeamPlayersList.find(
+          (p) =>
+            String(p.numeroJugador) === String(number) ||
+            ((p.nombres || "") + " " + (p.apellidos || "")).trim() ===
+              name.trim(),
+        );
+        const sanction = getPlayerSanction(matchedP);
+        if (sanction) {
+          window.showSanctionAlert(name, number, sanction.reason);
+          return;
+        }
+
         if (currentTargetInput) {
           currentTargetInput.value = name;
           const tr = currentTargetInput.closest("tr");
@@ -2183,74 +2862,268 @@
             }
           }
         }
-        const bsModal = bootstrap.Modal.getInstance(
-          document.getElementById("playerSelectorModal"),
-        );
-        if (bsModal) bsModal.hide();
-      }
 
-      window.filterCarnets = function (val) {
-        const term = val.trim().toLowerCase();
-        const cols = document.querySelectorAll(
-          "#playerSelectorBody .carnet-col-filter",
-        );
-        cols.forEach((col) => {
-          if (!term) {
-            col.style.display = "";
-          } else {
-            const dorsal = (
-              col.getAttribute("data-dorsal") || ""
-            ).toLowerCase();
-            if (dorsal.includes(term)) {
-              col.style.display = "";
-            } else {
-              col.style.display = "none";
-            }
-          }
-        });
-      };
-
-      window.openRosterSelector = function (rosterTbodyId, inputElement) {
-        const tbody = document.getElementById(rosterTbodyId);
-        const rows = tbody.querySelectorAll("tr");
-        const playersOnField = [];
-
-        rows.forEach((tr) => {
-          const inputs = tr.querySelectorAll("input");
-          const num = inputs[0].value.trim();
-          const name = inputs[1].value.trim();
-          if (num && name && name !== "Seleccionar...") {
-            playersOnField.push({ num, name });
-          }
-        });
-
-        if (playersOnField.length === 0) {
-          Swal.fire(
-            "Atención",
-            "No hay jugadores en la nómina principal para realizar el cambio.",
-            "warning",
-          );
+        // Si es un cambio (sustitución), pasar AUTOMÁTICAMENTE al paso 2: seleccionar jugador que SALE
+        if (currentSubstitutionRow) {
+          currentEnteringPlayer = { name, number };
+          renderSelectPlayerExitingView(name, number);
           return;
         }
 
-        const options = playersOnField
-          .map((p) => `<option value="${p.num}">${p.num} - ${p.name}</option>`)
-          .join("");
+        // Flujo continuo para la nómina de 9 jugadores en cancha:
+        const status = getRosterFillStatus();
 
-        Swal.fire({
-          title: "Seleccionar Jugador que Sale",
-          html: `<select id="swalRosterSelect" class="form-select bg-dark text-white border-secondary">${options}</select>`,
-          showCancelButton: true,
-          confirmButtonText: "Seleccionar",
-          cancelButtonText: "Cancelar",
-          preConfirm: () => {
-            return document.getElementById("swalRosterSelect").value;
-          },
-        }).then((result) => {
-          if (result.isConfirmed) {
-            inputElement.value = result.value;
+        // Si aún faltan casilleros por llenar (ej: hasta completar los 9 de cancha)
+        if (status.nextInput && status.filled < status.total) {
+          currentTargetInput = status.nextInput;
+          renderCedulaSearchView(
+            `¡Jugador #${number} ${name} habilitado con éxito! (${status.filled}/${status.total})`,
+          );
+          setTimeout(() => {
+            const inp = document.getElementById("cedulaAuthInput");
+            if (inp) {
+              inp.value = "";
+              inp.focus();
+            }
+          }, 150);
+        } else {
+          // Si ya completó los 9 (o no quedan más casilleros), cerrar modal y avisar
+          Swal.fire({
+            icon: "success",
+            title: `¡Nómina Completa!`,
+            text: `Se han habilitado los ${status.total} jugadores en el acta.`,
+            timer: 2000,
+            showConfirmButton: false,
+            background: "#121212",
+            color: "#ffffff",
+          });
+          const bsModal = bootstrap.Modal.getInstance(
+            document.getElementById("playerSelectorModal"),
+          );
+          if (bsModal) bsModal.hide();
+        }
+      }
+
+      function renderSelectPlayerExitingView(enteringName, enteringNum) {
+        const modalBody = document.getElementById("playerSelectorBody");
+        if (!modalBody) return;
+
+        const defaultPhoto =
+          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2314802c'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+
+        const titleEl = document.getElementById("playerSelectorTitle");
+        if (titleEl) {
+          titleEl.innerHTML = `<i class="fas fa-exchange-alt me-2 text-warning"></i> REGISTRO DE CAMBIO (SALE): <span class="text-primary-glow">${currentTeamName}</span>`;
+        }
+
+        // Obtener jugadores activos en cancha considerando cambios previos
+        const playersOnField = getActivePlayersOnField(currentRosterTbodyId);
+
+        if (playersOnField.length === 0) {
+          modalBody.innerHTML = `
+            <div class="text-center py-5 text-warning">
+              <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+              <h5 class="fw-bold text-white">No hay jugadores titulares en cancha</h5>
+              <p class="text-white-50">Primero debe registrar a los jugadores titulares en cancha antes de realizar un cambio.</p>
+              <button class="btn btn-warning rounded-pill px-4 mt-2" data-bs-dismiss="modal">Entendido</button>
+            </div>
+          `;
+          return;
+        }
+
+        let html = `
+          <!-- Resumen del Jugador que Entra -->
+          <div class="p-3 mb-4 rounded-4 shadow-lg text-center" style="background: rgba(46, 204, 113, 0.12); border: 2px solid #2ecc71;">
+              <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
+                  <span class="badge bg-success px-3 py-2 rounded-pill fs-6 fw-bold">
+                      <i class="fas fa-arrow-up me-1"></i> ENTRA: #${enteringNum} ${enteringName}
+                  </span>
+              </div>
+              <h5 class="fw-bold text-white mb-1">¿Por cuál jugador en cancha es el cambio?</h5>
+              <p class="small text-white-50 mb-0">Haga clic en el carnet del jugador titular que <b class="text-danger">SALE</b> del partido:</p>
+          </div>
+
+          <!-- Cuadrícula con los carnets de los que están en cancha -->
+          <div class="row row-cols-1 row-cols-md-2 g-3 justify-content-center">
+        `;
+
+        playersOnField.forEach((onField) => {
+          // 1. Buscar por dorsal exacto
+          let pData = currentTeamPlayersList.find(
+            (p) =>
+              String(p.numeroJugador || "").trim() ===
+              String(onField.num || "").trim(),
+          );
+
+          // 2. Si no coincide por dorsal, buscar por coincidencia de nombre
+          if (!pData) {
+            const cleanOnFieldName = onField.name.trim().toUpperCase();
+            pData = currentTeamPlayersList.find((p) => {
+              const fullName = `${p.nombres || ""} ${p.apellidos || ""}`
+                .trim()
+                .toUpperCase();
+              return (
+                fullName === cleanOnFieldName ||
+                (fullName.length > 3 &&
+                  cleanOnFieldName.includes((p.nombres || "").toUpperCase()))
+              );
+            });
           }
+
+          if (!pData) {
+            pData = {
+              nombres: onField.name,
+              apellidos: "",
+              numeroJugador: onField.num,
+              cedula: "En Cancha",
+              playerPhoto: defaultPhoto,
+              teamCategory: currentTeamCategory,
+            };
+          }
+
+          const safeNombre = (
+            (pData.nombres || "") +
+            " " +
+            (pData.apellidos || "")
+          )
+            .trim()
+            .replace(/'/g, "\\'");
+          const num = pData.numeroJugador || onField.num;
+
+          html += `
+            <div class="col d-flex flex-column align-items-center">
+              <div style="width: 100%; cursor: pointer;" onclick="window.confirmExitingPlayer('${num}', '${safeNombre}')">
+                ${renderSingleCarnetHtml(pData)}
+                <button type="button" class="btn btn-danger btn-sm rounded-pill w-100 fw-bold mt-2 shadow" style="letter-spacing: 0.5px;">
+                  <i class="fas fa-arrow-down me-1"></i> RELEVAR A ESTE JUGADOR (SALE #${num})
+                </button>
+              </div>
+            </div>
+          `;
         });
+
+        html += `</div>`;
+        modalBody.innerHTML = html;
+      }
+
+      window.confirmExitingPlayer = function (saleNum, saleName) {
+        if (currentSubstitutionRow) {
+          const inputs = currentSubstitutionRow.querySelectorAll("input");
+          if (inputs.length >= 3) {
+            inputs[2].value = saleNum;
+          }
+        }
+
+        const enteringText = currentEnteringPlayer
+          ? `#${currentEnteringPlayer.number} ${currentEnteringPlayer.name}`
+          : "";
+
+        // Evaluar estado de cambios para flujo continuo de sustituciones
+        const cStatus = getCambiosFillStatus();
+
+        if (cStatus.nextRow && cStatus.filled < cStatus.total) {
+          // Avanzar a la siguiente fila de cambio automáticamente
+          currentSubstitutionRow = cStatus.nextRow;
+          currentTargetInput = cStatus.nextRow.querySelectorAll("input")[1];
+          currentEnteringPlayer = null;
+
+          renderCedulaSearchView(
+            `¡Cambio #${cStatus.filled} registrado con éxito! (Entra ${enteringText} por #${saleNum} ${saleName}). Ingrese la cédula del siguiente cambio (#${cStatus.currentIndex + 1})...`,
+          );
+
+          setTimeout(() => {
+            const inp = document.getElementById("cedulaAuthInput");
+            if (inp) {
+              inp.value = "";
+              inp.focus();
+            }
+          }, 150);
+        } else {
+          // Si ya completó todos los cambios de la tabla, cerrar y notificar
+          Swal.fire({
+            icon: "success",
+            title: "¡Cambios Completados!",
+            html: `
+              <div class="p-2 text-start fs-6" style="background: rgba(255,255,255,0.05); border-radius: 10px;">
+                ${enteringText ? `<div class="mb-2 text-success fw-bold"><i class="fas fa-arrow-up me-2"></i><b>ÚLTIMO ENTRA:</b> ${enteringText}</div>` : ""}
+                <div class="text-danger fw-bold"><i class="fas fa-arrow-down me-2"></i><b>ÚLTIMO SALE:</b> #${saleNum} ${saleName}</div>
+              </div>
+            `,
+            timer: 2400,
+            showConfirmButton: false,
+            background: "#121212",
+            color: "#ffffff",
+          });
+
+          const bsModal = bootstrap.Modal.getInstance(
+            document.getElementById("playerSelectorModal"),
+          );
+          if (bsModal) bsModal.hide();
+
+          currentSubstitutionRow = null;
+          currentEnteringPlayer = null;
+        }
+      };
+
+      window.openRosterSelector = async function (rosterTbodyId, inputElement) {
+        currentSubstitutionRow = inputElement.closest("tr");
+        currentRosterTbodyId = rosterTbodyId;
+
+        const m = window.currentMatchOpened;
+        const isLocal = rosterTbodyId.includes("Local");
+        const teamName = isLocal ? m?.local : m?.visitor;
+        const category = m?._cat || "";
+
+        if (teamName) {
+          currentTeamName = teamName;
+          currentTeamCategory = category;
+        }
+
+        const campSelect = document.getElementById("campSelect");
+        const currentCampId =
+          campSelect?.value || window.currentMatchOpened?._campId || "";
+        currentTeamPlayersList = await fetchTeamPlayers(teamName, category, currentCampId);
+
+        let modalEl = document.getElementById("playerSelectorModal");
+        if (!modalEl) {
+          modalEl = document.createElement("div");
+          modalEl.id = "playerSelectorModal";
+          modalEl.className = "modal fade";
+          modalEl.style.zIndex = "1060";
+          modalEl.innerHTML = `
+                  <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 1080px;">
+                      <div class="modal-content border border-secondary" style="background: rgba(10,10,10,0.96); backdrop-filter: blur(15px); border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
+                          <div class="modal-header border-bottom border-secondary border-opacity-50 flex-wrap gap-2 px-4 py-3">
+                              <h5 class="modal-title fw-bold text-uppercase text-white mb-0" id="playerSelectorTitle"></h5>
+                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                          </div>
+                          <div class="modal-body p-4 bg-dark" id="playerSelectorBody" style="max-height:82vh; overflow-y:auto">
+                          </div>
+                      </div>
+                  </div>
+              `;
+          document.body.appendChild(modalEl);
+        }
+
+        const entraInput = currentSubstitutionRow
+          ? currentSubstitutionRow.querySelectorAll("input")[1]?.value
+          : "";
+        const entraNum = currentSubstitutionRow
+          ? currentSubstitutionRow.querySelectorAll("input")[0]?.value
+          : "";
+
+        currentEnteringPlayer =
+          entraInput && entraInput !== "Seleccionar Entra..."
+            ? { name: entraInput, number: entraNum }
+            : null;
+
+        renderSelectPlayerExitingView(
+          entraInput || "Jugador Entrante",
+          entraNum || "--",
+        );
+
+        const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        bsModal.show();
       };
 
       window.updateTotalGoles = function (team) {
