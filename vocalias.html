@@ -776,10 +776,24 @@
       let fixturesMap = new Map();
       let currentJornada = null;
 
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", loadChampionships);
-      } else {
+      function initAppEvents() {
         loadChampionships();
+        const vocaliaModalEl = document.getElementById("vocaliaModal");
+        if (vocaliaModalEl) {
+          vocaliaModalEl.addEventListener("hidden.bs.modal", () => {
+            if (stopwatchInterval) {
+              clearInterval(stopwatchInterval);
+              stopwatchInterval = null;
+            }
+            isStopwatchRunning = false;
+          });
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initAppEvents);
+      } else {
+        initAppEvents();
       }
 
       async function loadChampionships() {
@@ -838,18 +852,50 @@
           .onSnapshot(
             (snapshot) => {
               snapshot.forEach((doc) => {
-                fixturesMap.set(doc.id, doc.data());
+                const docData = doc.data();
+                if (docData && Array.isArray(docData.data)) {
+                  docData.data.forEach((m, idx) => {
+                    // Garantizar matchId único y persistente
+                    if (!m.matchId || m.matchId === "undefined") {
+                      m.matchId = `${doc.id}_${idx}_${(m.local || "").replace(/\s+/g, "")}_${(m.visitor || "").replace(/\s+/g, "")}`;
+                    }
+                    // Garantizar número de jornada válido
+                    if (m.jornada === undefined || m.jornada === null || isNaN(m.jornada)) {
+                      const rawNum = parseInt(String(m.fecha || m.round || m.etiqueta || "").replace(/\D/g, ""));
+                      m.jornada = !isNaN(rawNum) && rawNum > 0 ? rawNum : 1;
+                    } else {
+                      m.jornada = parseInt(m.jornada) || 1;
+                    }
+                    // Normalizar fecha / día
+                    if (!m.fechaRealAsignadaText) {
+                      m.fechaRealAsignadaText = m.fechaReal || m.dia || m.date || m.fecha || "Por Definir";
+                    }
+                    // Normalizar hora
+                    if (!m.horaRealAsignada) {
+                      m.horaRealAsignada = m.hora || "--:--";
+                    }
+                    // Normalizar vocal
+                    if (!m.vocalAsignado) {
+                      m.vocalAsignado = m.vocal || "Por Asignar";
+                    }
+                    // Normalizar veedor
+                    if (!m.veedorAsignado) {
+                      m.veedorAsignado = m.veedor || "Por Asignar";
+                    }
+                  });
+                }
+                fixturesMap.set(doc.id, docData);
               });
               renderNavigation();
 
-              // If modal is open, refresh its content to show the "Ver Recibo" button immediately
+              // Si el modal está abierto, NO destruir el DOM ni el cronómetro
+              // Solo actualizar la referencia del partido en memoria
               const modalEl = document.getElementById("vocaliaModal");
               if (
                 modalEl &&
                 modalEl.classList.contains("show") &&
                 window.currentMatchOpened
               ) {
-                // Find latest data for the opened match using robust dual-check
                 for (let [fixId, meta] of fixturesMap) {
                   const match = meta.data.find((m) => {
                     if (
@@ -864,11 +910,11 @@
                     );
                   });
                   if (match) {
-                    renderActaInterior({
+                    window.currentMatchOpened = {
                       ...match,
                       _cat: meta.category,
                       _fixId: fixId,
-                    });
+                    };
                     break;
                   }
                 }
@@ -876,6 +922,15 @@
             },
             (e) => console.error(e),
           );
+      }
+
+      function isMatchProgrammed(m) {
+        if (!m || m.isRest || m.local === "DESCANSA" || m.visitor === "DESCANSA") return false;
+        const fecha = (m.fechaRealAsignadaText || m.fechaReal || m.dia || m.date || "").trim();
+        const hora = (m.horaRealAsignada || m.hora || "").trim();
+        const hasFecha = fecha !== "" && fecha !== "Por Definir" && fecha !== "---";
+        const hasHora = hora !== "" && hora !== "--:--" && hora !== "Por programar" && hora !== "---";
+        return hasFecha && hasHora;
       }
 
       function renderNavigation() {
@@ -892,21 +947,10 @@
 
           fixturesMap.forEach((meta) => {
             meta.data.forEach((x) => {
-              // Solo incluimos partidos que tengan fecha y hora asignada (distintos de los valores por defecto)
-              const isProgrammed =
-                x.fechaRealAsignadaText &&
-                x.fechaRealAsignadaText !== "Por Definir" &&
-                x.horaRealAsignada &&
-                x.horaRealAsignada !== "--:--";
-
-              if (
-                !x.isRest &&
-                x.local !== "DESCANSA" &&
-                x.visitor !== "DESCANSA" &&
-                isProgrammed
-              ) {
-                jornadasProgramadas.add(x.jornada);
-                counts[x.jornada] = (counts[x.jornada] || 0) + 1;
+              if (isMatchProgrammed(x)) {
+                const j = parseInt(x.jornada) || 1;
+                jornadasProgramadas.add(j);
+                counts[j] = (counts[j] || 0) + 1;
               }
             });
           });
@@ -931,7 +975,7 @@
                     <div class="jornada-card-elite" onclick="selectJornada(${j})">
                         <i class="fas fa-calendar-alt"></i>
                         <h5>Jornada ${j}</h5>
-                        <span class="match-count">${counts[j]} PARTIDOS LISTOS</span>
+                        <span class="match-count">${counts[j] || 0} PARTIDOS PROGRAMADOS</span>
                     </div>
                 </div>
             `,
@@ -945,7 +989,7 @@
       }
 
       function selectJornada(j) {
-        currentJornada = j;
+        currentJornada = parseInt(j) || 1;
         renderNavigation();
       }
 
@@ -988,11 +1032,10 @@
         let matches = [];
         fixturesMap.forEach((meta, fixId) => {
           meta.data.forEach((m) => {
+            const matchJornada = parseInt(m.jornada) || 1;
             if (
-              m.jornada === currentJornada &&
-              !m.isRest &&
-              m.local !== "DESCANSA" &&
-              m.visitor !== "DESCANSA"
+              matchJornada === currentJornada &&
+              isMatchProgrammed(m)
             ) {
               matches.push({ ...m, _cat: meta.category, _fixId: fixId });
             }
@@ -1001,14 +1044,10 @@
 
         const dayOrder = { Viernes: 1, Sábado: 2, Domingo: 3 };
         matches.sort((a, b) => {
-          if (
-            dayOrder[a.fechaRealAsignadaText] !==
-            dayOrder[b.fechaRealAsignadaText]
-          )
-            return (
-              dayOrder[a.fechaRealAsignadaText] -
-              dayOrder[b.fechaRealAsignadaText]
-            );
+          const dayA = a.fechaRealAsignadaText || "";
+          const dayB = b.fechaRealAsignadaText || "";
+          if (dayOrder[dayA] !== dayOrder[dayB])
+            return (dayOrder[dayA] || 99) - (dayOrder[dayB] || 99);
           return (a.horaRealAsignada || "99:99").localeCompare(
             b.horaRealAsignada || "99:99",
           );
@@ -1019,11 +1058,14 @@
           cardCol.className = "col";
           const localLogo = logosMap[m.local] || "img/logo.png";
           const visitorLogo = logosMap[m.visitor] || "img/logo.png";
+          const fechaDisplay = m.fechaRealAsignadaText || m.fechaReal || m.dia || m.date || "Por Definir";
+          const horaDisplay = m.horaRealAsignada || m.hora || "--:--";
+          const vocalDisplay = m.vocalAsignado || m.vocal || "Por Asignar";
 
           cardCol.innerHTML = `
-            <div class="jornada-card-elite h-100 d-flex flex-column justify-content-between p-4" onclick="openVocalActa('${m.matchId}', '${m.local.replace(/'/g, "\\'")}', '${m.visitor.replace(/'/g, "\\'")}')">
+            <div class="jornada-card-elite h-100 d-flex flex-column justify-content-between p-4" onclick="openVocalActa('${m._fixId}', '${m.matchId}', '${m.local.replace(/'/g, "\\'")}', '${m.visitor.replace(/'/g, "\\'")}')">
                 <div class="mb-3 text-center">
-                    <span class="badge bg-primary-glass mb-4 text-uppercase" style="font-size:0.5rem; letter-spacing:2px; opacity:0.7">${m._cat}</span>
+                    <span class="badge bg-primary-glass mb-4 text-uppercase" style="font-size:0.5rem; letter-spacing:2px; opacity:0.7">${m._cat || "MÁXIMA"}</span>
                     <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
                         <div style="flex:1">
                             <img src="${localLogo}" alt="Logo Local" class="mb-2" style="width:35px; height:35px; border-radius:50%; object-fit:cover; border:1px solid rgba(255,255,255,0.1)">
@@ -1039,17 +1081,17 @@
                 <div class="pt-3 border-top border-secondary border-opacity-25 text-center">
                     <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
                         <span class="text-white-50" style="font-size:0.85rem">
-                            <i class="far fa-calendar-alt me-1 text-primary-glow" style="font-size:1rem"></i> ${m.fechaRealAsignadaText}
+                            <i class="far fa-calendar-alt me-1 text-primary-glow" style="font-size:1rem"></i> ${fechaDisplay}
                         </span>
                         <span class="mx-1 opacity-10">|</span>
                         <span class="text-white-50" style="font-size:0.85rem">
-                            <i class="far fa-clock me-1 text-primary-glow" style="font-size:1rem"></i> ${m.horaRealAsignada}
+                            <i class="far fa-clock me-1 text-primary-glow" style="font-size:1rem"></i> ${horaDisplay}
                         </span>
                     </div>
                     <div class="d-inline-flex flex-column align-items-center gap-2">
                         ${m.billingLocal || m.billingVisitor ? '<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 mb-1" style="font-size:0.55rem">FACTURADO</span>' : ""}
                         <div style="font-size:0.75rem; color:#f1c40f; line-height:1.1">
-                            <span class="text-white-50" style="font-size:0.6rem; letter-spacing:1px; opacity:0.8">VOCAL:</span> ${m.vocalAsignado}
+                            <span class="text-white-50" style="font-size:0.6rem; letter-spacing:1px; opacity:0.8">VOCAL:</span> ${vocalDisplay}
                         </div>
                     </div>
                 </div>
@@ -1059,22 +1101,68 @@
         });
       }
 
-      window.openVocalActa = function (matchId, local, visitor) {
+      window.openVocalActa = function (fixIdOrMatchId, matchIdOrLocal, localOrVisitor, visitorOpt) {
+        let fixId = null, matchId = null, local = null, visitor = null;
+        if (visitorOpt !== undefined) {
+          fixId = fixIdOrMatchId;
+          matchId = matchIdOrLocal;
+          local = localOrVisitor;
+          visitor = visitorOpt;
+        } else {
+          matchId = fixIdOrMatchId;
+          local = matchIdOrLocal;
+          visitor = localOrVisitor;
+        }
+
         // Encontrar el partido en el mapa global para tener datos frescos
         let match = null;
-        for (let [fixId, meta] of fixturesMap) {
-          // Intentar por ID primero, luego por nombres de equipos (fallback infalible)
+        if (fixId && fixturesMap.has(fixId)) {
+          const meta = fixturesMap.get(fixId);
           const found = meta.data.find(
             (m) =>
-              (m.matchId === matchId && m.matchId !== "undefined") ||
+              (matchId && m.matchId && m.matchId === matchId && m.matchId !== "undefined") ||
               (m.local === local && m.visitor === visitor),
           );
           if (found) {
             match = { ...found, _cat: meta.category, _fixId: fixId };
-            break;
+          }
+        }
+
+        if (!match) {
+          for (let [fId, meta] of fixturesMap) {
+            const found = meta.data.find(
+              (m) =>
+                (matchId && m.matchId && m.matchId === matchId && m.matchId !== "undefined") ||
+                (m.local === local && m.visitor === visitor),
+            );
+            if (found) {
+              match = { ...found, _cat: meta.category, _fixId: fId };
+              break;
+            }
           }
         }
         if (!match) return;
+
+        // Garantizar normalización de campos obligatorios en el objeto del partido abierto
+        if (match.jornada === undefined || match.jornada === null || isNaN(match.jornada)) {
+          const rawJ = parseInt(String(match.fecha || match.round || currentJornada || "1").replace(/\D/g, ""));
+          match.jornada = !isNaN(rawJ) && rawJ > 0 ? rawJ : 1;
+        } else {
+          match.jornada = parseInt(match.jornada) || 1;
+        }
+        if (!match.fechaRealAsignadaText) {
+          match.fechaRealAsignadaText = match.fechaReal || match.dia || match.date || match.fecha || "Por Definir";
+        }
+        if (!match.horaRealAsignada) {
+          match.horaRealAsignada = match.hora || "--:--";
+        }
+        if (!match.vocalAsignado) {
+          match.vocalAsignado = match.vocal || "Por Asignar";
+        }
+        if (!match.veedorAsignado) {
+          match.veedorAsignado = match.veedor || "Por Asignar";
+        }
+
         window.currentMatchOpened = match; // Guardar referencia para actualizaciones en vivo
 
         const modalBody = document.getElementById("modalVocalBody");
@@ -1090,6 +1178,10 @@
           document.getElementById("vocaliaModal"),
         );
         modal.show();
+
+        if (typeof window.initMatchStopwatch === "function") {
+          window.initMatchStopwatch(match);
+        }
 
         // Precarga en segundo plano para apertura inmediata (<10ms) de carnets y cédulas
         const campSelect = document.getElementById("campSelect");
@@ -1107,25 +1199,94 @@
 
       function renderActaInterior(m) {
         const body = document.getElementById("modalVocalBody");
+        const ls = m.liveStatus || {};
+        const scoreL = ls.scoreLocal !== undefined ? ls.scoreLocal : (parseInt(m.vocalReport?.totalGolesLocal) || 0);
+        const scoreV = ls.scoreVisitor !== undefined ? ls.scoreVisitor : (parseInt(m.vocalReport?.totalGolesVisitor) || 0);
+
+        const fechaJuegoDisplay = m.fechaRealAsignadaText || m.fechaReal || m.dia || m.date || m.fecha || "Por Definir";
+        const horaJuegoDisplay = m.horaRealAsignada || m.hora || "Por programar";
+        const jornadaNumDisplay = parseInt(m.jornada) || 1;
+        const vocalDisplay = m.vocalAsignado || m.vocal || "Por Asignar";
+        const veedorDisplay = m.veedorAsignado || m.veedor || "Por Asignar";
+
         body.innerHTML = `
             <div class="acta-container p-2" style="max-height: 75vh; overflow-y: auto; overflow-x: hidden;">
+                <!-- LIVE MATCH HUD & CRONÓMETRO DIGITAL -->
+                <div class="glass-panel p-3 mb-3 rounded-4 shadow-lg position-relative overflow-hidden" 
+                     style="background: linear-gradient(135deg, rgba(15, 23, 18, 0.95), rgba(10, 15, 25, 0.95)); border: 2px solid #2ecc71; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
+                    <div class="row align-items-center g-2 text-center">
+                        <!-- Local -->
+                        <div class="col-4 text-start ps-3">
+                            <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-2.5 py-1 rounded-pill small fw-bold mb-1">
+                                <i class="fas fa-shield-alt me-1"></i> LOCAL
+                            </span>
+                            <h4 class="text-primary-glow mb-0 text-uppercase fw-bold text-truncate" title="${m.local}">${m.local}</h4>
+                        </div>
+
+                        <!-- Marcador y Reloj Central -->
+                        <div class="col-4">
+                            <div class="d-flex justify-content-center align-items-center gap-3">
+                                <span id="hudScoreLocal" class="display-6 fw-bold text-white font-monospace" style="text-shadow: 0 0 15px rgba(46,204,113,0.7);">${scoreL}</span>
+                                <span class="fs-3 text-warning fw-bold">:</span>
+                                <span id="hudScoreVisitor" class="display-6 fw-bold text-white font-monospace" style="text-shadow: 0 0 15px rgba(52,152,219,0.7);">${scoreV}</span>
+                            </div>
+
+                            <!-- Cronómetro Digital -->
+                            <div class="d-flex justify-content-center align-items-center gap-2 mt-1">
+                                <span class="badge bg-danger rounded-pill px-2 py-0.5 small fw-bold animate__animated animate__pulse animate__infinite" id="hudLiveDot" style="display:none; font-size:0.65rem;">
+                                    <i class="fas fa-circle me-1"></i> EN VIVO
+                                </span>
+                                <span id="hudStopwatchDisplay" class="fs-4 fw-bold font-monospace text-warning px-3 py-0.5 rounded-3 shadow-sm" 
+                                      style="background: rgba(0,0,0,0.7); border: 1px solid rgba(255,193,7,0.4); letter-spacing: 2px;">
+                                    00:00
+                                </span>
+                                <span class="badge bg-dark border border-secondary text-white-50 px-2 py-1" id="hudPeriodDisplay">1T</span>
+                            </div>
+
+                            <!-- Controles Rápidos del Cronómetro -->
+                            <div class="d-flex justify-content-center align-items-center gap-1 mt-2 flex-wrap">
+                                <button type="button" class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold shadow" id="btnTimerStart" onclick="window.toggleStopwatch()">
+                                    <i class="fas fa-play me-1"></i> Iniciar
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-2.5 py-1 fw-bold" id="btnPeriodControl" onclick="window.switchStopwatchPeriod()">
+                                    <i class="fas fa-forward me-1"></i> <span id="btnPeriodText">Fin 1T</span>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1" title="Añadir +1 min" onclick="window.addStopwatchExtra(1)">
+                                    +1'
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1" title="Reiniciar reloj" onclick="window.resetStopwatch()">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Visitante -->
+                        <div class="col-4 text-end pe-3">
+                            <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-50 px-2.5 py-1 rounded-pill small fw-bold mb-1">
+                                <i class="fas fa-shield-alt me-1"></i> VISITANTE
+                            </span>
+                            <h4 class="text-info mb-0 text-uppercase fw-bold text-truncate" title="${m.visitor}">${m.visitor}</h4>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Detalles de Cabecera -->
                 <div class="row g-2 mb-4 align-items-center bg-dark p-3 rounded" style="border: 1px solid rgba(255,255,255,0.1)">
                    <div class="col-md-3">
                        <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Cancha</div>
-                       <div class="fw-bold text-white" style="font-size:0.9rem">Liga Barrial Argelia Alta</div>
+                       <div class="fw-bold text-white" style="font-size:0.9rem">${m.cancha || "Liga Barrial Argelia Alta"}</div>
                    </div>
                    <div class="col-md-3">
                        <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Fecha de juego</div>
-                       <div class="fw-bold text-white" style="font-size:0.9rem">${m.fechaRealAsignadaText || "---"}</div>
+                       <div class="fw-bold text-white" style="font-size:0.9rem">${fechaJuegoDisplay}</div>
                    </div>
                    <div class="col-md-3">
                        <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Jornada / Hora</div>
-                       <div class="fw-bold text-white" style="font-size:0.9rem">Jornada ${m.jornada} | ${m.horaRealAsignada || "---"}</div>
+                       <div class="fw-bold text-white" style="font-size:0.9rem">Jornada ${jornadaNumDisplay} | ${horaJuegoDisplay}</div>
                    </div>
                    <div class="col-md-3">
                        <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Categoría</div>
-                       <div class="fw-bold text-warning" style="font-size:0.9rem">${m._cat}</div>
+                       <div class="fw-bold text-warning text-uppercase" style="font-size:0.9rem">${m._cat || "MÁXIMA"}</div>
                    </div>
                    ${
                      m.isFinalized
@@ -1140,11 +1301,11 @@
                    }
                    <div class="col-md-6 mt-3">
                        <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Vocal</div>
-                       <div class="fw-bold text-info" style="font-size:0.9rem">${m.vocalAsignado || "---"}</div>
+                       <div class="fw-bold text-info" style="font-size:0.9rem">${vocalDisplay}</div>
                    </div>
                    <div class="col-md-6 mt-3">
                        <div class="small text-white-50 text-uppercase" style="font-size:0.7rem">Veedor</div>
-                       <div class="fw-bold text-white" style="font-size:0.9rem">${m.veedorAsignado || "---"}</div>
+                       <div class="fw-bold text-white" style="font-size:0.9rem">${veedorDisplay}</div>
                    </div>
                 </div>
 
@@ -2010,6 +2171,293 @@
       }
 
       // ==========================================
+      // CRONÓMETRO DIGITAL Y SINCRONIZACIÓN EN VIVO
+      // ==========================================
+      let stopwatchSeconds = 0;
+      let stopwatchInterval = null;
+      let isStopwatchRunning = false;
+      let currentStopwatchPeriod = "1T"; // "1T", "Descanso", "2T", "Finalizado"
+
+      window.initMatchStopwatch = function (m) {
+        if (stopwatchInterval) {
+          clearInterval(stopwatchInterval);
+          stopwatchInterval = null;
+        }
+        if (m && m.liveStatus) {
+          stopwatchSeconds = parseInt(m.liveStatus.seconds) || 0;
+          currentStopwatchPeriod = m.liveStatus.period || "1T";
+          isStopwatchRunning = false;
+        } else {
+          stopwatchSeconds = 0;
+          currentStopwatchPeriod = "1T";
+          isStopwatchRunning = false;
+        }
+        window.updateStopwatchUI();
+      };
+
+      window.toggleStopwatch = function () {
+        if (!isStopwatchRunning) {
+          // Si estamos en Descanso y se da Iniciar, pasar automáticamente a 2T con base de 40 min
+          if (currentStopwatchPeriod === "Descanso") {
+            currentStopwatchPeriod = "2T";
+            if (stopwatchSeconds < 2400) stopwatchSeconds = 2400;
+          }
+          isStopwatchRunning = true;
+          if (stopwatchInterval) clearInterval(stopwatchInterval);
+          stopwatchInterval = setInterval(() => {
+            stopwatchSeconds++;
+            window.updateStopwatchUI();
+            if (stopwatchSeconds % 15 === 0) {
+              window.syncLiveMatchToFirestore();
+            }
+          }, 1000);
+        } else {
+          isStopwatchRunning = false;
+          if (stopwatchInterval) {
+            clearInterval(stopwatchInterval);
+            stopwatchInterval = null;
+          }
+        }
+        window.updateStopwatchUI();
+        window.syncLiveMatchToFirestore();
+      };
+
+      window.switchStopwatchPeriod = function () {
+        if (currentStopwatchPeriod === "1T") {
+          currentStopwatchPeriod = "Descanso";
+          isStopwatchRunning = false;
+          if (stopwatchInterval) {
+            clearInterval(stopwatchInterval);
+            stopwatchInterval = null;
+          }
+          Swal.fire({
+            icon: "info",
+            title: "Fin del Primer Tiempo",
+            text: "El partido se encuentra en descanso (Entretiempo).",
+            timer: 2000,
+            showConfirmButton: false,
+            background: "#121212",
+            color: "#ffffff"
+          });
+        } else if (currentStopwatchPeriod === "Descanso") {
+          currentStopwatchPeriod = "2T";
+          if (stopwatchSeconds < 2400) stopwatchSeconds = 2400; // 40 min base (2400 seg)
+          isStopwatchRunning = true;
+          if (stopwatchInterval) clearInterval(stopwatchInterval);
+          stopwatchInterval = setInterval(() => {
+            stopwatchSeconds++;
+            window.updateStopwatchUI();
+            if (stopwatchSeconds % 15 === 0) {
+              window.syncLiveMatchToFirestore();
+            }
+          }, 1000);
+          Swal.fire({
+            icon: "success",
+            title: "Segundo Tiempo Iniciado",
+            text: "Cronómetro corriendo a partir del minuto 40.",
+            timer: 1800,
+            showConfirmButton: false,
+            background: "#121212",
+            color: "#ffffff"
+          });
+        } else if (currentStopwatchPeriod === "2T") {
+          currentStopwatchPeriod = "Finalizado";
+          isStopwatchRunning = false;
+          if (stopwatchInterval) {
+            clearInterval(stopwatchInterval);
+            stopwatchInterval = null;
+          }
+          Swal.fire({
+            icon: "success",
+            title: "Fin del Partido",
+            text: "Tiempo reglamentario cumplido.",
+            timer: 2000,
+            showConfirmButton: false,
+            background: "#121212",
+            color: "#ffffff"
+          });
+        } else {
+          currentStopwatchPeriod = "1T";
+          stopwatchSeconds = 0;
+          isStopwatchRunning = false;
+          if (stopwatchInterval) {
+            clearInterval(stopwatchInterval);
+            stopwatchInterval = null;
+          }
+        }
+        window.updateStopwatchUI();
+        window.syncLiveMatchToFirestore();
+      };
+
+      window.addStopwatchExtra = function (mins) {
+        stopwatchSeconds += (mins || 1) * 60;
+        if (stopwatchSeconds < 0) stopwatchSeconds = 0;
+        window.updateStopwatchUI();
+        window.syncLiveMatchToFirestore();
+      };
+
+      window.resetStopwatch = function () {
+        Swal.fire({
+          title: "¿Reiniciar Cronómetro?",
+          text: "El reloj de partido volverá a 00:00 y al Primer Tiempo (1T).",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Sí, reiniciar",
+          cancelButtonText: "Cancelar",
+          background: "#121212",
+          color: "#ffffff"
+        }).then((res) => {
+          if (res.isConfirmed) {
+            if (stopwatchInterval) {
+              clearInterval(stopwatchInterval);
+              stopwatchInterval = null;
+            }
+            stopwatchSeconds = 0;
+            isStopwatchRunning = false;
+            currentStopwatchPeriod = "1T";
+            window.updateStopwatchUI();
+            window.syncLiveMatchToFirestore();
+          }
+        });
+      };
+
+      window.updateStopwatchUI = function () {
+        const display = document.getElementById("hudStopwatchDisplay");
+        const period = document.getElementById("hudPeriodDisplay");
+        const btnPeriod = document.getElementById("btnPeriodText");
+        const btn = document.getElementById("btnTimerStart");
+        const liveDot = document.getElementById("hudLiveDot");
+
+        if (display) {
+          const m = Math.floor(stopwatchSeconds / 60);
+          const s = stopwatchSeconds % 60;
+          display.textContent = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+        }
+        if (period) {
+          period.textContent = currentStopwatchPeriod === "Descanso" ? "DESCANSO" : currentStopwatchPeriod;
+        }
+        if (btnPeriod) {
+          btnPeriod.textContent =
+            currentStopwatchPeriod === "1T"
+              ? "Fin 1T"
+              : currentStopwatchPeriod === "Descanso"
+                ? "Iniciar 2T"
+                : currentStopwatchPeriod === "2T"
+                  ? "Fin 2T"
+                  : "Reiniciar";
+        }
+        if (btn) {
+          if (isStopwatchRunning) {
+            btn.className = "btn btn-sm btn-danger rounded-pill px-3 py-1 fw-bold shadow";
+            btn.innerHTML = '<i class="fas fa-pause me-1"></i> Pausar';
+            if (liveDot) liveDot.style.display = "inline-flex";
+          } else {
+            btn.className = "btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold shadow";
+            if (currentStopwatchPeriod === "Descanso") {
+              btn.innerHTML = '<i class="fas fa-play me-1"></i> Iniciar 2T';
+            } else {
+              btn.innerHTML = `<i class="fas fa-play me-1"></i> ${stopwatchSeconds > 0 ? "Continuar" : "Iniciar"}`;
+            }
+            if (liveDot) liveDot.style.display = "none";
+          }
+        }
+      };
+
+      window.getCurrentMatchMinute = function () {
+        if (stopwatchSeconds <= 0) return "1'";
+        const m = Math.floor(stopwatchSeconds / 60) + 1;
+        return `${m}'`;
+      };
+
+      window.syncLiveMatchToFirestore = async function () {
+        if (!window.currentMatchOpened || !window.currentMatchOpened._fixId) return;
+        const fixId = window.currentMatchOpened._fixId;
+        const matchId = window.currentMatchOpened.matchId;
+
+        const scoreL = parseInt(document.getElementById("totalGolesLocal")?.value || 0);
+        const scoreV = parseInt(document.getElementById("totalGolesVisitante")?.value || 0);
+
+        const hudL = document.getElementById("hudScoreLocal");
+        const hudV = document.getElementById("hudScoreVisitor");
+        if (hudL) hudL.textContent = scoreL;
+        if (hudV) hudV.textContent = scoreV;
+
+        const curMin = window.getCurrentMatchMinute();
+        const events = [];
+        const collectEvents = (tbodyId, teamName, isLocal) => {
+          const tbody = document.getElementById(tbodyId);
+          if (!tbody) return;
+          tbody.querySelectorAll("tr").forEach((tr) => {
+            const inputs = tr.querySelectorAll("input");
+            const num = inputs[0]?.value.trim();
+            const name = inputs[1]?.value.trim();
+            if (!name || name === "Seleccionar..." || name === "Seleccionar Entra...") return;
+            const goals = parseInt(inputs[inputs.length - 1]?.value || 0);
+            const yellowSlot = tr.querySelector(".yellow-slot");
+            const redSlot = tr.querySelector(".red-slot");
+            const taCount = yellowSlot ? yellowSlot.querySelectorAll(".yellow-rect").length : 0;
+            const trCount = redSlot ? redSlot.querySelectorAll(".red-rect").length : 0;
+
+            if (goals > 0) {
+              events.push({ type: "GOL", team: teamName, player: `#${num} ${name}`, count: goals, minute: curMin, period: currentStopwatchPeriod, isLocal });
+            }
+            if (taCount > 0) {
+              events.push({ type: "AMARILLA", team: teamName, player: `#${num} ${name}`, count: taCount, minute: curMin, period: currentStopwatchPeriod, isLocal });
+            }
+            if (trCount > 0) {
+              events.push({ type: "ROJA", team: teamName, player: `#${num} ${name}`, minute: curMin, period: currentStopwatchPeriod, isLocal });
+            }
+
+            // Cambios
+            if (inputs.length >= 3 && inputs[2]?.value.trim() && inputs[2]?.value.trim() !== "#") {
+              const saleNum = inputs[2].value.trim();
+              events.push({ type: "CAMBIO", team: teamName, player: `Entra #${num} ${name} por #${saleNum}`, minute: curMin, period: currentStopwatchPeriod, isLocal });
+            }
+          });
+        };
+
+        collectEvents("listaJugadoresLocal", window.currentMatchOpened.local, true);
+        collectEvents("listaJugadoresVisitante", window.currentMatchOpened.visitor, false);
+        collectEvents("listaCambiosLocal", window.currentMatchOpened.local, true);
+        collectEvents("listaCambiosVisitante", window.currentMatchOpened.visitor, false);
+
+        const liveStatus = {
+          isLive: isStopwatchRunning,
+          period: currentStopwatchPeriod,
+          seconds: stopwatchSeconds,
+          minute: curMin,
+          scoreLocal: scoreL,
+          scoreVisitor: scoreV,
+          events: events,
+          lastUpdate: new Date().toISOString()
+        };
+
+        try {
+          const docRef = db.collection("fixtures").doc(fixId);
+          const doc = await docRef.get();
+          if (doc.exists) {
+            const fData = doc.data();
+            const updatedMatches = fData.data.map((m) => {
+              if (
+                (m.matchId === matchId && m.matchId !== "undefined") ||
+                (m.local === window.currentMatchOpened.local &&
+                  m.visitor === window.currentMatchOpened.visitor)
+              ) {
+                return {
+                  ...m,
+                  liveStatus: liveStatus
+                };
+              }
+              return m;
+            });
+            await docRef.update({ data: updatedMatches });
+          }
+        } catch (err) {
+          console.warn("Sync live status error:", err);
+        }
+      };
+
+      // ==========================================
       // MOTOR DE DISCIPLINA Y SANCIONES ANTIFRAUDE (OPTIMIZADO)
       // ==========================================
       let sanctionedPlayersMap = new Map();
@@ -2861,6 +3309,7 @@
               inputs[currentIndex - 1].value = number;
             }
           }
+          window.syncLiveMatchToFirestore();
         }
 
         // Si es un cambio (sustitución), pasar AUTOMÁTICAMENTE al paso 2: seleccionar jugador que SALE
@@ -3012,6 +3461,7 @@
           if (inputs.length >= 3) {
             inputs[2].value = saleNum;
           }
+          window.syncLiveMatchToFirestore();
         }
 
         const enteringText = currentEnteringPlayer
@@ -3138,7 +3588,7 @@
         // Sumar goles de titulares
         document
           .getElementById(rosterTbody)
-          .querySelectorAll("input[type='number']")
+          ?.querySelectorAll("input[type='number']")
           .forEach((input) => {
             total += parseInt(input.value) || 0;
           });
@@ -3153,7 +3603,15 @@
             });
         }
 
-        document.getElementById(totalInput).value = total;
+        const totEl = document.getElementById(totalInput);
+        if (totEl) totEl.value = total;
+
+        const hudL = document.getElementById("hudScoreLocal");
+        const hudV = document.getElementById("hudScoreVisitor");
+        if (team === "local" && hudL) hudL.textContent = total;
+        if (team === "visitor" && hudV) hudV.textContent = total;
+
+        window.syncLiveMatchToFirestore();
       };
 
       window.toggleCard = function (cell, color) {
@@ -3181,6 +3639,7 @@
               redSlot.innerHTML =
                 '<div class="card-rect red-rect animate__animated animate__shakeX"></div>';
               window.syncVocalReport(); // Re-sincronizar para captar la roja nueva
+              window.syncLiveMatchToFirestore();
             }, 400);
           } else {
             // Reset yellow
@@ -3196,8 +3655,9 @@
           }
         }
 
-        // Sincronizar automáticamente con el Reporte del Vocal
+        // Sincronizar automáticamente con el Reporte del Vocal y En Vivo
         window.syncVocalReport();
+        window.syncLiveMatchToFirestore();
       };
 
       window.syncVocalReport = function () {
@@ -3839,6 +4299,8 @@
               (m.local === window.currentMatchOpened.local &&
                 m.visitor === window.currentMatchOpened.visitor)
             ) {
+              const finalScoreL = playersLocal.reduce((acc, p) => acc + (parseInt(p.goles) || 0), 0);
+              const finalScoreV = playersVisitor.reduce((acc, p) => acc + (parseInt(p.goles) || 0), 0);
               return {
                 ...m,
                 isFinalized: true,
@@ -3849,6 +4311,16 @@
                 vocalReport,
                 refereeReport,
                 vedorReport,
+                liveStatus: {
+                  ...(m.liveStatus || {}),
+                  isLive: false,
+                  period: "Finalizado",
+                  seconds: stopwatchSeconds,
+                  minute: "Final",
+                  scoreLocal: finalScoreL,
+                  scoreVisitor: finalScoreV,
+                  lastUpdate: new Date().toISOString()
+                },
                 lastUpdated: new Date(),
               };
             }

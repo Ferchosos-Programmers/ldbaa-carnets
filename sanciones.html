@@ -850,7 +850,33 @@
           .onSnapshot(
             (snapshot) => {
               snapshot.forEach((doc) => {
-                fixturesMap.set(doc.id, doc.data());
+                const docData = doc.data();
+                if (docData && Array.isArray(docData.data)) {
+                  docData.data.forEach((m, idx) => {
+                    if (!m.matchId || m.matchId === "undefined") {
+                      m.matchId = `${doc.id}_${idx}_${(m.local || "").replace(/\s+/g, "")}_${(m.visitor || "").replace(/\s+/g, "")}`;
+                    }
+                    if (m.jornada === undefined || m.jornada === null || isNaN(m.jornada)) {
+                      const rawNum = parseInt(String(m.fecha || m.round || m.etiqueta || "").replace(/\D/g, ""));
+                      m.jornada = !isNaN(rawNum) && rawNum > 0 ? rawNum : 1;
+                    } else {
+                      m.jornada = parseInt(m.jornada) || 1;
+                    }
+                    if (!m.fechaRealAsignadaText) {
+                      m.fechaRealAsignadaText = m.fechaReal || m.dia || m.date || m.fecha || "Por Definir";
+                    }
+                    if (!m.horaRealAsignada) {
+                      m.horaRealAsignada = m.hora || "--:--";
+                    }
+                    if (!m.vocalAsignado) {
+                      m.vocalAsignado = m.vocal || "Por Asignar";
+                    }
+                    if (!m.veedorAsignado) {
+                      m.veedorAsignado = m.veedor || "Por Asignar";
+                    }
+                  });
+                }
+                fixturesMap.set(doc.id, docData);
               });
               // Si estamos en la vista de vocalizaciones, refrescar
               if (
@@ -887,6 +913,15 @@
         cargarVocalizaciones();
       }
 
+      function isMatchProgrammed(m) {
+        if (!m || m.isRest || m.local === "DESCANSA" || m.visitor === "DESCANSA") return false;
+        const fecha = (m.fechaRealAsignadaText || m.fechaReal || m.dia || m.date || "").trim();
+        const hora = (m.horaRealAsignada || m.hora || "").trim();
+        const hasFecha = fecha !== "" && fecha !== "Por Definir" && fecha !== "---";
+        const hasHora = hora !== "" && hora !== "--:--" && hora !== "Por programar" && hora !== "---";
+        return hasFecha && hasHora;
+      }
+
       function cargarVocalizaciones() {
         const jornadasLista = document.getElementById("jornadasLista");
 
@@ -902,20 +937,10 @@
 
         fixturesMap.forEach((meta) => {
           meta.data.forEach((x) => {
-            const isProgrammed =
-              x.fechaRealAsignadaText &&
-              x.fechaRealAsignadaText !== "Por Definir" &&
-              x.horaRealAsignada &&
-              x.horaRealAsignada !== "--:--";
-
-            if (
-              !x.isRest &&
-              x.local !== "DESCANSA" &&
-              x.visitor !== "DESCANSA" &&
-              isProgrammed
-            ) {
-              jornadasProgramadas.add(x.jornada);
-              counts[x.jornada] = (counts[x.jornada] || 0) + 1;
+            if (isMatchProgrammed(x)) {
+              const j = parseInt(x.jornada) || 1;
+              jornadasProgramadas.add(j);
+              counts[j] = (counts[j] || 0) + 1;
             }
           });
         });
@@ -939,7 +964,7 @@
               <div class="jornada-card-elite" onclick="mostrarPartidosJornada(${j})">
                 <i class="fas fa-calendar-alt"></i>
                 <h5 class="text-white">Jornada ${j}</h5>
-                <span class="match-count">${counts[j]} PARTIDOS LISTOS</span>
+                <span class="match-count">${counts[j]} PARTIDOS PROGRAMADOS</span>
               </div>
             </div>
           `,
@@ -972,11 +997,10 @@
         let matches = [];
         fixturesMap.forEach((meta, fixId) => {
           meta.data.forEach((m) => {
+            const matchJornada = parseInt(m.jornada) || 1;
             if (
-              m.jornada === jornada &&
-              !m.isRest &&
-              m.local !== "DESCANSA" &&
-              m.visitor !== "DESCANSA"
+              matchJornada === jornada &&
+              isMatchProgrammed(m)
             ) {
               matches.push({ ...m, _cat: meta.category, _fixId: fixId });
             }
