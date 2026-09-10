@@ -1760,12 +1760,12 @@
                   style="max-width: 400px; margin: 0 auto;">
                   <div class="d-flex justify-content-between align-items-center px-2">
                     <span class="text-white-50 small text-uppercase fw-bold">Precio Unitario</span>
-                    <span class="text-white fw-900 fs-5">$ 0.50</span>
+                    <span class="text-white fw-900 fs-5">$ 1.00</span>
                   </div>
                   <div
                     class="d-flex justify-content-between align-items-center mt-3 px-2 border-top border-white border-opacity-5 pt-3">
                     <span class="text-white-50 small text-uppercase fw-bold">Total a Pagar</span>
-                    <span class="text-primary-glow fs-2 fw-900" id="cp-total-display">$ 0.50</span>
+                    <span class="text-primary-glow fs-2 fw-900" id="cp-total-display">$ 1.00</span>
                   </div>
                 </div>
 
@@ -3426,7 +3426,7 @@
         data.forEach(p => {
           const qty = parseInt(p.quantity) || 1;
           totalPases += qty;
-          const val = parseFloat(p.totalValue) || (qty * 0.50);
+          const val = parseFloat(p.totalValue) || (qty * 1.00);
           totalRevenue += val;
         });
 
@@ -3711,7 +3711,7 @@
 
       function updateCPTotal() {
         const qty = parseInt(document.getElementById('cp-quantity').value) || 1;
-        const total = qty * 0.50;
+        const total = qty * 1.00;
         document.getElementById('cp-total-display').textContent = `$ ${total.toFixed(2)}`;
       }
 
@@ -3748,7 +3748,7 @@
         const teamId = cartasPaseData.teamId;
         const teamName = cartasPaseData.teamName || "Equipo";
         const quantity = cartasPaseData.quantity || 1;
-        const totalValue = parseFloat(cartasPaseData.totalValue || (quantity * 0.5));
+        const totalValue = parseFloat(cartasPaseData.totalValue || (quantity * 1.00));
         const startSeq = cartasPaseData.startSeq;
         const endSeq = cartasPaseData.endSeq;
         const championshipId = cartasPaseData.championshipId || "";
@@ -3780,14 +3780,14 @@
           quantity,
           startSeq: startSeq || null,
           endSeq: endSeq || null,
-          concept: `Cartas Pases (${quantity} uds. × $0.50)`,
+          concept: `Cartas Pases (${quantity} uds. × $1.00)`,
           can: 0,
           arb: 0,
           cem: 0,
           ta: { count: 0, val: 0, players: [] },
           tr: { count: 0, val: 0, players: [] },
           extras: [{
-            desc: `Cartas Pases (${quantity} uds. × $0.50)${seqRange}`,
+            desc: `Cartas Pases (${quantity} uds. × $1.00)${seqRange}`,
             val: totalValue
           }]
         };
@@ -3857,7 +3857,7 @@
         const teamId = cpSelectedTeam.id;
         const teamName = cpSelectedTeam.name;
         const quantity = parseInt(document.getElementById('cp-quantity').value) || 1;
-        const totalValue = quantity * 0.50;
+        const totalValue = quantity * 1.00;
 
         const confirm = await Swal.fire({
           title: '¿Confirmar adquisición?',
@@ -3909,7 +3909,7 @@
               startSeq: startSeq,
               endSeq: endSeq,
               seqNum: endSeq,
-              value: 0.50,
+              value: 1.00,
               totalValue: totalValue,
               status: 'completed',
               createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -6773,7 +6773,7 @@ var fecTxt = inv._dateObj
         if (inv.concept) return inv.concept;
         if (inv.source === "cartas_pases") {
           const qty = inv.quantity || 1;
-          return `Cartas Pases (${qty} uds. × $0.50)`;
+          return `Cartas Pases (${qty} uds. × $1.00)`;
         }
         if (inv.opponent) return `Cobro de Partido vs ${inv.opponent}`;
         if (inv.extras && inv.extras.length > 0) return inv.extras[0].desc;

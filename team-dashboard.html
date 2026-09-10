@@ -1518,7 +1518,7 @@
         if (inv.concept) return inv.concept;
         if (inv.source === "cartas_pases") {
           const qty = inv.quantity || 1;
-          return `Cartas Pases (${qty} uds. × $0.50)`;
+          return `Cartas Pases (${qty} uds. × $1.00)`;
         }
         if (inv.opponent) return `Cobro de Partido vs ${inv.opponent}`;
         if (inv.extras && inv.extras.length > 0) return inv.extras[0].desc;
@@ -1643,7 +1643,7 @@
                 badge = '<span class="badge-premium bg-unpaid" style="color: #e74c3c; border-color: rgba(231, 76, 60, 0.3); background: rgba(231, 76, 60, 0.1);">RECHAZADO</span>';
             }
 
-            const totalValueFormatted = cp.totalValue ? `$ ${parseFloat(cp.totalValue).toFixed(2)}` : `$ ${(cp.quantity * 0.5).toFixed(2)}`;
+            const totalValueFormatted = cp.totalValue ? `$ ${parseFloat(cp.totalValue).toFixed(2)}` : `$ ${(cp.quantity * 1.00).toFixed(2)}`;
             let prefix = '001';
             if (isApproved && cp.invoiceId) {
               const parts = cp.invoiceId.split('-');
@@ -2505,7 +2505,7 @@
       window.solicitarCartasPasesModal = async function() {
         const { value: quantity } = await Swal.fire({
           title: 'Solicitar Cartas Pases',
-          text: '¿Cuántas cartas pases deseas solicitar? (Valor unitario: $0.50)',
+          text: '¿Cuántas cartas pases deseas solicitar? (Valor unitario: $1.00)',
           input: 'number',
           inputAttributes: {
             min: 1,
@@ -2533,7 +2533,7 @@
 
         if (!quantity) return;
 
-        const totalValue = quantity * 0.50;
+        const totalValue = quantity * 1.00;
 
         // Mostrar detalles de transferencia, cuenta bancaria, código QR de pago, y pedir comprobante
         const { value: fileData } = await Swal.fire({
@@ -2547,13 +2547,15 @@
               </div>
               <div class="p-3 mb-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
                 <p class="mb-1 fw-bold text-warning small"><i class="fas fa-university me-2"></i>Datos de Cuenta:</p>
-                <p class="mb-1 small">Banco Pichincha (Ahorros)</p>
-                <p class="mb-1 small">Nº Cuenta: 2204567891</p>
-                <p class="mb-0 small">Titular: Tesorería LDBAA</p>
+                <p class="mb-1 small"><b>Banco:</b> Banco Pichincha</p>
+                <p class="mb-1 small"><b>Tipo de Cuenta:</b> Cuenta de Ahorro Transaccional</p>
+                <p class="mb-1 small"><b>Nº Cuenta:</b> 2215760735</p>
+                <p class="mb-0 small"><b>Titular:</b> Jessica Silvana Quishpe Chicaiza</p>
               </div>
               <div class="text-center mb-3">
-                <p class="mb-2 small text-white-50">Escanea este código QR desde tu app bancaria:</p>
-                <img src="img/qr-pago.png" alt="Código QR de Pago" class="img-fluid rounded border border-white border-opacity-10 p-2 bg-white" style="max-height: 160px;" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=Transferencia%20LDBAA%20Total%20'+${totalValue}">
+                <p class="mb-2 small text-white-50"><i class="fas fa-qrcode text-success me-1"></i> Escanea este código QR desde tu app bancaria o DeUna:</p>
+                <img src="img/qr-pago-deuna.png" alt="Código QR de Pago DeUna" class="img-fluid rounded border border-white border-opacity-10 p-2 bg-white shadow" style="max-height: 200px;" onerror="this.src='img/qr-pago.png'">
+                <p class="small text-white-50 mt-1 mb-0 fw-bold">Jessica Silvana Quishpe Chicaiza</p>
               </div>
               <label class="form-label text-white-50 small mt-2">Sube el comprobante de pago (Imagen o PDF):</label>
             </div>
@@ -2599,7 +2601,7 @@
                 teamId: currentTeam.id,
                 teamName: currentTeam.name,
                 quantity: quantity,
-                value: 0.50,
+                value: 1.00,
                 totalValue: totalValue,
                 status: 'pending',
                 comprobante: e.target.result, // Base64 del comprobante de pago
