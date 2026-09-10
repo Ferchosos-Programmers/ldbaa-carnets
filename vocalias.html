@@ -2648,117 +2648,180 @@
         category,
         currentJornada,
       ) {
-        const key = `${campId}_${category}_${currentJornada}`;
-        if (lastSanctionsKey === key && sanctionedPlayersMap.size > 0) {
-          return;
-        }
-
         try {
-          let sancionQuery = db
-            .collection("sanciones")
-            .where("estado", "==", "activa");
-          if (campId) {
-            sancionQuery = sancionQuery.where("campeonatoId", "==", campId);
+          // 1. Consultar sanciones activas desde la colección 'sanciones'
+          let sancionSnap = null;
+          try {
+            if (campId) {
+              sancionSnap = await db
+                .collection("sanciones")
+                .where("campeonatoId", "==", campId)
+                .get();
+            } else {
+              sancionSnap = await db.collection("sanciones").get();
+            }
+          } catch (eQ) {
+            console.warn("Fallback query sanciones:", eQ);
           }
 
-          const [sancionSnap, fixSnap] = await Promise.all([
-            sancionQuery.get(),
-            campId
-              ? db.collection("fixtures").where("championshipId", "==", campId).get()
-              : Promise.resolve({ forEach: () => {} }),
-          ]);
+          // Si la consulta filtrada por campeonato vino vacía o falló, traer todas para no omitir ninguna sanción activa
+          if (!sancionSnap || sancionSnap.empty) {
+            try {
+              sancionSnap = await db.collection("sanciones").get();
+            } catch (eAll) {
+              console.warn("Error getting all sanciones:", eAll);
+            }
+          }
+
+          // 2. Consultar fixtures por campeonato si aplica
+          let fixSnap = { forEach: () => {} };
+          try {
+            if (campId) {
+              fixSnap = await db
+                .collection("fixtures")
+                .where("championshipId", "==", campId)
+                .get();
+            }
+          } catch (eFix) {
+            console.warn("Error getting fixtures for sanctions:", eFix);
+          }
 
           sanctionedPlayersMap.clear();
 
-          sancionSnap.forEach((sDoc) => {
-            const s = sDoc.data();
-            const jId = s.jugadorId;
-            const partidos =
-              parseInt(s.partidosSuspension) || (s.tipo === "roja" ? 1 : 1);
-            let reasonText = "";
-            if (s.tipo === "roja") {
-              reasonText = `Tarjeta Roja ${s.articulo ? "(Art. " + s.articulo + (s.literal ? " " + s.literal : "") + ")" : ""} - ${partidos} fecha(s) de suspensión`;
-            } else if (s.tipo === "amarilla") {
-              reasonText = `Acumulación de Tarjetas Amarillas (${partidos} fecha de suspensión)`;
-            } else {
-              reasonText = `Sanción Disciplinaria ${s.articulo ? "(Art. " + s.articulo + ")" : ""} (${partidos} fecha(s))`;
-            }
+          if (sancionSnap && !sancionSnap.empty) {
+            sancionSnap.forEach((sDoc) => {
+              const s = sDoc.data();
+              const estado = (s.estado || "activa").toLowerCase();
+              if (estado === "cumplida" || estado === "anulada" || estado === "pagada_cumplida") return;
 
-            if (jId) {
-              sanctionedPlayersMap.set(jId, {
+              const jId = s.jugadorId || s.playerId || s.id || "";
+              let partidos =
+                parseInt(s.partidosSuspension) || parseInt(s.partidos) || (s.tipo === "roja" ? 1 : 1);
+              if (String(s.articulo) === "129") partidos = 40;
+
+              let reasonText = "";
+              if (s.tipo === "roja") {
+                reasonText = `Tarjeta Roja ${s.articulo ? "(Art. " + s.articulo + (s.literal ? " " + s.literal : "") + ")" : ""} — ${partidos >= 40 ? "1 Año de Suspensión / Expulsión" : partidos + " partido" + (partidos > 1 ? "s" : "") + " de suspensión"}`;
+              } else if (s.tipo === "amarilla") {
+                reasonText = `Acumulación de Tarjetas Amarillas (${partidos} partido de suspensión)`;
+              } else {
+                reasonText = `Sanción Disciplinaria ${s.articulo ? "(Art. " + s.articulo + (s.literal ? " " + s.literal : "") + ")" : ""} (${partidos >= 40 ? "1 Año de Suspensión" : partidos + " partido" + (partidos > 1 ? "s" : "")})`;
+              }
+
+              const sanctionObj = {
                 reason: reasonText,
-                tipo: s.tipo,
+                tipo: s.tipo || "roja",
                 partidos: partidos,
-                articulo: s.articulo,
+                articulo: s.articulo || "",
+                literal: s.literal || "",
                 sancionId: sDoc.id,
-              });
-            }
-          });
+                jugadorId: jId,
+              };
 
-          fixSnap.forEach((doc) => {
-            const fData = doc.data();
-            if (
-              category &&
-              fData.category &&
-              fData.category.toUpperCase() !== category.toUpperCase()
-            )
-              return;
+              // Indexar por todas las formas posibles de identificación del jugador
+              if (jId) sanctionedPlayersMap.set(jId, sanctionObj);
+              if (sDoc.id) sanctionedPlayersMap.set(sDoc.id, sanctionObj);
+              if (s.cedula) sanctionedPlayersMap.set(s.cedula.replace(/\s+/g, ""), sanctionObj);
+              if (s.numeroJugador && s.teamName) {
+                sanctionedPlayersMap.set(
+                  String(s.numeroJugador).trim() + "_" + s.teamName.trim().toUpperCase(),
+                  sanctionObj,
+                );
+              }
+              if (s.numeroJugador && s.teamId) {
+                sanctionedPlayersMap.set(
+                  String(s.numeroJugador).trim() + "_" + s.teamId,
+                  sanctionObj,
+                );
+              }
+              if (s.nombreJugador && s.teamName) {
+                sanctionedPlayersMap.set(
+                  s.nombreJugador.trim().toLowerCase().replace(/\s+/g, " ") + "_" + s.teamName.trim().toUpperCase(),
+                  sanctionObj,
+                );
+              }
+              if (s.nombreJugador) {
+                sanctionedPlayersMap.set(
+                  s.nombreJugador.trim().toLowerCase().replace(/\s+/g, " "),
+                  sanctionObj,
+                );
+              }
+            });
+          }
 
-            const matches = fData.data || [];
-            matches.forEach((m) => {
-              if (!m.isFinalized) return;
+          // 3. Revisar actas anteriores finalizadas para detectar expulsiones no levantadas
+          if (fixSnap && fixSnap.forEach) {
+            fixSnap.forEach((doc) => {
+              const fData = doc.data();
+              if (
+                category &&
+                fData.category &&
+                fData.category.toUpperCase() !== category.toUpperCase()
+              )
+                return;
 
-              const checkPlayerCards = (playersList, teamName) => {
-                if (!playersList) return;
-                playersList.forEach((p) => {
-                  const num = String(
-                    p.num || p.numeroJugador || p.dorsal || "",
-                  ).trim();
-                  const name = (
-                    p.name ||
-                    p.nombre ||
-                    p.nombres + " " + (p.apellidos || "") ||
-                    ""
-                  ).trim();
-                  const tr = parseInt(p.tr || 0);
-                  const ta = parseInt(p.ta || 0);
+              const matches = fData.data || [];
+              matches.forEach((m) => {
+                if (!m.isFinalized) return;
 
-                  if (tr >= 1 || ta >= 2) {
-                    const reason =
-                      tr >= 1
-                        ? `Expulsión (Tarjeta Roja directa) en Jornada ${m.jornada}`
-                        : `Doble Tarjeta Amarilla en Jornada ${m.jornada}`;
-                    if (num)
-                      sanctionedPlayersMap.set(
-                        num + "_" + teamName.toUpperCase(),
-                        {
-                          reason,
-                          team: teamName,
-                          num,
-                          name,
-                          jornada: m.jornada,
-                        },
-                      );
-                    if (p.cedula)
-                      sanctionedPlayersMap.set(p.cedula.replace(/\s+/g, ""), {
+                const checkPlayerCards = (playersList, teamName) => {
+                  if (!playersList) return;
+                  playersList.forEach((p) => {
+                    const num = String(
+                      p.num || p.numeroJugador || p.dorsal || "",
+                    ).trim();
+                    const name = (
+                      p.name ||
+                      p.nombre ||
+                      p.nombres + " " + (p.apellidos || "") ||
+                      ""
+                    ).trim();
+                    const tr = parseInt(p.tr || 0);
+                    const ta = parseInt(p.ta || 0);
+
+                    if (tr >= 1 || ta >= 2) {
+                      const reason =
+                        tr >= 1
+                          ? `Expulsión (Tarjeta Roja directa) en Jornada ${m.jornada} — 1 partido de suspensión`
+                          : `Doble Tarjeta Amarilla en Jornada ${m.jornada} — 1 partido de suspensión`;
+                      const sObj = {
                         reason,
                         team: teamName,
                         num,
                         name,
                         jornada: m.jornada,
-                      });
-                  }
-                });
-              };
+                        partidos: 1,
+                        tipo: "roja",
+                      };
+                      if (num) {
+                        sanctionedPlayersMap.set(
+                          num + "_" + teamName.toUpperCase(),
+                          sObj,
+                        );
+                      }
+                      if (p.cedula) {
+                        sanctionedPlayersMap.set(
+                          p.cedula.replace(/\s+/g, ""),
+                          sObj,
+                        );
+                      }
+                      if (p.playerId || p.id) {
+                        sanctionedPlayersMap.set(
+                          p.playerId || p.id,
+                          sObj,
+                        );
+                      }
+                    }
+                  });
+                };
 
-              checkPlayerCards(m.playersLocal, m.local);
-              checkPlayerCards(m.playersVisitor, m.visitor);
-              checkPlayerCards(m.changesLocal, m.local);
-              checkPlayerCards(m.changesVisitor, m.visitor);
+                checkPlayerCards(m.playersLocal, m.local);
+                checkPlayerCards(m.playersVisitor, m.visitor);
+                checkPlayerCards(m.changesLocal, m.local);
+                checkPlayerCards(m.changesVisitor, m.visitor);
+              });
             });
-          });
-
-          lastSanctionsKey = key;
+          }
         } catch (err) {
           console.warn("Error cargando sanciones:", err);
         }
@@ -2768,6 +2831,53 @@
         if (localTeam) fetchTeamPlayers(localTeam, category, campId);
         if (visitorTeam) fetchTeamPlayers(visitorTeam, category, campId);
         if (campId) loadSanctionsForChampionship(campId, category, jornada);
+      }
+
+      // ==========================================
+      // CONTROL DE JUGADORES EXPULSADOS EN EL PARTIDO ACTUAL
+      // ==========================================
+      function getPlayersWithRedCardInMatch(rosterTbodyId) {
+        const expulsados = new Map(); // dorsal -> { num, name, reason, isDirectRed, isDoubleYellow }
+        let isLocal = true;
+        if (window.currentMatchOpened && currentTeamName) {
+          isLocal = (window.currentMatchOpened.local === currentTeamName);
+        } else if (rosterTbodyId) {
+          isLocal = rosterTbodyId.includes("Local");
+        }
+        const titularesTbody = document.getElementById(isLocal ? "listaJugadoresLocal" : "listaJugadoresVisitante");
+        const cambiosTbody = document.getElementById(isLocal ? "listaCambiosLocal" : "listaCambiosVisitante");
+
+        const checkTable = (tbody) => {
+          if (!tbody) return;
+          tbody.querySelectorAll("tr").forEach((tr) => {
+            const inputs = tr.querySelectorAll("input");
+            if (inputs.length >= 2) {
+              const num = (inputs[0]?.value || "").trim();
+              const name = (inputs[1]?.value || "").trim();
+              if (!num || !name || name === "Seleccionar..." || name === "Seleccionar Entra...") return;
+
+              const yellowSlot = tr.querySelector(".yellow-slot");
+              const redSlot = tr.querySelector(".red-slot");
+              const taCount = yellowSlot ? yellowSlot.querySelectorAll(".yellow-rect").length : 0;
+              const trCount = redSlot ? redSlot.querySelectorAll(".red-rect").length : 0;
+
+              if (trCount >= 1 || taCount >= 2) {
+                expulsados.set(String(num), {
+                  num: String(num),
+                  name: name,
+                  reason: trCount >= 1 ? "Tarjeta Roja directa" : "Doble Tarjeta Amarilla (Expulsión)",
+                  isDirectRed: trCount >= 1,
+                  isDoubleYellow: taCount >= 2,
+                });
+              }
+            }
+          });
+        };
+
+        checkTable(titularesTbody);
+        checkTable(cambiosTbody);
+
+        return expulsados;
       }
 
       let currentTargetInput = null;
@@ -2905,14 +3015,14 @@
           // Obtenemos jugadores al instante (desde caché o fetching paralelo)
           currentTeamPlayersList = await fetchTeamPlayers(teamName, category, currentCampId);
 
-          // Cargar / refrescar sanciones en segundo plano sin bloquear al usuario
-          loadSanctionsForChampionship(
+          // Cargar y asegurar sanciones antes de renderizar
+          await loadSanctionsForChampionship(
             currentCampId,
             category,
             window.currentMatchOpened?.jornada,
           );
 
-          // Si el modal sigue abierto, refrescar la lista completa con las cards cargadas
+          // Si el modal sigue abierto, refrescar la lista completa con las cards cargadas y validadas
           const modalInstance = bootstrap.Modal.getInstance(modalEl);
           if (modalInstance) {
             renderPlayerSelectionView();
@@ -3101,6 +3211,7 @@
         if (!modalBody) return;
         const status = getRosterFillStatus();
         const rosterInfo = getPlayersInMatchRoster(currentRosterTbodyId);
+        const matchExpulsados = getPlayersWithRedCardInMatch(currentRosterTbodyId);
 
         // Filtrar jugadores por búsqueda (dorsal estricto o nombre)
         let filteredPlayers = currentTeamPlayersList;
@@ -3218,6 +3329,7 @@
                                 const photo = p.playerPhoto || p.fotoUrl || defaultPhoto;
                                 const sanction = getPlayerSanction(p);
                                 const isSanctioned = !!sanction;
+                                const hasRedInMatch = matchExpulsados.has(num);
                                 const inMatchTitular = rosterInfo.titulares.get(num);
                                 const inMatchCambio = rosterInfo.cambios.get(num);
                                 const isInMatch = inMatchTitular || inMatchCambio;
@@ -3227,8 +3339,12 @@
                                 );
 
                                 let statusBadge = "";
-                                if (isSanctioned) {
-                                  statusBadge = `<span class="badge bg-danger text-white py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-ban me-1"></i>Sanción</span>`;
+                                if (hasRedInMatch) {
+                                  statusBadge = `<span class="badge bg-danger text-white py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-square text-danger me-1"></i>EXPULSADO (T. ROJA)</span>`;
+                                } else if (isSanctioned) {
+                                  const partidosSusp = sanction.partidos || 1;
+                                  const suspBadge = partidosSusp >= 40 ? "1 Año" : `${partidosSusp} Part.`;
+                                  statusBadge = `<span class="badge bg-danger text-white py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-ban me-1"></i>SUSPENDIDO (${suspBadge})</span>`;
                                 } else if (inMatchTitular) {
                                   statusBadge = `<span class="badge bg-primary text-white py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-user-check me-1"></i>En Cancha (#${inMatchTitular.slotIndex})</span>`;
                                 } else if (inMatchCambio) {
@@ -3240,11 +3356,11 @@
                                 const safeId = p.id || num;
 
                                 return `
-                                  <div class="player-dorsal-card ${isSelected ? 'active-selected' : ''} ${isSanctioned ? 'is-sanctioned' : ''} ${isInMatch ? 'is-in-match' : ''}"
+                                  <div class="player-dorsal-card ${isSelected ? 'active-selected' : ''} ${isSanctioned || hasRedInMatch ? 'is-sanctioned' : ''} ${isInMatch ? 'is-in-match' : ''}"
                                        onclick="window.selectPlayerForPreview('${safeId}', '${num}')">
                                       <div class="d-flex align-items-center gap-2 overflow-hidden" style="flex: 1 1 auto; min-width: 0;">
                                           <!-- Número de Dorsal Fijo -->
-                                          <div class="dorsal-number-badge ${isSanctioned ? 'sanctioned-badge' : (isSelected ? 'selected-badge' : '')}">
+                                          <div class="dorsal-number-badge ${isSanctioned || hasRedInMatch ? 'sanctioned-badge' : (isSelected ? 'selected-badge' : '')}">
                                               #${num}
                                           </div>
                                           <!-- Foto miniatura fija -->
@@ -3320,24 +3436,65 @@
         const safeNombre = nombreCompleto.replace(/'/g, "\\'");
         const num = String(player.numeroJugador || player.num || "--").trim();
         const sanction = getPlayerSanction(player);
+        const matchExpulsados = getPlayersWithRedCardInMatch(currentRosterTbodyId);
+        const hasRedInMatch = matchExpulsados.has(num);
 
-        if (sanction) {
+        if (hasRedInMatch) {
+          const exp = matchExpulsados.get(num);
           return `
             <div class="d-flex flex-column align-items-center justify-content-center w-100 animate__animated animate__shakeX">
-                <div class="text-danger small fw-bold mb-2 fs-6">
-                    <i class="fas fa-ban me-1"></i> ¡JUGADOR SANCIONADO / NO HABILITADO!
+                <div class="text-danger small fw-bold mb-2 fs-6 text-uppercase" style="letter-spacing: 1px;">
+                    <i class="fas fa-ban me-1"></i> ¡JUGADOR EXPULSADO CON TARJETA ROJA!
                 </div>
                 <div style="max-width: 440px; width: 100%;">
                     ${renderSingleCarnetHtml(player)}
                 </div>
                 <div class="mt-3 text-center w-100" style="max-width: 440px;">
-                    <div class="alert alert-danger py-2 px-3 rounded-4 shadow fw-bold text-start mb-3" style="font-size:0.85rem; background: rgba(231,76,60,0.2); border: 1px solid #e74c3c;">
-                        <i class="fas fa-exclamation-triangle me-1"></i> <b>SANCIÓN REGLAMENTARIA:</b><br>
-                        <span class="text-white">${sanction.reason}</span>
-                        <div class="small fw-normal text-white-50 mt-1">Este jugador no puede participar en este partido por sanción activa.</div>
+                    <div class="alert alert-danger py-2 px-3 rounded-4 shadow fw-bold text-start mb-3" style="font-size:0.85rem; background: rgba(231,76,60,0.25); border: 1.5px solid #e74c3c;">
+                        <div class="text-danger fw-900 mb-1"><i class="fas fa-gavel me-1"></i> EXPULSIÓN EN ESTE ENCUENTRO:</div>
+                        <div class="text-white mb-1"><i class="fas fa-square text-danger me-1"></i> <b>Causa:</b> ${exp.reason}</div>
+                        <div class="small fw-normal text-white-50 mt-1">Este jugador recibió tarjeta roja o doble amarilla durante el partido y está totalmente inhabilitado para jugar o ingresar.</div>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-lg rounded-pill w-100 py-3 fw-bold disabled opacity-50 shadow mb-2" disabled>
-                        <i class="fas fa-lock me-2"></i> INCLUSIÓN BLOQUEADA
+                    <button type="button" class="btn btn-danger btn-lg rounded-pill w-100 py-3 fw-bold disabled shadow mb-2" disabled style="opacity: 0.7; cursor: not-allowed;">
+                        <i class="fas fa-lock me-2"></i> EXPULSADO (NO PERMITIDO)
+                    </button>
+                    <button type="button" class="btn btn-outline-light btn-sm rounded-pill px-4 py-2 fw-bold" onclick="window.clearPlayerPreview()">
+                        <i class="fas fa-arrow-left me-1"></i> Elegir otro jugador
+                    </button>
+                </div>
+            </div>
+          `;
+        }
+
+        if (sanction) {
+          const partidosSusp = sanction.partidos || 1;
+          const suspTitle =
+            partidosSusp >= 40
+              ? "1 AÑO / EXPULSIÓN"
+              : `${partidosSusp} PARTIDO${partidosSusp > 1 ? "S" : ""}`;
+          const suspBtnText =
+            partidosSusp >= 40 ? "1 AÑO" : `${partidosSusp} PART.`;
+          const suspDetail =
+            partidosSusp >= 40
+              ? "1 Año de suspensión de la liga"
+              : `${partidosSusp} partido(s) pendiente(s)`;
+          return `
+            <div class="d-flex flex-column align-items-center justify-content-center w-100 animate__animated animate__shakeX">
+                <div class="text-danger small fw-bold mb-2 fs-6 text-uppercase" style="letter-spacing: 1px;">
+                    <i class="fas fa-ban me-1"></i> ¡JUGADOR SUSPENDIDO (${suspTitle})!
+                </div>
+                <div style="max-width: 440px; width: 100%;">
+                    ${renderSingleCarnetHtml(player)}
+                </div>
+                <div class="mt-3 text-center w-100" style="max-width: 440px;">
+                    <div class="alert alert-danger py-2 px-3 rounded-4 shadow fw-bold text-start mb-3" style="font-size:0.85rem; background: rgba(231,76,60,0.22); border: 1.5px solid #e74c3c;">
+                        <div class="text-danger fw-900 mb-1"><i class="fas fa-gavel me-1"></i> SANCIÓN DISCIPLINARIA ACTIVA:</div>
+                        <div class="text-white mb-1"><i class="fas fa-exclamation-circle text-warning me-1"></i> <b>Motivo:</b> ${sanction.reason}</div>
+                        <div class="text-warning small fw-bold"><i class="fas fa-calendar-times me-1"></i> <b>Suspensión:</b> ${suspDetail}</div>
+                        <div class="small fw-normal text-white-50 mt-1">El sistema disciplinario bloquea el ingreso de jugadores con sanciones o suspensiones vigentes.</div>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-lg rounded-pill w-100 py-3 fw-bold disabled shadow mb-2" disabled style="opacity: 0.7; cursor: not-allowed;">
+                        <i class="fas fa-lock me-2"></i> JUGADOR SUSPENDIDO (${suspBtnText})
                     </button>
                     <button type="button" class="btn btn-outline-light btn-sm rounded-pill px-4 py-2 fw-bold" onclick="window.clearPlayerPreview()">
                         <i class="fas fa-arrow-left me-1"></i> Elegir otro jugador
@@ -3512,26 +3669,87 @@
       function getPlayerSanction(p) {
         if (!p || !sanctionedPlayersMap || sanctionedPlayersMap.size === 0)
           return null;
-        const numKey =
-          String(p.numeroJugador || p.num || "").trim() +
-          "_" +
-          currentTeamName.toUpperCase();
+
+        // 1. Verificar por ID de documento del jugador (jugadorId / id / playerId)
+        const id = p.id || p.jugadorId || p.playerId || p._id || "";
+        if (id && sanctionedPlayersMap.has(id)) {
+          return sanctionedPlayersMap.get(id);
+        }
+
+        // 2. Verificar por Cédula de Identidad
         const ciKey = (p.cedula || "").replace(/\s+/g, "");
-        return (
-          sanctionedPlayersMap.get(numKey) ||
-          (ciKey ? sanctionedPlayersMap.get(ciKey) : null)
-        );
+        if (ciKey && sanctionedPlayersMap.has(ciKey)) {
+          return sanctionedPlayersMap.get(ciKey);
+        }
+
+        // 3. Verificar por Dorsal + Equipo
+        const num = String(p.numeroJugador || p.num || "").trim();
+        if (num) {
+          if (currentTeamName) {
+            const numTeamKey = num + "_" + currentTeamName.trim().toUpperCase();
+            if (sanctionedPlayersMap.has(numTeamKey)) return sanctionedPlayersMap.get(numTeamKey);
+          }
+          if (p.teamName) {
+            const numTeamKey2 = num + "_" + p.teamName.trim().toUpperCase();
+            if (sanctionedPlayersMap.has(numTeamKey2)) return sanctionedPlayersMap.get(numTeamKey2);
+          }
+          if (p.teamId) {
+            const numTeamIdKey = num + "_" + p.teamId;
+            if (sanctionedPlayersMap.has(numTeamIdKey)) return sanctionedPlayersMap.get(numTeamIdKey);
+          }
+        }
+
+        // 4. Verificar por Nombre Completo + Equipo
+        const fullName = `${p.nombres || ""} ${p.apellidos || ""}`.trim().toLowerCase().replace(/\s+/g, " ");
+        if (fullName) {
+          if (currentTeamName) {
+            const nameTeamKey = fullName + "_" + currentTeamName.trim().toUpperCase();
+            if (sanctionedPlayersMap.has(nameTeamKey)) return sanctionedPlayersMap.get(nameTeamKey);
+          }
+          if (p.teamName) {
+            const nameTeamKey2 = fullName + "_" + p.teamName.trim().toUpperCase();
+            if (sanctionedPlayersMap.has(nameTeamKey2)) return sanctionedPlayersMap.get(nameTeamKey2);
+          }
+          if (sanctionedPlayersMap.has(fullName)) return sanctionedPlayersMap.get(fullName);
+        }
+
+        return null;
       }
 
-      window.showSanctionAlert = function (name, number, reason) {
+      window.showSanctionAlert = function (name, number, reason, partidos = 1) {
+        const suspText =
+          partidos >= 40
+            ? "1 año de suspensión de la liga"
+            : `${partidos} partido(s) pendiente(s)`;
         Swal.fire({
           icon: "error",
-          title: "¡Jugador Sancionado!",
+          title: "¡JUGADOR SUSPENDIDO!",
           html: `
             <div class="text-start p-3 rounded-3" style="background: rgba(231,76,60,0.15); border: 1.5px solid #e74c3c;">
-              <div class="text-white fw-bold mb-1"><i class="fas fa-user-times text-danger me-2"></i>#${number} ${name}</div>
-              <div class="text-warning small fw-bold mb-2"><i class="fas fa-gavel me-1"></i> Motivo: ${reason}</div>
-              <div class="small text-white-50">El sistema de control antifraude bloquea la inclusión de jugadores suspendidos en el acta de juego.</div>
+              <div class="text-white fw-bold fs-5 mb-2"><i class="fas fa-user-times text-danger me-2"></i>#${number} ${name}</div>
+              <div class="text-warning small fw-bold mb-2"><i class="fas fa-gavel me-1"></i> <b>Motivo:</b> ${reason}</div>
+              <div class="text-danger small fw-bold mb-2"><i class="fas fa-ban me-1"></i> <b>Suspensión:</b> ${suspText}</div>
+              <div class="small text-white-50 border-top border-secondary border-opacity-25 pt-2 mt-2">El sistema de control disciplinario y antifraude bloquea la inclusión de jugadores con suspensión activa en el acta de juego.</div>
+            </div>
+          `,
+          confirmButtonText: "Entendido",
+          confirmButtonColor: "#e74c3c",
+          background: "#121212",
+          color: "#ffffff",
+        });
+      };
+
+      window.showRedCardExitAlert = function (num, name, reason) {
+        Swal.fire({
+          icon: "error",
+          title: "¡CAMBIO NO PERMITIDO!",
+          html: `
+            <div class="text-start p-3 rounded-3" style="background: rgba(231,76,60,0.15); border: 1.5px solid #e74c3c;">
+              <div class="text-white fw-bold fs-5 mb-2"><i class="fas fa-ban text-danger me-2"></i>#${num} ${name}</div>
+              <div class="text-danger small fw-bold mb-2"><i class="fas fa-square text-danger me-1"></i> <b>Estado:</b> EXPULSADO (${reason || "Tarjeta Roja"})</div>
+              <div class="small text-white-50 border-top border-secondary border-opacity-25 pt-2 mt-2">
+                <b>Reglamento Oficial:</b> Un jugador que ha sido expulsado con tarjeta roja o doble amarilla durante el encuentro <b>no puede ser sustituido</b> por otro jugador. El equipo debe continuar jugando con un elemento menos en la cancha.
+              </div>
             </div>
           `,
           confirmButtonText: "Entendido",
@@ -3547,10 +3765,12 @@
         const photo = p.playerPhoto || p.fotoUrl || defaultPhoto;
         const nombre = ((p.nombres || "") + " " + (p.apellidos || "")).trim();
         const safeNombre = nombre.replace(/'/g, "\\'");
-        const num = p.numeroJugador || "";
+        const num = p.numeroJugador || p.num || "";
         const cedula = p.cedula || "N/A";
         const sanction = getPlayerSanction(p);
-        const isSanctioned = !!sanction;
+        const matchExpulsados = getPlayersWithRedCardInMatch(currentRosterTbodyId);
+        const hasRedInMatch = num && matchExpulsados.has(String(num).trim());
+        const isSanctioned = !!sanction || hasRedInMatch;
 
         let fNac = "N/A";
         let badgeText = "SENIOR";
@@ -3601,12 +3821,19 @@
           hoverAttrs = `onmouseover="this.style.transform='translateY(-3px)';" onmouseout="this.style.transform='translateY(0)';"`;
           if (customAction) {
             clickAttr = `onclick="${customAction}"`;
-          } else if (isSanctioned) {
-            clickAttr = `onclick="window.showSanctionAlert('${safeNombre}', '${num}', '${(sanction.reason || "").replace(/'/g, "\\'")}')"`;
+          } else if (hasRedInMatch) {
+            const exp = matchExpulsados.get(String(num).trim());
+            clickAttr = `onclick="window.showRedCardExitAlert('${num}', '${safeNombre}', '${(exp?.reason || "").replace(/'/g, "\\'")}')"`;
+          } else if (sanction) {
+            clickAttr = `onclick="window.showSanctionAlert('${safeNombre}', '${num}', '${(sanction.reason || "").replace(/'/g, "\\'")}', ${sanction.partidos || 1})"`;
           } else {
             clickAttr = `onclick="selectPlayer('${safeNombre}', '${num}')"`;
           }
         }
+
+        const badgeLabel = hasRedInMatch
+          ? "EXPULSADO (TARJETA ROJA)"
+          : (sanction ? `SUSPENDIDO (${sanction.partidos || 1} PART.)` : "");
 
         return `
           <div class="card text-center position-relative overflow-hidden p-0 shadow-lg mx-auto w-100" 
@@ -3619,7 +3846,7 @@
                   ? `
                 <div class="position-absolute bg-danger text-white fw-bold py-1 px-3 rounded-bottom shadow" 
                      style="top: 0; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 0.72rem; letter-spacing: 0.5px; white-space:nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
-                    <i class="fas fa-ban me-1"></i> SANCIONADO (${sanction.reason})
+                    <i class="fas fa-ban me-1"></i> ${badgeLabel}
                 </div>
               `
                   : ""
@@ -3722,20 +3949,29 @@
       };
 
       function selectPlayer(name, number) {
-        // Verificación de seguridad antifraude
+        // 1. Verificación de seguridad disciplinaria y sanciones activas
         const matchedP = currentTeamPlayersList.find(
           (p) =>
-            String(p.numeroJugador) === String(number) ||
-            ((p.nombres || "") + " " + (p.apellidos || "")).trim() ===
-              name.trim(),
-        );
+            (p.id && selectedPlayerForPreview?.id && p.id === selectedPlayerForPreview.id) ||
+            String(p.numeroJugador || p.num || "").trim() === String(number).trim() ||
+            ((p.nombres || "") + " " + (p.apellidos || "")).trim().toLowerCase() === name.trim().toLowerCase(),
+        ) || selectedPlayerForPreview;
+
         const sanction = getPlayerSanction(matchedP);
         if (sanction) {
-          window.showSanctionAlert(name, number, sanction.reason);
+          window.showSanctionAlert(name, number, sanction.reason, sanction.partidos || 1);
           return;
         }
 
-        // Si es un cambio (sustitución), validar que el jugador que entra NO esté ya jugando en cancha
+        // 2. Verificación de tarjetas rojas en este partido actual
+        const currentMatchExpulsados = getPlayersWithRedCardInMatch(currentRosterTbodyId);
+        if (currentMatchExpulsados.has(String(number).trim())) {
+          const exp = currentMatchExpulsados.get(String(number).trim());
+          window.showRedCardExitAlert(number, name, exp.reason);
+          return;
+        }
+
+        // 3. Si es un cambio (sustitución), validar que el jugador que entra NO esté ya jugando en cancha
         if (currentSubstitutionRow) {
           const playersCurrentlyOnField = getActivePlayersOnField(currentRosterTbodyId);
           const alreadyPlaying = playersCurrentlyOnField.find(
@@ -3766,7 +4002,7 @@
           return;
         }
 
-        // Si es nómina de titulares (casilleros 1 al 9), validar que no esté duplicado en otro casillero titular
+        // 4. Si es nómina de titulares (casilleros 1 al 9), validar que no esté duplicado en otro casillero titular
         if (currentRosterTbodyId) {
           const tbody = document.getElementById(currentRosterTbodyId);
           if (tbody) {
@@ -3856,6 +4092,7 @@
 
         // Obtener jugadores activos en cancha considerando cambios previos
         const playersOnField = getActivePlayersOnField(currentRosterTbodyId);
+        const matchExpulsados = getPlayersWithRedCardInMatch(currentRosterTbodyId);
 
         // FILTRADO ESTRICTO: NUNCA mostrar al jugador que está entrando en la lista de los que pueden salir
         const cleanEnteringNum = String(enteringNum || "").trim();
@@ -3893,11 +4130,14 @@
         `;
 
         availableToExit.forEach((onField) => {
+          const onFieldNum = String(onField.num || "").trim();
+          const isExpulsado = matchExpulsados.has(onFieldNum);
+          const expInfo = isExpulsado ? matchExpulsados.get(onFieldNum) : null;
+
           // 1. Buscar por dorsal exacto
           let pData = currentTeamPlayersList.find(
             (p) =>
-              String(p.numeroJugador || "").trim() ===
-              String(onField.num || "").trim(),
+              String(p.numeroJugador || "").trim() === onFieldNum,
           );
 
           // 2. Si no coincide por dorsal, buscar por coincidencia de nombre
@@ -3935,16 +4175,29 @@
             .replace(/'/g, "\\'");
           const num = pData.numeroJugador || onField.num;
 
-          html += `
-            <div class="col d-flex flex-column align-items-center">
-              <div style="width: 100%; cursor: pointer;" onclick="window.confirmExitingPlayer('${num}', '${safeNombre}')">
-                ${renderSingleCarnetHtml(pData, false)}
-                <button type="button" class="btn btn-danger btn-sm rounded-pill w-100 fw-bold mt-2 shadow" style="letter-spacing: 0.5px;">
-                  <i class="fas fa-arrow-down me-1"></i> RELEVAR A ESTE JUGADOR (SALE #${num})
-                </button>
+          if (isExpulsado) {
+            html += `
+              <div class="col d-flex flex-column align-items-center">
+                <div style="width: 100%; cursor: not-allowed;" onclick="window.showRedCardExitAlert('${num}', '${safeNombre}', '${(expInfo.reason || "").replace(/'/g, "\\'")}')">
+                  ${renderSingleCarnetHtml(pData, false)}
+                  <button type="button" class="btn btn-outline-danger btn-sm rounded-pill w-100 fw-bold mt-2 shadow" style="letter-spacing: 0.5px; border-width: 2px;">
+                    <i class="fas fa-ban me-1"></i> EXPULSADO (${expInfo.reason}) — NO SUSTITUIBLE
+                  </button>
+                </div>
               </div>
-            </div>
-          `;
+            `;
+          } else {
+            html += `
+              <div class="col d-flex flex-column align-items-center">
+                <div style="width: 100%; cursor: pointer;" onclick="window.confirmExitingPlayer('${num}', '${safeNombre}')">
+                  ${renderSingleCarnetHtml(pData, false)}
+                  <button type="button" class="btn btn-danger btn-sm rounded-pill w-100 fw-bold mt-2 shadow" style="letter-spacing: 0.5px;">
+                    <i class="fas fa-arrow-down me-1"></i> RELEVAR A ESTE JUGADOR (SALE #${num})
+                  </button>
+                </div>
+              </div>
+            `;
+          }
         });
 
         html += `</div>`;
@@ -3962,6 +4215,7 @@
           ? String(currentEnteringPlayer.name || "").trim()
           : "";
 
+        // Verificación 1: Mismo número
         if (enteringNum && cleanSaleNum === enteringNum) {
           Swal.fire({
             icon: "error",
@@ -3970,6 +4224,14 @@
             background: "#121212",
             color: "#ffffff",
           });
+          return;
+        }
+
+        // Verificación 2: El jugador que sale fue expulsado con tarjeta roja durante el partido
+        const matchExpulsados = getPlayersWithRedCardInMatch(currentRosterTbodyId);
+        if (matchExpulsados.has(cleanSaleNum)) {
+          const exp = matchExpulsados.get(cleanSaleNum);
+          window.showRedCardExitAlert(cleanSaleNum, saleName, exp.reason);
           return;
         }
 
@@ -4074,6 +4336,12 @@
         const currentCampId =
           campSelect?.value || window.currentMatchOpened?._campId || "";
         currentTeamPlayersList = await fetchTeamPlayers(teamName, category, currentCampId);
+
+        await loadSanctionsForChampionship(
+          currentCampId,
+          category,
+          window.currentMatchOpened?.jornada,
+        );
 
         let modalEl = document.getElementById("playerSelectorModal");
         if (!modalEl) {

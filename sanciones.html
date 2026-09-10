@@ -1906,15 +1906,20 @@
         }
       }
 
-      function aplicarSancion() {
+      async function aplicarSancion() {
         const id = document.getElementById("jugadorId").value;
+        const nombreJugador = (
+          document.getElementById("sancionJugadorNombre")?.textContent || ""
+        ).trim();
         const tipo = document.getElementById("tipoSancion").value;
         const art = document.getElementById("articulo").value;
         const lit = document.getElementById("literal").value;
         const valor =
           parseFloat(document.getElementById("valorSancion").value) || 0;
-        const partidos =
+        let partidos =
           parseInt(document.getElementById("partidosSuspension").value) || 0;
+
+        if (art === "129") partidos = 40;
 
         if (!tipo) return;
         if (tipo === "roja" && (!art || !lit)) {
@@ -1935,9 +1940,33 @@
           },
         });
 
+        let pExtra = {};
+        if (id) {
+          try {
+            const pDoc = await db.collection("players").doc(id).get();
+            if (pDoc.exists) {
+              const pd = pDoc.data();
+              pExtra = {
+                numeroJugador: pd.numeroJugador || pd.num || "",
+                cedula: pd.cedula || "",
+                teamName: pd.teamName || "",
+                nombreJugador:
+                  nombreJugador ||
+                  `${pd.nombres || ""} ${pd.apellidos || ""}`.trim(),
+              };
+            }
+          } catch (eFetch) {
+            console.warn("Error fetching extra player info for sanction:", eFetch);
+          }
+        }
+
         db.collection("sanciones")
           .add({
             jugadorId: id,
+            nombreJugador: pExtra.nombreJugador || nombreJugador,
+            numeroJugador: pExtra.numeroJugador || "",
+            cedula: pExtra.cedula || "",
+            teamName: pExtra.teamName || "",
             teamId: sancionTeamId || equipoActual || "",
             tipo: tipo,
             articulo: art || null,
