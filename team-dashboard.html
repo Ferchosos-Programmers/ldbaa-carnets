@@ -2229,21 +2229,86 @@
             if (parseFloat(data.can || 0) > 0) items.push({ concept: "Derecho de Cancha", qty: 1, unit: data.can, total: parseFloat(data.can) });
             if (parseFloat(data.arb || 0) > 0) items.push({ concept: "Vocalía / Arbitraje", qty: 1, unit: data.arb, total: parseFloat(data.arb) });
             if (parseFloat(data.cem || 0) > 0) items.push({ concept: "Cementina", qty: 1, unit: data.cem, total: parseFloat(data.cem) });
+
+            const formatCardPlayerList = (players) => {
+              if (!players) return "";
+              let arr = [];
+              if (Array.isArray(players)) arr = players;
+              else if (typeof players === "object") arr = [players];
+              else if (typeof players === "string") {
+                try {
+                  const parsed = JSON.parse(players);
+                  arr = Array.isArray(parsed) ? parsed : [parsed];
+                } catch (e) { arr = [players]; }
+              } else arr = [players];
+              if (arr.length === 0) return "";
+
+              const nums = [];
+              arr.forEach((p) => {
+                if (p === null || p === undefined) return;
+                let numVal = "";
+                let nameVal = "";
+                if (typeof p === "object") {
+                  numVal = p.num || p.dorsal || p.numeroJugador || p.numero || p.number || "";
+                  nameVal = p.name || p.nombre || p.jugador || "";
+                } else if (typeof p === "string") {
+                  const trimmed = p.trim();
+                  if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+                    try {
+                      const parsed = JSON.parse(trimmed);
+                      numVal = parsed.num || parsed.dorsal || parsed.numeroJugador || parsed.numero || "";
+                      nameVal = parsed.name || parsed.nombre || parsed.jugador || "";
+                    } catch (e) { nameVal = trimmed; }
+                  } else nameVal = trimmed;
+                } else numVal = String(p);
+
+                numVal = String(numVal).trim();
+                nameVal = String(nameVal).trim();
+                if (numVal && !numVal.startsWith("{")) {
+                  nums.push(numVal.startsWith("#") ? numVal : `#${numVal}`);
+                } else if (nameVal && !nameVal.startsWith("{")) {
+                  nums.push(nameVal.startsWith("#") ? nameVal : (nameVal.match(/^\d+$/) ? `#${nameVal}` : nameVal));
+                }
+              });
+              if (nums.length === 0) return "";
+              return ` (Jug: ${nums.join(", ")})`;
+            };
+
             if (data.ta && parseInt(data.ta.count || 0) > 0) {
               const qty = parseInt(data.ta.count || 0);
-              const unit = parseFloat(data.ta.val || 0);
-              items.push({ concept: `Tarjetas Amarillas (${qty})`, qty: qty, unit: unit, total: qty * unit });
+              const unit = parseFloat(data.ta.val !== undefined ? data.ta.val : 0.5);
+              const taPn = formatCardPlayerList(data.ta.players);
+              const title = qty === 1 ? `Tarjeta Amarilla${taPn}` : `Tarjetas Amarillas${taPn ? taPn : ` (${qty})`}`;
+              items.push({ concept: title, qty: qty, unit: unit, total: qty * unit });
             }
             if (data.tr && parseInt(data.tr.count || 0) > 0) {
               const qty = parseInt(data.tr.count || 0);
-              const unit = parseFloat(data.tr.val || 0);
-              items.push({ concept: `Tarjetas Rojas (${qty})`, qty: qty, unit: unit, total: qty * unit });
+              const unit = parseFloat(data.tr.val !== undefined ? data.tr.val : 1.0);
+              const trPn = formatCardPlayerList(data.tr.players);
+              const title = qty === 1 ? `Tarjeta Roja${trPn}` : `Tarjetas Rojas${trPn ? trPn : ` (${qty})`}`;
+              items.push({ concept: title, qty: qty, unit: unit, total: qty * unit });
             }
             if (data.extras && Array.isArray(data.extras) && data.extras.length > 0) {
               data.extras.forEach((ex) => {
                 try {
                   const v = parseFloat(ex.val || 0);
-                  if (v > 0) items.push({ concept: ex.desc || "Extra", qty: 1, unit: v, total: v });
+                  if (v > 0) {
+                    let desc = (ex.desc || "Extra").trim();
+                    if (/^AMARILLA(\s*\(\s*\))?$/i.test(desc) || /^TARJETA\s+AMARILLA/i.test(desc)) {
+                      if (data.ta && parseInt(data.ta.count || 0) > 0) return;
+                    }
+                    if (/^ROJA(\s*\(\s*\))?$/i.test(desc) || /^TARJETA\s+ROJA/i.test(desc)) {
+                      if (data.tr && parseInt(data.tr.count || 0) > 0) return;
+                    }
+                    desc = desc
+                      .replace(/no_veedor/gi, "No Asistencia de Veedor")
+                      .replace(/amarilla_banca/gi, "Tarjeta Amarilla (Banca)")
+                      .replace(/roja_banca/gi, "Tarjeta Roja (Banca)")
+                      .replace(/\(\s*\)/g, "")
+                      .replace(/\(a\)\)/g, "(a)")
+                      .trim();
+                    items.push({ concept: desc, qty: 1, unit: v, total: v });
+                  }
                 } catch (e) {}
               });
             }

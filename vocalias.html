@@ -1417,7 +1417,7 @@
         body.innerHTML = `
             <div class="acta-container p-2" style="max-height: 75vh; overflow-y: auto; overflow-x: hidden;">
                 <!-- LIVE MATCH HUD & CRONÓMETRO DIGITAL -->
-                <div class="glass-panel p-3 mb-3 rounded-4 shadow-lg position-relative overflow-hidden" 
+                <div class="glass-panel p-3 mb-3 rounded-4 shadow-lg position-relative overflow-hidden"
                      style="background: linear-gradient(135deg, rgba(15, 23, 18, 0.95), rgba(10, 15, 25, 0.95)); border: 2px solid #2ecc71; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
                     <div class="row align-items-center g-2 text-center">
                         <!-- Local -->
@@ -1441,7 +1441,7 @@
                                 <span class="badge bg-danger rounded-pill px-2 py-0.5 small fw-bold animate__animated animate__pulse animate__infinite" id="hudLiveDot" style="display:none; font-size:0.65rem;">
                                     <i class="fas fa-circle me-1"></i> EN VIVO
                                 </span>
-                                <span id="hudStopwatchDisplay" class="fs-4 fw-bold font-monospace text-warning px-3 py-0.5 rounded-3 shadow-sm" 
+                                <span id="hudStopwatchDisplay" class="fs-4 fw-bold font-monospace text-warning px-3 py-0.5 rounded-3 shadow-sm"
                                       style="background: rgba(0,0,0,0.7); border: 1px solid rgba(255,193,7,0.4); letter-spacing: 2px;">
                                     00:00
                                 </span>
@@ -1522,7 +1522,7 @@
                             <div class="mb-3 text-center border-bottom border-secondary border-opacity-50 pb-2">
                                 <h5 class="text-primary-glow mb-0 text-uppercase fw-bold">${m.local}</h5>
                             </div>
-                            
+
                             <div class="table-responsive">
                                 <table class="table table-dark table-sm table-bordered border-secondary mb-0">
                                     <thead>
@@ -1578,7 +1578,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            
+
                             <div class="d-flex justify-content-between align-items-center mt-3 border border-secondary border-opacity-50">
                                 <div class="px-3 py-2 fw-bold text-white text-center w-75 bg-dark">TOTAL GOLES</div>
                                 <div class="w-25 border-start border-secondary py-1 bg-dark">
@@ -1593,22 +1593,22 @@
                                         <i class="fas fa-wallet text-warning" style="font-size:0.7rem"></i>
                                         <span class="text-white-50 small fw-bold" style="letter-spacing:1px">DEUDA</span>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1 fw-bold" 
-                                            onclick="window.viewReceiptDetail('local')" 
+                                    <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1 fw-bold"
+                                            onclick="window.viewReceiptDetail('local')"
                                             style="font-size:0.65rem; border-width: 1px; letter-spacing:0.5px">
                                         <i class="fas fa-file-invoice-dollar me-1"></i> VER RECIBO
                                     </button>
                                 </div>
-                                
+
                                 <div class="row g-0 align-items-center">
                                     <div class="col-8 d-flex align-items-center gap-2">
                                         <span class="text-white-50 small fw-bold" style="white-space:nowrap; font-size:0.6rem">F) CAPITÁN:</span>
-                                        <input type="text" id="cap_signature_local" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 shadow-none" 
+                                        <input type="text" id="cap_signature_local" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 shadow-none"
                                                style="font-size:0.75rem; border-radius:0" placeholder="Firma digital..." value="${m.vocalReport?.capSignatureLocal || ""}">
                                     </div>
                                     <div class="col-4 d-flex align-items-center gap-2 ps-3">
                                         <span class="text-white-50 small fw-bold" style="font-size:0.6rem">NO:</span>
-                                        <input type="text" id="cap_no_local" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 text-center shadow-none" 
+                                        <input type="text" id="cap_no_local" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 text-center shadow-none"
                                                style="font-size:0.75rem; border-radius:0" placeholder="#" value="${m.vocalReport?.capNoLocal || ""}">
                                     </div>
                                 </div>
@@ -1622,7 +1622,7 @@
                             <div class="mb-3 text-center border-bottom border-secondary border-opacity-50 pb-2">
                                 <h5 class="text-info mb-0 text-uppercase fw-bold">${m.visitor}</h5>
                             </div>
-                            
+
                             <div class="table-responsive">
                                 <table class="table table-dark table-sm table-bordered border-secondary mb-0">
                                     <thead>
@@ -1678,7 +1678,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            
+
                             <div class="d-flex justify-content-between align-items-center mt-3 border border-secondary border-opacity-50">
                                 <div class="px-3 py-2 fw-bold text-white text-center w-75 bg-dark">TOTAL GOLES</div>
                                 <div class="w-25 border-start border-secondary py-1 bg-dark">
@@ -1693,23 +1693,23 @@
                                         <i class="fas fa-wallet text-warning" style="font-size:0.7rem"></i>
                                         <span class="text-white-50 small fw-bold" style="letter-spacing:1px">DEUDA</span>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1 fw-bold" 
-                                            onclick="window.viewReceiptDetail('visitor')" 
+                                    <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1 fw-bold"
+                                            onclick="window.viewReceiptDetail('visitor')"
                                             style="font-size:0.65rem; border-width: 1px; letter-spacing:0.5px">
                                         <i class="fas fa-file-invoice-dollar me-1"></i> VER RECIBO
                                     </button>
                                 </div>
-                                
+
                                 <!-- Captain Signature Row -->
                                 <div class="row g-0 align-items-center">
                                     <div class="col-8 d-flex align-items-center gap-2">
                                         <span class="text-white-50 small fw-bold" style="white-space:nowrap; font-size:0.6rem">F) CAPITÁN:</span>
-                                        <input type="text" id="cap_signature_visitor" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 shadow-none" 
+                                        <input type="text" id="cap_signature_visitor" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 shadow-none"
                                                style="font-size:0.75rem; border-radius:0" placeholder="Firma digital..." value="${m.vocalReport?.capSignatureVisitor || ""}">
                                     </div>
                                     <div class="col-4 d-flex align-items-center gap-2 ps-3">
                                         <span class="text-white-50 small fw-bold" style="font-size:0.6rem">NO:</span>
-                                        <input type="text" id="cap_no_visitor" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 text-center shadow-none" 
+                                        <input type="text" id="cap_no_visitor" class="form-control form-control-sm bg-transparent text-white border-0 border-bottom border-secondary border-opacity-50 p-0 text-center shadow-none"
                                                style="font-size:0.75rem; border-radius:0" placeholder="#" value="${m.vocalReport?.capNoVisitor || ""}">
                                     </div>
                                 </div>
@@ -1720,7 +1720,7 @@
 
                 <!-- Reportes: Vocal, Árbitro, Penas -->
                 <div class="glass-panel p-0 mt-4 border border-secondary border-opacity-25" style="background: rgba(0,0,0,0.3)">
-                    
+
                     <!-- INFORME DEL VOCAL -->
                     <div class="bg-dark p-2 text-center border-bottom border-secondary border-opacity-50">
                         <h6 class="text-white text-uppercase mb-0 fw-bold" style="letter-spacing:1px">INFORME DEL VOCAL</h6>
@@ -1738,7 +1738,7 @@
                         <div class="row g-3">
                             <div class="col-md-6 border-end border-secondary border-opacity-25 pe-4">
                                 <div class="text-primary-glow small fw-bold mb-3">${m.local}</div>
-                                
+
                                 <!-- TABLA TA VOCAL LOCAL -->
                                 <div class="table-responsive mb-2">
                                     <table class="table table-dark table-sm table-bordered border-secondary mb-0 text-center" style="font-size:0.65rem; table-layout: fixed;">
@@ -1793,7 +1793,7 @@
                             </div>
                             <div class="col-md-6 ps-4">
                                 <div class="text-info small fw-bold mb-3">${m.visitor}</div>
-                                
+
                                 <!-- TABLA TA VOCAL VISITANTE -->
                                 <div class="table-responsive mb-2">
                                     <table class="table table-dark table-sm table-bordered border-secondary mb-0 text-center" style="font-size:0.65rem; table-layout: fixed;">
@@ -1847,7 +1847,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- FIRMA Y DATOS DEL VOCAL -->
                         <div class="row g-3 mt-1 pt-3 border-top border-secondary border-opacity-25">
                             <div class="col-md-5">
@@ -1880,7 +1880,7 @@
                             <!-- Informe Árbitro Local -->
                             <div class="col-md-6 border-end border-secondary border-opacity-25 pe-4">
                                 <div class="text-primary-glow small fw-bold mb-3">Equipo: ${m.local}</div>
-                                
+
                                 <div class="table-responsive mb-3">
                                     <table class="table table-dark table-sm table-bordered border-secondary mb-0 text-center" style="font-size:0.7rem; table-layout: fixed;">
                                         <thead class="bg-dark">
@@ -1980,7 +1980,7 @@
                             <!-- Informe Árbitro Visitante -->
                             <div class="col-md-6 ps-4">
                                 <div class="text-info small fw-bold mb-3">Equipo: ${m.visitor}</div>
-                                
+
                                 <div class="table-responsive mb-3">
                                     <table class="table table-dark table-sm table-bordered border-secondary mb-0 text-center" style="font-size:0.7rem; table-layout: fixed;">
                                         <thead class="bg-dark">
@@ -2116,7 +2116,7 @@
                             <!-- Datos Local -->
                             <div class="col-md-6 border-end border-secondary border-opacity-25 pe-4">
                                 <div class="text-primary-glow small fw-bold mb-3 text-uppercase" style="letter-spacing:1px">${m.local}</div>
-                                
+
                                 <!-- Juveniles Local -->
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -2143,7 +2143,7 @@
                             <!-- Datos Visitante -->
                             <div class="col-md-6 ps-4">
                                 <div class="text-info small fw-bold mb-3 text-uppercase" style="letter-spacing:1px">${m.visitor}</div>
-                                
+
                                 <!-- Juveniles Visitante -->
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -3124,8 +3124,8 @@
 
       function getPlayersInMatchRoster(rosterTbodyId) {
         const result = {
-          titulares: new Map(), // num -> { name, slotIndex }
-          cambios: new Map(), // num -> { name, rowIndex, type: 'entra' | 'sale' }
+          titulares: new Map(), // num -> { name, slotIndex, num, tr, inputElement }
+          cambios: new Map(), // num -> { name, rowIndex, type: 'entra' | 'sale', num, tr }
           allNumbers: new Set(),
         };
 
@@ -3144,8 +3144,18 @@
                 name !== "Seleccionar..." &&
                 name !== "Seleccionar Entra..."
               ) {
-                result.titulares.set(String(num), { name, slotIndex: idx + 1 });
+                const normNum = String(parseInt(num, 10) || num).trim();
+                const item = {
+                  name,
+                  slotIndex: idx + 1,
+                  num,
+                  tr,
+                  inputElement: inputs[1],
+                };
+                result.titulares.set(String(num), item);
+                result.titulares.set(normNum, item);
                 result.allNumbers.add(String(num));
+                result.allNumbers.add(normNum);
               }
             }
           });
@@ -3168,15 +3178,27 @@
                 entraName &&
                 entraName !== "Seleccionar Entra..."
               ) {
-                result.cambios.set(String(entraNum), {
+                const normNum = String(
+                  parseInt(entraNum, 10) || entraNum,
+                ).trim();
+                const item = {
                   name: entraName,
                   rowIndex: idx + 1,
                   type: "entra",
-                });
+                  num: entraNum,
+                  tr,
+                };
+                result.cambios.set(String(entraNum), item);
+                result.cambios.set(normNum, item);
                 result.allNumbers.add(String(entraNum));
+                result.allNumbers.add(normNum);
               }
               if (saleNum && saleNum !== "#") {
+                const normSale = String(
+                  parseInt(saleNum, 10) || saleNum,
+                ).trim();
                 result.allNumbers.add(String(saleNum));
+                result.allNumbers.add(normSale);
               }
             }
           });
@@ -3201,9 +3223,8 @@
         const isSubstitution =
           inputElement?.closest("tbody")?.id?.includes("Cambios") || false;
         currentSubstitutionRow = isSubstitution
-          ? inputElement.closest("tr")
+          ? inputElement?.closest("tr")
           : null;
-        currentEnteringPlayer = null;
 
         let modalEl = document.getElementById("playerSelectorModal");
         if (!modalEl) {
@@ -3212,24 +3233,34 @@
           modalEl.className = "modal fade";
           modalEl.style.zIndex = "1060";
           modalEl.innerHTML = `
-                  <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 1180px;">
+                  <div class="modal-dialog modal-dialog-centered" style="max-width: 640px; transition: max-width 0.25s ease-in-out;">
                       <div class="modal-content border border-secondary" style="background: rgba(10,10,10,0.97); backdrop-filter: blur(20px); border-radius: 20px; box-shadow: 0 25px 60px rgba(0,0,0,0.85);">
                           <div class="modal-header border-bottom border-secondary border-opacity-50 flex-wrap gap-2 px-4 py-3">
                               <h5 class="modal-title fw-bold text-uppercase text-white mb-0" id="playerSelectorTitle"></h5>
                               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                           </div>
-                          <div class="modal-body p-4 bg-dark" id="playerSelectorBody" style="max-height:85vh; overflow-y:auto">
+                          <div class="modal-body p-3 p-md-4 bg-dark" id="playerSelectorBody" style="max-height:85vh; overflow-y:auto">
                           </div>
                       </div>
                   </div>
               `;
           document.body.appendChild(modalEl);
+        } else {
+          const dlg = modalEl.querySelector(".modal-dialog");
+          if (dlg) {
+            dlg.className = "modal-dialog modal-dialog-centered";
+            dlg.style.maxWidth = "640px";
+            dlg.style.width = "";
+          }
         }
 
+        const catBadge = category
+          ? ` <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50 px-2.5 py-1 rounded-pill small">${category}</span>`
+          : "";
         document.getElementById("playerSelectorTitle").innerHTML =
           isSubstitution
-            ? `<i class="fas fa-exchange-alt me-2 text-warning"></i> REGISTRO DE CAMBIO (ENTRA): <span class="text-primary-glow">${teamName}</span>`
-            : `<i class="fas fa-tshirt me-2 text-warning"></i> SELECCIÓN POR DORSAL: <span class="text-primary-glow">${teamName}</span>`;
+            ? `<i class="fas fa-exchange-alt me-2 text-warning"></i> REGISTRO DE CAMBIO (ENTRA): <span class="text-primary-glow">${teamName}</span>${catBadge}`
+            : `<i class="fas fa-tshirt me-2 text-warning"></i> SELECCIÓN POR DORSAL: <span class="text-primary-glow">${teamName}</span>${catBadge}`;
 
         // Renderizado inicial inmediato
         renderPlayerSelectionView();
@@ -3272,7 +3303,7 @@
             window.currentMatchOpened?.jornada,
           );
 
-          // Si el modal sigue abierto, refrescar la lista completa con las cards cargadas y validadas
+          // Si el modal sigue abierto, refrescar la vista con los carnets validados
           const modalInstance = bootstrap.Modal.getInstance(modalEl);
           if (modalInstance) {
             renderPlayerSelectionView();
@@ -3464,55 +3495,24 @@
         const modalBody = document.getElementById("playerSelectorBody");
         if (!modalBody) return;
         const status = getRosterFillStatus();
-        const rosterInfo = getPlayersInMatchRoster(currentRosterTbodyId);
-        const matchExpulsados =
-          getPlayersWithRedCardInMatch(currentRosterTbodyId);
 
-        // Filtrar jugadores por búsqueda (dorsal estricto o nombre)
-        let filteredPlayers = currentTeamPlayersList;
-        if (dorsalSearchQuery) {
-          const q = dorsalSearchQuery.toLowerCase().trim();
-          const isNumeric = /^\d+$/.test(q);
-
-          if (isNumeric) {
-            // Filtrado estricto por número de dorsal
-            const exact = currentTeamPlayersList.filter(
-              (p) => String(p.numeroJugador || p.num || "").trim() === q,
-            );
-            if (exact.length > 0) {
-              filteredPlayers = exact;
-            } else {
-              filteredPlayers = currentTeamPlayersList.filter((p) => {
-                const num = String(p.numeroJugador || p.num || "").trim();
-                return num.startsWith(q);
-              });
-            }
-          } else {
-            // Filtrado por nombre o apellido
-            filteredPlayers = currentTeamPlayersList.filter((p) => {
-              const fullName =
-                `${p.nombres || ""} ${p.apellidos || ""}`.toLowerCase();
-              return fullName.includes(q);
-            });
-          }
+        const dlg = document.querySelector(
+          "#playerSelectorModal .modal-dialog",
+        );
+        if (dlg) {
+          dlg.style.maxWidth = "640px";
+          dlg.style.width = "";
         }
 
-        // Si hay búsqueda exacta de dorsal y no hay preview seleccionado, seleccionarlo automáticamente
         if (dorsalSearchQuery) {
-          const q = dorsalSearchQuery.toLowerCase().trim();
-          const isNumeric = /^\d+$/.test(q);
-          if (isNumeric) {
-            const exactMatch = currentTeamPlayersList.find(
-              (p) => String(p.numeroJugador || p.num || "").trim() === q,
-            );
-            if (exactMatch) {
-              selectedPlayerForPreview = exactMatch;
-            }
-          }
+          const q = dorsalSearchQuery.trim();
+          const match = currentTeamPlayersList.find(
+            (p) => String(p.numeroJugador || p.num || "").trim() === q,
+          );
+          selectedPlayerForPreview = match || null;
+        } else {
+          selectedPlayerForPreview = null;
         }
-
-        const defaultPhoto =
-          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2314802c'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
 
         modalBody.innerHTML = `
           <!-- Barra de Progreso y Estado de Nómina en Cancha -->
@@ -3530,165 +3530,41 @@
 
           ${lastAddedMessage ? `<div class="alert alert-success py-2 px-3 mb-3 rounded-pill text-center fw-bold animate__animated animate__fadeIn" style="font-size:0.92rem; background: rgba(46,204,113,0.2); border: 1px solid #2ecc71; color:#2ecc71;"><i class="fas fa-check-circle me-1"></i> ${lastAddedMessage}</div>` : ""}
 
-          <!-- Buscador por Número de Dorsal / Jugador -->
-          <div class="p-3 mb-3 rounded-4" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 193, 7, 0.3);">
+          <!-- Buscador Único por Número de Dorsal -->
+          <div class="p-3 mb-3 rounded-4" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 193, 7, 0.35);">
               <div class="d-flex justify-content-between align-items-center mb-2">
                   <label for="dorsalSearchInput" class="form-label text-warning small fw-bold text-uppercase mb-0" style="letter-spacing:1px;">
-                      <i class="fas fa-tshirt me-1"></i> ${currentSubstitutionRow ? "Ingrese el Número (Dorsal) del Jugador que ENTRA:" : "Ingrese el Número (Dorsal) del Jugador:"}
+                      <i class="fas fa-tshirt me-1"></i> ${currentSubstitutionRow ? "Ingrese el Dorsal del Jugador que ENTRA:" : "Ingrese el Número de Dorsal:"}
                   </label>
-                  <span class="badge bg-dark border border-secondary text-white-50 small">${currentTeamPlayersList.length} inscritos en ${currentTeamName}</span>
+                  <span class="badge bg-dark border border-secondary text-warning small">${currentTeamPlayersList.length} inscritos (${currentTeamCategory || "MÁXIMA"})</span>
               </div>
-              
+
               <div class="input-group input-group-lg my-1">
-                  <span class="input-group-text bg-dark border-secondary text-warning"><i class="fas fa-hashtag fs-4"></i></span>
-                  <input type="text" id="dorsalSearchInput" class="form-control bg-dark text-white border-secondary fw-bold fs-3 text-center shadow-none" 
-                         placeholder="Ej: 10, 7, 99..." maxlength="20" autocomplete="off"
+                  <span class="input-group-text bg-dark border-secondary text-warning"><i class="fas fa-hashtag fs-3"></i></span>
+                  <input type="text" id="dorsalSearchInput" class="form-control bg-dark text-white border-secondary fw-bold fs-2 text-center shadow-none"
+                         placeholder="Ej: 10, 7, 99..." maxlength="10" autocomplete="off"
                          value="${dorsalSearchQuery}"
-                         oninput="window.handleDorsalSearchInput(this.value)" 
+                         oninput="window.handleDorsalSearchInput(this.value)"
                          onkeydown="if(event.key==='Enter') window.handleDorsalSearchSubmit(this.value)" autofocus>
+                  ${
+                    dorsalSearchQuery
+                      ? `
+                  <button class="btn btn-outline-secondary px-3" type="button" onclick="window.clearSearchQuery()" title="Limpiar">
+                      <i class="fas fa-times"></i>
+                  </button>`
+                      : ""
+                  }
                   <button class="btn btn-warning px-4 fw-bold" type="button" onclick="window.handleDorsalSearchSubmit(document.getElementById('dorsalSearchInput').value)">
                       <i class="fas fa-search me-1"></i> BUSCAR
                   </button>
               </div>
-
-              <div class="d-flex justify-content-between align-items-center mt-2 pt-1 border-top border-secondary border-opacity-25 flex-wrap gap-2">
-                  <small class="text-white-50"><i class="fas fa-hand-pointer text-success me-1"></i> Digite el dorsal para buscar o seleccione directamente de la lista.</small>
-                  <button type="button" class="btn btn-link btn-sm text-info text-decoration-none p-0 fw-bold" onclick="window.showAllCarnetsGrid()">
-                      <i class="fas fa-th-large me-1"></i> Ver todos los carnets completos
-                  </button>
-              </div>
           </div>
 
-          <!-- Estructura Principal: Cards de Dorsales (Izquierda) + Vista Previa Carnet (Derecha) -->
-          <div class="row g-3 align-items-start">
-              <!-- Columna 1: Tarjetas con Número de Dorsal Uniformes -->
-              <div class="col-lg-6 col-xl-6">
-                  <div class="d-flex justify-content-between align-items-center mb-2 px-1">
-                      <span class="text-white small fw-bold text-uppercase" style="letter-spacing:0.5px">
-                          <i class="fas fa-th-list text-warning me-1"></i> Tarjetas de Jugadores (${filteredPlayers.length})
-                      </span>
-                      ${dorsalSearchQuery ? `<button class="btn btn-link btn-sm text-warning p-0 text-decoration-none small fw-bold" onclick="window.clearSearchQuery()"><i class="fas fa-times me-1"></i> Ver todos</button>` : ""}
-                  </div>
-
-                  <div class="cards-scroll-container">
-                      ${
-                        filteredPlayers.length === 0
-                          ? `
-                          <div class="text-center py-5 text-white-50 border border-secondary border-opacity-25 rounded-4 p-4">
-                              <i class="fas fa-user-slash text-warning opacity-50 mb-2 fs-1"></i>
-                              <h6 class="fw-bold text-white mb-1">No se encontró jugador con dorsal #${dorsalSearchQuery}</h6>
-                              <p class="small text-white-50 mb-0">Verifique el número ingresado en la nómina del club.</p>
-                          </div>
-                      `
-                          : `
-                          <div class="d-flex flex-column gap-2">
-                              ${filteredPlayers
-                                .map((p) => {
-                                  const num = String(
-                                    p.numeroJugador || p.num || "--",
-                                  ).trim();
-                                  const shortName = getPlayerShortName(p);
-                                  const photo =
-                                    p.playerPhoto || p.fotoUrl || defaultPhoto;
-                                  const sanction = getPlayerSanction(p);
-                                  const isSanctioned = !!sanction;
-                                  const hasRedInMatch =
-                                    matchExpulsados.has(num);
-                                  const inMatchTitular =
-                                    rosterInfo.titulares.get(num);
-                                  const inMatchCambio =
-                                    rosterInfo.cambios.get(num);
-                                  const isInMatch =
-                                    inMatchTitular || inMatchCambio;
-                                  const isSelected =
-                                    selectedPlayerForPreview &&
-                                    ((selectedPlayerForPreview.id &&
-                                      p.id &&
-                                      selectedPlayerForPreview.id === p.id) ||
-                                      (selectedPlayerForPreview.numeroJugador &&
-                                        p.numeroJugador &&
-                                        String(
-                                          selectedPlayerForPreview.numeroJugador,
-                                        ) === String(p.numeroJugador)));
-
-                                  let statusBadge = "";
-                                  if (hasRedInMatch) {
-                                    statusBadge = `<span class="badge bg-danger text-white py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-square text-danger me-1"></i>EXPULSADO (T. ROJA)</span>`;
-                                  } else if (isSanctioned) {
-                                    const partidosSusp = sanction.partidos || 1;
-                                    const suspBadge =
-                                      partidosSusp >= 40
-                                        ? "1 Año"
-                                        : `${partidosSusp} Part.`;
-                                    statusBadge = `<span class="badge bg-danger text-white py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-ban me-1"></i>SUSPENDIDO (${suspBadge})</span>`;
-                                  } else if (inMatchTitular) {
-                                    statusBadge = `<span class="badge bg-primary text-white py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-user-check me-1"></i>En Cancha (#${inMatchTitular.slotIndex})</span>`;
-                                  } else if (inMatchCambio) {
-                                    statusBadge = `<span class="badge bg-info text-dark py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-exchange-alt me-1"></i>Cambio (#${inMatchCambio.rowIndex})</span>`;
-                                  } else {
-                                    statusBadge = `<span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-check me-1"></i>Disponible</span>`;
-                                  }
-
-                                  const safeId = p.id || num;
-
-                                  return `
-                                  <div class="player-dorsal-card ${isSelected ? "active-selected" : ""} ${isSanctioned || hasRedInMatch ? "is-sanctioned" : ""} ${isInMatch ? "is-in-match" : ""}"
-                                       onclick="window.selectPlayerForPreview('${safeId}', '${num}')">
-                                      <div class="d-flex align-items-center gap-2 overflow-hidden" style="flex: 1 1 auto; min-width: 0;">
-                                          <!-- Número de Dorsal Fijo -->
-                                          <div class="dorsal-number-badge ${isSanctioned || hasRedInMatch ? "sanctioned-badge" : isSelected ? "selected-badge" : ""}">
-                                              #${num}
-                                          </div>
-                                          <!-- Foto miniatura fija -->
-                                          <div style="width: 42px; height: 42px; min-width: 42px; border-radius: 8px; overflow: hidden; border: 1.5px solid rgba(255,255,255,0.2); flex-shrink: 0; background: #222;">
-                                              <img src="${photo}" onerror="this.onerror=null; this.src='${defaultPhoto}';" style="width:100%; height:100%; object-fit:cover;">
-                                          </div>
-                                          <!-- Datos: 1 Nombre y 1 Apellido sin desbordar -->
-                                          <div class="d-flex flex-column justify-content-center overflow-hidden" style="min-width: 0; flex: 1 1 auto;">
-                                              <div class="fw-bold text-white text-truncate text-uppercase" style="font-size: 0.88rem; letter-spacing: 0.3px; line-height: 1.2;">
-                                                  ${shortName}
-                                              </div>
-                                              <div class="text-white-50 text-truncate" style="font-size: 0.72rem; line-height: 1.2; margin-top: 2px;">
-                                                  <span class="text-warning fw-bold">${p.teamCategory || currentTeamCategory}</span> • CI: ${p.cedula || "N/A"}
-                                              </div>
-                                          </div>
-                                      </div>
-                                      <!-- Estado alineado a la derecha -->
-                                      <div class="d-flex align-items-center flex-shrink-0 ms-2">
-                                          ${statusBadge}
-                                      </div>
-                                  </div>
-                                `;
-                                })
-                                .join("")}
-                          </div>
-                      `
-                      }
-                  </div>
-              </div>
-
-              <!-- Columna 2: Vista Previa del Carnet y Botones de Aceptación -->
-              <div class="col-lg-6 col-xl-6">
-                  <div class="p-3 rounded-4 border border-secondary border-opacity-50" style="background: rgba(0,0,0,0.5); min-height: 520px; position: sticky; top: 10px;">
-                      <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-50">
-                          <span class="text-warning small fw-bold text-uppercase" style="letter-spacing:0.5px">
-                              <i class="fas fa-id-card me-1"></i> Vista Previa del Carnet Digital
-                          </span>
-                          ${
-                            selectedPlayerForPreview
-                              ? `
-                              <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2 rounded-pill small" onclick="window.clearPlayerPreview()">
-                                  <i class="fas fa-times me-1"></i> Deseleccionar
-                              </button>
-                          `
-                              : ""
-                          }
-                      </div>
-
-                      <div id="playerCarnetPreviewContainer">
-                          ${renderCarnetPreviewContent(selectedPlayerForPreview)}
-                      </div>
-                  </div>
+          <!-- Contenedor Centrado de Previsualización del Carnet -->
+          <div class="p-3 rounded-4 border border-secondary border-opacity-50 d-flex flex-column align-items-center justify-content-center"
+               style="background: rgba(0,0,0,0.5); min-height: 480px;">
+              <div id="playerCarnetPreviewContainer" class="w-100 d-flex flex-column align-items-center">
+                  ${renderCarnetPreviewContent(selectedPlayerForPreview)}
               </div>
           </div>
         `;
@@ -3696,15 +3572,30 @@
 
       function renderCarnetPreviewContent(player) {
         if (!player) {
+          if (dorsalSearchQuery) {
+            return `
+              <div class="text-center py-5 text-white-50 d-flex flex-column align-items-center justify-content-center animate__animated animate__fadeIn" style="min-height: 400px;">
+                  <i class="fas fa-user-slash text-warning opacity-75 mb-3" style="font-size: 4.5rem;"></i>
+                  <h5 class="fw-bold text-white mb-2">No se encontró jugador con dorsal #${dorsalSearchQuery}</h5>
+                  <p class="small text-white-50 mb-3" style="max-width: 360px;">
+                      No existe ningún jugador registrado con el dorsal <b>#${dorsalSearchQuery}</b> en <b>${currentTeamName}</b> (${currentTeamCategory || "Esta Categoría"}).
+                  </p>
+                  <button type="button" class="btn btn-outline-warning btn-sm rounded-pill px-4 py-2 fw-bold" onclick="window.clearSearchQuery()">
+                      <i class="fas fa-arrow-left me-1"></i> Intentar con otro dorsal
+                  </button>
+              </div>
+            `;
+          }
+
           return `
-            <div class="text-center py-5 text-white-50 d-flex flex-column align-items-center justify-content-center" style="min-height: 420px;">
-                <i class="fas fa-id-badge text-warning opacity-25 mb-3" style="font-size: 5.5rem;"></i>
-                <h5 class="fw-bold text-white mb-2">Esperando Selección de Jugador</h5>
-                <p class="small text-white-50 mb-3" style="max-width: 320px;">
-                    Digite el número de dorsal en el buscador o haga clic en cualquier tarjeta de la izquierda para ver su carnet digital y habilitarlo.
+            <div class="text-center py-5 text-white-50 d-flex flex-column align-items-center justify-content-center" style="min-height: 400px;">
+                <i class="fas fa-id-badge text-warning opacity-30 mb-3" style="font-size: 5rem;"></i>
+                <h5 class="fw-bold text-white mb-2">Previsualización del Carnet Digital</h5>
+                <p class="small text-white-50 mb-3" style="max-width: 340px;">
+                    Digite el número de dorsal en el buscador superior para verificar en tiempo real el carnet oficial, sanciones y estado en cancha.
                 </p>
                 <span class="badge bg-dark border border-secondary text-white-50 px-3 py-2 rounded-pill">
-                    <i class="fas fa-hashtag text-warning me-1"></i> Ingrese el dorsal #
+                    <i class="fas fa-shield-alt text-warning me-1"></i> Club: ${currentTeamName} (${currentTeamCategory || "MÁXIMA"})
                 </span>
             </div>
           `;
@@ -3717,23 +3608,26 @@
         ).trim();
         const safeNombre = nombreCompleto.replace(/'/g, "\\'");
         const num = String(player.numeroJugador || player.num || "--").trim();
+        const normNum = String(parseInt(num, 10) || num).trim();
         const sanction = getPlayerSanction(player);
         const matchExpulsados =
           getPlayersWithRedCardInMatch(currentRosterTbodyId);
-        const hasRedInMatch = matchExpulsados.has(num);
+        const hasRedInMatch =
+          matchExpulsados.has(num) || matchExpulsados.has(normNum);
 
+        // 1. Estado: EXPULSADO EN ESTE PARTIDO (TARJETA ROJA)
         if (hasRedInMatch) {
-          const exp = matchExpulsados.get(num);
+          const exp = matchExpulsados.get(num) || matchExpulsados.get(normNum);
           return `
             <div class="d-flex flex-column align-items-center justify-content-center w-100 animate__animated animate__shakeX">
-                <div class="text-danger small fw-bold mb-2 fs-6 text-uppercase" style="letter-spacing: 1px;">
-                    <i class="fas fa-ban me-1"></i> ¡JUGADOR EXPULSADO CON TARJETA ROJA!
+                <div class="badge bg-danger text-white px-3 py-1.5 rounded-pill fs-6 fw-bold mb-2 shadow">
+                    <i class="fas fa-ban me-1"></i> EXPULSADO CON TARJETA ROJA
                 </div>
                 <div style="max-width: 440px; width: 100%;">
-                    ${renderSingleCarnetHtml(player)}
+                    ${renderSingleCarnetHtml(player, false)}
                 </div>
                 <div class="mt-3 text-center w-100" style="max-width: 440px;">
-                    <div class="alert alert-danger py-2 px-3 rounded-4 shadow fw-bold text-start mb-3" style="font-size:0.85rem; background: rgba(231,76,60,0.25); border: 1.5px solid #e74c3c;">
+                    <div class="alert alert-danger py-2.5 px-3 rounded-4 shadow fw-bold text-start mb-3" style="font-size:0.85rem; background: rgba(231,76,60,0.25); border: 1.5px solid #e74c3c; color:#fff;">
                         <div class="text-danger fw-900 mb-1"><i class="fas fa-gavel me-1"></i> EXPULSIÓN EN ESTE ENCUENTRO:</div>
                         <div class="text-white mb-1"><i class="fas fa-square text-danger me-1"></i> <b>Causa:</b> ${exp.reason}</div>
                         <div class="small fw-normal text-white-50 mt-1">Este jugador recibió tarjeta roja o doble amarilla durante el partido y está totalmente inhabilitado para jugar o ingresar.</div>
@@ -3741,14 +3635,15 @@
                     <button type="button" class="btn btn-danger btn-lg rounded-pill w-100 py-3 fw-bold disabled shadow mb-2" disabled style="opacity: 0.7; cursor: not-allowed;">
                         <i class="fas fa-lock me-2"></i> EXPULSADO (NO PERMITIDO)
                     </button>
-                    <button type="button" class="btn btn-outline-light btn-sm rounded-pill px-4 py-2 fw-bold" onclick="window.clearPlayerPreview()">
-                        <i class="fas fa-arrow-left me-1"></i> Elegir otro jugador
+                    <button type="button" class="btn btn-outline-light btn-sm rounded-pill px-4 py-2 fw-bold w-100" onclick="window.clearSearchQuery()">
+                        <i class="fas fa-arrow-left me-1"></i> Elegir otro dorsal
                     </button>
                 </div>
             </div>
           `;
         }
 
+        // 2. Estado: SUSPENDIDO (SANCIÓN DISCIPLINARIA ACTIVA)
         if (sanction) {
           const partidosSusp = sanction.partidos || 1;
           const suspTitle =
@@ -3763,14 +3658,14 @@
               : `${partidosSusp} partido(s) pendiente(s)`;
           return `
             <div class="d-flex flex-column align-items-center justify-content-center w-100 animate__animated animate__shakeX">
-                <div class="text-danger small fw-bold mb-2 fs-6 text-uppercase" style="letter-spacing: 1px;">
-                    <i class="fas fa-ban me-1"></i> ¡JUGADOR SUSPENDIDO (${suspTitle})!
+                <div class="badge bg-danger text-white px-3 py-1.5 rounded-pill fs-6 fw-bold mb-2 shadow">
+                    <i class="fas fa-ban me-1"></i> JUGADOR SUSPENDIDO (${suspTitle})
                 </div>
                 <div style="max-width: 440px; width: 100%;">
-                    ${renderSingleCarnetHtml(player)}
+                    ${renderSingleCarnetHtml(player, false)}
                 </div>
                 <div class="mt-3 text-center w-100" style="max-width: 440px;">
-                    <div class="alert alert-danger py-2 px-3 rounded-4 shadow fw-bold text-start mb-3" style="font-size:0.85rem; background: rgba(231,76,60,0.22); border: 1.5px solid #e74c3c;">
+                    <div class="alert alert-danger py-2.5 px-3 rounded-4 shadow fw-bold text-start mb-3" style="font-size:0.85rem; background: rgba(231,76,60,0.22); border: 1.5px solid #e74c3c; color:#fff;">
                         <div class="text-danger fw-900 mb-1"><i class="fas fa-gavel me-1"></i> SANCIÓN DISCIPLINARIA ACTIVA:</div>
                         <div class="text-white mb-1"><i class="fas fa-exclamation-circle text-warning me-1"></i> <b>Motivo:</b> ${sanction.reason}</div>
                         <div class="text-warning small fw-bold"><i class="fas fa-calendar-times me-1"></i> <b>Suspensión:</b> ${suspDetail}</div>
@@ -3779,71 +3674,97 @@
                     <button type="button" class="btn btn-danger btn-lg rounded-pill w-100 py-3 fw-bold disabled shadow mb-2" disabled style="opacity: 0.7; cursor: not-allowed;">
                         <i class="fas fa-lock me-2"></i> JUGADOR SUSPENDIDO (${suspBtnText})
                     </button>
-                    <button type="button" class="btn btn-outline-light btn-sm rounded-pill px-4 py-2 fw-bold" onclick="window.clearPlayerPreview()">
-                        <i class="fas fa-arrow-left me-1"></i> Elegir otro jugador
+                    <button type="button" class="btn btn-outline-light btn-sm rounded-pill px-4 py-2 fw-bold w-100" onclick="window.clearSearchQuery()">
+                        <i class="fas fa-arrow-left me-1"></i> Elegir otro dorsal
                     </button>
                 </div>
             </div>
           `;
         }
 
-        // Jugador Habilitado: verificar si ya está en cancha cuando es sustitución (ENTRA)
+        // 3. Estado: EN CANCHA (YA REGISTRADO EN EL ACTA)
         const isSubstitution = !!currentSubstitutionRow;
         const rosterInfo = getPlayersInMatchRoster(currentRosterTbodyId);
-        const inMatchTitular = rosterInfo?.titulares?.get(num);
-        const inMatchCambio = rosterInfo?.cambios?.get(num);
+        const inMatchTitular =
+          rosterInfo?.titulares?.get(num) ||
+          rosterInfo?.titulares?.get(normNum);
+        const inMatchCambio =
+          rosterInfo?.cambios?.get(num) || rosterInfo?.cambios?.get(normNum);
+
+        const currentEditingTr = currentTargetInput?.closest("tr");
+        let isSameRowBeingEdited = false;
+        if (
+          inMatchTitular &&
+          currentEditingTr &&
+          inMatchTitular.tr === currentEditingTr
+        ) {
+          isSameRowBeingEdited = true;
+        }
+        if (
+          inMatchCambio &&
+          currentSubstitutionRow &&
+          inMatchCambio.tr === currentSubstitutionRow
+        ) {
+          isSameRowBeingEdited = true;
+        }
+
         const isAlreadyOnField =
-          isSubstitution && (inMatchTitular || inMatchCambio);
+          (inMatchTitular || inMatchCambio) && !isSameRowBeingEdited;
 
         if (isAlreadyOnField) {
+          const locationDesc = inMatchTitular
+            ? `Titular en Casillero #${inMatchTitular.slotIndex}`
+            : `Sustitución en Cambio #${inMatchCambio.rowIndex}`;
           return `
             <div class="d-flex flex-column align-items-center justify-content-center w-100 animate__animated animate__fadeIn">
-                <div class="text-warning small fw-bold mb-2">
-                    <i class="fas fa-exclamation-triangle me-1"></i> JUGADOR YA EN CANCHA
+                <div class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fs-6 fw-bold mb-2 shadow">
+                    <i class="fas fa-user-check me-1"></i> JUGADOR EN CANCHA
                 </div>
                 <div style="max-width: 440px; width: 100%;">
                     ${renderSingleCarnetHtml(player, false)}
                 </div>
                 <div class="mt-3 text-center w-100" style="max-width: 440px;">
-                    <div class="alert alert-warning py-2 px-3 rounded-4 shadow fw-bold text-start mb-3" style="font-size:0.85rem; background: rgba(243,156,18,0.2); border: 1px solid #f39c12;">
-                        <i class="fas fa-info-circle me-1"></i> <b>TITULAR ACTIVO:</b><br>
-                        <span class="text-white">El jugador #${num} ya está en la cancha (${inMatchTitular ? "Titular #" + inMatchTitular.slotIndex : "Cambio"}). Debe seleccionar a un suplente para ingresar.</span>
+                    <div class="alert alert-warning py-2.5 px-3 rounded-4 shadow fw-bold text-start mb-3" style="font-size:0.88rem; background: rgba(243,156,18,0.2); border: 1.5px solid #f39c12; color:#fff;">
+                        <div class="text-warning fw-900 mb-1"><i class="fas fa-info-circle me-1"></i> JUGADOR ACTIVO EN EL ACTA:</div>
+                        <div>El jugador <b>#${num} (${nombreCompleto})</b> ya se encuentra registrado en la cancha como <b>${locationDesc}</b>.</div>
+                        <div class="small fw-normal text-white-50 mt-1">No se puede duplicar el mismo jugador en dos casilleros diferentes del partido.</div>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-lg rounded-pill w-100 py-3 fw-bold disabled opacity-50 shadow mb-2" disabled>
-                        <i class="fas fa-ban me-2"></i> YA ESTÁ EN CANCHA
+                    <button type="button" class="btn btn-secondary btn-lg rounded-pill w-100 py-3 fw-bold disabled shadow mb-2" disabled style="opacity: 0.65; cursor: not-allowed;">
+                        <i class="fas fa-ban me-2"></i> YA EN CANCHA (NO DUPLICAR)
                     </button>
-                    <button type="button" class="btn btn-outline-light btn-sm rounded-pill px-4 py-2 fw-bold" onclick="window.clearPlayerPreview()">
-                        <i class="fas fa-arrow-left me-1"></i> Elegir otro jugador
+                    <button type="button" class="btn btn-outline-warning btn-sm rounded-pill px-4 py-2 fw-bold w-100" onclick="window.clearSearchQuery()">
+                        <i class="fas fa-arrow-left me-1"></i> Elegir otro dorsal
                     </button>
                 </div>
             </div>
           `;
         }
 
+        // 4. Estado: DISPONIBLE / HABILITADO
         const acceptBtnText = isSubstitution
           ? `<i class="fas fa-check-circle me-2"></i> SÍ, SELECCIONAR ENTRA (#${num})`
           : `<i class="fas fa-check-circle me-2"></i> SÍ, HABILITAR EN ACTA (#${num})`;
 
         return `
           <div class="d-flex flex-column align-items-center justify-content-center w-100 animate__animated animate__fadeIn">
-              <div class="text-success small fw-bold mb-2">
-                  <i class="fas fa-shield-alt me-1"></i> CARNET OFICIAL VERIFICADO
+              <div class="badge bg-success text-white px-3 py-1.5 rounded-pill fs-6 fw-bold mb-2 shadow">
+                  <i class="fas fa-check-circle me-1"></i> JUGADOR DISPONIBLE / HABILITADO
               </div>
               <div style="max-width: 440px; width: 100%;">
                   ${renderSingleCarnetHtml(player, false)}
               </div>
-              
-              <!-- Opciones Sí, Acepto / No -->
+
+              <!-- Opciones Sí, Habilitar / Cancelar -->
               <div class="mt-3 text-center w-100" style="max-width: 440px;">
-                  <button type="button" class="btn btn-success btn-lg rounded-pill w-100 py-3 fw-bold shadow-lg fs-5 mb-2" 
+                  <button type="button" class="btn btn-success btn-lg rounded-pill w-100 py-3 fw-bold shadow-lg fs-5 mb-2"
                           onclick="window.confirmSelectPlayer('${safeNombre}', '${num}')"
                           style="letter-spacing: 0.5px; background: linear-gradient(135deg, #2ecc71, #27ae60); border:none; box-shadow: 0 8px 25px rgba(46,204,113,0.5);">
                       ${acceptBtnText}
                   </button>
 
-                  <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-4 py-2 fw-bold w-100" 
-                          onclick="window.clearPlayerPreview()">
-                      <i class="fas fa-times me-1"></i> No, elegir otro jugador
+                  <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-4 py-2 fw-bold w-100"
+                          onclick="window.clearSearchQuery()">
+                      <i class="fas fa-times me-1"></i> Cancelar / Elegir otro dorsal
                   </button>
               </div>
           </div>
@@ -3875,81 +3796,75 @@
           if (container) {
             container.innerHTML = renderCarnetPreviewContent(p);
           }
-          // Actualizar estilo activo en las tarjetas
-          document.querySelectorAll(".player-dorsal-card").forEach((c) => {
-            c.classList.remove("active-selected");
-          });
-          const activeCard = Array.from(
-            document.querySelectorAll(".player-dorsal-card"),
-          ).find((c) => c.innerText.includes(`#${p.numeroJugador || p.num}`));
-          if (activeCard) activeCard.classList.add("active-selected");
         }
       };
 
       window.clearPlayerPreview = function () {
-        selectedPlayerForPreview = null;
-        const container = document.getElementById(
-          "playerCarnetPreviewContainer",
-        );
-        if (container) {
-          container.innerHTML = renderCarnetPreviewContent(null);
-        }
-        document.querySelectorAll(".player-dorsal-card").forEach((c) => {
-          c.classList.remove("active-selected");
-        });
-        const inp = document.getElementById("dorsalSearchInput");
-        if (inp) inp.focus();
+        window.clearSearchQuery();
       };
 
       window.handleDorsalSearchInput = function (typedVal) {
         dorsalSearchQuery = (typedVal || "").trim();
-        renderPlayerSelectionView();
-        const inp = document.getElementById("dorsalSearchInput");
-        if (inp) {
-          inp.focus();
-          inp.setSelectionRange(inp.value.length, inp.value.length);
+        if (dorsalSearchQuery) {
+          const match = currentTeamPlayersList.find(
+            (p) =>
+              String(p.numeroJugador || p.num || "").trim() ===
+              dorsalSearchQuery,
+          );
+          selectedPlayerForPreview = match || null;
+        } else {
+          selectedPlayerForPreview = null;
+        }
+        const container = document.getElementById(
+          "playerCarnetPreviewContainer",
+        );
+        if (container) {
+          container.innerHTML = renderCarnetPreviewContent(
+            selectedPlayerForPreview,
+          );
+        } else {
+          renderPlayerSelectionView();
         }
       };
 
       window.handleDorsalSearchSubmit = function (typedVal) {
         const val = (typedVal || "").trim();
         if (!val) return;
-        const isNum = /^\d+$/.test(val);
-        if (isNum) {
-          const exact = currentTeamPlayersList.find(
-            (p) => String(p.numeroJugador || p.num || "").trim() === val,
+        const exact = currentTeamPlayersList.find(
+          (p) => String(p.numeroJugador || p.num || "").trim() === val,
+        );
+        if (exact) {
+          selectedPlayerForPreview = exact;
+          const container = document.getElementById(
+            "playerCarnetPreviewContainer",
           );
-          if (exact) {
-            window.selectPlayerForPreview(exact.id || exact.numeroJugador);
-            return;
-          }
-        }
-        const partial = currentTeamPlayersList.find((p) => {
-          const num = String(p.numeroJugador || p.num || "").trim();
-          const fullName =
-            `${p.nombres || ""} ${p.apellidos || ""}`.toLowerCase();
-          return num === val || fullName.includes(val.toLowerCase());
-        });
-        if (partial) {
-          window.selectPlayerForPreview(partial.id || partial.numeroJugador);
+          if (container)
+            container.innerHTML = renderCarnetPreviewContent(exact);
         } else {
-          Swal.fire({
-            icon: "warning",
-            title: "Jugador no encontrado",
-            text: `No existe ningún jugador registrado con el dorsal #${val} en ${currentTeamName}.`,
-            timer: 2200,
-            showConfirmButton: false,
-            background: "#121212",
-            color: "#ffffff",
-          });
+          selectedPlayerForPreview = null;
+          const container = document.getElementById(
+            "playerCarnetPreviewContainer",
+          );
+          if (container) container.innerHTML = renderCarnetPreviewContent(null);
         }
       };
 
       window.clearSearchQuery = function () {
         dorsalSearchQuery = "";
-        renderPlayerSelectionView();
+        selectedPlayerForPreview = null;
         const inp = document.getElementById("dorsalSearchInput");
-        if (inp) inp.focus();
+        if (inp) {
+          inp.value = "";
+          inp.focus();
+        }
+        const container = document.getElementById(
+          "playerCarnetPreviewContainer",
+        );
+        if (container) {
+          container.innerHTML = renderCarnetPreviewContent(null);
+        } else {
+          renderPlayerSelectionView();
+        }
       };
 
       window.confirmSelectPlayer = function (name, number) {
@@ -4076,12 +3991,43 @@
         const nombre = ((p.nombres || "") + " " + (p.apellidos || "")).trim();
         const safeNombre = nombre.replace(/'/g, "\\'");
         const num = p.numeroJugador || p.num || "";
+        const normNum = String(parseInt(num, 10) || num).trim();
         const cedula = p.cedula || "N/A";
         const sanction = getPlayerSanction(p);
         const matchExpulsados =
           getPlayersWithRedCardInMatch(currentRosterTbodyId);
-        const hasRedInMatch = num && matchExpulsados.has(String(num).trim());
+        const hasRedInMatch =
+          num &&
+          (matchExpulsados.has(String(num).trim()) ||
+            matchExpulsados.has(normNum));
         const isSanctioned = !!sanction || hasRedInMatch;
+
+        // Verificar si ya está en cancha
+        const rosterInfo = getPlayersInMatchRoster(currentRosterTbodyId);
+        const inMatchTitular =
+          rosterInfo?.titulares?.get(String(num)) ||
+          rosterInfo?.titulares?.get(normNum);
+        const inMatchCambio =
+          rosterInfo?.cambios?.get(String(num)) ||
+          rosterInfo?.cambios?.get(normNum);
+        const currentEditingTr = currentTargetInput?.closest("tr");
+        let isSameRowBeingEdited = false;
+        if (
+          inMatchTitular &&
+          currentEditingTr &&
+          inMatchTitular.tr === currentEditingTr
+        ) {
+          isSameRowBeingEdited = true;
+        }
+        if (
+          inMatchCambio &&
+          currentSubstitutionRow &&
+          inMatchCambio.tr === currentSubstitutionRow
+        ) {
+          isSameRowBeingEdited = true;
+        }
+        const isOnField =
+          (inMatchTitular || inMatchCambio) && !isSameRowBeingEdited;
 
         let fNac = "N/A";
         let badgeText = "SENIOR";
@@ -4119,9 +4065,48 @@
           }
         }
 
-        const borderStyle = isSanctioned
-          ? "border: 3.5px solid #e74c3c; box-shadow: 0 0 30px rgba(231,76,60,0.85);"
-          : "border: 2px solid #14802c; box-shadow: 0 8px 25px rgba(0,0,0,0.5);";
+        let borderStyle =
+          "border: 2.5px solid #14802c; box-shadow: 0 8px 25px rgba(0,0,0,0.5);";
+        let topBadgeHtml = "";
+
+        if (hasRedInMatch) {
+          borderStyle =
+            "border: 3.5px solid #e74c3c; box-shadow: 0 0 30px rgba(231,76,60,0.85);";
+          topBadgeHtml = `
+            <div class="position-absolute bg-danger text-white fw-bold py-1 px-3 rounded-bottom shadow"
+                 style="top: 0; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 0.72rem; letter-spacing: 0.5px; white-space:nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+                <i class="fas fa-ban me-1"></i> EXPULSADO (TARJETA ROJA)
+            </div>
+          `;
+        } else if (sanction) {
+          borderStyle =
+            "border: 3.5px solid #e74c3c; box-shadow: 0 0 30px rgba(231,76,60,0.85);";
+          topBadgeHtml = `
+            <div class="position-absolute bg-danger text-white fw-bold py-1 px-3 rounded-bottom shadow"
+                 style="top: 0; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 0.72rem; letter-spacing: 0.5px; white-space:nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+                <i class="fas fa-ban me-1"></i> SUSPENDIDO (${sanction.partidos || 1} PART.)
+            </div>
+          `;
+        } else if (isOnField) {
+          borderStyle =
+            "border: 3.5px solid #f39c12; box-shadow: 0 0 25px rgba(243,156,18,0.75);";
+          const locText = inMatchTitular
+            ? `TITULAR #${inMatchTitular.slotIndex}`
+            : `CAMBIO #${inMatchCambio.rowIndex}`;
+          topBadgeHtml = `
+            <div class="position-absolute bg-warning text-dark fw-bold py-1 px-3 rounded-bottom shadow"
+                 style="top: 0; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 0.72rem; letter-spacing: 0.5px; white-space:nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+                <i class="fas fa-user-check me-1"></i> EN CANCHA (${locText})
+            </div>
+          `;
+        } else {
+          topBadgeHtml = `
+            <div class="position-absolute bg-success text-white fw-bold py-1 px-3 rounded-bottom shadow"
+                 style="top: 0; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 0.72rem; letter-spacing: 0.5px; white-space:nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+                <i class="fas fa-check-circle me-1"></i> DISPONIBLE / HABILITADO
+            </div>
+          `;
+        }
 
         let clickAttr = "";
         let hoverAttrs = "";
@@ -4133,70 +4118,59 @@
           if (customAction) {
             clickAttr = `onclick="${customAction}"`;
           } else if (hasRedInMatch) {
-            const exp = matchExpulsados.get(String(num).trim());
+            const exp =
+              matchExpulsados.get(String(num).trim()) ||
+              matchExpulsados.get(normNum);
             clickAttr = `onclick="window.showRedCardExitAlert('${num}', '${safeNombre}', '${(exp?.reason || "").replace(/'/g, "\\'")}')"`;
           } else if (sanction) {
             clickAttr = `onclick="window.showSanctionAlert('${safeNombre}', '${num}', '${(sanction.reason || "").replace(/'/g, "\\'")}', ${sanction.partidos || 1})"`;
+          } else if (isOnField) {
+            clickAttr = `onclick="Swal.fire({icon: 'warning', title: 'Jugador en Cancha', text: 'El jugador #${num} ya está registrado en este partido.', background: '#121212', color: '#fff'})"`;
           } else {
             clickAttr = `onclick="selectPlayer('${safeNombre}', '${num}')"`;
           }
         }
 
-        const badgeLabel = hasRedInMatch
-          ? "EXPULSADO (TARJETA ROJA)"
-          : sanction
-            ? `SUSPENDIDO (${sanction.partidos || 1} PART.)`
-            : "";
-
         return `
-          <div class="card text-center position-relative overflow-hidden p-0 shadow-lg mx-auto w-100" 
-               ${clickAttr} 
+          <div class="card text-center position-relative overflow-hidden p-0 shadow-lg mx-auto w-100"
+               ${clickAttr}
                style="${cursorStyle} ${borderStyle} border-radius: 16px; background: #ffffff url('img/carnet-bg-futbol.png') no-repeat right bottom; background-size: cover; color: #111; transition: all 0.22s ease-in-out;"
                ${hoverAttrs}>
 
-              ${
-                isSanctioned
-                  ? `
-                <div class="position-absolute bg-danger text-white fw-bold py-1 px-3 rounded-bottom shadow" 
-                     style="top: 0; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 0.72rem; letter-spacing: 0.5px; white-space:nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
-                    <i class="fas fa-ban me-1"></i> ${badgeLabel}
-                </div>
-              `
-                  : ""
-              }
+              ${topBadgeHtml}
 
-              <div class="position-relative z-1 p-3 ${isSanctioned ? "pt-4 opacity-75" : ""}">
+              <div class="position-relative z-1 p-3 pt-4">
                   <!-- Encabezado Oficial -->
-                  <div class="fw-bold text-uppercase" style="font-size: 1.12rem; font-family: 'Times New Roman', serif; color: #0a3d13; letter-spacing: 0.5px; line-height: 1.1;">LIGA BARRIAL ARGELIA ALTA</div>
-                  <div style="font-size: 0.92rem; font-family: 'Times New Roman', serif; margin-top: 2px; color: #1b6b27;" class="fw-bold text-uppercase">${currentCampName}</div>
-                  <hr style="border-top: 2px solid #14802c; opacity: 0.85; margin: 4px 15px 8px 15px;">
-                  
+                  <div class="fw-bold text-uppercase" style="font-size: 1.05rem; font-family: 'Times New Roman', serif; color: #0a3d13; letter-spacing: 0.5px; line-height: 1.15; white-space: nowrap;">LIGA BARRIAL ARGELIA ALTA</div>
+                  <div style="font-size: 0.88rem; font-family: 'Times New Roman', serif; margin-top: 2px; color: #1b6b27; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="fw-bold text-uppercase">${currentCampName}</div>
+                  <hr style="border-top: 2px solid #14802c; opacity: 0.85; margin: 4px 10px 8px 10px;">
+
                   <div class="d-flex w-100 px-1 gap-2 text-start align-items-center">
                       <!-- Foto y Dorsal -->
-                      <div class="d-flex flex-column align-items-center" style="width: 120px; flex-shrink: 0;">
-                          <div style="border: 2.5px solid ${isSanctioned ? "#e74c3c" : "#14802c"}; border-radius: 12px; padding: 0px; background: white; width: 110px; height: 135px; display:flex; justify-content:center; align-items:center; overflow:hidden; box-shadow: 0 3px 8px rgba(0,0,0,0.15); position:relative;">
+                      <div class="d-flex flex-column align-items-center" style="width: 105px; flex-shrink: 0;">
+                          <div style="border: 2.5px solid ${isSanctioned ? "#e74c3c" : isOnField ? "#f39c12" : "#14802c"}; border-radius: 12px; padding: 0px; background: white; width: 100px; height: 125px; display:flex; justify-content:center; align-items:center; overflow:hidden; box-shadow: 0 3px 8px rgba(0,0,0,0.15); position:relative;">
                               <img src="${photo}" onerror="this.onerror=null; this.src='${defaultPhoto}';" style="width: 100%; height: 100%; object-fit: cover;">
                               ${isSanctioned ? `<div class="position-absolute d-flex align-items-center justify-content-center w-100 h-100 bg-danger bg-opacity-25"><i class="fas fa-ban text-danger fa-3x"></i></div>` : ""}
                           </div>
                           <!-- Dorsal con fondo nítido para máximo contraste -->
-                          <div class="fw-bold mt-1 text-center rounded-pill px-3" style="font-size: 1.4rem; font-family: 'Times New Roman', serif; color: ${isSanctioned ? "#e74c3c" : "#0a3d13"}; background: rgba(255,255,255,0.92); border: 1.5px solid rgba(20,128,44,0.4); line-height: 1.2;">#${num}</div>
+                          <div class="fw-bold mt-1 text-center rounded-pill px-2 w-100" style="font-size: 1.35rem; font-family: 'Times New Roman', serif; color: ${isSanctioned ? "#e74c3c" : isOnField ? "#d35400" : "#0a3d13"}; background: rgba(255,255,255,0.95); border: 1.5px solid rgba(20,128,44,0.4); line-height: 1.2;">#${num}</div>
                       </div>
-                      
+
                       <!-- Detalles del Jugador -->
-                      <div class="flex-grow-1 ps-1 d-flex flex-column justify-content-between" style="font-size: 0.78rem; font-family: 'Times New Roman', serif; line-height: 1.45; min-width: 0;">
+                      <div class="flex-grow-1 ps-1 d-flex flex-column justify-content-between" style="font-size: 0.80rem; font-family: 'Times New Roman', serif; line-height: 1.4; min-width: 0;">
                           <div>
-                              <div class="fw-bold text-center mb-1 text-uppercase text-truncate px-2 py-0.5" style="font-size: 1.05rem; background: rgba(20, 128, 44, 0.12); color: #0a3d13; border: 1px solid rgba(20, 128, 44, 0.25); border-radius: 6px;">${currentTeamName}</div>
-                              <div class="mb-0.5"><b style="color: #0a3d13;">CATEGORIA:</b> <span class="fw-bold text-dark">${currentTeamCategory.toUpperCase()}</span></div>
-                              <div class="mb-0.5 text-truncate" style="max-width:190px;"><b style="color: #0a3d13;">NOM:</b> <span class="fw-bold text-dark">${(p.nombres || "").toUpperCase()}</span></div>
-                              <div class="mb-0.5 text-truncate" style="max-width:190px;"><b style="color: #0a3d13;">APELL:</b> <span class="fw-bold text-dark">${(p.apellidos || "").toUpperCase()}</span></div>
-                              <div class="mb-1"><b style="color: #0a3d13;">FECHA NAC:</b> <span class="fw-bold text-dark">${fNac}</span></div>
+                              <div class="fw-bold text-center mb-1 text-uppercase text-truncate px-2 py-0.5" style="font-size: 0.95rem; background: rgba(20, 128, 44, 0.12); color: #0a3d13; border: 1px solid rgba(20, 128, 44, 0.25); border-radius: 6px;" title="${currentTeamName}">${currentTeamName}</div>
+                              <div class="mb-0.5 text-nowrap"><b style="color: #0a3d13;">CATEGORIA:</b> <span class="fw-bold text-dark">${currentTeamCategory.toUpperCase()}</span></div>
+                              <div class="mb-0.5" style="white-space: normal; word-break: break-word;"><b style="color: #0a3d13;">NOM:</b> <span class="fw-bold text-dark">${(p.nombres || "").toUpperCase()}</span></div>
+                              <div class="mb-0.5" style="white-space: normal; word-break: break-word;"><b style="color: #0a3d13;">APELL:</b> <span class="fw-bold text-dark">${(p.apellidos || "").toUpperCase()}</span></div>
+                              <div class="mb-1 text-nowrap"><b style="color: #0a3d13;">FECHA NAC:</b> <span class="fw-bold text-dark">${fNac}</span></div>
                           </div>
-                          
+
                           <!-- Bloque de Cédula -->
-                          <div class="text-center py-1 px-2 rounded-2 mt-auto" style="background: rgba(255, 255, 255, 0.95); border: 1.5px solid ${isSanctioned ? "#e74c3c" : "#14802c"}; box-shadow: 0 2px 4px rgba(0,0,0,0.08);">
-                              <b style="font-size: 0.95rem; color: ${isSanctioned ? "#c0392b" : "#0a3d13"}; letter-spacing: 0.5px;">CI: ${cedula}</b>
+                          <div class="text-center py-1 px-2 rounded-2 mt-auto" style="background: rgba(255, 255, 255, 0.95); border: 1.5px solid ${isSanctioned ? "#e74c3c" : isOnField ? "#f39c12" : "#14802c"}; box-shadow: 0 2px 4px rgba(0,0,0,0.08); white-space: nowrap;">
+                              <b style="font-size: 0.92rem; color: ${isSanctioned ? "#c0392b" : isOnField ? "#d35400" : "#0a3d13"}; letter-spacing: 0.5px;">CI: ${cedula}</b>
                           </div>
-                          
+
                           <!-- Badge de Edad DEBAJO de la Cédula -->
                           <div class="text-center mt-1">
                               <span class="badge rounded-pill fw-bold" style="${badgeStyle} font-size: 0.72rem; padding: 3px 14px; letter-spacing: 1px; box-shadow: 0 2px 4px rgba(0,0,0,0.12);">
@@ -4214,6 +4188,14 @@
         const modalBody = document.getElementById("playerSelectorBody");
         if (!modalBody) return;
         const status = getRosterFillStatus();
+
+        const dlg = document.querySelector(
+          "#playerSelectorModal .modal-dialog",
+        );
+        if (dlg) {
+          dlg.style.maxWidth = "960px";
+          dlg.style.width = "95vw";
+        }
 
         let gridHtml = `
           <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-50 flex-wrap gap-2 sticky-top bg-dark pt-1" style="z-index: 10;">
@@ -4413,6 +4395,14 @@
       function renderSelectPlayerExitingView(enteringName, enteringNum) {
         const modalBody = document.getElementById("playerSelectorBody");
         if (!modalBody) return;
+
+        const dlg = document.querySelector(
+          "#playerSelectorModal .modal-dialog",
+        );
+        if (dlg) {
+          dlg.style.maxWidth = "960px";
+          dlg.style.width = "95vw";
+        }
 
         const defaultPhoto =
           "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2314802c'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
@@ -4689,18 +4679,25 @@
           modalEl.className = "modal fade";
           modalEl.style.zIndex = "1060";
           modalEl.innerHTML = `
-                  <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 1080px;">
-                      <div class="modal-content border border-secondary" style="background: rgba(10,10,10,0.96); backdrop-filter: blur(15px); border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
+                  <div class="modal-dialog modal-dialog-centered" style="max-width: 960px; width: 95vw; transition: max-width 0.25s ease-in-out;">
+                      <div class="modal-content border border-secondary" style="background: rgba(10,10,10,0.97); backdrop-filter: blur(20px); border-radius: 20px; box-shadow: 0 25px 60px rgba(0,0,0,0.85);">
                           <div class="modal-header border-bottom border-secondary border-opacity-50 flex-wrap gap-2 px-4 py-3">
                               <h5 class="modal-title fw-bold text-uppercase text-white mb-0" id="playerSelectorTitle"></h5>
                               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                           </div>
-                          <div class="modal-body p-4 bg-dark" id="playerSelectorBody" style="max-height:82vh; overflow-y:auto">
+                          <div class="modal-body p-3 p-md-4 bg-dark" id="playerSelectorBody" style="max-height:85vh; overflow-y:auto">
                           </div>
                       </div>
                   </div>
               `;
           document.body.appendChild(modalEl);
+        } else {
+          const dlg = modalEl.querySelector(".modal-dialog");
+          if (dlg) {
+            dlg.className = "modal-dialog modal-dialog-centered";
+            dlg.style.maxWidth = "960px";
+            dlg.style.width = "95vw";
+          }
         }
 
         const rowInputs = currentSubstitutionRow
@@ -4900,17 +4897,17 @@
           "vedor-row d-flex gap-2 align-items-center animate__animated animate__fadeInDown mb-2";
         row.style.animationDuration = "0.3s";
         row.innerHTML = `
-              <div class="p-2 rounded-3 border border-white border-opacity-10 flex-grow-1" 
+              <div class="p-2 rounded-3 border border-white border-opacity-10 flex-grow-1"
                    style="background: rgba(255,255,255,0.03); backdrop-filter: blur(5px);">
                   <div class="row g-2">
                       <div class="col-4">
                           <label class="text-primary-glow small d-block mb-1 fw-bold" style="font-size:0.5rem; letter-spacing:1px">DORSAL</label>
-                          <input type="number" class="form-control form-control-sm bg-transparent text-white border-secondary border-opacity-25 shadow-none text-center inp-dorsal" 
+                          <input type="number" class="form-control form-control-sm bg-transparent text-white border-secondary border-opacity-25 shadow-none text-center inp-dorsal"
                                  placeholder="#" value="${dorsal}" ${disabled ? "disabled" : ""}>
                       </div>
                       <div class="col-8">
                           <label class="text-white-50 small d-block mb-1 fw-bold" style="font-size:0.5rem; letter-spacing:1px">MINUTOS JUGADOS</label>
-                          <input type="number" class="form-control form-control-sm bg-transparent text-white border-secondary border-opacity-25 shadow-none text-center inp-min" 
+                          <input type="number" class="form-control form-control-sm bg-transparent text-white border-secondary border-opacity-25 shadow-none text-center inp-min"
                                  placeholder="min." value="${min}" ${disabled ? "disabled" : ""}>
                       </div>
                   </div>
@@ -5144,17 +5141,102 @@
         if (list) {
           list.innerHTML = "";
 
-          const addItem = (code, name, val) => {
+          // Helper to extract clean dorsal/number list from players array or object
+          const formatCardPlayerList = (players) => {
+            if (!players) return "";
+            let arr = [];
+            if (Array.isArray(players)) {
+              arr = players;
+            } else if (typeof players === "object") {
+              arr = [players];
+            } else if (typeof players === "string") {
+              try {
+                const parsed = JSON.parse(players);
+                arr = Array.isArray(parsed) ? parsed : [parsed];
+              } catch (e) {
+                arr = [players];
+              }
+            } else {
+              arr = [players];
+            }
+            if (arr.length === 0) return "";
+
+            const nums = [];
+            arr.forEach((p) => {
+              if (p === null || p === undefined) return;
+              let numVal = "";
+              let nameVal = "";
+
+              if (typeof p === "object") {
+                numVal =
+                  p.num ||
+                  p.dorsal ||
+                  p.numeroJugador ||
+                  p.numero ||
+                  p.number ||
+                  "";
+                nameVal = p.name || p.nombre || p.jugador || "";
+              } else if (typeof p === "string") {
+                const trimmed = p.trim();
+                if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+                  try {
+                    const parsed = JSON.parse(trimmed);
+                    numVal =
+                      parsed.num ||
+                      parsed.dorsal ||
+                      parsed.numeroJugador ||
+                      parsed.numero ||
+                      "";
+                    nameVal =
+                      parsed.name || parsed.nombre || parsed.jugador || "";
+                  } catch (e) {
+                    nameVal = trimmed;
+                  }
+                } else {
+                  nameVal = trimmed;
+                }
+              } else {
+                numVal = String(p);
+              }
+
+              numVal = String(numVal).trim();
+              nameVal = String(nameVal).trim();
+
+              if (numVal && !numVal.startsWith("{")) {
+                nums.push(numVal.startsWith("#") ? numVal : `#${numVal}`);
+              } else if (nameVal && !nameVal.startsWith("{")) {
+                nums.push(
+                  nameVal.startsWith("#")
+                    ? nameVal
+                    : nameVal.match(/^\d+$/)
+                      ? `#${nameVal}`
+                      : nameVal,
+                );
+              }
+            });
+
+            if (nums.length === 0) return "";
+            return ` (Jug: ${nums.join(", ")})`;
+          };
+
+          const addItem = (
+            code,
+            name,
+            cant = 1,
+            unitPrice = 0,
+            discount = 0,
+          ) => {
+            const total = cant * unitPrice - discount;
             list.insertAdjacentHTML(
               "beforeend",
               `
                   <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
                       <td class="text-start py-2 py-md-3 ps-3 text-warning fw-bold" style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">${code}</td>
                       <td class="text-start py-2 py-md-3 text-white fw-bold" style="font-size: 0.85rem;">${name}</td>
-                      <td class="text-center py-2 py-md-3 text-white-50">1</td>
-                      <td class="text-end py-2 py-md-3 text-white-50">$${parseFloat(val).toFixed(2)}</td>
-                      <td class="text-end py-2 py-md-3 text-white-50">$0.00</td>
-                      <td class="text-end py-2 py-md-3 pe-3 text-white fw-bold">$${parseFloat(val).toFixed(2)}</td>
+                      <td class="text-center py-2 py-md-3 text-white-50">${cant}</td>
+                      <td class="text-end py-2 py-md-3 text-white-50">$${parseFloat(unitPrice).toFixed(2)}</td>
+                      <td class="text-end py-2 py-md-3 text-white-50">$${parseFloat(discount).toFixed(2)}</td>
+                      <td class="text-end py-2 py-md-3 pe-3 text-white fw-bold">$${parseFloat(total).toFixed(2)}</td>
                   </tr>
               `,
             );
@@ -5162,55 +5244,66 @@
 
           // Add standard items
           if (billing.can > 0)
-            addItem("P000000008", "Derecho de Cancha", billing.can);
+            addItem("P000000008", "Derecho de Cancha", 1, billing.can);
           if (billing.arb > 0)
-            addItem("P000000003", "Vocalía / Arbitraje", billing.arb);
-          if (billing.cem > 0) addItem("P000000001", "Cementina", billing.cem);
+            addItem("P000000003", "Vocalía / Arbitraje", 1, billing.arb);
+          if (billing.cem > 0)
+            addItem("P000000001", "Cementina", 1, billing.cem);
 
           // Cards tracking
           if (billing.ta && billing.ta.count > 0) {
-            let taPn = "";
-            if (billing.ta.players && billing.ta.players.length) {
-              taPn =
-                " - Jug: " +
-                billing.ta.players
-                  .map((p) =>
-                    typeof p === "object"
-                      ? p.name || p.nombre || p.jugador || JSON.stringify(p)
-                      : p,
-                  )
-                  .join(", ");
-            }
-            addItem(
-              "P000000001",
-              `Tarjetas Amarillas (${billing.ta.count})${taPn}`,
-              billing.ta.count * (billing.ta.val || 0.5),
+            const taCount = parseInt(billing.ta.count) || 0;
+            const taUnit = parseFloat(
+              billing.ta.val !== undefined ? billing.ta.val : 0.5,
             );
+            const taPn = formatCardPlayerList(billing.ta.players);
+            const taTitle =
+              taCount === 1
+                ? `Tarjeta Amarilla${taPn}`
+                : `Tarjetas Amarillas${taPn ? taPn : ` (${taCount})`}`;
+            addItem("P000000001", taTitle, taCount, taUnit);
           }
           if (billing.tr && billing.tr.count > 0) {
-            let trPn = "";
-            if (billing.tr.players && billing.tr.players.length) {
-              trPn =
-                " - Jug: " +
-                billing.tr.players
-                  .map((p) =>
-                    typeof p === "object"
-                      ? p.name || p.nombre || p.jugador || JSON.stringify(p)
-                      : p,
-                  )
-                  .join(", ");
-            }
-            addItem(
-              "P000000001",
-              `Tarjetas Rojas (${billing.tr.count})${trPn}`,
-              billing.tr.count * (billing.tr.val || 1.0),
+            const trCount = parseInt(billing.tr.count) || 0;
+            const trUnit = parseFloat(
+              billing.tr.val !== undefined ? billing.tr.val : 1.0,
             );
+            const trPn = formatCardPlayerList(billing.tr.players);
+            const trTitle =
+              trCount === 1
+                ? `Tarjeta Roja${trPn}`
+                : `Tarjetas Rojas${trPn ? trPn : ` (${trCount})`}`;
+            addItem("P000000001", trTitle, trCount, trUnit);
           }
 
           // Extras / Multas
           if (billing.extras && billing.extras.length > 0) {
             billing.extras.forEach((e) => {
-              if (e.val > 0) addItem("P000000014", e.desc, e.val);
+              if (e.val > 0) {
+                let desc = (e.desc || "Multa Adicional").trim();
+                // Omitir duplicados de tarjetas amarillas / rojas en extras si ya están contabilizadas en ta/tr
+                if (
+                  /^AMARILLA(\s*\(\s*\))?$/i.test(desc) ||
+                  /^TARJETA\s+AMARILLA/i.test(desc)
+                ) {
+                  if (billing.ta && billing.ta.count > 0) return;
+                }
+                if (
+                  /^ROJA(\s*\(\s*\))?$/i.test(desc) ||
+                  /^TARJETA\s+ROJA/i.test(desc)
+                ) {
+                  if (billing.tr && billing.tr.count > 0) return;
+                }
+                // Limpieza de textos mal formateados
+                desc = desc
+                  .replace(/no_veedor/gi, "No Asistencia de Veedor")
+                  .replace(/amarilla_banca/gi, "Tarjeta Amarilla (Banca)")
+                  .replace(/roja_banca/gi, "Tarjeta Roja (Banca)")
+                  .replace(/\(\s*\)/g, "")
+                  .replace(/\(a\)\)/g, "(a)")
+                  .trim();
+                addItem("P000000014", desc, 1, e.val);
+              }
             });
           }
         }
