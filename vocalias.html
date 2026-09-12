@@ -223,7 +223,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-family: 'Times New Roman', serif;
+        font-family: "Times New Roman", serif;
         font-weight: 900;
         font-size: 1.35rem;
         line-height: 1;
@@ -357,64 +357,89 @@
       </div>
     </div>
 
-    <!-- Modal para ver Recibo (Vista Vocal Premium Pixel-Perfect) -->
-    <div class="modal fade" id="receiptViewModal">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
+    <!-- Modal para ver Recibo (Vista Vocal Premium Pixel-Perfect Responsive) -->
+    <div
+      class="modal fade"
+      id="receiptViewModal"
+      tabindex="-1"
+      aria-hidden="true"
+      style="z-index: 1065"
+    >
+      <div
+        class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable my-2 my-md-4"
+      >
         <div class="modal-content border-0 bg-transparent">
           <div class="modal-body p-0">
             <div
               id="receiptPaper"
-              class="receipt-paper"
+              class="receipt-paper-responsive"
               style="
                 background: #111;
-                border: 1px solid rgba(255, 255, 255, 0.05);
-                border-radius: 25px;
-                padding: 45px;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 20px;
                 position: relative;
+                overflow: hidden;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
               "
             >
+              <!-- Botón cerrar superior para fácil acceso en móviles y PC -->
+              <button
+                type="button"
+                class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+                style="z-index: 10"
+              ></button>
+
               <!-- Watermark Context -->
               <div
                 style="
                   position: absolute;
                   top: 50%;
-                  left: 51%;
+                  left: 50%;
                   transform: translate(-50%, -50%) rotate(-30deg);
-                  font-size: 8rem;
+                  font-size: clamp(3.5rem, 14vw, 7.5rem);
                   font-weight: 900;
-                  color: rgba(255, 255, 255, 0.015);
+                  color: rgba(255, 255, 255, 0.02);
                   pointer-events: none;
                   white-space: nowrap;
                   user-select: none;
+                  z-index: 0;
                 "
               >
                 OFICIAL
               </div>
 
-              <div class="row mb-5 align-items-start">
-                <div class="col-7">
-                  <div class="d-flex align-items-center mb-4">
+              <!-- Header Row -->
+              <div
+                class="row mb-3 mb-md-4 align-items-start g-3 position-relative"
+                style="z-index: 1"
+              >
+                <div class="col-12 col-md-7">
+                  <div class="d-flex align-items-center mb-3">
                     <img
                       src="img/logo.png"
-                      class="me-3"
+                      class="me-3 flex-shrink-0"
                       style="
-                        width: 75px;
-                        height: 75px;
+                        width: 65px;
+                        height: 65px;
+                        object-fit: contain;
                         filter: drop-shadow(0 0 10px rgba(46, 204, 113, 0.2));
                       "
+                      onerror="this.style.display = 'none'"
                     />
                     <div>
-                      <h5
+                      <h6
                         class="fw-900 mb-0 text-white"
-                        style="letter-spacing: -0.5px; font-size: 1.1rem"
+                        style="letter-spacing: -0.5px; font-size: 0.95rem"
                       >
                         LIGA DEPORTIVA BARRIAL
-                      </h5>
+                      </h6>
                       <h4
                         class="fw-800 mb-0"
                         style="
                           color: #c9a227;
-                          font-size: 1.5rem;
+                          font-size: 1.4rem;
                           letter-spacing: 1px;
                         "
                       >
@@ -428,31 +453,39 @@
                   >
                     <p class="mb-1 d-flex align-items-center">
                       <i
-                        class="fas fa-map-marker-alt me-2 text-primary"
+                        class="fas fa-map-marker-alt me-2 text-primary flex-shrink-0"
                         style="width: 12px"
                       ></i>
-                      <strong>Matriz:</strong> Molleturo E10-70 y Cuyuja. Quito
-                      - Ecuador
+                      <span
+                        ><strong>Matriz:</strong> Molleturo E10-70 y Cuyuja.
+                        Quito - Ecuador</span
+                      >
                     </p>
                     <p class="mb-1 d-flex align-items-center">
                       <i
-                        class="fas fa-envelope me-2 text-primary"
+                        class="fas fa-envelope me-2 text-primary flex-shrink-0"
                         style="width: 12px"
                       ></i>
-                      <strong>Correo:</strong> calificaciones.argelia@gmail.com
+                      <span
+                        ><strong>Correo:</strong>
+                        calificaciones.argelia@gmail.com</span
+                      >
                     </p>
                     <p class="mb-0 d-flex align-items-center">
                       <i
-                        class="fas fa-check-circle me-2 text-success"
+                        class="fas fa-check-circle me-2 text-success flex-shrink-0"
                         style="width: 12px"
                       ></i>
-                      <strong>Obligada a Llevar Contabilidad:</strong> SI
+                      <span
+                        ><strong>Obligada a Llevar Contabilidad:</strong>
+                        SI</span
+                      >
                     </p>
                   </div>
                 </div>
-                <div class="col-5">
+                <div class="col-12 col-md-5">
                   <div
-                    class="p-4 rounded-4"
+                    class="p-3 p-md-4 rounded-4"
                     style="
                       background: rgba(255, 255, 255, 0.02);
                       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -460,15 +493,16 @@
                     "
                   >
                     <span
-                      class="badge rounded-pill mb-3"
+                      class="badge rounded-pill mb-2 d-inline-block text-truncate"
                       style="
                         background: rgba(46, 204, 113, 0.1);
                         color: #2ecc71;
                         font-size: 0.55rem;
-                        padding: 5px 12px;
+                        padding: 5px 10px;
                         border: 1px solid rgba(46, 204, 113, 0.2);
                         letter-spacing: 0.5px;
                         font-weight: 900;
+                        max-width: 100%;
                       "
                       >DOCUMENTO OFICIAL DE TESORERÍA</span
                     >
@@ -480,10 +514,10 @@
                       >
                       <h4
                         id="rv_invoice_id"
-                        class="fw-900 mb-0 text-white"
+                        class="fw-900 mb-0 text-white text-break"
                         style="
                           font-family: &quot;JetBrains Mono&quot;, monospace;
-                          font-size: 1.35rem;
+                          font-size: 1.25rem;
                           letter-spacing: 1px;
                         "
                       >
@@ -496,22 +530,22 @@
                       >
                     </div>
                     <div
-                      class="mt-3 pt-3 border-top border-white border-opacity-5"
+                      class="mt-2 pt-2 border-top border-white border-opacity-5"
                       style="font-size: 0.6rem"
                     >
                       <div class="d-flex justify-content-between mb-1">
                         <span class="text-white-50">FECHA AUTORIZACIÓN:</span>
-                        <strong class="text-white" id="rv_date_display"
+                        <strong class="text-white ms-2" id="rv_date_display"
                           >15/04/2026</strong
                         >
                       </div>
                       <div class="d-flex justify-content-between mb-1">
                         <span class="text-white-50">AMBIENTE:</span>
-                        <strong class="text-primary-glow">PRODUCCIÓN</strong>
+                        <strong class="text-primary ms-2">PRODUCCIÓN</strong>
                       </div>
                       <div class="d-flex justify-content-between">
                         <span class="text-white-50">EMISIÓN:</span>
-                        <strong class="text-success">NORMAL</strong>
+                        <strong class="text-success ms-2">NORMAL</strong>
                       </div>
                     </div>
                   </div>
@@ -520,23 +554,24 @@
 
               <!-- Info Header Section -->
               <div
-                class="p-4 rounded-4 mb-4"
+                class="p-3 p-md-4 rounded-4 mb-3 mb-md-4 position-relative"
                 style="
+                  z-index: 1;
                   background: rgba(255, 255, 255, 0.02);
                   border: 1px solid rgba(255, 255, 255, 0.05);
                 "
               >
-                <div class="row g-3">
-                  <div class="col-8">
+                <div class="row g-2 g-md-3">
+                  <div class="col-12 col-sm-8">
                     <label
-                      class="text-white-50 text-uppercase fw-900 d-block mb-2"
+                      class="text-white-50 text-uppercase fw-900 d-block mb-1"
                       style="font-size: 0.6rem; letter-spacing: 1.5px"
                       >Beneficiario / Club</label
                     >
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
                       <span
                         id="rv_team_name"
-                        class="text-uppercase fw-900 fs-4 text-white"
+                        class="text-uppercase fw-900 fs-5 fs-md-4 text-white text-break"
                         >EQUIPO PREMIUM</span
                       >
                       <span
@@ -547,37 +582,39 @@
                       >
                     </div>
                   </div>
-                  <div class="col-4 text-end">
+                  <div class="col-12 col-sm-4 text-sm-end">
                     <label
-                      class="text-white-50 text-uppercase fw-900 d-block mb-2"
+                      class="text-white-50 text-uppercase fw-900 d-block mb-1"
                       style="font-size: 0.6rem; letter-spacing: 1.5px"
                       >Fecha de Emisión</label
                     >
-                    <span id="rv_date_simple" class="fw-900 fs-5 text-white"
+                    <span
+                      id="rv_date_simple"
+                      class="fw-900 fs-6 fs-md-5 text-white"
                       >15/04/2026</span
                     >
                   </div>
                   <div
-                    class="col-12 mt-3 pt-3 border-top border-white border-opacity-5"
+                    class="col-12 mt-2 pt-2 border-top border-white border-opacity-5"
                   >
-                    <div class="row">
-                      <div class="col-8">
+                    <div class="row g-2">
+                      <div class="col-12 col-sm-8">
                         <label
                           class="text-white-50 text-uppercase fw-900 d-block mb-1"
                           style="font-size: 0.6rem; letter-spacing: 1.5px"
                           >Clave de Acceso</label
                         >
                         <span
-                          class="text-warning-glow small"
+                          class="text-warning small text-break d-block font-monospace"
                           style="
-                            font-family: &quot;JetBrains Mono&quot;, monospace;
                             font-size: 0.65rem;
                             letter-spacing: 0.5px;
+                            word-break: break-all;
                           "
                           >1504202601171458374500120019010000004671234567811</span
                         >
                       </div>
-                      <div class="col-4 text-end">
+                      <div class="col-12 col-sm-4 text-sm-end">
                         <label
                           class="text-white-50 text-uppercase fw-900 d-block mb-1"
                           style="font-size: 0.6rem; letter-spacing: 1.5px"
@@ -585,7 +622,7 @@
                         >
                         <span
                           class="text-white fw-900"
-                          style="font-size: 0.9rem"
+                          style="font-size: 0.85rem"
                           >999999999001</span
                         >
                       </div>
@@ -595,12 +632,15 @@
               </div>
 
               <!-- Items Table -->
-              <div class="table-responsive">
-                <table class="table table-borderless align-middle mb-4">
+              <div
+                class="table-responsive position-relative mb-3 mb-md-4"
+                style="z-index: 1"
+              >
+                <table class="table table-borderless align-middle mb-0">
                   <thead style="background: rgba(255, 255, 255, 0.02)">
                     <tr>
                       <th
-                        class="text-warning-glow ps-3 py-3"
+                        class="text-warning ps-3 py-2 py-md-3"
                         style="
                           font-size: 0.65rem;
                           text-transform: uppercase;
@@ -611,7 +651,7 @@
                         Código
                       </th>
                       <th
-                        class="text-warning-glow py-3"
+                        class="text-warning py-2 py-md-3"
                         style="
                           font-size: 0.65rem;
                           text-transform: uppercase;
@@ -622,7 +662,7 @@
                         Descripción del Ítem
                       </th>
                       <th
-                        class="text-warning-glow py-3 text-center"
+                        class="text-warning py-2 py-md-3 text-center"
                         style="
                           font-size: 0.65rem;
                           text-transform: uppercase;
@@ -633,7 +673,7 @@
                         Cant.
                       </th>
                       <th
-                        class="text-warning-glow py-3 text-end"
+                        class="text-warning py-2 py-md-3 text-end"
                         style="
                           font-size: 0.65rem;
                           text-transform: uppercase;
@@ -644,7 +684,7 @@
                         P. Unitario
                       </th>
                       <th
-                        class="text-warning-glow py-3 text-end"
+                        class="text-warning py-2 py-md-3 text-end"
                         style="
                           font-size: 0.65rem;
                           text-transform: uppercase;
@@ -655,7 +695,7 @@
                         Descuento
                       </th>
                       <th
-                        class="text-warning-glow pe-3 py-3 text-end"
+                        class="text-warning pe-3 py-2 py-md-3 text-end"
                         style="
                           font-size: 0.65rem;
                           text-transform: uppercase;
@@ -675,23 +715,24 @@
 
               <!-- Bottom Section: Info + Totals -->
               <div
-                class="row mt-4 pt-3 border-top border-white border-opacity-5"
+                class="row mt-3 mt-md-4 pt-3 border-top border-white border-opacity-5 g-3 position-relative"
+                style="z-index: 1"
               >
-                <div class="col-7">
+                <div class="col-12 col-md-7">
                   <div
-                    class="p-4 rounded-4 h-100"
+                    class="p-3 p-md-4 rounded-4 h-100"
                     style="
                       background: rgba(255, 255, 255, 0.015);
                       border: 2px solid rgba(255, 255, 255, 0.04);
                     "
                   >
                     <h6
-                      class="text-primary fw-900 text-uppercase mb-4 pb-2 border-bottom border-primary border-opacity-25"
+                      class="text-primary fw-900 text-uppercase mb-3 pb-2 border-bottom border-primary border-opacity-25"
                       style="letter-spacing: 2px; font-size: 0.75rem"
                     >
                       Información del Cobro
                     </h6>
-                    <div class="row g-3">
+                    <div class="row g-2">
                       <div
                         class="col-5 text-white-50 small text-uppercase fw-bold"
                         style="font-size: 0.6rem; letter-spacing: 1px"
@@ -716,8 +757,8 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-5">
-                  <div class="d-flex flex-column gap-2 ps-4">
+                <div class="col-12 col-md-5">
+                  <div class="d-flex flex-column gap-2 ps-md-3">
                     <div
                       class="d-flex justify-content-between align-items-center mb-1"
                     >
@@ -746,7 +787,7 @@
                       >
                     </div>
                     <div
-                      class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-white border-opacity-10"
+                      class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-white border-opacity-10"
                     >
                       <span
                         class="text-white-50 fw-bold"
@@ -770,8 +811,8 @@
                       "
                     >
                       <div
-                        class="text-warning-glow fw-900 mb-1"
-                        style="font-size: 1rem; letter-spacing: 1px"
+                        class="text-warning fw-900 mb-1"
+                        style="font-size: 0.9rem; letter-spacing: 1px"
                       >
                         TOTAL A PAGAR
                       </div>
@@ -779,9 +820,9 @@
                         class="fw-900 text-warning"
                         id="rv_total_display"
                         style="
-                          font-size: 2.2rem;
-                          letter-spacing: -1.5px;
-                          font-family: &quot;JetBrains Mono&quot;, sans-serif;
+                          font-size: 2rem;
+                          letter-spacing: -1px;
+                          font-family: &quot;JetBrains Mono&quot;, monospace;
                         "
                       >
                         $16.50
@@ -793,7 +834,8 @@
 
               <!-- Legal Footer -->
               <div
-                class="text-center mt-5 pt-4 border-top border-white border-opacity-5"
+                class="text-center mt-4 pt-3 border-top border-white border-opacity-5 position-relative"
+                style="z-index: 1"
               >
                 <p
                   class="text-white-50 mb-1"
@@ -803,7 +845,7 @@
                   gestionado en LDBAA.
                 </p>
                 <p
-                  class="text-primary-glow fw-900 text-uppercase"
+                  class="text-primary fw-900 text-uppercase mb-0"
                   style="font-size: 0.65rem; letter-spacing: 2px"
                 >
                   Gracias por su gestión - Sistema Elite Finanzas
@@ -811,29 +853,33 @@
               </div>
             </div>
 
+            <!-- Botones de Acción Responsive -->
             <div
-              class="p-3 text-center d-flex gap-2 justify-content-center bg-dark rounded-bottom-5 border-top border-white border-opacity-5"
+              class="p-3 text-center d-flex flex-wrap gap-2 justify-content-center bg-dark rounded-bottom-4 border-top border-white border-opacity-5"
             >
               <button
+                type="button"
                 class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-bold"
                 style="font-size: 0.8rem; letter-spacing: 1px"
                 data-bs-dismiss="modal"
               >
-                SALIR
+                <i class="fas fa-times me-1"></i> SALIR
               </button>
               <button
+                type="button"
                 class="btn btn-success rounded-pill px-4 py-2 fw-900"
                 style="font-size: 0.8rem; letter-spacing: 1px"
                 onclick="window.sendReceiptByWA()"
               >
-                <i class="fab fa-whatsapp me-2"></i>ENVIAR
+                <i class="fab fa-whatsapp me-2"></i>ENVIAR POR WHATSAPP
               </button>
               <button
+                type="button"
                 class="btn btn-warning rounded-pill px-4 py-2 fw-900"
                 style="font-size: 0.8rem; letter-spacing: 1px"
                 onclick="window.showPaymentQR()"
               >
-                <i class="fas fa-qrcode me-2"></i>PAGAR
+                <i class="fas fa-qrcode me-2"></i>PAGAR CON QR
               </button>
             </div>
           </div>
@@ -945,15 +991,29 @@
                       m.matchId = `${doc.id}_${idx}_${(m.local || "").replace(/\s+/g, "")}_${(m.visitor || "").replace(/\s+/g, "")}`;
                     }
                     // Garantizar número de jornada válido
-                    if (m.jornada === undefined || m.jornada === null || isNaN(m.jornada)) {
-                      const rawNum = parseInt(String(m.fecha || m.round || m.etiqueta || "").replace(/\D/g, ""));
+                    if (
+                      m.jornada === undefined ||
+                      m.jornada === null ||
+                      isNaN(m.jornada)
+                    ) {
+                      const rawNum = parseInt(
+                        String(m.fecha || m.round || m.etiqueta || "").replace(
+                          /\D/g,
+                          "",
+                        ),
+                      );
                       m.jornada = !isNaN(rawNum) && rawNum > 0 ? rawNum : 1;
                     } else {
                       m.jornada = parseInt(m.jornada) || 1;
                     }
                     // Normalizar fecha / día
                     if (!m.fechaRealAsignadaText) {
-                      m.fechaRealAsignadaText = m.fechaReal || m.dia || m.date || m.fecha || "Por Definir";
+                      m.fechaRealAsignadaText =
+                        m.fechaReal ||
+                        m.dia ||
+                        m.date ||
+                        m.fecha ||
+                        "Por Definir";
                     }
                     // Normalizar hora
                     if (!m.horaRealAsignada) {
@@ -1010,11 +1070,28 @@
       }
 
       function isMatchProgrammed(m) {
-        if (!m || m.isRest || m.local === "DESCANSA" || m.visitor === "DESCANSA") return false;
-        const fecha = (m.fechaRealAsignadaText || m.fechaReal || m.dia || m.date || "").trim();
+        if (
+          !m ||
+          m.isRest ||
+          m.local === "DESCANSA" ||
+          m.visitor === "DESCANSA"
+        )
+          return false;
+        const fecha = (
+          m.fechaRealAsignadaText ||
+          m.fechaReal ||
+          m.dia ||
+          m.date ||
+          ""
+        ).trim();
         const hora = (m.horaRealAsignada || m.hora || "").trim();
-        const hasFecha = fecha !== "" && fecha !== "Por Definir" && fecha !== "---";
-        const hasHora = hora !== "" && hora !== "--:--" && hora !== "Por programar" && hora !== "---";
+        const hasFecha =
+          fecha !== "" && fecha !== "Por Definir" && fecha !== "---";
+        const hasHora =
+          hora !== "" &&
+          hora !== "--:--" &&
+          hora !== "Por programar" &&
+          hora !== "---";
         return hasFecha && hasHora;
       }
 
@@ -1118,10 +1195,7 @@
         fixturesMap.forEach((meta, fixId) => {
           meta.data.forEach((m) => {
             const matchJornada = parseInt(m.jornada) || 1;
-            if (
-              matchJornada === currentJornada &&
-              isMatchProgrammed(m)
-            ) {
+            if (matchJornada === currentJornada && isMatchProgrammed(m)) {
               matches.push({ ...m, _cat: meta.category, _fixId: fixId });
             }
           });
@@ -1143,7 +1217,12 @@
           cardCol.className = "col";
           const localLogo = logosMap[m.local] || "img/logo.png";
           const visitorLogo = logosMap[m.visitor] || "img/logo.png";
-          const fechaDisplay = m.fechaRealAsignadaText || m.fechaReal || m.dia || m.date || "Por Definir";
+          const fechaDisplay =
+            m.fechaRealAsignadaText ||
+            m.fechaReal ||
+            m.dia ||
+            m.date ||
+            "Por Definir";
           const horaDisplay = m.horaRealAsignada || m.hora || "--:--";
           const vocalDisplay = m.vocalAsignado || m.vocal || "Por Asignar";
 
@@ -1186,8 +1265,16 @@
         });
       }
 
-      window.openVocalActa = function (fixIdOrMatchId, matchIdOrLocal, localOrVisitor, visitorOpt) {
-        let fixId = null, matchId = null, local = null, visitor = null;
+      window.openVocalActa = function (
+        fixIdOrMatchId,
+        matchIdOrLocal,
+        localOrVisitor,
+        visitorOpt,
+      ) {
+        let fixId = null,
+          matchId = null,
+          local = null,
+          visitor = null;
         if (visitorOpt !== undefined) {
           fixId = fixIdOrMatchId;
           matchId = matchIdOrLocal;
@@ -1205,7 +1292,10 @@
           const meta = fixturesMap.get(fixId);
           const found = meta.data.find(
             (m) =>
-              (matchId && m.matchId && m.matchId === matchId && m.matchId !== "undefined") ||
+              (matchId &&
+                m.matchId &&
+                m.matchId === matchId &&
+                m.matchId !== "undefined") ||
               (m.local === local && m.visitor === visitor),
           );
           if (found) {
@@ -1217,7 +1307,10 @@
           for (let [fId, meta] of fixturesMap) {
             const found = meta.data.find(
               (m) =>
-                (matchId && m.matchId && m.matchId === matchId && m.matchId !== "undefined") ||
+                (matchId &&
+                  m.matchId &&
+                  m.matchId === matchId &&
+                  m.matchId !== "undefined") ||
                 (m.local === local && m.visitor === visitor),
             );
             if (found) {
@@ -1229,14 +1322,28 @@
         if (!match) return;
 
         // Garantizar normalización de campos obligatorios en el objeto del partido abierto
-        if (match.jornada === undefined || match.jornada === null || isNaN(match.jornada)) {
-          const rawJ = parseInt(String(match.fecha || match.round || currentJornada || "1").replace(/\D/g, ""));
+        if (
+          match.jornada === undefined ||
+          match.jornada === null ||
+          isNaN(match.jornada)
+        ) {
+          const rawJ = parseInt(
+            String(match.fecha || match.round || currentJornada || "1").replace(
+              /\D/g,
+              "",
+            ),
+          );
           match.jornada = !isNaN(rawJ) && rawJ > 0 ? rawJ : 1;
         } else {
           match.jornada = parseInt(match.jornada) || 1;
         }
         if (!match.fechaRealAsignadaText) {
-          match.fechaRealAsignadaText = match.fechaReal || match.dia || match.date || match.fecha || "Por Definir";
+          match.fechaRealAsignadaText =
+            match.fechaReal ||
+            match.dia ||
+            match.date ||
+            match.fecha ||
+            "Por Definir";
         }
         if (!match.horaRealAsignada) {
           match.horaRealAsignada = match.hora || "--:--";
@@ -1285,11 +1392,24 @@
       function renderActaInterior(m) {
         const body = document.getElementById("modalVocalBody");
         const ls = m.liveStatus || {};
-        const scoreL = ls.scoreLocal !== undefined ? ls.scoreLocal : (parseInt(m.vocalReport?.totalGolesLocal) || 0);
-        const scoreV = ls.scoreVisitor !== undefined ? ls.scoreVisitor : (parseInt(m.vocalReport?.totalGolesVisitor) || 0);
+        const scoreL =
+          ls.scoreLocal !== undefined
+            ? ls.scoreLocal
+            : parseInt(m.vocalReport?.totalGolesLocal) || 0;
+        const scoreV =
+          ls.scoreVisitor !== undefined
+            ? ls.scoreVisitor
+            : parseInt(m.vocalReport?.totalGolesVisitor) || 0;
 
-        const fechaJuegoDisplay = m.fechaRealAsignadaText || m.fechaReal || m.dia || m.date || m.fecha || "Por Definir";
-        const horaJuegoDisplay = m.horaRealAsignada || m.hora || "Por programar";
+        const fechaJuegoDisplay =
+          m.fechaRealAsignadaText ||
+          m.fechaReal ||
+          m.dia ||
+          m.date ||
+          m.fecha ||
+          "Por Definir";
+        const horaJuegoDisplay =
+          m.horaRealAsignada || m.hora || "Por programar";
         const jornadaNumDisplay = parseInt(m.jornada) || 1;
         const vocalDisplay = m.vocalAsignado || m.vocal || "Por Asignar";
         const veedorDisplay = m.veedorAsignado || m.veedor || "Por Asignar";
@@ -1473,10 +1593,10 @@
                                         <i class="fas fa-wallet text-warning" style="font-size:0.7rem"></i>
                                         <span class="text-white-50 small fw-bold" style="letter-spacing:1px">DEUDA</span>
                                     </div>
-                                    <button class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1 fw-bold" 
-                                            onclick='viewReceiptDetail("local", ${JSON.stringify(m).replace(/"/g, "&quot;")})' 
+                                    <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1 fw-bold" 
+                                            onclick="window.viewReceiptDetail('local')" 
                                             style="font-size:0.65rem; border-width: 1px; letter-spacing:0.5px">
-                                        VER RECIBO
+                                        <i class="fas fa-file-invoice-dollar me-1"></i> VER RECIBO
                                     </button>
                                 </div>
                                 
@@ -1573,10 +1693,10 @@
                                         <i class="fas fa-wallet text-warning" style="font-size:0.7rem"></i>
                                         <span class="text-white-50 small fw-bold" style="letter-spacing:1px">DEUDA</span>
                                     </div>
-                                    <button class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1 fw-bold" 
-                                            onclick='viewReceiptDetail("visitor", ${JSON.stringify(m).replace(/"/g, "&quot;")})' 
+                                    <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1 fw-bold" 
+                                            onclick="window.viewReceiptDetail('visitor')" 
                                             style="font-size:0.65rem; border-width: 1px; letter-spacing:0.5px">
-                                        VER RECIBO
+                                        <i class="fas fa-file-invoice-dollar me-1"></i> VER RECIBO
                                     </button>
                                 </div>
                                 
@@ -2322,7 +2442,7 @@
             timer: 2000,
             showConfirmButton: false,
             background: "#121212",
-            color: "#ffffff"
+            color: "#ffffff",
           });
         } else if (currentStopwatchPeriod === "Descanso") {
           currentStopwatchPeriod = "2T";
@@ -2343,7 +2463,7 @@
             timer: 1800,
             showConfirmButton: false,
             background: "#121212",
-            color: "#ffffff"
+            color: "#ffffff",
           });
         } else if (currentStopwatchPeriod === "2T") {
           currentStopwatchPeriod = "Finalizado";
@@ -2359,7 +2479,7 @@
             timer: 2000,
             showConfirmButton: false,
             background: "#121212",
-            color: "#ffffff"
+            color: "#ffffff",
           });
         } else {
           currentStopwatchPeriod = "1T";
@@ -2390,7 +2510,7 @@
           confirmButtonText: "Sí, reiniciar",
           cancelButtonText: "Cancelar",
           background: "#121212",
-          color: "#ffffff"
+          color: "#ffffff",
         }).then((res) => {
           if (res.isConfirmed) {
             if (stopwatchInterval) {
@@ -2419,7 +2539,10 @@
           display.textContent = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
         }
         if (period) {
-          period.textContent = currentStopwatchPeriod === "Descanso" ? "DESCANSO" : currentStopwatchPeriod;
+          period.textContent =
+            currentStopwatchPeriod === "Descanso"
+              ? "DESCANSO"
+              : currentStopwatchPeriod;
         }
         if (btnPeriod) {
           btnPeriod.textContent =
@@ -2433,11 +2556,13 @@
         }
         if (btn) {
           if (isStopwatchRunning) {
-            btn.className = "btn btn-sm btn-danger rounded-pill px-3 py-1 fw-bold shadow";
+            btn.className =
+              "btn btn-sm btn-danger rounded-pill px-3 py-1 fw-bold shadow";
             btn.innerHTML = '<i class="fas fa-pause me-1"></i> Pausar';
             if (liveDot) liveDot.style.display = "inline-flex";
           } else {
-            btn.className = "btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold shadow";
+            btn.className =
+              "btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold shadow";
             if (currentStopwatchPeriod === "Descanso") {
               btn.innerHTML = '<i class="fas fa-play me-1"></i> Iniciar 2T';
             } else {
@@ -2455,12 +2580,17 @@
       };
 
       window.syncLiveMatchToFirestore = async function () {
-        if (!window.currentMatchOpened || !window.currentMatchOpened._fixId) return;
+        if (!window.currentMatchOpened || !window.currentMatchOpened._fixId)
+          return;
         const fixId = window.currentMatchOpened._fixId;
         const matchId = window.currentMatchOpened.matchId;
 
-        const scoreL = parseInt(document.getElementById("totalGolesLocal")?.value || 0);
-        const scoreV = parseInt(document.getElementById("totalGolesVisitante")?.value || 0);
+        const scoreL = parseInt(
+          document.getElementById("totalGolesLocal")?.value || 0,
+        );
+        const scoreV = parseInt(
+          document.getElementById("totalGolesVisitante")?.value || 0,
+        );
 
         const hudL = document.getElementById("hudScoreLocal");
         const hudV = document.getElementById("hudScoreVisitor");
@@ -2476,35 +2606,94 @@
             const inputs = tr.querySelectorAll("input");
             const num = inputs[0]?.value.trim();
             const name = inputs[1]?.value.trim();
-            if (!name || name === "Seleccionar..." || name === "Seleccionar Entra...") return;
+            if (
+              !name ||
+              name === "Seleccionar..." ||
+              name === "Seleccionar Entra..."
+            )
+              return;
             const goals = parseInt(inputs[inputs.length - 1]?.value || 0);
             const yellowSlot = tr.querySelector(".yellow-slot");
             const redSlot = tr.querySelector(".red-slot");
-            const taCount = yellowSlot ? yellowSlot.querySelectorAll(".yellow-rect").length : 0;
-            const trCount = redSlot ? redSlot.querySelectorAll(".red-rect").length : 0;
+            const taCount = yellowSlot
+              ? yellowSlot.querySelectorAll(".yellow-rect").length
+              : 0;
+            const trCount = redSlot
+              ? redSlot.querySelectorAll(".red-rect").length
+              : 0;
 
             if (goals > 0) {
-              events.push({ type: "GOL", team: teamName, player: `#${num} ${name}`, count: goals, minute: curMin, period: currentStopwatchPeriod, isLocal });
+              events.push({
+                type: "GOL",
+                team: teamName,
+                player: `#${num} ${name}`,
+                count: goals,
+                minute: curMin,
+                period: currentStopwatchPeriod,
+                isLocal,
+              });
             }
             if (taCount > 0) {
-              events.push({ type: "AMARILLA", team: teamName, player: `#${num} ${name}`, count: taCount, minute: curMin, period: currentStopwatchPeriod, isLocal });
+              events.push({
+                type: "AMARILLA",
+                team: teamName,
+                player: `#${num} ${name}`,
+                count: taCount,
+                minute: curMin,
+                period: currentStopwatchPeriod,
+                isLocal,
+              });
             }
             if (trCount > 0) {
-              events.push({ type: "ROJA", team: teamName, player: `#${num} ${name}`, minute: curMin, period: currentStopwatchPeriod, isLocal });
+              events.push({
+                type: "ROJA",
+                team: teamName,
+                player: `#${num} ${name}`,
+                minute: curMin,
+                period: currentStopwatchPeriod,
+                isLocal,
+              });
             }
 
             // Cambios
-            if (inputs.length >= 3 && inputs[2]?.value.trim() && inputs[2]?.value.trim() !== "#") {
+            if (
+              inputs.length >= 3 &&
+              inputs[2]?.value.trim() &&
+              inputs[2]?.value.trim() !== "#"
+            ) {
               const saleNum = inputs[2].value.trim();
-              events.push({ type: "CAMBIO", team: teamName, player: `Entra #${num} ${name} por #${saleNum}`, minute: curMin, period: currentStopwatchPeriod, isLocal });
+              events.push({
+                type: "CAMBIO",
+                team: teamName,
+                player: `Entra #${num} ${name} por #${saleNum}`,
+                minute: curMin,
+                period: currentStopwatchPeriod,
+                isLocal,
+              });
             }
           });
         };
 
-        collectEvents("listaJugadoresLocal", window.currentMatchOpened.local, true);
-        collectEvents("listaJugadoresVisitante", window.currentMatchOpened.visitor, false);
-        collectEvents("listaCambiosLocal", window.currentMatchOpened.local, true);
-        collectEvents("listaCambiosVisitante", window.currentMatchOpened.visitor, false);
+        collectEvents(
+          "listaJugadoresLocal",
+          window.currentMatchOpened.local,
+          true,
+        );
+        collectEvents(
+          "listaJugadoresVisitante",
+          window.currentMatchOpened.visitor,
+          false,
+        );
+        collectEvents(
+          "listaCambiosLocal",
+          window.currentMatchOpened.local,
+          true,
+        );
+        collectEvents(
+          "listaCambiosVisitante",
+          window.currentMatchOpened.visitor,
+          false,
+        );
 
         const liveStatus = {
           isLive: isStopwatchRunning,
@@ -2514,7 +2703,7 @@
           scoreLocal: scoreL,
           scoreVisitor: scoreV,
           events: events,
-          lastUpdate: new Date().toISOString()
+          lastUpdate: new Date().toISOString(),
         };
 
         try {
@@ -2530,7 +2719,7 @@
               ) {
                 return {
                   ...m,
-                  liveStatus: liveStatus
+                  liveStatus: liveStatus,
                 };
               }
               return m;
@@ -2551,7 +2740,8 @@
 
       async function fetchTeamPlayers(teamName, category, currentCampId) {
         if (!teamName) return [];
-        const cacheKey = `${teamName}_${category || ""}_${currentCampId || ""}`.toUpperCase();
+        const cacheKey =
+          `${teamName}_${category || ""}_${currentCampId || ""}`.toUpperCase();
         if (teamPlayersMemoryCache.has(cacheKey)) {
           return teamPlayersMemoryCache.get(cacheKey);
         }
@@ -2563,10 +2753,16 @@
           const [snap, tSnap1, tSnap2] = await Promise.all([
             db.collection("players").where("teamName", "==", teamName).get(),
             currentCampId
-              ? db.collection("teams").where("championshipId", "==", currentCampId).get()
+              ? db
+                  .collection("teams")
+                  .where("championshipId", "==", currentCampId)
+                  .get()
               : Promise.resolve({ forEach: () => {} }),
             currentCampId
-              ? db.collection("teams").where("campeonatoId", "==", currentCampId).get()
+              ? db
+                  .collection("teams")
+                  .where("campeonatoId", "==", currentCampId)
+                  .get()
               : Promise.resolve({ forEach: () => {} }),
           ]);
 
@@ -2692,11 +2888,18 @@
             sancionSnap.forEach((sDoc) => {
               const s = sDoc.data();
               const estado = (s.estado || "activa").toLowerCase();
-              if (estado === "cumplida" || estado === "anulada" || estado === "pagada_cumplida") return;
+              if (
+                estado === "cumplida" ||
+                estado === "anulada" ||
+                estado === "pagada_cumplida"
+              )
+                return;
 
               const jId = s.jugadorId || s.playerId || s.id || "";
               let partidos =
-                parseInt(s.partidosSuspension) || parseInt(s.partidos) || (s.tipo === "roja" ? 1 : 1);
+                parseInt(s.partidosSuspension) ||
+                parseInt(s.partidos) ||
+                (s.tipo === "roja" ? 1 : 1);
               if (String(s.articulo) === "129") partidos = 40;
 
               let reasonText = "";
@@ -2721,10 +2924,16 @@
               // Indexar por todas las formas posibles de identificación del jugador
               if (jId) sanctionedPlayersMap.set(jId, sanctionObj);
               if (sDoc.id) sanctionedPlayersMap.set(sDoc.id, sanctionObj);
-              if (s.cedula) sanctionedPlayersMap.set(s.cedula.replace(/\s+/g, ""), sanctionObj);
+              if (s.cedula)
+                sanctionedPlayersMap.set(
+                  s.cedula.replace(/\s+/g, ""),
+                  sanctionObj,
+                );
               if (s.numeroJugador && s.teamName) {
                 sanctionedPlayersMap.set(
-                  String(s.numeroJugador).trim() + "_" + s.teamName.trim().toUpperCase(),
+                  String(s.numeroJugador).trim() +
+                    "_" +
+                    s.teamName.trim().toUpperCase(),
                   sanctionObj,
                 );
               }
@@ -2736,7 +2945,9 @@
               }
               if (s.nombreJugador && s.teamName) {
                 sanctionedPlayersMap.set(
-                  s.nombreJugador.trim().toLowerCase().replace(/\s+/g, " ") + "_" + s.teamName.trim().toUpperCase(),
+                  s.nombreJugador.trim().toLowerCase().replace(/\s+/g, " ") +
+                    "_" +
+                    s.teamName.trim().toUpperCase(),
                   sanctionObj,
                 );
               }
@@ -2806,10 +3017,7 @@
                         );
                       }
                       if (p.playerId || p.id) {
-                        sanctionedPlayersMap.set(
-                          p.playerId || p.id,
-                          sObj,
-                        );
+                        sanctionedPlayersMap.set(p.playerId || p.id, sObj);
                       }
                     }
                   });
@@ -2827,7 +3035,13 @@
         }
       }
 
-      function preloadMatchData(localTeam, visitorTeam, category, campId, jornada) {
+      function preloadMatchData(
+        localTeam,
+        visitorTeam,
+        category,
+        campId,
+        jornada,
+      ) {
         if (localTeam) fetchTeamPlayers(localTeam, category, campId);
         if (visitorTeam) fetchTeamPlayers(visitorTeam, category, campId);
         if (campId) loadSanctionsForChampionship(campId, category, jornada);
@@ -2840,12 +3054,16 @@
         const expulsados = new Map(); // dorsal -> { num, name, reason, isDirectRed, isDoubleYellow }
         let isLocal = true;
         if (window.currentMatchOpened && currentTeamName) {
-          isLocal = (window.currentMatchOpened.local === currentTeamName);
+          isLocal = window.currentMatchOpened.local === currentTeamName;
         } else if (rosterTbodyId) {
           isLocal = rosterTbodyId.includes("Local");
         }
-        const titularesTbody = document.getElementById(isLocal ? "listaJugadoresLocal" : "listaJugadoresVisitante");
-        const cambiosTbody = document.getElementById(isLocal ? "listaCambiosLocal" : "listaCambiosVisitante");
+        const titularesTbody = document.getElementById(
+          isLocal ? "listaJugadoresLocal" : "listaJugadoresVisitante",
+        );
+        const cambiosTbody = document.getElementById(
+          isLocal ? "listaCambiosLocal" : "listaCambiosVisitante",
+        );
 
         const checkTable = (tbody) => {
           if (!tbody) return;
@@ -2854,18 +3072,31 @@
             if (inputs.length >= 2) {
               const num = (inputs[0]?.value || "").trim();
               const name = (inputs[1]?.value || "").trim();
-              if (!num || !name || name === "Seleccionar..." || name === "Seleccionar Entra...") return;
+              if (
+                !num ||
+                !name ||
+                name === "Seleccionar..." ||
+                name === "Seleccionar Entra..."
+              )
+                return;
 
               const yellowSlot = tr.querySelector(".yellow-slot");
               const redSlot = tr.querySelector(".red-slot");
-              const taCount = yellowSlot ? yellowSlot.querySelectorAll(".yellow-rect").length : 0;
-              const trCount = redSlot ? redSlot.querySelectorAll(".red-rect").length : 0;
+              const taCount = yellowSlot
+                ? yellowSlot.querySelectorAll(".yellow-rect").length
+                : 0;
+              const trCount = redSlot
+                ? redSlot.querySelectorAll(".red-rect").length
+                : 0;
 
               if (trCount >= 1 || taCount >= 2) {
                 expulsados.set(String(num), {
                   num: String(num),
                   name: name,
-                  reason: trCount >= 1 ? "Tarjeta Roja directa" : "Doble Tarjeta Amarilla (Expulsión)",
+                  reason:
+                    trCount >= 1
+                      ? "Tarjeta Roja directa"
+                      : "Doble Tarjeta Amarilla (Expulsión)",
                   isDirectRed: trCount >= 1,
                   isDoubleYellow: taCount >= 2,
                 });
@@ -2894,10 +3125,10 @@
       function getPlayersInMatchRoster(rosterTbodyId) {
         const result = {
           titulares: new Map(), // num -> { name, slotIndex }
-          cambios: new Map(),   // num -> { name, rowIndex, type: 'entra' | 'sale' }
-          allNumbers: new Set()
+          cambios: new Map(), // num -> { name, rowIndex, type: 'entra' | 'sale' }
+          allNumbers: new Set(),
         };
-        
+
         if (!rosterTbodyId) return result;
         const tbody = document.getElementById(rosterTbodyId);
         if (tbody) {
@@ -2907,7 +3138,12 @@
             if (inputs.length >= 2) {
               const num = (inputs[0]?.value || "").trim();
               const name = (inputs[1]?.value || "").trim();
-              if (num && name && name !== "Seleccionar..." && name !== "Seleccionar Entra...") {
+              if (
+                num &&
+                name &&
+                name !== "Seleccionar..." &&
+                name !== "Seleccionar Entra..."
+              ) {
                 result.titulares.set(String(num), { name, slotIndex: idx + 1 });
                 result.allNumbers.add(String(num));
               }
@@ -2916,7 +3152,9 @@
         }
 
         const isLocal = rosterTbodyId.includes("Local");
-        const cambiosTbody = document.getElementById(isLocal ? "listaCambiosLocal" : "listaCambiosVisitante");
+        const cambiosTbody = document.getElementById(
+          isLocal ? "listaCambiosLocal" : "listaCambiosVisitante",
+        );
         if (cambiosTbody) {
           const rows = cambiosTbody.querySelectorAll("tr");
           rows.forEach((tr, idx) => {
@@ -2925,8 +3163,16 @@
               const entraNum = (inputs[0]?.value || "").trim();
               const entraName = (inputs[1]?.value || "").trim();
               const saleNum = (inputs[2]?.value || "").trim();
-              if (entraNum && entraName && entraName !== "Seleccionar Entra...") {
-                result.cambios.set(String(entraNum), { name: entraName, rowIndex: idx + 1, type: "entra" });
+              if (
+                entraNum &&
+                entraName &&
+                entraName !== "Seleccionar Entra..."
+              ) {
+                result.cambios.set(String(entraNum), {
+                  name: entraName,
+                  rowIndex: idx + 1,
+                  type: "entra",
+                });
                 result.allNumbers.add(String(entraNum));
               }
               if (saleNum && saleNum !== "#") {
@@ -3013,7 +3259,11 @@
                 "CAMPEONATO ACTIVO";
 
           // Obtenemos jugadores al instante (desde caché o fetching paralelo)
-          currentTeamPlayersList = await fetchTeamPlayers(teamName, category, currentCampId);
+          currentTeamPlayersList = await fetchTeamPlayers(
+            teamName,
+            category,
+            currentCampId,
+          );
 
           // Cargar y asegurar sanciones antes de renderizar
           await loadSanctionsForChampionship(
@@ -3029,7 +3279,8 @@
           }
 
           // Si el usuario ya digitó el dorsal antes de que termine el fetch, resolver de inmediato
-          const currentVal = document.getElementById("dorsalSearchInput")?.value;
+          const currentVal =
+            document.getElementById("dorsalSearchInput")?.value;
           if (currentVal && currentVal.trim()) {
             window.handleDorsalSearchInput(currentVal);
           }
@@ -3188,12 +3439,15 @@
         if (!p) return "Sin Nombre";
         const nParts = (p.nombres || "").trim().split(/\s+/).filter(Boolean);
         const aParts = (p.apellidos || "").trim().split(/\s+/).filter(Boolean);
-        
+
         if (nParts.length > 0 && aParts.length > 0) {
           return `${nParts[0]} ${aParts[0]}`.toUpperCase();
         }
-        
-        const allParts = `${p.nombres || ""} ${p.apellidos || ""}`.trim().split(/\s+/).filter(Boolean);
+
+        const allParts = `${p.nombres || ""} ${p.apellidos || ""}`
+          .trim()
+          .split(/\s+/)
+          .filter(Boolean);
         if (allParts.length >= 4) {
           return `${allParts[0]} ${allParts[2]}`.toUpperCase();
         }
@@ -3211,7 +3465,8 @@
         if (!modalBody) return;
         const status = getRosterFillStatus();
         const rosterInfo = getPlayersInMatchRoster(currentRosterTbodyId);
-        const matchExpulsados = getPlayersWithRedCardInMatch(currentRosterTbodyId);
+        const matchExpulsados =
+          getPlayersWithRedCardInMatch(currentRosterTbodyId);
 
         // Filtrar jugadores por búsqueda (dorsal estricto o nombre)
         let filteredPlayers = currentTeamPlayersList;
@@ -3222,7 +3477,7 @@
           if (isNumeric) {
             // Filtrado estricto por número de dorsal
             const exact = currentTeamPlayersList.filter(
-              (p) => String(p.numeroJugador || p.num || "").trim() === q
+              (p) => String(p.numeroJugador || p.num || "").trim() === q,
             );
             if (exact.length > 0) {
               filteredPlayers = exact;
@@ -3235,7 +3490,8 @@
           } else {
             // Filtrado por nombre o apellido
             filteredPlayers = currentTeamPlayersList.filter((p) => {
-              const fullName = `${p.nombres || ""} ${p.apellidos || ""}`.toLowerCase();
+              const fullName =
+                `${p.nombres || ""} ${p.apellidos || ""}`.toLowerCase();
               return fullName.includes(q);
             });
           }
@@ -3247,7 +3503,7 @@
           const isNumeric = /^\d+$/.test(q);
           if (isNumeric) {
             const exactMatch = currentTeamPlayersList.find(
-              (p) => String(p.numeroJugador || p.num || "").trim() === q
+              (p) => String(p.numeroJugador || p.num || "").trim() === q,
             );
             if (exactMatch) {
               selectedPlayerForPreview = exactMatch;
@@ -3315,52 +3571,72 @@
                   </div>
 
                   <div class="cards-scroll-container">
-                      ${filteredPlayers.length === 0 ? `
+                      ${
+                        filteredPlayers.length === 0
+                          ? `
                           <div class="text-center py-5 text-white-50 border border-secondary border-opacity-25 rounded-4 p-4">
                               <i class="fas fa-user-slash text-warning opacity-50 mb-2 fs-1"></i>
                               <h6 class="fw-bold text-white mb-1">No se encontró jugador con dorsal #${dorsalSearchQuery}</h6>
                               <p class="small text-white-50 mb-0">Verifique el número ingresado en la nómina del club.</p>
                           </div>
-                      ` : `
+                      `
+                          : `
                           <div class="d-flex flex-column gap-2">
-                              ${filteredPlayers.map((p) => {
-                                const num = String(p.numeroJugador || p.num || "--").trim();
-                                const shortName = getPlayerShortName(p);
-                                const photo = p.playerPhoto || p.fotoUrl || defaultPhoto;
-                                const sanction = getPlayerSanction(p);
-                                const isSanctioned = !!sanction;
-                                const hasRedInMatch = matchExpulsados.has(num);
-                                const inMatchTitular = rosterInfo.titulares.get(num);
-                                const inMatchCambio = rosterInfo.cambios.get(num);
-                                const isInMatch = inMatchTitular || inMatchCambio;
-                                const isSelected = selectedPlayerForPreview && (
-                                  (selectedPlayerForPreview.id && p.id && selectedPlayerForPreview.id === p.id) ||
-                                  (selectedPlayerForPreview.numeroJugador && p.numeroJugador && String(selectedPlayerForPreview.numeroJugador) === String(p.numeroJugador))
-                                );
+                              ${filteredPlayers
+                                .map((p) => {
+                                  const num = String(
+                                    p.numeroJugador || p.num || "--",
+                                  ).trim();
+                                  const shortName = getPlayerShortName(p);
+                                  const photo =
+                                    p.playerPhoto || p.fotoUrl || defaultPhoto;
+                                  const sanction = getPlayerSanction(p);
+                                  const isSanctioned = !!sanction;
+                                  const hasRedInMatch =
+                                    matchExpulsados.has(num);
+                                  const inMatchTitular =
+                                    rosterInfo.titulares.get(num);
+                                  const inMatchCambio =
+                                    rosterInfo.cambios.get(num);
+                                  const isInMatch =
+                                    inMatchTitular || inMatchCambio;
+                                  const isSelected =
+                                    selectedPlayerForPreview &&
+                                    ((selectedPlayerForPreview.id &&
+                                      p.id &&
+                                      selectedPlayerForPreview.id === p.id) ||
+                                      (selectedPlayerForPreview.numeroJugador &&
+                                        p.numeroJugador &&
+                                        String(
+                                          selectedPlayerForPreview.numeroJugador,
+                                        ) === String(p.numeroJugador)));
 
-                                let statusBadge = "";
-                                if (hasRedInMatch) {
-                                  statusBadge = `<span class="badge bg-danger text-white py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-square text-danger me-1"></i>EXPULSADO (T. ROJA)</span>`;
-                                } else if (isSanctioned) {
-                                  const partidosSusp = sanction.partidos || 1;
-                                  const suspBadge = partidosSusp >= 40 ? "1 Año" : `${partidosSusp} Part.`;
-                                  statusBadge = `<span class="badge bg-danger text-white py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-ban me-1"></i>SUSPENDIDO (${suspBadge})</span>`;
-                                } else if (inMatchTitular) {
-                                  statusBadge = `<span class="badge bg-primary text-white py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-user-check me-1"></i>En Cancha (#${inMatchTitular.slotIndex})</span>`;
-                                } else if (inMatchCambio) {
-                                  statusBadge = `<span class="badge bg-info text-dark py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-exchange-alt me-1"></i>Cambio (#${inMatchCambio.rowIndex})</span>`;
-                                } else {
-                                  statusBadge = `<span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-check me-1"></i>Disponible</span>`;
-                                }
+                                  let statusBadge = "";
+                                  if (hasRedInMatch) {
+                                    statusBadge = `<span class="badge bg-danger text-white py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-square text-danger me-1"></i>EXPULSADO (T. ROJA)</span>`;
+                                  } else if (isSanctioned) {
+                                    const partidosSusp = sanction.partidos || 1;
+                                    const suspBadge =
+                                      partidosSusp >= 40
+                                        ? "1 Año"
+                                        : `${partidosSusp} Part.`;
+                                    statusBadge = `<span class="badge bg-danger text-white py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-ban me-1"></i>SUSPENDIDO (${suspBadge})</span>`;
+                                  } else if (inMatchTitular) {
+                                    statusBadge = `<span class="badge bg-primary text-white py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-user-check me-1"></i>En Cancha (#${inMatchTitular.slotIndex})</span>`;
+                                  } else if (inMatchCambio) {
+                                    statusBadge = `<span class="badge bg-info text-dark py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-exchange-alt me-1"></i>Cambio (#${inMatchCambio.rowIndex})</span>`;
+                                  } else {
+                                    statusBadge = `<span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 py-1 px-2 fw-bold" style="font-size:0.68rem; letter-spacing:0.3px;"><i class="fas fa-check me-1"></i>Disponible</span>`;
+                                  }
 
-                                const safeId = p.id || num;
+                                  const safeId = p.id || num;
 
-                                return `
-                                  <div class="player-dorsal-card ${isSelected ? 'active-selected' : ''} ${isSanctioned || hasRedInMatch ? 'is-sanctioned' : ''} ${isInMatch ? 'is-in-match' : ''}"
+                                  return `
+                                  <div class="player-dorsal-card ${isSelected ? "active-selected" : ""} ${isSanctioned || hasRedInMatch ? "is-sanctioned" : ""} ${isInMatch ? "is-in-match" : ""}"
                                        onclick="window.selectPlayerForPreview('${safeId}', '${num}')">
                                       <div class="d-flex align-items-center gap-2 overflow-hidden" style="flex: 1 1 auto; min-width: 0;">
                                           <!-- Número de Dorsal Fijo -->
-                                          <div class="dorsal-number-badge ${isSanctioned || hasRedInMatch ? 'sanctioned-badge' : (isSelected ? 'selected-badge' : '')}">
+                                          <div class="dorsal-number-badge ${isSanctioned || hasRedInMatch ? "sanctioned-badge" : isSelected ? "selected-badge" : ""}">
                                               #${num}
                                           </div>
                                           <!-- Foto miniatura fija -->
@@ -3373,7 +3649,7 @@
                                                   ${shortName}
                                               </div>
                                               <div class="text-white-50 text-truncate" style="font-size: 0.72rem; line-height: 1.2; margin-top: 2px;">
-                                                  <span class="text-warning fw-bold">${p.teamCategory || currentTeamCategory}</span> • CI: ${p.cedula || 'N/A'}
+                                                  <span class="text-warning fw-bold">${p.teamCategory || currentTeamCategory}</span> • CI: ${p.cedula || "N/A"}
                                               </div>
                                           </div>
                                       </div>
@@ -3383,9 +3659,11 @@
                                       </div>
                                   </div>
                                 `;
-                              }).join("")}
+                                })
+                                .join("")}
                           </div>
-                      `}
+                      `
+                      }
                   </div>
               </div>
 
@@ -3396,11 +3674,15 @@
                           <span class="text-warning small fw-bold text-uppercase" style="letter-spacing:0.5px">
                               <i class="fas fa-id-card me-1"></i> Vista Previa del Carnet Digital
                           </span>
-                          ${selectedPlayerForPreview ? `
+                          ${
+                            selectedPlayerForPreview
+                              ? `
                               <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2 rounded-pill small" onclick="window.clearPlayerPreview()">
                                   <i class="fas fa-times me-1"></i> Deseleccionar
                               </button>
-                          ` : ""}
+                          `
+                              : ""
+                          }
                       </div>
 
                       <div id="playerCarnetPreviewContainer">
@@ -3436,7 +3718,8 @@
         const safeNombre = nombreCompleto.replace(/'/g, "\\'");
         const num = String(player.numeroJugador || player.num || "--").trim();
         const sanction = getPlayerSanction(player);
-        const matchExpulsados = getPlayersWithRedCardInMatch(currentRosterTbodyId);
+        const matchExpulsados =
+          getPlayersWithRedCardInMatch(currentRosterTbodyId);
         const hasRedInMatch = matchExpulsados.has(num);
 
         if (hasRedInMatch) {
@@ -3509,7 +3792,8 @@
         const rosterInfo = getPlayersInMatchRoster(currentRosterTbodyId);
         const inMatchTitular = rosterInfo?.titulares?.get(num);
         const inMatchCambio = rosterInfo?.cambios?.get(num);
-        const isAlreadyOnField = isSubstitution && (inMatchTitular || inMatchCambio);
+        const isAlreadyOnField =
+          isSubstitution && (inMatchTitular || inMatchCambio);
 
         if (isAlreadyOnField) {
           return `
@@ -3523,7 +3807,7 @@
                 <div class="mt-3 text-center w-100" style="max-width: 440px;">
                     <div class="alert alert-warning py-2 px-3 rounded-4 shadow fw-bold text-start mb-3" style="font-size:0.85rem; background: rgba(243,156,18,0.2); border: 1px solid #f39c12;">
                         <i class="fas fa-info-circle me-1"></i> <b>TITULAR ACTIVO:</b><br>
-                        <span class="text-white">El jugador #${num} ya está en la cancha (${inMatchTitular ? 'Titular #' + inMatchTitular.slotIndex : 'Cambio'}). Debe seleccionar a un suplente para ingresar.</span>
+                        <span class="text-white">El jugador #${num} ya está en la cancha (${inMatchTitular ? "Titular #" + inMatchTitular.slotIndex : "Cambio"}). Debe seleccionar a un suplente para ingresar.</span>
                     </div>
                     <button type="button" class="btn btn-secondary btn-lg rounded-pill w-100 py-3 fw-bold disabled opacity-50 shadow mb-2" disabled>
                         <i class="fas fa-ban me-2"></i> YA ESTÁ EN CANCHA
@@ -3569,17 +3853,25 @@
       // Alias para mantener compatibilidad total
       const renderCedulaSearchView = renderPlayerSelectionView;
 
-      window.selectPlayerForPreview = function (playerIdOrNum, dorsalFallback = "") {
+      window.selectPlayerForPreview = function (
+        playerIdOrNum,
+        dorsalFallback = "",
+      ) {
         const p = currentTeamPlayersList.find(
           (x) =>
             (x.id && String(x.id) === String(playerIdOrNum)) ||
-            String(x.numeroJugador || x.num || "").trim() === String(playerIdOrNum).trim() ||
-            (dorsalFallback && String(x.numeroJugador || x.num || "").trim() === String(dorsalFallback).trim())
+            String(x.numeroJugador || x.num || "").trim() ===
+              String(playerIdOrNum).trim() ||
+            (dorsalFallback &&
+              String(x.numeroJugador || x.num || "").trim() ===
+                String(dorsalFallback).trim()),
         );
 
         if (p) {
           selectedPlayerForPreview = p;
-          const container = document.getElementById("playerCarnetPreviewContainer");
+          const container = document.getElementById(
+            "playerCarnetPreviewContainer",
+          );
           if (container) {
             container.innerHTML = renderCarnetPreviewContent(p);
           }
@@ -3587,16 +3879,18 @@
           document.querySelectorAll(".player-dorsal-card").forEach((c) => {
             c.classList.remove("active-selected");
           });
-          const activeCard = Array.from(document.querySelectorAll(".player-dorsal-card")).find(
-            (c) => c.innerText.includes(`#${p.numeroJugador || p.num}`)
-          );
+          const activeCard = Array.from(
+            document.querySelectorAll(".player-dorsal-card"),
+          ).find((c) => c.innerText.includes(`#${p.numeroJugador || p.num}`));
           if (activeCard) activeCard.classList.add("active-selected");
         }
       };
 
       window.clearPlayerPreview = function () {
         selectedPlayerForPreview = null;
-        const container = document.getElementById("playerCarnetPreviewContainer");
+        const container = document.getElementById(
+          "playerCarnetPreviewContainer",
+        );
         if (container) {
           container.innerHTML = renderCarnetPreviewContent(null);
         }
@@ -3623,7 +3917,7 @@
         const isNum = /^\d+$/.test(val);
         if (isNum) {
           const exact = currentTeamPlayersList.find(
-            (p) => String(p.numeroJugador || p.num || "").trim() === val
+            (p) => String(p.numeroJugador || p.num || "").trim() === val,
           );
           if (exact) {
             window.selectPlayerForPreview(exact.id || exact.numeroJugador);
@@ -3632,7 +3926,8 @@
         }
         const partial = currentTeamPlayersList.find((p) => {
           const num = String(p.numeroJugador || p.num || "").trim();
-          const fullName = `${p.nombres || ""} ${p.apellidos || ""}`.toLowerCase();
+          const fullName =
+            `${p.nombres || ""} ${p.apellidos || ""}`.toLowerCase();
           return num === val || fullName.includes(val.toLowerCase());
         });
         if (partial) {
@@ -3645,7 +3940,7 @@
             timer: 2200,
             showConfirmButton: false,
             background: "#121212",
-            color: "#ffffff"
+            color: "#ffffff",
           });
         }
       };
@@ -3687,30 +3982,41 @@
         if (num) {
           if (currentTeamName) {
             const numTeamKey = num + "_" + currentTeamName.trim().toUpperCase();
-            if (sanctionedPlayersMap.has(numTeamKey)) return sanctionedPlayersMap.get(numTeamKey);
+            if (sanctionedPlayersMap.has(numTeamKey))
+              return sanctionedPlayersMap.get(numTeamKey);
           }
           if (p.teamName) {
             const numTeamKey2 = num + "_" + p.teamName.trim().toUpperCase();
-            if (sanctionedPlayersMap.has(numTeamKey2)) return sanctionedPlayersMap.get(numTeamKey2);
+            if (sanctionedPlayersMap.has(numTeamKey2))
+              return sanctionedPlayersMap.get(numTeamKey2);
           }
           if (p.teamId) {
             const numTeamIdKey = num + "_" + p.teamId;
-            if (sanctionedPlayersMap.has(numTeamIdKey)) return sanctionedPlayersMap.get(numTeamIdKey);
+            if (sanctionedPlayersMap.has(numTeamIdKey))
+              return sanctionedPlayersMap.get(numTeamIdKey);
           }
         }
 
         // 4. Verificar por Nombre Completo + Equipo
-        const fullName = `${p.nombres || ""} ${p.apellidos || ""}`.trim().toLowerCase().replace(/\s+/g, " ");
+        const fullName = `${p.nombres || ""} ${p.apellidos || ""}`
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, " ");
         if (fullName) {
           if (currentTeamName) {
-            const nameTeamKey = fullName + "_" + currentTeamName.trim().toUpperCase();
-            if (sanctionedPlayersMap.has(nameTeamKey)) return sanctionedPlayersMap.get(nameTeamKey);
+            const nameTeamKey =
+              fullName + "_" + currentTeamName.trim().toUpperCase();
+            if (sanctionedPlayersMap.has(nameTeamKey))
+              return sanctionedPlayersMap.get(nameTeamKey);
           }
           if (p.teamName) {
-            const nameTeamKey2 = fullName + "_" + p.teamName.trim().toUpperCase();
-            if (sanctionedPlayersMap.has(nameTeamKey2)) return sanctionedPlayersMap.get(nameTeamKey2);
+            const nameTeamKey2 =
+              fullName + "_" + p.teamName.trim().toUpperCase();
+            if (sanctionedPlayersMap.has(nameTeamKey2))
+              return sanctionedPlayersMap.get(nameTeamKey2);
           }
-          if (sanctionedPlayersMap.has(fullName)) return sanctionedPlayersMap.get(fullName);
+          if (sanctionedPlayersMap.has(fullName))
+            return sanctionedPlayersMap.get(fullName);
         }
 
         return null;
@@ -3759,7 +4065,11 @@
         });
       };
 
-      function renderSingleCarnetHtml(p, isInteractive = true, customAction = null) {
+      function renderSingleCarnetHtml(
+        p,
+        isInteractive = true,
+        customAction = null,
+      ) {
         const defaultPhoto =
           "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2314802c'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
         const photo = p.playerPhoto || p.fotoUrl || defaultPhoto;
@@ -3768,7 +4078,8 @@
         const num = p.numeroJugador || p.num || "";
         const cedula = p.cedula || "N/A";
         const sanction = getPlayerSanction(p);
-        const matchExpulsados = getPlayersWithRedCardInMatch(currentRosterTbodyId);
+        const matchExpulsados =
+          getPlayersWithRedCardInMatch(currentRosterTbodyId);
         const hasRedInMatch = num && matchExpulsados.has(String(num).trim());
         const isSanctioned = !!sanction || hasRedInMatch;
 
@@ -3833,7 +4144,9 @@
 
         const badgeLabel = hasRedInMatch
           ? "EXPULSADO (TARJETA ROJA)"
-          : (sanction ? `SUSPENDIDO (${sanction.partidos || 1} PART.)` : "");
+          : sanction
+            ? `SUSPENDIDO (${sanction.partidos || 1} PART.)`
+            : "";
 
         return `
           <div class="card text-center position-relative overflow-hidden p-0 shadow-lg mx-auto w-100" 
@@ -3950,21 +4263,33 @@
 
       function selectPlayer(name, number) {
         // 1. Verificación de seguridad disciplinaria y sanciones activas
-        const matchedP = currentTeamPlayersList.find(
-          (p) =>
-            (p.id && selectedPlayerForPreview?.id && p.id === selectedPlayerForPreview.id) ||
-            String(p.numeroJugador || p.num || "").trim() === String(number).trim() ||
-            ((p.nombres || "") + " " + (p.apellidos || "")).trim().toLowerCase() === name.trim().toLowerCase(),
-        ) || selectedPlayerForPreview;
+        const matchedP =
+          currentTeamPlayersList.find(
+            (p) =>
+              (p.id &&
+                selectedPlayerForPreview?.id &&
+                p.id === selectedPlayerForPreview.id) ||
+              String(p.numeroJugador || p.num || "").trim() ===
+                String(number).trim() ||
+              ((p.nombres || "") + " " + (p.apellidos || ""))
+                .trim()
+                .toLowerCase() === name.trim().toLowerCase(),
+          ) || selectedPlayerForPreview;
 
         const sanction = getPlayerSanction(matchedP);
         if (sanction) {
-          window.showSanctionAlert(name, number, sanction.reason, sanction.partidos || 1);
+          window.showSanctionAlert(
+            name,
+            number,
+            sanction.reason,
+            sanction.partidos || 1,
+          );
           return;
         }
 
         // 2. Verificación de tarjetas rojas en este partido actual
-        const currentMatchExpulsados = getPlayersWithRedCardInMatch(currentRosterTbodyId);
+        const currentMatchExpulsados =
+          getPlayersWithRedCardInMatch(currentRosterTbodyId);
         if (currentMatchExpulsados.has(String(number).trim())) {
           const exp = currentMatchExpulsados.get(String(number).trim());
           window.showRedCardExitAlert(number, name, exp.reason);
@@ -3973,9 +4298,10 @@
 
         // 3. Si es un cambio (sustitución), validar que el jugador que entra NO esté ya jugando en cancha
         if (currentSubstitutionRow) {
-          const playersCurrentlyOnField = getActivePlayersOnField(currentRosterTbodyId);
+          const playersCurrentlyOnField =
+            getActivePlayersOnField(currentRosterTbodyId);
           const alreadyPlaying = playersCurrentlyOnField.find(
-            (p) => String(p.num).trim() === String(number).trim()
+            (p) => String(p.num).trim() === String(number).trim(),
           );
           if (alreadyPlaying) {
             Swal.fire({
@@ -3983,7 +4309,7 @@
               title: "Jugador Ya en Cancha",
               text: `El jugador #${number} (${name}) ya se encuentra activo en la cancha como titular. Debe seleccionar a un jugador suplente para ingresar.`,
               background: "#121212",
-              color: "#ffffff"
+              color: "#ffffff",
             });
             return;
           }
@@ -3996,7 +4322,10 @@
           }
           window.syncLiveMatchToFirestore();
 
-          currentEnteringPlayer = { name: name.trim(), number: String(number).trim() };
+          currentEnteringPlayer = {
+            name: name.trim(),
+            number: String(number).trim(),
+          };
           // Pasar automáticamente al paso 2: seleccionar qué jugador SALE de la cancha
           renderSelectPlayerExitingView(name.trim(), String(number).trim());
           return;
@@ -4009,7 +4338,10 @@
             let isDuplicate = false;
             tbody.querySelectorAll("tr").forEach((tr) => {
               const rowInputs = tr.querySelectorAll("input");
-              if (rowInputs.length >= 2 && rowInputs[1] !== currentTargetInput) {
+              if (
+                rowInputs.length >= 2 &&
+                rowInputs[1] !== currentTargetInput
+              ) {
                 const existingNum = (rowInputs[0]?.value || "").trim();
                 if (existingNum && existingNum === String(number).trim()) {
                   isDuplicate = true;
@@ -4022,7 +4354,7 @@
                 title: "Jugador ya asignado",
                 text: `El jugador #${number} ya se encuentra asignado en otro casillero titular de este partido.`,
                 background: "#121212",
-                color: "#ffffff"
+                color: "#ffffff",
               });
               return;
             }
@@ -4092,7 +4424,8 @@
 
         // Obtener jugadores activos en cancha considerando cambios previos
         const playersOnField = getActivePlayersOnField(currentRosterTbodyId);
-        const matchExpulsados = getPlayersWithRedCardInMatch(currentRosterTbodyId);
+        const matchExpulsados =
+          getPlayersWithRedCardInMatch(currentRosterTbodyId);
 
         // FILTRADO ESTRICTO: NUNCA mostrar al jugador que está entrando en la lista de los que pueden salir
         const cleanEnteringNum = String(enteringNum || "").trim();
@@ -4136,8 +4469,7 @@
 
           // 1. Buscar por dorsal exacto
           let pData = currentTeamPlayersList.find(
-            (p) =>
-              String(p.numeroJugador || "").trim() === onFieldNum,
+            (p) => String(p.numeroJugador || "").trim() === onFieldNum,
           );
 
           // 2. Si no coincide por dorsal, buscar por coincidencia de nombre
@@ -4228,7 +4560,8 @@
         }
 
         // Verificación 2: El jugador que sale fue expulsado con tarjeta roja durante el partido
-        const matchExpulsados = getPlayersWithRedCardInMatch(currentRosterTbodyId);
+        const matchExpulsados =
+          getPlayersWithRedCardInMatch(currentRosterTbodyId);
         if (matchExpulsados.has(cleanSaleNum)) {
           const exp = matchExpulsados.get(cleanSaleNum);
           window.showRedCardExitAlert(cleanSaleNum, saleName, exp.reason);
@@ -4245,7 +4578,9 @@
           window.syncLiveMatchToFirestore();
         }
 
-        const enteringText = enteringNum ? `#${enteringNum} ${enteringName}` : "";
+        const enteringText = enteringNum
+          ? `#${enteringNum} ${enteringName}`
+          : "";
 
         // Evaluar estado de cambios para flujo continuo de sustituciones
         const cStatus = getCambiosFillStatus();
@@ -4335,7 +4670,11 @@
         const campSelect = document.getElementById("campSelect");
         const currentCampId =
           campSelect?.value || window.currentMatchOpened?._campId || "";
-        currentTeamPlayersList = await fetchTeamPlayers(teamName, category, currentCampId);
+        currentTeamPlayersList = await fetchTeamPlayers(
+          teamName,
+          category,
+          currentCampId,
+        );
 
         await loadSanctionsForChampionship(
           currentCampId,
@@ -4617,48 +4956,122 @@
       };
 
       window.calculateMatchTotal = function (m, type) {
-        let arb = m._cat === "FEMENINO" ? 8.5 : 9.5;
+        if (!m) return 12.0;
+        let arb = m._cat && m._cat.toUpperCase() === "FEMENINO" ? 8.5 : 9.5;
         let can = 2;
         let cem = 0.5;
-        // Buscar tarjetas reales en el acta (si están guardadas, pero aquí estimamos lo del fixture)
-        // Por ahora usamos defaults de la liga
         return arb + can + cem;
       };
 
       window.viewReceiptDetail = function (type, match) {
+        // Si no se pasa el objeto match, usar el partido activo abierto
+        if (!match && window.currentMatchOpened) {
+          match = window.currentMatchOpened;
+        }
+
+        if (!match) {
+          console.warn("No se encontró partido activo.");
+          if (typeof Swal !== "undefined") {
+            Swal.fire({
+              icon: "warning",
+              title: "Atención",
+              text: "No se encontró la información del partido para generar el recibo.",
+              background: "#111",
+              color: "#fff",
+            });
+          }
+          return;
+        }
+
         // Sincronización Total: Buscamos la versión más fresca del partido en nuestro mapa local
-        const freshFixture = fixturesMap.get(match._fixId);
-        if (freshFixture) {
-          const updatedMatch = freshFixture.data.find((m) => {
-            if (m.matchId && match.matchId && m.matchId === match.matchId)
-              return true;
-            return m.local === match.local && m.visitor === match.visitor;
-          });
-          if (updatedMatch) {
-            match = {
-              ...updatedMatch,
-              _cat: freshFixture.category,
-              _fixId: match._fixId,
-            };
+        if (match._fixId && fixturesMap && fixturesMap.has(match._fixId)) {
+          const freshFixture = fixturesMap.get(match._fixId);
+          if (freshFixture && freshFixture.data) {
+            const updatedMatch = freshFixture.data.find((m) => {
+              if (m.matchId && match.matchId && m.matchId === match.matchId)
+                return true;
+              return m.local === match.local && m.visitor === match.visitor;
+            });
+            if (updatedMatch) {
+              match = {
+                ...match,
+                ...updatedMatch,
+                _cat: freshFixture.category || match._cat,
+                _fixId: match._fixId,
+              };
+            }
           }
         }
 
         let billing =
           type === "local" ? match.billingLocal : match.billingVisitor;
 
-        // Si no hay cobro finalizado, crear una previsualización dinámica
+        // Si no hay cobro finalizado, crear una previsualización dinámica en tiempo real
         if (!billing) {
-          const arbVal = match._cat === "FEMENINO" ? 8.5 : 9.5;
+          const arbVal =
+            match._cat && match._cat.toUpperCase() === "FEMENINO" ? 8.5 : 9.5;
+          const canVal = 2;
+          const cemVal = 0.5;
+
+          // Contabilizar tarjetas activas marcadas en el acta digital si existen
+          let taCount = 0;
+          let trCount = 0;
+          const taNames = [];
+          const trNames = [];
+
+          try {
+            const prefix = type === "local" ? "Local" : "Visitante";
+            const tableJugadores = document.getElementById(
+              "listaJugadores" + prefix,
+            );
+            const tableCambios = document.getElementById(
+              "listaCambios" + prefix,
+            );
+
+            [tableJugadores, tableCambios].forEach((tbl) => {
+              if (tbl) {
+                tbl.querySelectorAll("tr").forEach((tr) => {
+                  const hasYellow = tr.querySelector(
+                    ".card-slot.yellow-slot.active, .yellow-slot.active, .yellow-rect",
+                  );
+                  const hasRed = tr.querySelector(
+                    ".card-slot.red-slot.active, .red-slot.active, .red-rect",
+                  );
+                  const nameInput = tr.querySelector(
+                    "input[placeholder*='Nombre'], input[placeholder*='Seleccionar'], .player-name-val",
+                  );
+                  const playerName = nameInput
+                    ? (nameInput.value || "").trim()
+                    : "";
+
+                  if (hasYellow) {
+                    taCount++;
+                    if (playerName) taNames.push(playerName);
+                  }
+                  if (hasRed) {
+                    trCount++;
+                    if (playerName) trNames.push(playerName);
+                  }
+                });
+              }
+            });
+          } catch (e) {
+            console.warn("No se pudieron leer tarjetas en vivo:", e);
+          }
+
+          const totalCalculated =
+            arbVal + canVal + cemVal + taCount * 0.5 + trCount * 1.0;
+
           billing = {
-            invoiceId: "001-001-XXXXXXXXX",
+            invoiceId: "001-001-PREVIEW",
             team: type === "local" ? match.local : match.visitor,
-            total: window.calculateMatchTotal(match, type),
-            can: 2,
+            total: totalCalculated,
+            can: canVal,
             arb: arbVal,
-            cem: 0.5,
+            cem: cemVal,
             timestamp: new Date(),
-            ta: { count: 0, val: 0.5, players: [] },
-            tr: { count: 0, val: 1.0, players: [] },
+            ta: { count: taCount, val: 0.5, players: taNames },
+            tr: { count: trCount, val: 1.0, players: trNames },
             extras: [],
             isPreview: true,
           };
@@ -4666,16 +5079,27 @@
 
         window.currentBillingForWA = billing;
 
-        document.getElementById("rv_team_name").textContent =
-          billing.team.toUpperCase();
-        document.getElementById("rv_invoice_id").textContent =
-          billing.invoiceId || "001-001-XXXXXXXXX";
-        document.getElementById("rv_total_display").textContent =
-          "$" + parseFloat(billing.total).toFixed(2);
-        document.getElementById("rv_subtotal").textContent =
-          "$" + parseFloat(billing.total).toFixed(2);
-        document.getElementById("rv_category").textContent =
-          match._cat || "GENERAL";
+        const teamNameEl = document.getElementById("rv_team_name");
+        if (teamNameEl)
+          teamNameEl.textContent = (
+            billing.team ||
+            (type === "local" ? match.local : match.visitor) ||
+            "EQUIPO"
+          ).toUpperCase();
+
+        const invoiceIdEl = document.getElementById("rv_invoice_id");
+        if (invoiceIdEl)
+          invoiceIdEl.textContent = billing.invoiceId || "001-001-XXXXXXXXX";
+
+        const totalNum = parseFloat(billing.total || 0);
+        const totalDispEl = document.getElementById("rv_total_display");
+        if (totalDispEl) totalDispEl.textContent = "$" + totalNum.toFixed(2);
+
+        const subtotalEl = document.getElementById("rv_subtotal");
+        if (subtotalEl) subtotalEl.textContent = "$" + totalNum.toFixed(2);
+
+        const catEl = document.getElementById("rv_category");
+        if (catEl) catEl.textContent = match._cat || "GENERAL";
 
         // Formatear fechas
         const dateObj = billing.timestamp
@@ -4697,80 +5121,119 @@
           year: "numeric",
         });
 
-        document.getElementById("rv_date_display").textContent = dateAuth;
-        document.getElementById("rv_date_simple").textContent = dateSimple;
+        const dateDispEl = document.getElementById("rv_date_display");
+        if (dateDispEl) dateDispEl.textContent = dateAuth;
+
+        const dateSimpleEl = document.getElementById("rv_date_simple");
+        if (dateSimpleEl) dateSimpleEl.textContent = dateSimple;
 
         // Estado Info / Observaciones
         const infoDiv = document.getElementById("rv_obs_status");
-        if (billing.isPreview) {
-          infoDiv.textContent = "Estimación preliminar (Documento no oficial)";
-          infoDiv.className = "col-7 small fw-bold text-warning";
-        } else {
-          infoDiv.textContent = "Cobro procesado exitosamente.";
-          infoDiv.className = "col-7 small fw-bold text-success";
+        if (infoDiv) {
+          if (billing.isPreview) {
+            infoDiv.textContent =
+              "Estimación preliminar (Documento no oficial)";
+            infoDiv.className = "col-7 small fw-bold text-warning";
+          } else {
+            infoDiv.textContent = "Cobro procesado exitosamente.";
+            infoDiv.className = "col-7 small fw-bold text-success";
+          }
         }
 
         const list = document.getElementById("rv_items_list");
-        list.innerHTML = "";
+        if (list) {
+          list.innerHTML = "";
 
-        const addItem = (code, name, val) => {
-          list.insertAdjacentHTML(
-            "beforeend",
-            `
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
-                    <td class="text-start py-3 ps-3 text-warning fw-bold" style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">${code}</td>
-                    <td class="text-start py-3 text-white fw-bold" style="font-size: 0.85rem;">${name}</td>
-                    <td class="text-center py-3 text-white-50">1</td>
-                    <td class="text-end py-3 text-white-50">$${parseFloat(val).toFixed(2)}</td>
-                    <td class="text-end py-3 text-white-50">$0.00</td>
-                    <td class="text-end py-3 pe-3 text-white fw-bold">$${parseFloat(val).toFixed(2)}</td>
-                </tr>
-            `,
-          );
-        };
+          const addItem = (code, name, val) => {
+            list.insertAdjacentHTML(
+              "beforeend",
+              `
+                  <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                      <td class="text-start py-2 py-md-3 ps-3 text-warning fw-bold" style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">${code}</td>
+                      <td class="text-start py-2 py-md-3 text-white fw-bold" style="font-size: 0.85rem;">${name}</td>
+                      <td class="text-center py-2 py-md-3 text-white-50">1</td>
+                      <td class="text-end py-2 py-md-3 text-white-50">$${parseFloat(val).toFixed(2)}</td>
+                      <td class="text-end py-2 py-md-3 text-white-50">$0.00</td>
+                      <td class="text-end py-2 py-md-3 pe-3 text-white fw-bold">$${parseFloat(val).toFixed(2)}</td>
+                  </tr>
+              `,
+            );
+          };
 
-        // Add standard items
-        if (billing.can > 0)
-          addItem("P000000008", "Derecho de Cancha", billing.can);
-        if (billing.arb > 0)
-          addItem("P000000003", "Vocalía / Arbitraje", billing.arb);
-        if (billing.cem > 0) addItem("P000000001", "Cementina", billing.cem);
+          // Add standard items
+          if (billing.can > 0)
+            addItem("P000000008", "Derecho de Cancha", billing.can);
+          if (billing.arb > 0)
+            addItem("P000000003", "Vocalía / Arbitraje", billing.arb);
+          if (billing.cem > 0) addItem("P000000001", "Cementina", billing.cem);
 
-        // Cards tracking
-        if (billing.ta && billing.ta.count > 0) {
-          const taPn =
-            billing.ta.players && billing.ta.players.length
-              ? "Jug: " + billing.ta.players.join(", ")
-              : "";
-          addItem(
-            "P000000001",
-            `Tarjetas Amarillas (${billing.ta.count}) ${taPn}`,
-            billing.ta.count * billing.ta.val,
+          // Cards tracking
+          if (billing.ta && billing.ta.count > 0) {
+            let taPn = "";
+            if (billing.ta.players && billing.ta.players.length) {
+              taPn =
+                " - Jug: " +
+                billing.ta.players
+                  .map((p) =>
+                    typeof p === "object"
+                      ? p.name || p.nombre || p.jugador || JSON.stringify(p)
+                      : p,
+                  )
+                  .join(", ");
+            }
+            addItem(
+              "P000000001",
+              `Tarjetas Amarillas (${billing.ta.count})${taPn}`,
+              billing.ta.count * (billing.ta.val || 0.5),
+            );
+          }
+          if (billing.tr && billing.tr.count > 0) {
+            let trPn = "";
+            if (billing.tr.players && billing.tr.players.length) {
+              trPn =
+                " - Jug: " +
+                billing.tr.players
+                  .map((p) =>
+                    typeof p === "object"
+                      ? p.name || p.nombre || p.jugador || JSON.stringify(p)
+                      : p,
+                  )
+                  .join(", ");
+            }
+            addItem(
+              "P000000001",
+              `Tarjetas Rojas (${billing.tr.count})${trPn}`,
+              billing.tr.count * (billing.tr.val || 1.0),
+            );
+          }
+
+          // Extras / Multas
+          if (billing.extras && billing.extras.length > 0) {
+            billing.extras.forEach((e) => {
+              if (e.val > 0) addItem("P000000014", e.desc, e.val);
+            });
+          }
+        }
+
+        // Abrir Modal con Stack Seguro
+        const receiptModalEl = document.getElementById("receiptViewModal");
+        if (receiptModalEl) {
+          const modalView = bootstrap.Modal.getOrCreateInstance(receiptModalEl);
+          modalView.show();
+
+          // Preservar scroll del acta cuando se cierra el recibo
+          receiptModalEl.addEventListener(
+            "hidden.bs.modal",
+            function () {
+              const vocaliaEl = document.getElementById("vocaliaModal");
+              if (vocaliaEl && vocaliaEl.classList.contains("show")) {
+                document.body.classList.add("modal-open");
+                document.body.style.overflow = "hidden";
+              }
+            },
+            { once: false },
           );
         }
-        if (billing.tr && billing.tr.count > 0) {
-          const trPn =
-            billing.tr.players && billing.tr.players.length
-              ? "Jug: " + billing.tr.players.join(", ")
-              : "";
-          addItem(
-            "P000000001",
-            `Tarjetas Rojas (${billing.tr.count}) ${trPn}`,
-            billing.tr.count * billing.tr.val,
-          );
-        }
-
-        // Extras / Multas
-        if (billing.extras && billing.extras.length > 0) {
-          billing.extras.forEach((e) => {
-            if (e.val > 0) addItem("P000000014", e.desc, e.val);
-          });
-        }
-
-        const modalView = new bootstrap.Modal(
-          document.getElementById("receiptViewModal"),
-        );
-        modalView.show();
       };
 
       window.sendReceiptByWA = async function () {
@@ -4880,24 +5343,68 @@
       };
 
       window.showPaymentQR = function () {
-        const total = document.getElementById("rv_total_display").innerText;
+        const total = document.getElementById("rv_total_display")
+          ? document.getElementById("rv_total_display").innerText
+          : "$ 0.00";
+        const team = document.getElementById("rv_team_name")
+          ? document.getElementById("rv_team_name").innerText
+          : "CLUB";
+
         Swal.fire({
-          title: '<h4 class="fw-900 text-white mb-0">PASARELA DE PAGO</h4>',
+          title:
+            '<div class="d-flex align-items-center justify-content-center gap-2 text-warning"><i class="fas fa-qrcode fs-4"></i> <span class="fw-900 text-white fs-5">PASARELA DE PAGO DIGITAL</span></div>',
           html: `
-            <div class="text-center p-3">
-              <p class="text-white-50 mb-4">Escanea el código para transferir <strong class="text-warning">${total}</strong></p>
-              <div class="p-3 bg-white rounded-4 d-inline-block shadow-lg mb-4">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=LDBAA-PAYMENT-${total}" style="width:200px; height:200px;">
+            <div class="text-start p-1 p-sm-2" style="font-size: 0.9rem; color: #fff;">
+              <!-- Banner Total -->
+              <div class="p-3 mb-3 rounded-4 text-center" style="background: linear-gradient(135deg, rgba(46, 204, 113, 0.15), rgba(46, 204, 113, 0.05)); border: 1px solid rgba(46, 204, 113, 0.3);">
+                <span class="small text-white-50 text-uppercase d-block mb-1" style="font-size: 0.65rem; letter-spacing: 1px;">Total a Pagar / Transferir (${team})</span>
+                <span class="fs-2 fw-900 text-success font-monospace">${total}</span>
               </div>
-              <div class="alert alert-info bg-primary bg-opacity-10 border-primary border-opacity-25 text-primary small">
-                <i class="fas fa-info-circle me-2"></i> Una vez realizado el pago, el sistema actualizará automáticamente su estado.
+
+              <!-- Código QR DeUna Oficial -->
+              <div class="text-center mb-3 p-3 rounded-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);">
+                <p class="mb-2 small text-white-50 fw-bold">
+                  <i class="fas fa-mobile-alt text-success me-1"></i> Escanea desde tu App <strong>DeUna</strong> o <strong>Banco Pichincha</strong>:
+                </p>
+                <div class="d-inline-block p-2 bg-white rounded-4 shadow-lg mb-2">
+                  <img src="img/qr-pago-deuna.png" alt="Código QR de Pago DeUna" class="img-fluid rounded" style="width: 210px; height: 210px; object-fit: contain;" onerror="this.src='img/qr-pago.png'">
+                </div>
+                <div class="text-white fw-bold small">Jessica Silvana Quishpe Chicaiza</div>
+                <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 mt-1" style="font-size: 0.65rem;">
+                  <i class="fas fa-check-circle me-1"></i> Pago Directo Verificado DeUna
+                </span>
+              </div>
+
+              <!-- Datos de Cuenta Bancaria -->
+              <div class="p-3 rounded-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom border-white border-opacity-10">
+                  <span class="fw-bold text-warning small"><i class="fas fa-university me-2"></i>Datos para Transferencia:</span>
+                  <button type="button" class="btn btn-xs btn-outline-warning rounded-pill px-2 py-0.5" style="font-size: 0.65rem;" onclick="navigator.clipboard.writeText('2215760735'); this.innerText='¡Copiado!'; setTimeout(() => this.innerText='Copiar Cuenta', 2000);">
+                    <i class="fas fa-copy me-1"></i>Copiar Cuenta
+                  </button>
+                </div>
+                <div class="row g-1 small" style="font-size: 0.8rem;">
+                  <div class="col-5 text-white-50">Banco:</div>
+                  <div class="col-7 text-white fw-bold">Banco Pichincha</div>
+                  <div class="col-5 text-white-50">Tipo de Cuenta:</div>
+                  <div class="col-7 text-white fw-bold">Ahorro Transaccional</div>
+                  <div class="col-5 text-white-50">Nº de Cuenta:</div>
+                  <div class="col-7 text-warning fw-bold font-monospace">2215760735</div>
+                  <div class="col-5 text-white-50">Titular:</div>
+                  <div class="col-7 text-white fw-bold">Jessica Silvana Quishpe Chicaiza</div>
+                </div>
               </div>
             </div>
           `,
           background: "#111",
           showConfirmButton: true,
-          confirmButtonText: "ENTENDIDO",
-          confirmButtonColor: "#c9a227",
+          confirmButtonText:
+            '<i class="fas fa-check me-2"></i>ENTENDIDO / CERRAR',
+          confirmButtonColor: "#2ecc71",
+          customClass: {
+            popup:
+              "rounded-4 border border-secondary border-opacity-50 shadow-2xl",
+          },
         });
       };
 
@@ -5107,8 +5614,14 @@
               (m.local === window.currentMatchOpened.local &&
                 m.visitor === window.currentMatchOpened.visitor)
             ) {
-              const finalScoreL = playersLocal.reduce((acc, p) => acc + (parseInt(p.goles) || 0), 0);
-              const finalScoreV = playersVisitor.reduce((acc, p) => acc + (parseInt(p.goles) || 0), 0);
+              const finalScoreL = playersLocal.reduce(
+                (acc, p) => acc + (parseInt(p.goles) || 0),
+                0,
+              );
+              const finalScoreV = playersVisitor.reduce(
+                (acc, p) => acc + (parseInt(p.goles) || 0),
+                0,
+              );
               return {
                 ...m,
                 isFinalized: true,
@@ -5127,7 +5640,7 @@
                   minute: "Final",
                   scoreLocal: finalScoreL,
                   scoreVisitor: finalScoreV,
-                  lastUpdate: new Date().toISOString()
+                  lastUpdate: new Date().toISOString(),
                 },
                 lastUpdated: new Date(),
               };
@@ -5195,6 +5708,47 @@
       .swal2-input:focus {
         border-color: #2ecc71 !important;
         box-shadow: 0 0 10px rgba(46, 204, 113, 0.3) !important;
+      }
+
+      /* Multi-modal Layering & Stacking for SweetAlert & Receipt Modal (Mobile & PC) */
+      .swal2-container {
+        z-index: 20000 !important;
+      }
+      #receiptViewModal {
+        z-index: 1065 !important;
+      }
+      #receiptViewModal.modal {
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(8px);
+      }
+      .receipt-paper-responsive {
+        background: #111;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 1.25rem 1rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+      }
+      @media (min-width: 576px) {
+        .receipt-paper-responsive {
+          padding: 1.75rem 1.5rem;
+        }
+      }
+      @media (min-width: 768px) {
+        .receipt-paper-responsive {
+          border-radius: 25px;
+          padding: 2.5rem 3rem;
+        }
+      }
+      /* Prevent table squeeze or layout overflow on small screens */
+      #receiptViewModal .table td,
+      #receiptViewModal .table th {
+        white-space: nowrap;
+      }
+      #receiptViewModal .table td:nth-child(2) {
+        white-space: normal;
+        min-width: 140px;
       }
     </style>
   </body>
