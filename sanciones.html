@@ -769,6 +769,8 @@
       let lastMatchId = null;
       let lastMatchLocal = null;
       let lastMatchVisitor = null;
+      let currentSelectedJornada = 1;
+      let lastMatchJornada = 1;
 
       // Cargar campeonatos al iniciar
       auth.onAuthStateChanged((user) => {
@@ -973,6 +975,7 @@
       }
 
       async function mostrarPartidosJornada(jornada) {
+        currentSelectedJornada = parseInt(jornada) || 1;
         document.getElementById("jornadasSection").style.display = "none";
         document.getElementById("partidosSection").style.display = "block";
         document.getElementById("partidosTitulo").textContent =
@@ -1092,6 +1095,7 @@
           }
         }
         if (!match) return;
+        lastMatchJornada = parseInt(match.jornada) || currentSelectedJornada || 1;
 
         const body = document.getElementById("vocaliaCompletaBody");
         body.innerHTML = `
@@ -1506,6 +1510,7 @@
                 articulo: null,
                 literal: null,
                 valor: 0.5,
+                jornada: lastMatchJornada || currentSelectedJornada || 1,
                 fecha: new Date(),
                 createdAt: new Date(),
                 estado: "activa",
@@ -1574,6 +1579,7 @@
               articulo: null,
               literal: null,
               valor: 0.5,
+              jornada: lastMatchJornada || currentSelectedJornada || 1,
               fecha: new Date(),
               createdAt: new Date(),
               estado: "activa",
@@ -1973,6 +1979,7 @@
             literal: lit || null,
             valor: valor,
             partidosSuspension: partidos,
+            jornada: lastMatchJornada || currentSelectedJornada || 1,
             fecha: new Date(),
             createdAt: new Date(),
             estado: "activa",

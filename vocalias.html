@@ -2845,6 +2845,11 @@
         currentJornada,
       ) {
         try {
+          const targetMatchJornada = parseInt(
+            currentJornada || window.currentMatchOpened?.jornada || 1,
+            10,
+          );
+
           // 1. Consultar sanciones activas desde la colección 'sanciones'
           let sancionSnap = null;
           try {
@@ -2869,7 +2874,7 @@
             }
           }
 
-          // 2. Consultar fixtures por campeonato si aplica
+          // 2. Consultar fixtures por campeonato para contabilizar fechas jugadas/programadas por equipo
           let fixSnap = { forEach: () => {} };
           try {
             if (campId) {
@@ -2880,6 +2885,79 @@
             }
           } catch (eFix) {
             console.warn("Error getting fixtures for sanctions:", eFix);
+          }
+
+          // Mapa de jornadas programadas/jugadas por equipo (NombreEquipo -> Set de jornadas)
+          const teamScheduledJornadasMap = new Map();
+          function registerTeamMatchJornada(team, j) {
+            if (!team || team === "DESCANSA" || team === "LIBRE") return;
+            const clean = team.trim().toUpperCase();
+            const jNum = parseInt(j, 10);
+            if (isNaN(jNum) || jNum <= 0) return;
+            if (!teamScheduledJornadasMap.has(clean)) {
+              teamScheduledJornadasMap.set(clean, new Set());
+            }
+            teamScheduledJornadasMap.get(clean).add(jNum);
+          }
+
+          if (fixturesMap && fixturesMap.size > 0) {
+            fixturesMap.forEach((meta) => {
+              if (meta.data && Array.isArray(meta.data)) {
+                meta.data.forEach((m) => {
+                  if (
+                    !m.isRest &&
+                    m.local !== "DESCANSA" &&
+                    m.visitor !== "DESCANSA"
+                  ) {
+                    registerTeamMatchJornada(m.local, m.jornada);
+                    registerTeamMatchJornada(m.visitor, m.jornada);
+                  }
+                });
+              }
+            });
+          }
+
+          if (fixSnap && fixSnap.forEach) {
+            fixSnap.forEach((doc) => {
+              const fData = doc.data();
+              if (fData && Array.isArray(fData.data)) {
+                fData.data.forEach((m) => {
+                  if (
+                    !m.isRest &&
+                    m.local !== "DESCANSA" &&
+                    m.visitor !== "DESCANSA"
+                  ) {
+                    registerTeamMatchJornada(m.local, m.jornada);
+                    registerTeamMatchJornada(m.visitor, m.jornada);
+                  }
+                });
+              }
+            });
+          }
+
+          // Función para calcular cuántos partidos cumplió el equipo entre la fecha de sanción y la fecha actual
+          function getMatchesServed(teamName, startJornada, targetJornada) {
+            const sJ = parseInt(startJornada, 10) || 1;
+            const tJ = parseInt(targetJornada, 10) || 1;
+            if (tJ <= sJ) return 0;
+
+            if (teamName) {
+              const clean = teamName.trim().toUpperCase();
+              const jSet = teamScheduledJornadasMap.get(clean);
+              if (jSet && jSet.size > 0) {
+                let count = 0;
+                jSet.forEach((j) => {
+                  // Cada fecha programada o jugada donde el equipo tuvo partido entre la fecha de sanción y la fecha actual
+                  if (j > sJ && j < tJ) {
+                    count++;
+                  }
+                });
+                return count;
+              }
+            }
+
+            // Fallback por diferencia de fechas si no hay mapa de fixtures del equipo
+            return Math.max(0, tJ - sJ - 1);
           }
 
           sanctionedPlayersMap.clear();
@@ -2896,25 +2974,48 @@
                 return;
 
               const jId = s.jugadorId || s.playerId || s.id || "";
-              let partidos =
-                parseInt(s.partidosSuspension) ||
-                parseInt(s.partidos) ||
+              let totalPartidos =
+                parseInt(s.partidosSuspension, 10) ||
+                parseInt(s.partidos, 10) ||
                 (s.tipo === "roja" ? 1 : 1);
-              if (String(s.articulo) === "129") partidos = 40;
+              if (String(s.articulo) === "129") totalPartidos = 40;
+
+              // Determinar la jornada de origen de la sanción
+              let startJornada = parseInt(s.jornada, 10);
+              if (isNaN(startJornada) || startJornada <= 0) {
+                // Si la sanción no tiene jornada explícita, se considera incurrida en la Fecha 1
+                startJornada = 1;
+              }
+
+              const sTeam = (s.teamName || currentTeamName || "").trim();
+              const matchesServed = getMatchesServed(
+                sTeam,
+                startJornada,
+                targetMatchJornada,
+              );
+              const pendingPartidos = totalPartidos - matchesServed;
+
+              // Si ya cumplió todos los partidos en fechas anteriores programadas -> LA SANCIÓN SE ALZA AUTOMÁTICAMENTE
+              if (pendingPartidos <= 0) {
+                return;
+              }
 
               let reasonText = "";
               if (s.tipo === "roja") {
-                reasonText = `Tarjeta Roja ${s.articulo ? "(Art. " + s.articulo + (s.literal ? " " + s.literal : "") + ")" : ""} — ${partidos >= 40 ? "1 Año de Suspensión / Expulsión" : partidos + " partido" + (partidos > 1 ? "s" : "") + " de suspensión"}`;
+                reasonText = `Tarjeta Roja ${s.articulo ? "(Art. " + s.articulo + (s.literal ? " " + s.literal : "") + ")" : ""} — ${totalPartidos >= 40 ? "1 Año de Suspensión / Expulsión" : pendingPartidos + " partido(s) pendiente(s)"}`;
               } else if (s.tipo === "amarilla") {
-                reasonText = `Acumulación de Tarjetas Amarillas (${partidos} partido de suspensión)`;
+                reasonText = `Acumulación de Tarjetas Amarillas (${pendingPartidos} partido(s) de suspensión pendiente(s))`;
               } else {
-                reasonText = `Sanción Disciplinaria ${s.articulo ? "(Art. " + s.articulo + (s.literal ? " " + s.literal : "") + ")" : ""} (${partidos >= 40 ? "1 Año de Suspensión" : partidos + " partido" + (partidos > 1 ? "s" : "")})`;
+                reasonText = `Sanción Disciplinaria ${s.articulo ? "(Art. " + s.articulo + (s.literal ? " " + s.literal : "") + ")" : ""} (${totalPartidos >= 40 ? "1 Año de Suspensión" : pendingPartidos + " partido(s) pendiente(s)"})`;
               }
 
               const sanctionObj = {
                 reason: reasonText,
                 tipo: s.tipo || "roja",
-                partidos: partidos,
+                partidos: pendingPartidos,
+                totalPartidos: totalPartidos,
+                cumplidos: matchesServed,
+                jornadaInicio: startJornada,
                 articulo: s.articulo || "",
                 literal: s.literal || "",
                 sancionId: sDoc.id,
@@ -2974,6 +3075,7 @@
               const matches = fData.data || [];
               matches.forEach((m) => {
                 if (!m.isFinalized) return;
+                const matchJ = parseInt(m.jornada, 10) || 1;
 
                 const checkPlayerCards = (playersList, teamName) => {
                   if (!playersList) return;
@@ -2987,21 +3089,34 @@
                       p.nombres + " " + (p.apellidos || "") ||
                       ""
                     ).trim();
-                    const tr = parseInt(p.tr || 0);
-                    const ta = parseInt(p.ta || 0);
+                    const tr = parseInt(p.tr || 0, 10);
+                    const ta = parseInt(p.ta || 0, 10);
 
                     if (tr >= 1 || ta >= 2) {
+                      const totalPartidos = 1;
+                      const matchesServed = getMatchesServed(
+                        teamName,
+                        matchJ,
+                        targetMatchJornada,
+                      );
+                      const pendingPartidos = totalPartidos - matchesServed;
+
+                      // Si ya cumplió el partido en fechas intermedias programadas, NO sancionar en esta fecha
+                      if (pendingPartidos <= 0) return;
+
                       const reason =
                         tr >= 1
-                          ? `Expulsión (Tarjeta Roja directa) en Jornada ${m.jornada} — 1 partido de suspensión`
-                          : `Doble Tarjeta Amarilla en Jornada ${m.jornada} — 1 partido de suspensión`;
+                          ? `Expulsión (Tarjeta Roja directa) en Jornada ${matchJ} — ${pendingPartidos} partido(s) pendiente(s)`
+                          : `Doble Tarjeta Amarilla en Jornada ${matchJ} — ${pendingPartidos} partido(s) pendiente(s)`;
                       const sObj = {
                         reason,
                         team: teamName,
                         num,
                         name,
-                        jornada: m.jornada,
-                        partidos: 1,
+                        jornada: matchJ,
+                        partidos: pendingPartidos,
+                        totalPartidos: totalPartidos,
+                        cumplidos: matchesServed,
                         tipo: "roja",
                       };
                       if (num) {

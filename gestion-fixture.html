@@ -678,7 +678,8 @@
       window.addEventListener("DOMContentLoaded", async () => {
         await loadChampionships();
         setTimeout(() => {
-          document.getElementById("loadingOverlay").style.display = "none";
+          const overlay = document.getElementById("loadingOverlay");
+          if (overlay) overlay.style.display = "none";
         }, 600);
       });
 
@@ -799,7 +800,8 @@
           });
 
           renderNavigation();
-          document.getElementById("saveBtn").style.display = "block";
+          const saveBtn = document.getElementById("saveBtn");
+          if (saveBtn) saveBtn.style.display = "block";
         } catch (e) {
           console.error(e);
         }
@@ -864,6 +866,47 @@
         renderNavigation();
       }
 
+      function cleanScoresCurrentJornada() {
+        Swal.fire({
+          title: "¿Limpiar todos los marcadores?",
+          text: `Se resetearán los marcadores de todos los partidos de la Jornada ${currentJornada} para que comiencen en blanco (sin jugar).`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Sí, limpiar marcadores",
+          cancelButtonText: "Cancelar",
+          confirmButtonColor: "#e74c3c",
+          background: "#121212",
+          color: "#ffffff",
+        }).then((res) => {
+          if (res.isConfirmed) {
+            fixturesMap.forEach((meta) => {
+              meta.data.forEach((m) => {
+                if (m.jornada === currentJornada) {
+                  m.golesLocal = null;
+                  m.golesVisitor = null;
+                  m.isFinalized = false;
+                  delete m.liveStatus;
+                  delete m.playersLocal;
+                  delete m.playersVisitor;
+                  delete m.vocalReport;
+                  delete m.refereeReport;
+                  delete m.vedorReport;
+                }
+              });
+            });
+            renderMatches();
+            Swal.fire({
+              title: "Marcadores Limpiados",
+              text: "Todos los partidos de esta jornada ahora están sin marcador. Recuerda presionar 'Guardar' para oficializar.",
+              icon: "success",
+              confirmButtonColor: "#2ecc71",
+              background: "#121212",
+              color: "#ffffff",
+            });
+          }
+        });
+      }
+
       function autoScheduleMixed() {
         let all = [];
         fixturesMap.forEach((meta, fixId) => {
@@ -877,11 +920,21 @@
           list.forEach((m) => {
             m._cat = meta.category;
             m._fixId = fixId;
-            // Limpieza TOTAL para evitar basura visual
+            // Limpieza TOTAL para evitar basura visual y marcadores residuales
             m.fechaRealAsignadaText = "";
             m.horaRealAsignada = "";
             m.vocalAsignado = "";
             m.veedorAsignado = "";
+            // Los partidos nuevos por jugar SIEMPRE arrancan sin marcador
+            m.golesLocal = null;
+            m.golesVisitor = null;
+            m.isFinalized = false;
+            delete m.liveStatus;
+            delete m.playersLocal;
+            delete m.playersVisitor;
+            delete m.vocalReport;
+            delete m.refereeReport;
+            delete m.vedorReport;
             all.push(m);
           });
         });
@@ -962,7 +1015,7 @@
         renderMatches();
         Swal.fire({
           title: "¡Listo!",
-          text: "Programación generada al 100%.",
+          text: "Programación generada al 100% y sin marcadores.",
           icon: "success",
           confirmButtonColor: "#2ecc71"
         });
@@ -973,18 +1026,21 @@
         container.innerHTML = `
           <div id="capture-header">
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 align-items-center">
                   <button class="btn-back-jornadas" onclick="backToJornadas()">
                       <i class="fas fa-chevron-left"></i>
                   </button>
                   <h4 class="text-white mb-0 text-uppercase fw-900 text-primary-glow" style="letter-spacing:2px">JORNADA ${currentJornada}</h4>
                 </div>
-                <div class="d-flex gap-2 flex-wrap">
+                <div class="d-flex gap-2 flex-wrap align-items-center">
                   <button class="btn-export-excel" onclick="exportToExcel()">
                     <i class="fas fa-file-excel"></i> Excel
                   </button>
                   <button class="btn-export-image" onclick="exportToImage()">
                     <i class="fas fa-camera"></i> Imagen
+                  </button>
+                  <button class="btn btn-outline-warning rounded-pill px-3 fw-bold btn-sm shadow-sm" onclick="cleanScoresCurrentJornada()" title="Poner en blanco los marcadores">
+                    <i class="fas fa-eraser me-1"></i> Limpiar Marcadores
                   </button>
                   <button class="btn-schedule-premium" onclick="autoScheduleMixed()">
                       <i class="fas fa-bolt"></i> Programar
@@ -1050,10 +1106,16 @@
           `;
 
           matches.forEach((m) => {
+            const safeLocal = (m.local || "").replace(/'/g, "\\'");
+            const safeVisitor = (m.visitor || "").replace(/'/g, "\\'");
+            const safeFecha = (m.fecha || "").replace(/'/g, "\\'");
+            const valGL = m.golesLocal !== undefined && m.golesLocal !== null ? m.golesLocal : "";
+            const valGV = m.golesVisitor !== undefined && m.golesVisitor !== null ? m.golesVisitor : "";
+
             tableHtml += `
               <tr>
                 <td>
-                  <select class="input-elite-sm" onchange="updateMatchField('${m._fixId}', '${m.fecha}', 'fechaRealAsignadaText', this.value)">
+                  <select class="input-elite-sm" onchange="updateMatchField('${m._fixId}', '${safeLocal}', '${safeVisitor}', '${safeFecha}', 'fechaRealAsignadaText', this.value)">
                     <option value="">Pendiente</option>
                     <option value="Viernes" ${m.fechaRealAsignadaText === "Viernes" ? "selected" : ""}>Viernes</option>
                     <option value="Sábado" ${m.fechaRealAsignadaText === "Sábado" ? "selected" : ""}>Sábado</option>
@@ -1062,20 +1124,20 @@
                 </td>
                 <td>
                   <input type="time" class="input-elite-sm" value="${m.horaRealAsignada || ""}" 
-                    onchange="updateMatchField('${m._fixId}', '${m.fecha}', 'horaRealAsignada', this.value)">
+                    onchange="updateMatchField('${m._fixId}', '${safeLocal}', '${safeVisitor}', '${safeFecha}', 'horaRealAsignada', this.value)">
                 </td>
                 <td><span class="badge-category-mini">${m._cat}</span></td>
                 <td>
                   <div class="d-flex align-items-center justify-content-center gap-3">
                     <div class="d-flex align-items-center gap-2 justify-content-end" style="width:40%">
                       <span class="team-name-elite-table text-end">${m.local}</span>
-                      <input type="number" class="input-elite-sm input-elite-score" value="${m.golesLocal ?? ""}" 
-                        onchange="updateMatchField('${m._fixId}', '${m.fecha}', 'golesLocal', this.value)">
+                      <input type="number" class="input-elite-sm input-elite-score" value="${valGL}" placeholder="-" min="0"
+                        onchange="updateMatchField('${m._fixId}', '${safeLocal}', '${safeVisitor}', '${safeFecha}', 'golesLocal', this.value)">
                     </div>
                     <span class="text-primary-glow fw-900" style="font-size:0.7rem">VS</span>
                     <div class="d-flex align-items-center gap-2 justify-content-start" style="width:40%">
-                      <input type="number" class="input-elite-sm input-elite-score" value="${m.golesVisitor ?? ""}" 
-                        onchange="updateMatchField('${m._fixId}', '${m.fecha}', 'golesVisitor', this.value)">
+                      <input type="number" class="input-elite-sm input-elite-score" value="${valGV}" placeholder="-" min="0"
+                        onchange="updateMatchField('${m._fixId}', '${safeLocal}', '${safeVisitor}', '${safeFecha}', 'golesVisitor', this.value)">
                       <span class="team-name-elite-table text-start">${m.visitor}</span>
                     </div>
                   </div>
@@ -1084,11 +1146,11 @@
                   <div class="row g-2">
                     <div class="col-6">
                       <input type="text" class="input-elite-sm" value="${m.vocalAsignado || ""}" placeholder="Vocal..." 
-                        onchange="updateMatchField('${m._fixId}', '${m.fecha}', 'vocalAsignado', this.value)">
+                        onchange="updateMatchField('${m._fixId}', '${safeLocal}', '${safeVisitor}', '${safeFecha}', 'vocalAsignado', this.value)">
                     </div>
                     <div class="col-6">
                       <input type="text" class="input-elite-sm" value="${m.veedorAsignado || ""}" placeholder="Veedor..." 
-                        onchange="updateMatchField('${m._fixId}', '${m.fecha}', 'veedorAsignado', this.value)">
+                        onchange="updateMatchField('${m._fixId}', '${safeLocal}', '${safeVisitor}', '${safeFecha}', 'veedorAsignado', this.value)">
                     </div>
                   </div>
                 </td>
@@ -1101,7 +1163,7 @@
               </table>
             </div>
             <div class="mt-4 text-center opacity-50">
-              <small class="text-white italic">Edita los campos directamente en la tabla y presiona "ACTUALIZAR TODO" para oficializar.</small>
+              <small class="text-white italic">Edita los campos directamente en la tabla y presiona "Guardar" para oficializar.</small>
             </div>
           `;
           container.insertAdjacentHTML("beforeend", tableHtml + "</div>");
@@ -1172,17 +1234,24 @@
         }
       }
 
-      function updateMatchField(fixId, fecha, field, val) {
+      function updateMatchField(fixId, local, visitor, fecha, field, val) {
         const entry = fixturesMap.get(fixId);
         if (entry) {
           entry.data.forEach((m) => {
-            if (m.fecha === fecha) {
-              m[field] =
-                field === "golesLocal" || field === "golesVisitor"
-                  ? val === ""
-                    ? null
-                    : parseInt(val)
-                  : val;
+            if (
+              m.local === local &&
+              m.visitor === visitor &&
+              (m.fecha === fecha || m.jornada === currentJornada)
+            ) {
+              if (field === "golesLocal" || field === "golesVisitor") {
+                const parsed = parseInt(val, 10);
+                m[field] = val === "" || val === null || isNaN(parsed) ? null : parsed;
+                if (m.golesLocal === null && m.golesVisitor === null) {
+                  m.isFinalized = false;
+                }
+              } else {
+                m[field] = val;
+              }
             }
           });
         }
