@@ -1375,7 +1375,7 @@
           window.initMatchStopwatch(match);
         }
 
-        // Precarga en segundo plano para apertura inmediata (<10ms) de carnets y cédulas
+        // Precarga en segundo plano para apertura inmediata (<10ms) de carnets, cédulas y recibos
         const campSelect = document.getElementById("campSelect");
         const campId = campSelect?.value || match._campId || "";
         if (typeof preloadMatchData === "function") {
@@ -1386,6 +1386,10 @@
             campId,
             match.jornada,
           );
+        }
+        if (typeof window.preloadTeamReceiptData === "function") {
+          window.preloadTeamReceiptData(match.local, match._cat, campId);
+          window.preloadTeamReceiptData(match.visitor, match._cat, campId);
         }
       };
 
@@ -5075,120 +5079,107 @@
         return arb + can + cem;
       };
 
-      window.viewReceiptDetail = function (type, match) {
-        // Si no se pasa el objeto match, usar el partido activo abierto
-        if (!match && window.currentMatchOpened) {
-          match = window.currentMatchOpened;
+      // Cache en memoria ultra-rápido para recibos y sanciones previas (Cero latencia al click)
+      const teamReceiptSanctionsCache = new Map();
+      const teamIdMemoryCache = new Map();
+
+      async function fetchTeamPendingSanctions(teamName, category, campId) {
+        if (!teamName) return { prevYellows: [], prevReds: [], prevExtras: [] };
+        const cacheKey = `${teamName}_${campId || ""}`.toUpperCase();
+        if (teamReceiptSanctionsCache.has(cacheKey)) {
+          return teamReceiptSanctionsCache.get(cacheKey);
         }
 
-        if (!match) {
-          console.warn("No se encontró partido activo.");
-          if (typeof Swal !== "undefined") {
-            Swal.fire({
-              icon: "warning",
-              title: "Atención",
-              text: "No se encontró la información del partido para generar el recibo.",
-              background: "#111",
-              color: "#fff",
-            });
-          }
-          return;
-        }
-
-        // Sincronización Total: Buscamos la versión más fresca del partido en nuestro mapa local
-        if (match._fixId && fixturesMap && fixturesMap.has(match._fixId)) {
-          const freshFixture = fixturesMap.get(match._fixId);
-          if (freshFixture && freshFixture.data) {
-            const updatedMatch = freshFixture.data.find((m) => {
-              if (m.matchId && match.matchId && m.matchId === match.matchId)
-                return true;
-              return m.local === match.local && m.visitor === match.visitor;
-            });
-            if (updatedMatch) {
-              match = {
-                ...match,
-                ...updatedMatch,
-                _cat: freshFixture.category || match._cat,
-                _fixId: match._fixId,
-              };
+        try {
+          let teamId = teamIdMemoryCache.get(teamName.toUpperCase());
+          if (!teamId && typeof db !== "undefined") {
+            let tQuery = db.collection("teams").where("name", "==", teamName);
+            if (campId) tQuery = tQuery.where("championshipId", "==", campId);
+            let tSnap = await tQuery.get();
+            if (tSnap.empty && campId) {
+              tSnap = await db
+                .collection("teams")
+                .where("name", "==", teamName)
+                .get();
+            }
+            if (!tSnap.empty) {
+              teamId = tSnap.docs[0].id;
+              teamIdMemoryCache.set(teamName.toUpperCase(), teamId);
             }
           }
-        }
 
-        let billing =
-          type === "local" ? match.billingLocal : match.billingVisitor;
+          let prevYellows = [];
+          let prevReds = [];
+          let prevExtras = [];
 
-        // Si no hay cobro finalizado, crear una previsualización dinámica en tiempo real
-        if (!billing) {
-          const arbVal =
-            match._cat && match._cat.toUpperCase() === "FEMENINO" ? 8.5 : 9.5;
-          const canVal = 2;
-          const cemVal = 0.5;
+          if (teamId && typeof db !== "undefined") {
+            const [sancSnap, playersList] = await Promise.all([
+              db
+                .collection("sanciones")
+                .where("teamId", "==", teamId)
+                .where("estado", "==", "activa")
+                .get(),
+              fetchTeamPlayers(teamName, category, campId),
+            ]);
 
-          // Contabilizar tarjetas activas marcadas en el acta digital si existen
-          let taCount = 0;
-          let trCount = 0;
-          const taNames = [];
-          const trNames = [];
+            const playersNumMap = new Map();
+            if (Array.isArray(playersList)) {
+              playersList.forEach((p) => {
+                const pNum = p.numeroJugador ? `#${p.numeroJugador}` : "";
+                const pName = `${p.nombres || ""} ${p.apellidos || ""}`.trim();
+                playersNumMap.set(p.id, pNum || pName || "N/A");
+              });
+            }
 
-          try {
-            const prefix = type === "local" ? "Local" : "Visitante";
-            const tableJugadores = document.getElementById(
-              "listaJugadores" + prefix,
-            );
-            const tableCambios = document.getElementById(
-              "listaCambios" + prefix,
-            );
+            sancSnap.forEach((sDoc) => {
+              const s = sDoc.data();
+              const pLabel =
+                (s.jugadorId && playersNumMap.get(s.jugadorId)) ||
+                (s.jugadorNumero
+                  ? `#${s.jugadorNumero}`
+                  : s.jugadorNombre || "");
 
-            [tableJugadores, tableCambios].forEach((tbl) => {
-              if (tbl) {
-                tbl.querySelectorAll("tr").forEach((tr) => {
-                  const hasYellow = tr.querySelector(
-                    ".card-slot.yellow-slot.active, .yellow-slot.active, .yellow-rect",
-                  );
-                  const hasRed = tr.querySelector(
-                    ".card-slot.red-slot.active, .red-slot.active, .red-rect",
-                  );
-                  const nameInput = tr.querySelector(
-                    "input[placeholder*='Nombre'], input[placeholder*='Seleccionar'], .player-name-val",
-                  );
-                  const playerName = nameInput
-                    ? (nameInput.value || "").trim()
-                    : "";
+              if (s.tipo === "amarilla") {
+                prevYellows.push({ num: pLabel || "N/A", sanctionId: sDoc.id });
+              } else if (s.tipo === "roja") {
+                prevReds.push({ num: pLabel || "N/A", sanctionId: sDoc.id });
+              } else {
+                let cleanTipo = s.tipo || "Multa";
+                if (cleanTipo === "no_veedor")
+                  cleanTipo = "No Asistencia de Veedor";
+                else if (cleanTipo === "amarilla_banca")
+                  cleanTipo = "Tarjeta Amarilla (Banca)";
+                else if (cleanTipo === "roja_banca")
+                  cleanTipo = "Tarjeta Roja (Banca)";
+                else cleanTipo = cleanTipo.replace(/_/g, " ").toUpperCase();
 
-                  if (hasYellow) {
-                    taCount++;
-                    if (playerName) taNames.push(playerName);
-                  }
-                  if (hasRed) {
-                    trCount++;
-                    if (playerName) trNames.push(playerName);
-                  }
+                const desc = s.literal
+                  ? `${cleanTipo} (Lit. ${s.literal})`
+                  : s.motivo || cleanTipo;
+                prevExtras.push({
+                  desc: pLabel ? `${desc} (${pLabel})` : desc,
+                  val: parseFloat(s.valor || 0),
+                  sanctionId: sDoc.id,
                 });
               }
             });
-          } catch (e) {
-            console.warn("No se pudieron leer tarjetas en vivo:", e);
           }
 
-          const totalCalculated =
-            arbVal + canVal + cemVal + taCount * 0.5 + trCount * 1.0;
-
-          billing = {
-            invoiceId: "001-001-PREVIEW",
-            team: type === "local" ? match.local : match.visitor,
-            total: totalCalculated,
-            can: canVal,
-            arb: arbVal,
-            cem: cemVal,
-            timestamp: new Date(),
-            ta: { count: taCount, val: 0.5, players: taNames },
-            tr: { count: trCount, val: 1.0, players: trNames },
-            extras: [],
-            isPreview: true,
-          };
+          const result = { prevYellows, prevReds, prevExtras };
+          teamReceiptSanctionsCache.set(cacheKey, result);
+          return result;
+        } catch (err) {
+          console.warn("Error in fetchTeamPendingSanctions:", err);
+          return { prevYellows: [], prevReds: [], prevExtras: [] };
         }
+      }
 
+      window.preloadTeamReceiptData = function (teamName, category, campId) {
+        if (!teamName) return;
+        fetchTeamPendingSanctions(teamName, category, campId).catch(() => {});
+      };
+
+      function renderReceiptToModal(billing, match, type) {
         window.currentBillingForWA = billing;
 
         const teamNameEl = document.getElementById("rv_team_name");
@@ -5256,24 +5247,20 @@
         if (list) {
           list.innerHTML = "";
 
-          // Helper to extract clean dorsal/number list from players array or object
+          // Helper para extraer lista limpia de dorsales de jugadores
           const formatCardPlayerList = (players) => {
             if (!players) return "";
             let arr = [];
-            if (Array.isArray(players)) {
-              arr = players;
-            } else if (typeof players === "object") {
-              arr = [players];
-            } else if (typeof players === "string") {
+            if (Array.isArray(players)) arr = players;
+            else if (typeof players === "object") arr = [players];
+            else if (typeof players === "string") {
               try {
                 const parsed = JSON.parse(players);
                 arr = Array.isArray(parsed) ? parsed : [parsed];
               } catch (e) {
                 arr = [players];
               }
-            } else {
-              arr = [players];
-            }
+            } else arr = [players];
             if (arr.length === 0) return "";
 
             const nums = [];
@@ -5357,7 +5344,7 @@
             );
           };
 
-          // Add standard items
+          // Items estándar del partido
           if (billing.can > 0)
             addItem("P000000008", "Derecho de Cancha", 1, billing.can);
           if (billing.arb > 0)
@@ -5365,7 +5352,7 @@
           if (billing.cem > 0)
             addItem("P000000001", "Cementina", 1, billing.cem);
 
-          // Cards tracking
+          // Tarjetas pendientes de fechas anteriores
           if (billing.ta && billing.ta.count > 0) {
             const taCount = parseInt(billing.ta.count) || 0;
             const taUnit = parseFloat(
@@ -5396,7 +5383,6 @@
             billing.extras.forEach((e) => {
               if (e.val > 0) {
                 let desc = (e.desc || "Multa Adicional").trim();
-                // Omitir duplicados de tarjetas amarillas / rojas en extras si ya están contabilizadas en ta/tr
                 if (
                   /^AMARILLA(\s*\(\s*\))?$/i.test(desc) ||
                   /^TARJETA\s+AMARILLA/i.test(desc)
@@ -5409,7 +5395,6 @@
                 ) {
                   if (billing.tr && billing.tr.count > 0) return;
                 }
-                // Limpieza de textos mal formateados
                 desc = desc
                   .replace(/no_veedor/gi, "No Asistencia de Veedor")
                   .replace(/amarilla_banca/gi, "Tarjeta Amarilla (Banca)")
@@ -5423,13 +5408,12 @@
           }
         }
 
-        // Abrir Modal con Stack Seguro
+        // Apertura inmediata del modal
         const receiptModalEl = document.getElementById("receiptViewModal");
         if (receiptModalEl) {
           const modalView = bootstrap.Modal.getOrCreateInstance(receiptModalEl);
           modalView.show();
 
-          // Preservar scroll del acta cuando se cierra el recibo
           receiptModalEl.addEventListener(
             "hidden.bs.modal",
             function () {
@@ -5440,6 +5424,154 @@
               }
             },
             { once: false },
+          );
+        }
+      }
+
+      window.viewReceiptDetail = function (type, match) {
+        // Si no se pasa el objeto match, usar el partido activo abierto
+        if (!match && window.currentMatchOpened) {
+          match = window.currentMatchOpened;
+        }
+
+        if (!match) {
+          console.warn("No se encontró partido activo.");
+          if (typeof Swal !== "undefined") {
+            Swal.fire({
+              icon: "warning",
+              title: "Atención",
+              text: "No se encontró la información del partido para generar el recibo.",
+              background: "#111",
+              color: "#fff",
+            });
+          }
+          return;
+        }
+
+        // Sincronización Total con el mapa local en memoria
+        if (match._fixId && fixturesMap && fixturesMap.has(match._fixId)) {
+          const freshFixture = fixturesMap.get(match._fixId);
+          if (freshFixture && freshFixture.data) {
+            const updatedMatch = freshFixture.data.find((m) => {
+              if (m.matchId && match.matchId && m.matchId === match.matchId)
+                return true;
+              return m.local === match.local && m.visitor === match.visitor;
+            });
+            if (updatedMatch) {
+              match = {
+                ...match,
+                ...updatedMatch,
+                _cat: freshFixture.category || match._cat,
+                _fixId: match._fixId,
+              };
+            }
+          }
+        }
+
+        let billing =
+          type === "local" ? match.billingLocal : match.billingVisitor;
+
+        // Si ya tiene cobro oficial finalizado, mostrar inmediatamente
+        if (billing) {
+          renderReceiptToModal(billing, match, type);
+          return;
+        }
+
+        // Si no hay cobro oficial, calcular inmediatamente desde la memoria caché
+        const arbVal =
+          match._cat && match._cat.toUpperCase() === "FEMENINO" ? 8.5 : 9.5;
+        const canVal = 2.0;
+        const cemVal = 0.5;
+        const teamName = type === "local" ? match.local : match.visitor;
+        const campSelect = document.getElementById("campSelect");
+        const campId =
+          campSelect?.value ||
+          window.currentMatchOpened?._campId ||
+          (window.currentMatchOpened?._fixId &&
+            fixturesMap.get(window.currentMatchOpened._fixId)
+              ?.championshipId) ||
+          "";
+        const cacheKey = `${teamName}_${campId || ""}`.toUpperCase();
+
+        const cached = teamReceiptSanctionsCache.get(cacheKey) || {
+          prevYellows: [],
+          prevReds: [],
+          prevExtras: [],
+        };
+
+        let extrasSum = 0;
+        cached.prevExtras.forEach((e) => {
+          extrasSum += parseFloat(e.val || 0);
+        });
+        const totalCalculated =
+          arbVal +
+          canVal +
+          cemVal +
+          cached.prevYellows.length * 0.5 +
+          cached.prevReds.length * 1.0 +
+          extrasSum;
+
+        billing = {
+          invoiceId: "001-001-PREVIEW",
+          team: teamName,
+          total: totalCalculated,
+          can: canVal,
+          arb: arbVal,
+          cem: cemVal,
+          timestamp: new Date(),
+          ta: {
+            count: cached.prevYellows.length,
+            val: 0.5,
+            players: cached.prevYellows,
+          },
+          tr: {
+            count: cached.prevReds.length,
+            val: 1.0,
+            players: cached.prevReds,
+          },
+          extras: cached.prevExtras,
+          isPreview: true,
+        };
+
+        // Renderizado e inicio del modal INMEDIATO (0ms)
+        renderReceiptToModal(billing, match, type);
+
+        // Si no estaba en caché, actualizar en segundo plano y refrescar sin bloquear
+        if (!teamReceiptSanctionsCache.has(cacheKey)) {
+          fetchTeamPendingSanctions(teamName, match._cat, campId).then(
+            (freshData) => {
+              let freshExtrasSum = 0;
+              freshData.prevExtras.forEach((e) => {
+                freshExtrasSum += parseFloat(e.val || 0);
+              });
+              const freshTotal =
+                arbVal +
+                canVal +
+                cemVal +
+                freshData.prevYellows.length * 0.5 +
+                freshData.prevReds.length * 1.0 +
+                freshExtrasSum;
+              const freshBilling = {
+                ...billing,
+                total: freshTotal,
+                ta: {
+                  count: freshData.prevYellows.length,
+                  val: 0.5,
+                  players: freshData.prevYellows,
+                },
+                tr: {
+                  count: freshData.prevReds.length,
+                  val: 1.0,
+                  players: freshData.prevReds,
+                },
+                extras: freshData.prevExtras,
+              };
+              const receiptModalEl =
+                document.getElementById("receiptViewModal");
+              if (receiptModalEl && receiptModalEl.classList.contains("show")) {
+                renderReceiptToModal(freshBilling, match, type);
+              }
+            },
           );
         }
       };
