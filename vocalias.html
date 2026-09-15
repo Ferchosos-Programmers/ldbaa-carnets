@@ -957,6 +957,9 @@
           if (select.options.length > 0) {
             select.value = select.options[0].value;
             resetAndLoad();
+            if (typeof preloadEntireChampionshipData === "function") {
+              preloadEntireChampionshipData(select.value);
+            }
           }
         } catch (e) {
           console.error("Error al cargar campeonatos:", e);
@@ -966,107 +969,144 @@
       }
 
       let fixturesListener = null;
+      let fixturesListener2 = null;
       async function resetAndLoad() {
         const campId = document.getElementById("campSelect").value;
         if (!campId) return;
 
-        // Detach previous listener if exists
+        // Precarga masiva e instantánea de todos los jugadores y sanciones del campeonato en memoria RAM
+        if (typeof preloadEntireChampionshipData === "function") {
+          preloadEntireChampionshipData(campId);
+        }
+
+        // Detach previous listeners if exist
         if (fixturesListener) fixturesListener();
+        if (fixturesListener2) fixturesListener2();
 
         fixturesMap.clear();
         currentJornada = null;
+
+        const handleFixtureSnapshot = (snapshot) => {
+          snapshot.forEach((doc) => {
+            const docData = doc.data();
+            if (docData && Array.isArray(docData.data)) {
+              docData.data.forEach((m, idx) => {
+                // Garantizar matchId único y persistente
+                if (!m.matchId || m.matchId === "undefined") {
+                  m.matchId = `${doc.id}_${idx}_${(m.local || "").replace(/\s+/g, "")}_${(m.visitor || "").replace(/\s+/g, "")}`;
+                }
+                // Garantizar número de jornada válido
+                if (
+                  m.jornada === undefined ||
+                  m.jornada === null ||
+                  isNaN(m.jornada)
+                ) {
+                  const rawNum = parseInt(
+                    String(m.fecha || m.round || m.etiqueta || "").replace(
+                      /\D/g,
+                      "",
+                    ),
+                  );
+                  m.jornada = !isNaN(rawNum) && rawNum > 0 ? rawNum : 1;
+                } else {
+                  m.jornada = parseInt(m.jornada) || 1;
+                }
+                // Normalizar fecha / día real
+                const rawFechaReal = (
+                  m.fechaRealAsignadaText ||
+                  m.fechaReal ||
+                  m.dia ||
+                  m.date ||
+                  ""
+                ).trim();
+                if (
+                  rawFechaReal &&
+                  rawFechaReal !== "Por Definir" &&
+                  rawFechaReal !== "---" &&
+                  rawFechaReal !== "Pend" &&
+                  rawFechaReal !== "undefined" &&
+                  rawFechaReal !== "null" &&
+                  !/^fecha\s*\d+$/i.test(rawFechaReal) &&
+                  !/^jornada\s*\d+$/i.test(rawFechaReal)
+                ) {
+                  m.fechaRealAsignadaText = rawFechaReal;
+                } else {
+                  m.fechaRealAsignadaText = "Por Definir";
+                }
+
+                // Normalizar hora real
+                const rawHora = (m.horaRealAsignada || m.hora || "").trim();
+                if (
+                  rawHora &&
+                  rawHora !== "--:--" &&
+                  rawHora !== "Por programar" &&
+                  rawHora !== "Por Definir" &&
+                  rawHora !== "---" &&
+                  rawHora !== "Pend" &&
+                  rawHora !== "undefined" &&
+                  rawHora !== "null"
+                ) {
+                  m.horaRealAsignada = rawHora;
+                } else {
+                  m.horaRealAsignada = "--:--";
+                }
+
+                // Normalizar vocal
+                if (!m.vocalAsignado) {
+                  m.vocalAsignado = m.vocal || "Por Asignar";
+                }
+                // Normalizar veedor
+                if (!m.veedorAsignado) {
+                  m.veedorAsignado = m.veedor || "Por Asignar";
+                }
+              });
+            }
+            fixturesMap.set(doc.id, docData);
+          });
+          renderNavigation();
+
+          // Si el modal está abierto, actualizar la referencia del partido en memoria
+          const modalEl = document.getElementById("vocaliaModal");
+          if (
+            modalEl &&
+            modalEl.classList.contains("show") &&
+            window.currentMatchOpened
+          ) {
+            for (let [fixId, meta] of fixturesMap) {
+              const match = meta.data.find((m) => {
+                if (
+                  m.matchId &&
+                  window.currentMatchOpened.matchId &&
+                  m.matchId === window.currentMatchOpened.matchId
+                )
+                  return true;
+                return (
+                  m.local === window.currentMatchOpened.local &&
+                  m.visitor === window.currentMatchOpened.visitor
+                );
+              });
+              if (match) {
+                window.currentMatchOpened = {
+                  ...match,
+                  _cat: meta.category,
+                  _fixId: fixId,
+                };
+                break;
+              }
+            }
+          }
+        };
 
         // Use real-time listener for instant synchronization with Treasurer
         fixturesListener = db
           .collection("fixtures")
           .where("championshipId", "==", campId)
-          .onSnapshot(
-            (snapshot) => {
-              snapshot.forEach((doc) => {
-                const docData = doc.data();
-                if (docData && Array.isArray(docData.data)) {
-                  docData.data.forEach((m, idx) => {
-                    // Garantizar matchId único y persistente
-                    if (!m.matchId || m.matchId === "undefined") {
-                      m.matchId = `${doc.id}_${idx}_${(m.local || "").replace(/\s+/g, "")}_${(m.visitor || "").replace(/\s+/g, "")}`;
-                    }
-                    // Garantizar número de jornada válido
-                    if (
-                      m.jornada === undefined ||
-                      m.jornada === null ||
-                      isNaN(m.jornada)
-                    ) {
-                      const rawNum = parseInt(
-                        String(m.fecha || m.round || m.etiqueta || "").replace(
-                          /\D/g,
-                          "",
-                        ),
-                      );
-                      m.jornada = !isNaN(rawNum) && rawNum > 0 ? rawNum : 1;
-                    } else {
-                      m.jornada = parseInt(m.jornada) || 1;
-                    }
-                    // Normalizar fecha / día
-                    if (!m.fechaRealAsignadaText) {
-                      m.fechaRealAsignadaText =
-                        m.fechaReal ||
-                        m.dia ||
-                        m.date ||
-                        m.fecha ||
-                        "Por Definir";
-                    }
-                    // Normalizar hora
-                    if (!m.horaRealAsignada) {
-                      m.horaRealAsignada = m.hora || "--:--";
-                    }
-                    // Normalizar vocal
-                    if (!m.vocalAsignado) {
-                      m.vocalAsignado = m.vocal || "Por Asignar";
-                    }
-                    // Normalizar veedor
-                    if (!m.veedorAsignado) {
-                      m.veedorAsignado = m.veedor || "Por Asignar";
-                    }
-                  });
-                }
-                fixturesMap.set(doc.id, docData);
-              });
-              renderNavigation();
+          .onSnapshot(handleFixtureSnapshot, (e) => console.error(e));
 
-              // Si el modal está abierto, NO destruir el DOM ni el cronómetro
-              // Solo actualizar la referencia del partido en memoria
-              const modalEl = document.getElementById("vocaliaModal");
-              if (
-                modalEl &&
-                modalEl.classList.contains("show") &&
-                window.currentMatchOpened
-              ) {
-                for (let [fixId, meta] of fixturesMap) {
-                  const match = meta.data.find((m) => {
-                    if (
-                      m.matchId &&
-                      window.currentMatchOpened.matchId &&
-                      m.matchId === window.currentMatchOpened.matchId
-                    )
-                      return true;
-                    return (
-                      m.local === window.currentMatchOpened.local &&
-                      m.visitor === window.currentMatchOpened.visitor
-                    );
-                  });
-                  if (match) {
-                    window.currentMatchOpened = {
-                      ...match,
-                      _cat: meta.category,
-                      _fixId: fixId,
-                    };
-                    break;
-                  }
-                }
-              }
-            },
-            (e) => console.error(e),
-          );
+        fixturesListener2 = db
+          .collection("fixtures")
+          .where("campeonatoId", "==", campId)
+          .onSnapshot(handleFixtureSnapshot, (e) => console.error(e));
       }
 
       function isMatchProgrammed(m) {
@@ -1074,25 +1114,48 @@
           !m ||
           m.isRest ||
           m.local === "DESCANSA" ||
-          m.visitor === "DESCANSA"
-        )
+          m.visitor === "DESCANSA" ||
+          m.local === "LIBRE" ||
+          m.visitor === "LIBRE"
+        ) {
           return false;
-        const fecha = (
+        }
+        if (!m.local || !m.visitor) return false;
+
+        const f = (
           m.fechaRealAsignadaText ||
           m.fechaReal ||
           m.dia ||
           m.date ||
           ""
         ).trim();
-        const hora = (m.horaRealAsignada || m.hora || "").trim();
-        const hasFecha =
-          fecha !== "" && fecha !== "Por Definir" && fecha !== "---";
-        const hasHora =
-          hora !== "" &&
-          hora !== "--:--" &&
-          hora !== "Por programar" &&
-          hora !== "---";
-        return hasFecha && hasHora;
+        const h = (m.horaRealAsignada || m.hora || "").trim();
+
+        const isInvalidFecha =
+          !f ||
+          f === "Por Definir" ||
+          f === "---" ||
+          f === "Pend" ||
+          f === "undefined" ||
+          f === "null" ||
+          /^fecha\s*\d+$/i.test(f) ||
+          /^jornada\s*\d+$/i.test(f);
+
+        const isInvalidHora =
+          !h ||
+          h === "--:--" ||
+          h === "Por programar" ||
+          h === "Por Definir" ||
+          h === "---" ||
+          h === "Pend" ||
+          h === "undefined" ||
+          h === "null";
+
+        if (isInvalidFecha || isInvalidHora) {
+          return false;
+        }
+
+        return true;
       }
 
       function renderNavigation() {
@@ -1108,13 +1171,15 @@
           let counts = {};
 
           fixturesMap.forEach((meta) => {
-            meta.data.forEach((x) => {
-              if (isMatchProgrammed(x)) {
-                const j = parseInt(x.jornada) || 1;
-                jornadasProgramadas.add(j);
-                counts[j] = (counts[j] || 0) + 1;
-              }
-            });
+            if (meta && Array.isArray(meta.data)) {
+              meta.data.forEach((x) => {
+                if (isMatchProgrammed(x)) {
+                  const j = parseInt(x.jornada) || 1;
+                  jornadasProgramadas.add(j);
+                  counts[j] = (counts[j] || 0) + 1;
+                }
+              });
+            }
           });
 
           // Convertir set a array y ordenar
@@ -1124,8 +1189,14 @@
 
           jornadasGrid.innerHTML = "";
           if (sortedJornadas.length === 0) {
-            jornadasGrid.innerHTML =
-              '<div class="col-12 text-center py-5"><i class="fas fa-calendar-times mb-3 opacity-25" style="font-size:3rem"></i><h5 class="text-white-50">No hay jornadas programadas aún</h5></div>';
+            jornadasGrid.innerHTML = `
+              <div class="col-12 text-center py-5">
+                <i class="fas fa-calendar-times mb-3 opacity-25" style="font-size:3.5rem; color: #e74c3c;"></i>
+                <h4 class="text-white fw-bold mb-2">No hay jornadas programadas aún</h4>
+                <p class="text-white-50 small mb-0" style="max-width: 480px; margin: 0 auto;">
+                  Solo se mostrarán las jornadas y partidos que hayan sido programados con fecha y horario oficial en el fixture.
+                </p>
+              </div>`;
             return;
           }
 
@@ -1337,17 +1408,44 @@
         } else {
           match.jornada = parseInt(match.jornada) || 1;
         }
-        if (!match.fechaRealAsignadaText) {
-          match.fechaRealAsignadaText =
-            match.fechaReal ||
-            match.dia ||
-            match.date ||
-            match.fecha ||
-            "Por Definir";
+        const rawMatchFecha = (
+          match.fechaRealAsignadaText ||
+          match.fechaReal ||
+          match.dia ||
+          match.date ||
+          ""
+        ).trim();
+        if (
+          rawMatchFecha &&
+          rawMatchFecha !== "Por Definir" &&
+          rawMatchFecha !== "---" &&
+          rawMatchFecha !== "Pend" &&
+          rawMatchFecha !== "undefined" &&
+          rawMatchFecha !== "null" &&
+          !/^fecha\s*\d+$/i.test(rawMatchFecha) &&
+          !/^jornada\s*\d+$/i.test(rawMatchFecha)
+        ) {
+          match.fechaRealAsignadaText = rawMatchFecha;
+        } else {
+          match.fechaRealAsignadaText = "Por Definir";
         }
-        if (!match.horaRealAsignada) {
-          match.horaRealAsignada = match.hora || "--:--";
+
+        const rawMatchHora = (match.horaRealAsignada || match.hora || "").trim();
+        if (
+          rawMatchHora &&
+          rawMatchHora !== "--:--" &&
+          rawMatchHora !== "Por programar" &&
+          rawMatchHora !== "Por Definir" &&
+          rawMatchHora !== "---" &&
+          rawMatchHora !== "Pend" &&
+          rawMatchHora !== "undefined" &&
+          rawMatchHora !== "null"
+        ) {
+          match.horaRealAsignada = rawMatchHora;
+        } else {
+          match.horaRealAsignada = "--:--";
         }
+
         if (!match.vocalAsignado) {
           match.vocalAsignado = match.vocal || "Por Asignar";
         }
@@ -2741,106 +2839,336 @@
       let sanctionedPlayersMap = new Map();
       let lastSanctionsKey = null;
       const teamPlayersMemoryCache = new Map();
+      const teamPlayersFetchPromises = new Map();
+      const championshipPreloadedSet = new Set();
+      let isFetchingCurrentTeamPlayers = false;
+
+      function normalizeTeamName(str) {
+        if (!str) return "";
+        return String(str)
+          .trim()
+          .toUpperCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[\.\s_\-]/g, "");
+      }
+
+      function normalizeCategory(str) {
+        if (!str) return "";
+        return String(str)
+          .trim()
+          .toUpperCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[\.\s_\-]/g, "");
+      }
+
+      function categoriesMatch(cat1, cat2) {
+        const c1 = normalizeCategory(cat1);
+        const c2 = normalizeCategory(cat2);
+        if (!c1 || !c2) return true;
+        if (c1 === c2) return true;
+        if (c1.startsWith("FEM") && c2.startsWith("FEM")) return true;
+        return false;
+      }
+
+      function getPlayerCacheKey(teamName, category, campId) {
+        const normTeam = normalizeTeamName(teamName);
+        const normCat = normalizeCategory(category);
+        const normCamp = (campId || "").trim().toUpperCase();
+        return `${normTeam}___${normCat}___${normCamp}`;
+      }
+
+      // Precarga masiva en segundo plano de todos los jugadores y equipos del campeonato
+      async function preloadEntireChampionshipData(campId) {
+        if (!campId || championshipPreloadedSet.has(campId)) return;
+        championshipPreloadedSet.add(campId);
+
+        try {
+          // 1. Consultas paralelas masivas
+          const [allTeamsSnap, playersSnap1, playersSnap2] = await Promise.all([
+            db
+              .collection("teams")
+              .get()
+              .catch(() => ({ forEach: () => {} })),
+            db
+              .collection("players")
+              .where("campeonatoId", "==", campId)
+              .get()
+              .catch(() => ({ forEach: () => {} })),
+            db
+              .collection("players")
+              .where("championshipId", "==", campId)
+              .get()
+              .catch(() => ({ forEach: () => {} })),
+          ]);
+
+          const teamIdToMeta = new Map();
+          const teamNormToMeta = new Map();
+
+          allTeamsSnap.forEach((doc) => {
+            const t = doc.data();
+            if (!t.name) return;
+            const norm = normalizeTeamName(t.name);
+            const catNorm = normalizeCategory(t.category || "");
+            const meta = {
+              name: t.name,
+              category: t.category || "",
+              norm,
+              catNorm,
+              champId: t.championshipId || t.campeonatoId || "",
+            };
+            teamIdToMeta.set(doc.id, meta);
+
+            if (!teamNormToMeta.has(norm)) teamNormToMeta.set(norm, []);
+            teamNormToMeta.get(norm).push({ id: doc.id, ...meta });
+          });
+
+          const teamToPlayersMap = new Map();
+
+          const registerPlayer = (doc) => {
+            const p = doc.data();
+            if (p.status && p.status.toUpperCase() === "RECALIFICADO") return;
+
+            const tMeta = p.teamId ? teamIdToMeta.get(p.teamId) : null;
+            const tName = (p.teamName || tMeta?.name || "").trim();
+            if (!tName) return;
+
+            const playerCat =
+              p.teamCategory || p.category || tMeta?.category || "";
+            const normTeam = normalizeTeamName(tName);
+            const normCat = normalizeCategory(playerCat);
+            const cleanCamp = (campId || "").trim().toUpperCase();
+
+            const playerObj = {
+              ...p,
+              id: doc.id,
+              teamName: tName,
+              teamCategory: playerCat,
+            };
+
+            // Indexación estricta por categoría
+            const keys = [
+              `${normTeam}___${normCat}___${cleanCamp}`,
+              `${normTeam}___${normCat}___`,
+            ];
+
+            // Si no tiene categoría, indexar también en clave neutra
+            if (!normCat) {
+              keys.push(`${normTeam}______${cleanCamp}`);
+              keys.push(`${normTeam}______`);
+            }
+
+            keys.forEach((k) => {
+              if (!teamToPlayersMap.has(k)) teamToPlayersMap.set(k, []);
+              const list = teamToPlayersMap.get(k);
+              if (!list.some((x) => x.id === doc.id)) {
+                list.push(playerObj);
+              }
+            });
+          };
+
+          playersSnap1.forEach(registerPlayer);
+          playersSnap2.forEach(registerPlayer);
+
+          // Consultar también jugadores por teamId de los equipos del campeonato
+          const champTeamIds = [];
+          allTeamsSnap.forEach((doc) => {
+            const t = doc.data();
+            if (t.championshipId === campId || t.campeonatoId === campId) {
+              champTeamIds.push(doc.id);
+            }
+          });
+
+          if (champTeamIds.length > 0) {
+            for (let i = 0; i < champTeamIds.length; i += 8) {
+              const chunk = champTeamIds.slice(i, i + 8);
+              const chunkSnaps = await Promise.all(
+                chunk.map((id) =>
+                  db
+                    .collection("players")
+                    .where("teamId", "==", id)
+                    .get()
+                    .catch(() => ({ forEach: () => {} })),
+                ),
+              );
+              chunkSnaps.forEach((s) => s.forEach(registerPlayer));
+            }
+          }
+
+          teamToPlayersMap.forEach((pList, k) => {
+            pList.sort(
+              (a, b) =>
+                (parseInt(a.numeroJugador || a.num) || 999) -
+                (parseInt(b.numeroJugador || b.num) || 999),
+            );
+            teamPlayersMemoryCache.set(k, pList);
+          });
+
+          loadSanctionsForChampionship(campId, null, 1);
+        } catch (err) {
+          console.warn("Preload entire championship data error:", err);
+        }
+      }
 
       async function fetchTeamPlayers(teamName, category, currentCampId) {
         if (!teamName) return [];
-        const cacheKey =
-          `${teamName}_${category || ""}_${currentCampId || ""}`.toUpperCase();
-        if (teamPlayersMemoryCache.has(cacheKey)) {
-          return teamPlayersMemoryCache.get(cacheKey);
+        const normTeam = normalizeTeamName(teamName);
+        const normCat = normalizeCategory(category);
+        const cleanCamp = (currentCampId || "").trim().toUpperCase();
+
+        const primaryKey = `${normTeam}___${normCat}___${cleanCamp}`;
+        const secondaryKey = `${normTeam}___${normCat}___`;
+        const neutralKey = `${normTeam}______${cleanCamp}`;
+
+        // 1. Si ya está en memoria RAM con jugadores completos de esta categoría, retorno instantáneo (0ms)
+        if (
+          teamPlayersMemoryCache.has(primaryKey) &&
+          teamPlayersMemoryCache.get(primaryKey).length > 0
+        ) {
+          return teamPlayersMemoryCache.get(primaryKey);
+        }
+        if (
+          teamPlayersMemoryCache.has(secondaryKey) &&
+          teamPlayersMemoryCache.get(secondaryKey).length > 0
+        ) {
+          return teamPlayersMemoryCache.get(secondaryKey);
+        }
+        if (
+          !normCat &&
+          teamPlayersMemoryCache.has(neutralKey) &&
+          teamPlayersMemoryCache.get(neutralKey).length > 0
+        ) {
+          return teamPlayersMemoryCache.get(neutralKey);
         }
 
-        try {
-          const cleanTeam = teamName.trim().toUpperCase();
+        // 2. Coalescing de promesas en vuelo para evitar llamadas duplicadas simultáneas
+        if (teamPlayersFetchPromises.has(primaryKey)) {
+          return teamPlayersFetchPromises.get(primaryKey);
+        }
 
-          // Consultas paralelas ultra-rápidas
-          const [snap, tSnap1, tSnap2] = await Promise.all([
-            db.collection("players").where("teamName", "==", teamName).get(),
-            currentCampId
-              ? db
-                  .collection("teams")
-                  .where("championshipId", "==", currentCampId)
-                  .get()
-              : Promise.resolve({ forEach: () => {} }),
-            currentCampId
-              ? db
-                  .collection("teams")
-                  .where("campeonatoId", "==", currentCampId)
-                  .get()
-              : Promise.resolve({ forEach: () => {} }),
-          ]);
+        const fetchPromise = (async () => {
+          try {
+            const cleanTeam = teamName.trim().toUpperCase();
+            // Consultas exhaustivas en paralelo
+            const [snap1, snap2, snap3, tSnapAll] = await Promise.all([
+              db
+                .collection("players")
+                .where("teamName", "==", teamName)
+                .get()
+                .catch(() => ({ forEach: () => {} })),
+              db
+                .collection("players")
+                .where("teamName", "==", cleanTeam)
+                .get()
+                .catch(() => ({ forEach: () => {} })),
+              db
+                .collection("players")
+                .where("teamName", "==", teamName.replace(/\./g, ""))
+                .get()
+                .catch(() => ({ forEach: () => {} })),
+              db
+                .collection("teams")
+                .get()
+                .catch(() => ({ forEach: () => {} })),
+            ]);
 
-          const validTeamIds = new Set();
-          tSnap1.forEach((tDoc) => {
-            const tData = tDoc.data();
-            if (tData.name && tData.name.trim().toUpperCase() === cleanTeam) {
-              validTeamIds.add(tDoc.id);
-            }
-          });
-          tSnap2.forEach((tDoc) => {
-            const tData = tDoc.data();
-            if (tData.name && tData.name.trim().toUpperCase() === cleanTeam) {
-              validTeamIds.add(tDoc.id);
-            }
-          });
+            const teamMetaMap = new Map();
+            const validTeamIdsForCat = new Set();
+            const allClubTeamIds = new Set();
 
-          const playersList = [];
-          const addedPlayerDocIds = new Set();
+            tSnapAll.forEach((tDoc) => {
+              const tData = tDoc.data();
+              if (tData.name && normalizeTeamName(tData.name) === normTeam) {
+                const tCat = tData.category || "";
+                teamMetaMap.set(tDoc.id, { ...tData, category: tCat });
+                allClubTeamIds.add(tDoc.id);
+                if (categoriesMatch(tCat, category)) {
+                  validTeamIdsForCat.add(tDoc.id);
+                }
+              }
+            });
 
-          const processPlayerDoc = (doc) => {
-            if (addedPlayerDocIds.has(doc.id)) return;
-            const p = doc.data();
+            const playersList = [];
+            const addedPlayerDocIds = new Set();
 
-            if (p.status && p.status.toUpperCase() === "RECALIFICADO") return;
+            const processPlayerDoc = (doc) => {
+              if (addedPlayerDocIds.has(doc.id)) return;
+              const p = doc.data();
 
-            if (
-              category &&
-              p.teamCategory &&
-              p.teamCategory.toUpperCase() !== category.toUpperCase()
-            ) {
-              return;
-            }
+              // Descartar solo si el estado es RECALIFICADO
+              if (p.status && p.status.toUpperCase() === "RECALIFICADO") return;
 
-            if (currentCampId) {
-              const pCampId = p.campeonatoId || p.championshipId || "";
-              const pTeamId = p.teamId || "";
+              // Validar que pertenezca a este club
+              const pTeamNorm = normalizeTeamName(p.teamName);
+              const belongsToClub =
+                (p.teamId && allClubTeamIds.has(p.teamId)) ||
+                (pTeamNorm && pTeamNorm === normTeam) ||
+                (p.teamName && p.teamName.trim().toUpperCase() === cleanTeam);
 
-              let matchCamp = false;
-              if (pCampId && pCampId === currentCampId) {
-                matchCamp = true;
-              } else if (pTeamId && validTeamIds.has(pTeamId)) {
-                matchCamp = true;
+              if (!belongsToClub) return;
+
+              // FILTRADO ESTRICTO POR CATEGORÍA
+              const pDocCat = p.teamCategory || p.category || "";
+              const pTeamDocCat = p.teamId
+                ? teamMetaMap.get(p.teamId)?.category || ""
+                : "";
+              const effectiveCat = pDocCat || pTeamDocCat;
+
+              if (category && effectiveCat) {
+                if (!categoriesMatch(effectiveCat, category)) {
+                  return; // Jugador de otra categoría (ej. Femenino vs Primera vs Máxima) -> DESCARTAR
+                }
               }
 
-              if (!matchCamp) return;
+              addedPlayerDocIds.add(doc.id);
+              playersList.push({
+                ...p,
+                id: doc.id,
+                teamName: p.teamName || teamName,
+                teamCategory: effectiveCat || category || "",
+              });
+            };
+
+            snap1.forEach(processPlayerDoc);
+            snap2.forEach(processPlayerDoc);
+            snap3.forEach(processPlayerDoc);
+
+            // Traer todos los jugadores vinculados por teamId de los equipos de esta categoría
+            const teamIdsToQuery =
+              validTeamIdsForCat.size > 0 ? validTeamIdsForCat : allClubTeamIds;
+            if (teamIdsToQuery.size > 0) {
+              const idPromises = Array.from(teamIdsToQuery).map((tId) =>
+                db
+                  .collection("players")
+                  .where("teamId", "==", tId)
+                  .get()
+                  .catch(() => ({ forEach: () => {} })),
+              );
+              const idSnaps = await Promise.all(idPromises);
+              idSnaps.forEach((s) => s.forEach(processPlayerDoc));
             }
 
-            addedPlayerDocIds.add(doc.id);
-            playersList.push({ ...p, id: doc.id });
-          };
+            playersList.sort((a, b) => {
+              const numA = parseInt(a.numeroJugador || a.num) || 999;
+              const numB = parseInt(b.numeroJugador || b.num) || 999;
+              return numA - numB;
+            });
 
-          snap.forEach(processPlayerDoc);
+            teamPlayersMemoryCache.set(primaryKey, playersList);
+            teamPlayersMemoryCache.set(secondaryKey, playersList);
 
-          if (validTeamIds.size > 0) {
-            const idPromises = Array.from(validTeamIds).map((tId) =>
-              db.collection("players").where("teamId", "==", tId).get(),
-            );
-            const idSnaps = await Promise.all(idPromises);
-            idSnaps.forEach((s) => s.forEach(processPlayerDoc));
+            return playersList;
+          } catch (err) {
+            console.warn("Error in fetchTeamPlayers:", err);
+            return [];
+          } finally {
+            teamPlayersFetchPromises.delete(primaryKey);
           }
+        })();
 
-          playersList.sort((a, b) => {
-            const numA = parseInt(a.numeroJugador) || 999;
-            const numB = parseInt(b.numeroJugador) || 999;
-            return numA - numB;
-          });
-
-          teamPlayersMemoryCache.set(cacheKey, playersList);
-          return playersList;
-        } catch (err) {
-          console.warn("Error in fetchTeamPlayers:", err);
-          return [];
-        }
+        teamPlayersFetchPromises.set(primaryKey, fetchPromise);
+        return fetchPromise;
       }
 
       async function loadSanctionsForChampionship(
@@ -3381,6 +3709,56 @@
             ? `<i class="fas fa-exchange-alt me-2 text-warning"></i> REGISTRO DE CAMBIO (ENTRA): <span class="text-primary-glow">${teamName}</span>${catBadge}`
             : `<i class="fas fa-tshirt me-2 text-warning"></i> SELECCIÓN POR DORSAL: <span class="text-primary-glow">${teamName}</span>${catBadge}`;
 
+        const campSelect = document.getElementById("campSelect");
+        const currentCampId =
+          campSelect?.value ||
+          window.currentMatchOpened?._campId ||
+          (window.currentMatchOpened?._fixId &&
+            fixturesMap.get(window.currentMatchOpened._fixId)?.championshipId) ||
+          "";
+
+        currentCampName =
+          campSelect && campSelect.selectedIndex >= 0
+            ? campSelect.options[campSelect.selectedIndex].text
+            : window.currentMatchOpened?.championshipName ||
+              "CAMPEONATO ACTIVO";
+
+        // Comprobación síncrona en memoria RAM (0ms) con aislamiento estricto de categoría
+        const normTeam = normalizeTeamName(teamName);
+        const normCat = normalizeCategory(category);
+        const cleanCamp = (currentCampId || "").trim().toUpperCase();
+
+        const primaryKey = `${normTeam}___${normCat}___${cleanCamp}`;
+        const secondaryKey = `${normTeam}___${normCat}___`;
+        const neutralKey = `${normTeam}______${cleanCamp}`;
+
+        let cachedPlayers = null;
+        if (
+          teamPlayersMemoryCache.has(primaryKey) &&
+          teamPlayersMemoryCache.get(primaryKey).length > 0
+        ) {
+          cachedPlayers = teamPlayersMemoryCache.get(primaryKey);
+        } else if (
+          teamPlayersMemoryCache.has(secondaryKey) &&
+          teamPlayersMemoryCache.get(secondaryKey).length > 0
+        ) {
+          cachedPlayers = teamPlayersMemoryCache.get(secondaryKey);
+        } else if (
+          !normCat &&
+          teamPlayersMemoryCache.has(neutralKey) &&
+          teamPlayersMemoryCache.get(neutralKey).length > 0
+        ) {
+          cachedPlayers = teamPlayersMemoryCache.get(neutralKey);
+        }
+
+        if (cachedPlayers) {
+          currentTeamPlayersList = cachedPlayers;
+          isFetchingCurrentTeamPlayers = false;
+        } else {
+          currentTeamPlayersList = [];
+          isFetchingCurrentTeamPlayers = true;
+        }
+
         // Renderizado inicial inmediato
         renderPlayerSelectionView();
 
@@ -3392,51 +3770,41 @@
           if (inp) inp.focus();
         }, 80);
 
-        try {
-          const campSelect = document.getElementById("campSelect");
-          const currentCampId =
-            campSelect?.value ||
-            window.currentMatchOpened?._campId ||
-            (window.currentMatchOpened?._fixId &&
-              fixturesMap.get(window.currentMatchOpened._fixId)
-                ?.championshipId) ||
-            "";
+        // Background fetching y resolución reactiva
+        (async () => {
+          try {
+            const players = await fetchTeamPlayers(
+              teamName,
+              category,
+              currentCampId,
+            );
+            if (players && players.length > 0) {
+              currentTeamPlayersList = players;
+            }
+            isFetchingCurrentTeamPlayers = false;
 
-          currentCampName =
-            campSelect && campSelect.selectedIndex >= 0
-              ? campSelect.options[campSelect.selectedIndex].text
-              : window.currentMatchOpened?.championshipName ||
-                "CAMPEONATO ACTIVO";
+            await loadSanctionsForChampionship(
+              currentCampId,
+              category,
+              window.currentMatchOpened?.jornada,
+            );
 
-          // Obtenemos jugadores al instante (desde caché o fetching paralelo)
-          currentTeamPlayersList = await fetchTeamPlayers(
-            teamName,
-            category,
-            currentCampId,
-          );
-
-          // Cargar y asegurar sanciones antes de renderizar
-          await loadSanctionsForChampionship(
-            currentCampId,
-            category,
-            window.currentMatchOpened?.jornada,
-          );
-
-          // Si el modal sigue abierto, refrescar la vista con los carnets validados
-          const modalInstance = bootstrap.Modal.getInstance(modalEl);
-          if (modalInstance) {
+            // Si el modal sigue abierto, refrescar la vista con los carnets validados
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance && currentTeamName === teamName) {
+              renderPlayerSelectionView();
+              const currentVal =
+                document.getElementById("dorsalSearchInput")?.value;
+              if (currentVal && currentVal.trim()) {
+                window.handleDorsalSearchInput(currentVal);
+              }
+            }
+          } catch (e) {
+            console.error("Error en openPlayerSelector background fetch:", e);
+            isFetchingCurrentTeamPlayers = false;
             renderPlayerSelectionView();
           }
-
-          // Si el usuario ya digitó el dorsal antes de que termine el fetch, resolver de inmediato
-          const currentVal =
-            document.getElementById("dorsalSearchInput")?.value;
-          if (currentVal && currentVal.trim()) {
-            window.handleDorsalSearchInput(currentVal);
-          }
-        } catch (e) {
-          console.error("Error en openPlayerSelector:", e);
-        }
+        })();
       }
 
       function getActivePlayersOnField(rosterTbodyId) {
@@ -3655,7 +4023,13 @@
                   <label for="dorsalSearchInput" class="form-label text-warning small fw-bold text-uppercase mb-0" style="letter-spacing:1px;">
                       <i class="fas fa-tshirt me-1"></i> ${currentSubstitutionRow ? "Ingrese el Dorsal del Jugador que ENTRA:" : "Ingrese el Número de Dorsal:"}
                   </label>
-                  <span class="badge bg-dark border border-secondary text-warning small">${currentTeamPlayersList.length} inscritos (${currentTeamCategory || "MÁXIMA"})</span>
+                  <span class="badge bg-dark border border-secondary text-warning small">
+                      ${
+                        isFetchingCurrentTeamPlayers
+                          ? `<span class="spinner-border spinner-border-sm text-warning me-1"></span> Sincronizando nómina...`
+                          : `${currentTeamPlayersList.length} inscritos (${currentTeamCategory || "MÁXIMA"})`
+                      }
+                  </span>
               </div>
 
               <div class="input-group input-group-lg my-1">
@@ -3691,6 +4065,20 @@
 
       function renderCarnetPreviewContent(player) {
         if (!player) {
+          if (isFetchingCurrentTeamPlayers) {
+            return `
+              <div class="text-center py-5 text-white-50 d-flex flex-column align-items-center justify-content-center animate__animated animate__fadeIn" style="min-height: 400px;">
+                  <div class="spinner-border text-warning mb-3" style="width: 3.5rem; height: 3.5rem;" role="status">
+                      <span class="visually-hidden">Cargando...</span>
+                  </div>
+                  <h5 class="fw-bold text-white mb-2">${dorsalSearchQuery ? `Buscando jugador #${dorsalSearchQuery}...` : `Cargando nómina oficial de ${currentTeamName}...`}</h5>
+                  <p class="small text-white-50 mb-0" style="max-width: 360px;">
+                      Sincronizando nómina oficial de jugadores y validaciones antifraude en tiempo real...
+                  </p>
+              </div>
+            `;
+          }
+
           if (dorsalSearchQuery) {
             return `
               <div class="text-center py-5 text-white-50 d-flex flex-column align-items-center justify-content-center animate__animated animate__fadeIn" style="min-height: 400px;">
