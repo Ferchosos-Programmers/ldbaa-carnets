@@ -3018,6 +3018,7 @@
       let __activeGeneralCampeonatoId = "";
       let __activeGeneralCampeonatoName = "";
       let __campeonatoCache = []; // [{id, name, ...data}]
+      let __teamsLookupCache = null;
 
       /**
        * Helper: carga campeonatos de Firestore y cachea.
@@ -3036,6 +3037,88 @@
           console.error("fetchAllCampeonatos error:", e);
           return [];
         }
+      }
+
+      /**
+       * Helper: busca información de un equipo (id, nombre, categoría, championshipId)
+       */
+      async function getTeamInfo(teamId, teamName) {
+        if (!__teamsLookupCache) {
+          __teamsLookupCache = new Map();
+          try {
+            const snap = await db.collection("teams").get();
+            snap.forEach(doc => {
+              const d = doc.data();
+              const info = { id: doc.id, ...d };
+              __teamsLookupCache.set(doc.id, info);
+              if (d.name) {
+                __teamsLookupCache.set(d.name.trim().toLowerCase(), info);
+              }
+            });
+          } catch (e) {
+            console.warn("getTeamInfo cache error:", e);
+          }
+        }
+        if (teamId && __teamsLookupCache.has(teamId)) {
+          return __teamsLookupCache.get(teamId);
+        }
+        if (teamName && __teamsLookupCache.has(teamName.trim().toLowerCase())) {
+          return __teamsLookupCache.get(teamName.trim().toLowerCase());
+        }
+        return null;
+      }
+
+      function getChampionshipNameById(id) {
+        if (!id) return "";
+        const c = (__campeonatoCache || []).find(x => x.id === id);
+        return c ? (c.name || c.nombre || "") : "";
+      }
+
+      /**
+       * Auto-resuelve el campeonato de una solicitud de carta pase de forma transparente
+       */
+      async function resolveCartasPaseChampionship(data) {
+        let championshipId = data.championshipId || "";
+        let championshipName = data.championshipName || "";
+
+        // 1. Resolver por el equipo participante registrado
+        if (!championshipId && (data.teamId || data.teamName)) {
+          const tInfo = await getTeamInfo(data.teamId, data.teamName);
+          if (tInfo) {
+            championshipId = tInfo.championshipId || tInfo.campeonatoId || "";
+            if (!data.teamId) data.teamId = tInfo.id;
+            if (!data.category) data.category = tInfo.category || "";
+          }
+        }
+
+        // 2. Resolver por selector activo en la vista de cartas pases o general
+        if (!championshipId) {
+          const selVal = document.getElementById("cpCampSelect")?.value;
+          if (selVal && selVal !== "__all__") {
+            championshipId = selVal;
+          } else if (__activeGeneralCampeonatoId) {
+            championshipId = __activeGeneralCampeonatoId;
+          } else {
+            let lastId = "";
+            try { lastId = localStorage.getItem("tesorero_last_camp_id") || ""; } catch(e){}
+            if (lastId) championshipId = lastId;
+          }
+        }
+
+        // 3. Fallback al campeonato activo más reciente
+        if (!championshipId) {
+          const camps = await fetchAllCampeonatos();
+          if (camps && camps.length > 0) {
+            championshipId = camps[0].id;
+          }
+        }
+
+        // Resolver nombre descriptivo
+        if (championshipId && !championshipName) {
+          championshipName = getChampionshipNameById(championshipId);
+        }
+
+        return { championshipId, championshipName };
       }
 
       /**
@@ -3251,16 +3334,48 @@
         document.getElementById('main-view').classList.remove('d-none');
       }
 
-      function openCartasPases() {
-        document.getElementById('otras-facturaciones-view').classList.add('d-none');
-        document.getElementById('cartas-pases-view').classList.remove('d-none');
-        // cargar selector de campeonato para filtrar listado
-        (async () => {
-          await loadCampeonatosToSelect("cpCampSelect", { includeAll: true });
+      async function openCartasPases() {
+        document.getElementById('main-view')?.classList.add('d-none');
+        document.getElementById('facturacion-view')?.classList.add('d-none');
+        document.getElementById('otras-facturaciones-view')?.classList.add('d-none');
+        document.getElementById('historial-facturas-view')?.classList.add('d-none');
+        document.getElementById('cobros-generales-view')?.classList.add('d-none');
+        document.getElementById('pagos-admin-view')?.classList.add('d-none');
+        document.getElementById('cartas-pases-view')?.classList.remove('d-none');
+
+        try {
+          const camps = await fetchAllCampeonatos();
+          if (!__activeGeneralCampeonatoId) {
+            let lastId = "";
+            try { lastId = localStorage.getItem("tesorero_last_camp_id") || ""; } catch (e) {}
+            if (lastId && camps.some(c => c.id === lastId)) {
+              setActiveGeneralCampeonato(lastId);
+            } else if (camps.length > 0) {
+              setActiveGeneralCampeonato(camps[0].id);
+            }
+          }
+
+          await loadCampeonatosToSelect("cpCampSelect", { includeAll: true, allLabel: "Todos los campeonatos" });
+          const sel = document.getElementById("cpCampSelect");
+          if (sel) {
+            sel.onchange = onCpCampSelectChange;
+          }
+
           const nm = document.getElementById("cpCampNewName");
           if (nm) nm.textContent = __activeGeneralCampeonatoName || "---";
+
           await loadCartasPases();
-        })();
+        } catch (e) {
+          console.error("openCartasPases error:", e);
+        }
+      }
+
+      function onCpCampSelectChange() {
+        const sel = document.getElementById("cpCampSelect");
+        if (sel && sel.value && sel.value !== "__all__") {
+          setActiveGeneralCampeonato(sel.value);
+        }
+        loadCartasPases();
       }
 
       function closeCartasPases() {
@@ -3275,14 +3390,15 @@
         const pendingTbody = document.getElementById('pases-pending-body');
         const pendingCountBadge = document.getElementById('pending-count-badge');
 
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>';
         if (pendingTbody) {
           pendingTbody.innerHTML = '<tr><td colspan="6" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>';
         }
 
         try {
+          await fetchAllCampeonatos();
           const snapshot = await db.collection("cartas_pases").orderBy("createdAt", "desc").get();
-          tbody.innerHTML = '';
+          if (tbody) tbody.innerHTML = '';
           if (pendingTbody) pendingTbody.innerHTML = '';
 
           allPases = [];
@@ -3291,19 +3407,38 @@
 
           const selectedCampId = document.getElementById("cpCampSelect")?.value || "__all__";
 
-          snapshot.forEach(doc => {
+          for (let i = 0; i < snapshot.docs.length; i++) {
+            const doc = snapshot.docs[i];
             const data = { id: doc.id, ...doc.data() };
-            // Filtrar por campeonato
-            if (selectedCampId !== "__all__" && data.championshipId !== selectedCampId) {
-              return;
+
+            // Resolver campeonato si le falta championshipId o championshipName
+            const resolved = await resolveCartasPaseChampionship(data);
+            if (resolved.championshipId) {
+              if (!data.championshipId) {
+                data.championshipId = resolved.championshipId;
+                // Auto-sanar en Firestore en segundo plano para queries futuras
+                db.collection("cartas_pases").doc(data.id).update({
+                  championshipId: resolved.championshipId,
+                  championshipName: resolved.championshipName || ""
+                }).catch(() => {});
+              }
+              if (!data.championshipName && resolved.championshipName) {
+                data.championshipName = resolved.championshipName;
+              }
             }
+
+            // Filtrar por campeonato si se seleccionó uno específico
+            if (selectedCampId !== "__all__" && data.championshipId && data.championshipId !== selectedCampId) {
+              continue;
+            }
+
             allPases.push(data);
             if (data.status === 'pending') {
               pendingPases.push(data);
             } else if (data.status === 'completed') {
               completedPases.push(data);
             }
-          });
+          }
 
           // Update pending section counter
           const pendingCount = pendingPases.length;
@@ -3324,20 +3459,23 @@
               pendingTbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-white-50"><i class="fas fa-check-circle text-success me-2"></i>No hay solicitudes de cartas pases pendientes de aprobación.</td></tr>';
             } else {
               pendingPases.forEach(data => {
-                const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'N/A';
+                const date = data.createdAt ? (data.createdAt.toDate ? data.createdAt.toDate().toLocaleDateString() : new Date(data.createdAt).toLocaleDateString()) : 'N/A';
+                const time = data.createdAt ? (data.createdAt.toDate ? data.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '') : '';
                 const qty = data.quantity || 1;
-                const totalVal = data.totalValue || (data.value * qty) || 0;
+                const totalVal = parseFloat(data.totalValue || (data.value * qty) || (qty * 1.00));
                 const safeImg = (data.comprobante || '').replace(/'/g, "\\'");
+                const campLabel = data.championshipName || getChampionshipNameById(data.championshipId) || "Campeonato Oficial";
 
                 const tr = document.createElement('tr');
                 tr.className = "border-bottom border-white border-opacity-5";
                 tr.innerHTML = `
                               <td class="ps-4">
                                 <div class="fw-bold text-white">${date}</div>
-                                <div class="small text-white-50">${data.createdAt ? data.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</div>
+                                <div class="small text-white-50">${time}</div>
                               </td>
                               <td>
                                 <div class="fw-bold text-white">${data.teamName}</div>
+                                <div class="mt-1"><span class="badge bg-dark border border-warning border-opacity-40 text-warning px-2 py-1 small" style="font-size: 0.7rem;"><i class="fas fa-trophy me-1"></i> ${campLabel}</span></div>
                               </td>
                               <td class="text-center fw-bold text-warning">${qty}</td>
                               <td class="text-center text-white fw-bold">$ ${totalVal.toFixed(2)}</td>
@@ -3363,58 +3501,63 @@
           }
 
           // Render Completed table (Historial)
-          if (completedPases.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-white-50">No hay registros de cartas pases completadas.</td></tr>';
-          } else {
-            completedPases.forEach(data => {
-              const date = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'N/A';
-              const prefix = getChampionshipNumberPrefix(data.championshipId);
-              const start = String(data.startSeq || data.seqNum || 1).padStart(3, '0');
-              const end = String(data.endSeq || data.seqNum || 1).padStart(3, '0');
-              const range = data.isBatch ? `${prefix}-${start} - ${prefix}-${end}` : `${prefix}-${start}`;
-              const qty = data.quantity || 1;
-              const totalVal = data.totalValue || (data.value * qty) || 0;
+          if (tbody) {
+            if (completedPases.length === 0) {
+              tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-white-50">No hay registros de cartas pases completadas.</td></tr>';
+            } else {
+              completedPases.forEach(data => {
+                const date = data.createdAt ? (data.createdAt.toDate ? data.createdAt.toDate().toLocaleDateString() : new Date(data.createdAt).toLocaleDateString()) : 'N/A';
+                const time = data.createdAt ? (data.createdAt.toDate ? data.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '') : '';
+                const prefix = getChampionshipNumberPrefix(data.championshipId);
+                const start = String(data.startSeq || data.seqNum || 1).padStart(3, '0');
+                const end = String(data.endSeq || data.seqNum || 1).padStart(3, '0');
+                const range = data.isBatch ? `${prefix}-${start} - ${prefix}-${end}` : `${prefix}-${start}`;
+                const qty = data.quantity || 1;
+                const totalVal = parseFloat(data.totalValue || (data.value * qty) || (qty * 1.00));
+                const campLabel = data.championshipName || getChampionshipNameById(data.championshipId) || "Campeonato";
 
-              const tr = document.createElement('tr');
-              tr.className = "border-bottom border-white border-opacity-5";
-              tr.innerHTML = `
-                          <td class="ps-4">
-                            <div class="fw-bold text-white">${date}</div>
-                            <div class="small text-white-50">${data.createdAt ? data.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</div>
-                          </td>
-                          <td>
-                            <div class="fw-bold text-white">${data.teamName}</div>
-                          </td>
-                          <td class="text-center fw-bold text-primary-glow">${qty}</td>
-                          <td class="text-center text-white fw-bold">$ ${totalVal.toFixed(2)}</td>
-                          <td class="text-center">
-                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2">
-                              <i class="fas fa-hashtag me-1"></i> ${range}
-                            </span>
-                          </td>
-                          <td class="text-end pe-4">
-                            <div class="btn-group">
-                              <button class="btn btn-sm btn-outline-primary border-opacity-25 rounded-3 me-2" onclick="viewCPDetails('${data.id}')" title="Ver Detalles">
-                                <i class="fas fa-eye"></i>
-                              </button>
-                              <button class="btn btn-sm btn-outline-success border-opacity-25 rounded-3 me-2" onclick="reprintCPBatch('${data.id}')" title="Re-descargar PDF">
-                                <i class="fas fa-file-pdf"></i>
-                              </button>
-                              ${data.invoiceId ? `
-                              <button class="btn btn-sm btn-outline-warning border-opacity-25 rounded-3" onclick="viewInvoiceFromHistory('${data.invoiceId}')" title="Ver Factura">
-                                <i class="fas fa-receipt"></i>
-                              </button>
-                              ` : ''}
-                            </div>
-                          </td>
-                      `;
-              tbody.appendChild(tr);
-            });
+                const tr = document.createElement('tr');
+                tr.className = "border-bottom border-white border-opacity-5";
+                tr.innerHTML = `
+                            <td class="ps-4">
+                              <div class="fw-bold text-white">${date}</div>
+                              <div class="small text-white-50">${time}</div>
+                            </td>
+                            <td>
+                              <div class="fw-bold text-white">${data.teamName}</div>
+                              <div class="mt-1"><span class="badge bg-dark border border-secondary border-opacity-30 text-white-50 px-2 py-0" style="font-size: 0.65rem;"><i class="fas fa-trophy me-1 text-warning"></i> ${campLabel}</span></div>
+                            </td>
+                            <td class="text-center fw-bold text-primary-glow">${qty}</td>
+                            <td class="text-center text-white fw-bold">$ ${totalVal.toFixed(2)}</td>
+                            <td class="text-center">
+                              <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2">
+                                <i class="fas fa-hashtag me-1"></i> ${range}
+                              </span>
+                            </td>
+                            <td class="text-end pe-4">
+                              <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-primary border-opacity-25 rounded-3 me-2" onclick="viewCPDetails('${data.id}')" title="Ver Detalles">
+                                  <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success border-opacity-25 rounded-3 me-2" onclick="reprintCPBatch('${data.id}')" title="Re-descargar PDF">
+                                  <i class="fas fa-file-pdf"></i>
+                                </button>
+                                ${data.invoiceId ? `
+                                <button class="btn btn-sm btn-outline-warning border-opacity-25 rounded-3" onclick="viewInvoiceFromHistory('${data.invoiceId}')" title="Ver Factura">
+                                  <i class="fas fa-receipt"></i>
+                                </button>
+                                ` : ''}
+                              </div>
+                            </td>
+                        `;
+                tbody.appendChild(tr);
+              });
+            }
           }
 
           updateCartasPasesStats(completedPases);
         } catch (e) {
-          console.error(e);
+          console.error("loadCartasPases error:", e);
         }
       }
 
@@ -3753,10 +3896,10 @@
         const endSeq = cartasPaseData.endSeq;
         const championshipId = cartasPaseData.championshipId || "";
 
-        let category = "N/A";
-        if (teamId) {
-          const teamDoc = await db.collection("teams").doc(teamId).get();
-          if (teamDoc.exists) category = teamDoc.data().category || "N/A";
+        let category = cartasPaseData.category || "VARIOS";
+        if ((!category || category === "N/A" || category === "VARIOS") && (teamId || teamName)) {
+          const tInfo = await getTeamInfo(teamId, teamName);
+          if (tInfo && tInfo.category) category = tInfo.category;
         }
 
         const prefixNum = getChampionshipNumberPrefix(championshipId);
@@ -3770,7 +3913,7 @@
 
         const invoiceData = {
           team: teamName,
-          category: (category || "N/A").toUpperCase(),
+          category: (category || "VARIOS").toUpperCase(),
           total: totalValue,
           invoiceId,
           championshipId: championshipId || null,
@@ -3939,59 +4082,91 @@
       }
 
       async function approvePendingCP(id) {
-        const doc = await db.collection("cartas_pases").doc(id).get();
-        if (!doc.exists) return;
-        const data = doc.data();
-        let championshipId = data.championshipId || "";
-        if (!championshipId && __activeGeneralCampeonatoId) championshipId = __activeGeneralCampeonatoId;
-        if (!championshipId) {
-          Swal.fire({
-            title: 'Asigna un campeonato',
-            text: 'Esta solicitud no tiene campeonato. Debes asignarlo manualmente o seleccionar uno desde el panel principal.',
-            icon: 'warning',
-            background: '#111'
+        try {
+          const doc = await db.collection("cartas_pases").doc(id).get();
+          if (!doc.exists) {
+            Swal.fire('Error', 'No se encontró la solicitud de carta pase.', 'error');
+            return;
+          }
+          const data = doc.data();
+
+          // Auto-resolver campeonato si falta en el registro
+          const resolved = await resolveCartasPaseChampionship(data);
+          let championshipId = resolved.championshipId;
+          let championshipName = resolved.championshipName || "Campeonato Oficial";
+
+          if (!championshipId) {
+            const camps = await fetchAllCampeonatos();
+            if (camps.length > 0) {
+              championshipId = camps[0].id;
+              championshipName = camps[0].name || camps[0].nombre || "Campeonato Oficial";
+            }
+          }
+
+          if (!championshipId) {
+            Swal.fire({
+              title: 'Asigna un campeonato',
+              text: 'No se encontraron campeonatos activos en la base de datos.',
+              icon: 'warning',
+              background: '#111'
+            });
+            return;
+          }
+
+          const qty = data.quantity || 1;
+          const totalVal = parseFloat(data.totalValue || (data.value * qty) || (qty * 1.00));
+          const clubName = (data.teamName || "Club").toUpperCase();
+
+          const confirm = await Swal.fire({
+            title: '¿Aprobar solicitud?',
+            html: `
+                  <div class="text-start p-2" style="color: #eee; font-size: 0.95rem;">
+                    <p class="mb-3">Se autorizará el lote de <strong class="text-warning fs-5">${qty}</strong> cartas pases para el club <strong class="text-white fs-5">${clubName}</strong>.</p>
+                    <div class="p-3 mb-3 rounded-4" style="background: rgba(46, 204, 113, 0.08); border: 1px solid rgba(46, 204, 113, 0.25);">
+                      <p class="mb-1 text-white"><i class="fas fa-trophy text-warning me-2"></i>Campeonato Asignado: <strong class="text-warning">${championshipName}</strong></p>
+                      <p class="mb-0 text-success fw-bold"><i class="fas fa-coins me-2"></i>Total Facturado: $${totalVal.toFixed(2)}</p>
+                    </div>
+                    <p class="small text-white-50 mb-0"><i class="fas fa-info-circle text-info me-1"></i> Se generará la numeración secuencial oficial y la factura digital automáticamente para el club.</p>
+                  </div>
+                `,
+            icon: 'question',
+            background: '#111',
+            showCancelButton: true,
+            confirmButtonColor: '#2ecc71',
+            confirmButtonText: '<i class="fas fa-check-circle me-1"></i> Sí, Aprobar y Generar Numeración',
+            cancelButtonText: 'Cancelar'
           });
-          return;
-        }
 
-        const confirm = await Swal.fire({
-          title: '¿Aprobar solicitud?',
-          html: `
-                <div class="text-start small text-white-50">
-                  <p class="text-white">Se autorizará el lote de <strong>${data.quantity}</strong> cartas pases para el club <strong>${data.teamName.toUpperCase()}</strong>.</p>
-                  <p class="text-warning"><i class="fas fa-trophy me-1"></i> Campeonato: <b>${data.championshipName || "—"}</b></p>
-                  <p class="text-success fw-bold"><i class="fas fa-coins me-1"></i> Total verificado: $${parseFloat(data.totalValue).toFixed(2)}</p>
-                </div>
-              `,
-          icon: 'question',
-          background: '#111',
-          showCancelButton: true,
-          confirmButtonColor: '#2ecc71',
-          confirmButtonText: 'Sí, Aprobar y Generar Numeración'
-        });
+          if (confirm.isConfirmed) {
+            Swal.fire({
+              title: 'Procesando Aprobación...',
+              html: '<div class="spinner-border text-success my-3"></div><p class="text-white-50">Asignando números secuenciales de cartas pases y emitiendo factura...</p>',
+              allowOutsideClick: false,
+              showConfirmButton: false,
+              background: '#111',
+              didOpen: () => Swal.showLoading()
+            });
 
-        if (confirm.isConfirmed) {
-          Swal.fire({
-            title: 'Procesando Aprobación...',
-            html: 'Asignando números secuenciales de cartas pases.',
-            didOpen: () => Swal.showLoading()
-          });
-
-          try {
+            // Secuencia determinística por campeonato
             const snapAll = await db.collection("cartas_pases").where("championshipId", "==", championshipId).get();
             let currentSeq = 0;
             snapAll.forEach(d => {
+              if (d.id === id) return; // ignorar la solicitud pendiente actual
               const v = d.data();
-              const m = Math.max(v.endSeq || 0, v.seqNum || 0);
-              if (m > currentSeq) currentSeq = m;
+              if (v.status === 'completed' || v.seqNum || v.endSeq) {
+                const m = Math.max(v.endSeq || 0, v.seqNum || 0, v.startSeq || 0);
+                if (m > currentSeq) currentSeq = m;
+              }
             });
+
             if (currentSeq === 0) {
               try {
                 const snapshot = await db.collection("cartas_pases").orderBy("seqNum", "desc").limit(50).get();
                 snapshot.forEach(d => {
+                  if (d.id === id) return;
                   const v = d.data();
-                  if ((v.championshipId || "") === championshipId) {
-                    const m = Math.max(v.endSeq || 0, v.seqNum || 0);
+                  if (!v.championshipId || v.championshipId === championshipId) {
+                    const m = Math.max(v.endSeq || 0, v.seqNum || 0, v.startSeq || 0);
                     if (m > currentSeq) currentSeq = m;
                   }
                 });
@@ -3999,35 +4174,61 @@
             }
 
             const startSeq = currentSeq + 1;
-            const endSeq = currentSeq + data.quantity;
+            const endSeq = currentSeq + qty;
 
             await db.collection("cartas_pases").doc(id).update({
               status: 'completed',
-              championshipId,
+              championshipId: championshipId,
+              championshipName: championshipName,
               startSeq: startSeq,
               endSeq: endSeq,
               seqNum: endSeq,
+              quantity: qty,
+              totalValue: totalVal,
               approvedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
             const invoiceId = await createCartasPasesInvoice({
               ...data,
               championshipId,
+              championshipName,
               startSeq,
               endSeq,
               seqNum: endSeq,
+              quantity: qty,
+              totalValue: totalVal,
               status: 'completed'
             }, id);
 
-            await generateAndDownloadPDF(data.teamName, data.quantity, startSeq, endSeq, championshipId);
+            try {
+              await generateAndDownloadPDF(data.teamName, qty, startSeq, endSeq, championshipId);
+            } catch (pdfErr) {
+              console.warn("PDF download aviso:", pdfErr);
+            }
 
             await loadCartasPases();
 
-            Swal.fire('¡Aprobado!', `Solicitud aprobada. Factura ${invoiceId} generada para el equipo.`, 'success');
-          } catch (e) {
-            console.error(e);
-            Swal.fire('Error', 'No se pudo procesar la aprobación.', 'error');
+            const prefixNum = getChampionshipNumberPrefix(championshipId);
+            const seqDisplay = `${prefixNum}-${String(startSeq).padStart(3, '0')} al ${prefixNum}-${String(endSeq).padStart(3, '0')}`;
+
+            Swal.fire({
+              icon: 'success',
+              title: '¡Solicitud Aprobada!',
+              html: `
+                <div class="text-start p-2">
+                  <p class="mb-2">La solicitud para <b>${clubName}</b> fue autorizada con éxito.</p>
+                  <p class="mb-1"><i class="fas fa-hashtag text-warning me-1"></i> Numeración: <b class="text-primary-glow">${seqDisplay}</b></p>
+                  <p class="mb-0"><i class="fas fa-file-invoice text-success me-1"></i> Factura: <b class="font-monospace text-warning">${invoiceId}</b></p>
+                </div>
+              `,
+              background: '#111',
+              confirmButtonColor: '#2ecc71',
+              confirmButtonText: 'Entendido'
+            });
           }
+        } catch (e) {
+          console.error("approvePendingCP error:", e);
+          Swal.fire('Error', 'No se pudo procesar la aprobación: ' + (e.message || e), 'error');
         }
       }
 
@@ -5743,18 +5944,8 @@
         }
       }
 
-      window.openCartasPasesPendingView = function () {
-        const mainView = document.getElementById('main-view');
-        const otrasView = document.getElementById('otras-facturaciones-view');
-        const cartasView = document.getElementById('cartas-pases-view');
-
-        if (mainView && !mainView.classList.contains('d-none')) {
-          openOtrasFacturaciones();
-        }
-
-        if (otrasView && !otrasView.classList.contains('d-none')) {
-          openCartasPases();
-        }
+      window.openCartasPasesPendingView = async function () {
+        await openCartasPases();
 
         setTimeout(() => {
           const pendingSec = document.getElementById('pending-pases-section');
@@ -5765,10 +5956,10 @@
             setTimeout(() => {
               pendingSec.style.border = '1px solid rgba(255, 255, 255, 0.1)';
               pendingSec.style.boxShadow = 'none';
-            }, 2000);
+            }, 2500);
           }
-        }, 400);
-      }
+        }, 300);
+      };
 
       window.__cartasPasesUnsub = null;
       document.addEventListener("DOMContentLoaded", () => {

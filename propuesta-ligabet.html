@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Propuesta Oficial LigaBet - LDBAA</title>
+  
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 10mm 12mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #ffffff;
+      color: #1e293b;
+      line-height: 1.45;
+      font-size: 9.5pt;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    h1, h2, h3, h4, h5, .font-heading {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .page {
+      page-break-after: always;
+      position: relative;
+      background: #ffffff;
+      padding: 5mm 0;
+    }
+
+    .page:last-child {
+      page-break-after: avoid;
+    }
+
+    /* Header & Footer */
+    .doc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #0f172a;
+      margin-bottom: 16px;
+    }
+
+    .doc-header .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .doc-header .badge-tag {
+      background: #0f172a;
+      color: #2ecc71;
+      font-size: 7.5pt;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .doc-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 7.5pt;
+      color: #64748b;
+      padding-top: 8px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    /* Cover Styling */
+    .cover-container {
+      background: linear-gradient(135deg, #090d16 0%, #0f172a 60%, #1e293b 100%);
+      color: #ffffff;
+      border-radius: 14px;
+      padding: 40px 35px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+      border-left: 8px solid #2ecc71;
+    }
+
+    .cover-container::after {
+      content: "⚽ LIGABET";
+      position: absolute;
+      right: -20px;
+      bottom: -15px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 65pt;
+      font-weight: 900;
+      color: rgba(255, 255, 255, 0.03);
+      pointer-events: none;
+    }
+
+    .cover-tag {
+      display: inline-block;
+      background: rgba(46, 204, 113, 0.15);
+      color: #2ecc71;
+      border: 1px solid rgba(46, 204, 113, 0.3);
+      font-weight: 800;
+      font-size: 8pt;
+      letter-spacing: 1.5px;
+      padding: 4px 12px;
+      border-radius: 30px;
+      margin-bottom: 12px;
+    }
+
+    .cover-title {
+      font-size: 24pt;
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+
+    .cover-title span {
+      color: #2ecc71;
+    }
+
+    .cover-subtitle {
+      font-size: 11pt;
+      color: #94a3b8;
+      max-width: 90%;
+      margin-bottom: 22px;
+      font-weight: 400;
+    }
+
+    .cover-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 12px 16px;
+    }
+
+    .cover-meta-item small {
+      display: block;
+      color: #94a3b8;
+      font-size: 7pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .cover-meta-item strong {
+      font-size: 8.5pt;
+      color: #f8fafc;
+    }
+
+    /* Cards & Components */
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    .card-highlight {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 4px solid #2ecc71;
+    }
+
+    .card-dark {
+      background: #0f172a;
+      color: #ffffff;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    .card-dark h3 {
+      color: #ffffff;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-size: 13pt;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::before {
+      content: "";
+      display: inline-block;
+      width: 5px;
+      height: 16px;
+      background: #2ecc71;
+      border-radius: 3px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 7.5pt;
+      font-weight: 700;
+    }
+
+    .badge-green { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .badge-blue { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .badge-yellow { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+
+    /* Tables */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+      margin: 10px 0;
+    }
+
+    table.data-table th {
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 700;
+      text-align: left;
+      padding: 7px 10px;
+      font-size: 8pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    table.data-table td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #334155;
+    }
+
+    table.data-table tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    table.data-table tr.highlight-row {
+      background: #ecfdf5;
+      font-weight: 700;
+    }
+
+    /* Flow Steps */
+    .step-item {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      background: #0f172a;
+      color: #2ecc71;
+      font-weight: 900;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8pt;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step-content strong {
+      display: block;
+      color: #0f172a;
+      font-size: 9pt;
+      margin-bottom: 1px;
+    }
+
+    .step-content p {
+      color: #475569;
+      font-size: 8.2pt;
+    }
+
+    .formula-box {
+      background: #1e293b;
+      color: #f8fafc;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 8pt;
+      margin: 8px 0;
+      border-left: 3px solid #f1c40f;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== PÁGINA 1: PORTADA Y RESUMEN EJECUTIVO ==================== -->
+  <div class="page">
+    <div class="doc-header">
+      <div class="brand">
+        <strong style="font-family: 'Outfit'; font-size: 11pt; color: #0f172a;">LIGA DEPORTIVA BARRIAL ARGELIA ALTA</strong>
+      </div>
+      <span class="badge-tag">Documento Oficial de Propuesta</span>
+    </div>
+
+    <div class="cover-container">
+      <div class="cover-tag">INNOVACIÓN & AUTOGESTIÓN 2026</div>
+      <h1 class="cover-title">PROPUESTA TÉCNICA: <span>LIGABET</span></h1>
+      <p class="cover-subtitle">Sistema de Pronósticos Deportivos Barriales Partido a Partido con Modelo de Cero Riesgo Financiero para la LDBAA.</p>
+      
+      <div class="cover-meta-grid">
+        <div class="cover-meta-item">
+          <small>Destinatario</small>
+          <strong>Directiva & Delegados LDBAA</strong>
+        </div>
+        <div class="cover-meta-item">
+          <small>Modelo Económico</small>
+          <strong>70% Premios / 30% Liga</strong>
+        </div>
+        <div class="cover-meta-item">
+          <small>Modalidad</small>
+          <strong>Apuesta por Partido (DeUna/QR)</strong>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">1. Resumen Ejecutivo y Propósito</h2>
+    <div class="card">
+      <p style="margin-bottom: 8px;">
+        La presente propuesta tiene como objetivo implementar <strong>LigaBet</strong>, un módulo digital dentro del ecosistema tecnológico de la <strong>Liga Deportiva Barrial Argelia Alta</strong>, diseñado para que los hinchas, jugadores y dirigentes puedan realizar pronósticos y apuestas deportivas en los partidos de cada fin de semana.
+      </p>
+      <p>
+        A diferencia de los sistemas tradicionales que requieren capital de riesgo, <strong>LigaBet opera bajo el modelo matemático Pari-Mutuel (Pozo Acumulado por Partido)</strong>. Esto garantiza que <strong>la Liga NUNCA arriesgue dinero de su caja</strong> y obtenga un <strong>30% de ganancia neta garantizada</strong> sobre todo el volumen apostado, mientras que el <strong>70% restante</strong> se reparte entre los ganadores.
+      </p>
+    </div>
+
+    <h2 class="section-title">2. Pilares Fundamentales del Proyecto</h2>
+    <div class="grid-3">
+      <div class="card card-highlight">
+        <div style="font-size: 18pt; margin-bottom: 4px;">🛡️</div>
+        <strong style="display:block; color: #166534; font-size: 9.5pt; margin-bottom: 4px;">Cero Riesgo para la Liga</strong>
+        <p style="font-size: 8pt; color: #15803d;">La Liga no paga cuotas fijas de su bolsillo. Los premios se pagan exclusivamente del 70% del pozo recaudado en el mismo partido.</p>
+      </div>
+
+      <div class="card card-highlight">
+        <div style="font-size: 18pt; margin-bottom: 4px;">⚡</div>
+        <strong style="display:block; color: #166534; font-size: 9.5pt; margin-bottom: 4px;">Apuestas Partido a Partido</strong>
+        <p style="font-size: 8pt; color: #15803d;">El hincha no está obligado a predecir 10 partidos. Apuesta directamente al encuentro de su interés: <strong>Local (1), Empate (X) o Visita (2)</strong>.</p>
+      </div>
+
+      <div class="card card-highlight">
+        <div style="font-size: 18pt; margin-bottom: 4px;">📅</div>
+        <strong style="display:block; color: #166534; font-size: 9.5pt; margin-bottom: 4px;">Auditoría los días Martes</strong>
+        <p style="font-size: 8pt; color: #15803d;">El registro de apuestas es instantáneo el fin de semana, pero la revisión de comprobantes y pago oficial se efectúa el <strong>día martes en sesión</strong>.</p>
+      </div>
+    </div>
+
+    <div class="doc-footer">
+      <span>Liga Deportiva Barrial Argelia Alta — Plataforma Digital LDBAA</span>
+      <span>Página 1 de 3</span>
+    </div>
+  </div>
+
+  <!-- ==================== PÁGINA 2: MODELO MATEMÁTICO Y EJEMPLOS ==================== -->
+  <div class="page">
+    <div class="doc-header">
+      <div class="brand">
+        <strong style="font-family: 'Outfit'; font-size: 11pt; color: #0f172a;">LIGABET — MODELO MATEMÁTICO & FINANCIERO</strong>
+      </div>
+      <span class="badge-tag">Regla 70/30</span>
+    </div>
+
+    <h2 class="section-title">3. Matemática del Sistema: ¿Cómo se calculan los premios y cuotas?</h2>
+    
+    <div class="card">
+      <p style="margin-bottom: 6px;">Por cada partido individual, el sistema suma todas las apuestas recibidas y aplica automáticamente la siguiente fórmula:</p>
+      <div class="formula-box">
+        • POZO TOTAL = Suma de apuestas a (Local + Empate + Visita)<br>
+        • INGRESO LIGA (30%) = POZO TOTAL × 0.30<br>
+        • BOLSA PREMIOS (70%) = POZO TOTAL × 0.70<br>
+        • PAGO POR CADA $1 APOSTADO = BOLSA PREMIOS (70%) ÷ Total apostado a la opción ganadora
+      </div>
+    </div>
+
+    <h2 class="section-title">4. Caso de Estudio Práctico (Demostración Real)</h2>
+
+    <div class="card card-dark">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; margin-bottom: 10px;">
+        <h3 style="font-size: 11pt; font-weight: 800;">PARTIDO: ARSENAL (Local) vs. JUVENTUS (Visita)</h3>
+        <span class="badge badge-green">Recaudación Total: $15.00</span>
+      </div>
+      
+      <div class="grid-3" style="margin-bottom: 10px;">
+        <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; text-align: center;">
+          <small style="color: #94a3b8; font-size: 7.5pt; display: block;">Apuestas al Local</small>
+          <strong style="font-size: 10pt; color: #2ecc71;">10 personas ($10.00)</strong>
+        </div>
+        <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; text-align: center;">
+          <small style="color: #94a3b8; font-size: 7.5pt; display: block;">Apuestas al Empate</small>
+          <strong style="font-size: 10pt; color: #f1c40f;">0 personas ($0.00)</strong>
+        </div>
+        <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; text-align: center;">
+          <small style="color: #94a3b8; font-size: 7.5pt; display: block;">Apuestas a la Visita</small>
+          <strong style="font-size: 10pt; color: #e74c3c;">5 personas ($5.00)</strong>
+        </div>
+      </div>
+
+      <div style="font-size: 8.5pt; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 6px;">
+        <strong>Distribución Base:</strong> 🏦 <strong>30% Liga = $4.50</strong> (Ganancia limpia) &nbsp;|&nbsp; 🏆 <strong>70% Premios = $10.50</strong> a repartir.
+      </div>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Escenario de Resultado</th>
+          <th>Ganadores</th>
+          <th>Cálculo de Reparto</th>
+          <th>Premio por cada $1</th>
+          <th>Beneficio Apostador</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>🟢 Gana Arsenal (Local)</strong><br><small>Ganó el equipo favorito</small></td>
+          <td>10 personas ($10)</td>
+          <td>$10.50 ÷ $10.00 apostados</td>
+          <td><strong style="color: #16a34a;">$1.05</strong></td>
+          <td>Recupera su $1.00 + $0.05 ganancia</td>
+        </tr>
+        <tr class="highlight-row">
+          <td><strong>🔴 Gana Juventus (Visita)</strong><br><small>Ganó el equipo sorpresa</small></td>
+          <td>5 personas ($5)</td>
+          <td>$10.50 ÷ $5.00 apostados</td>
+          <td><strong style="color: #16a34a; font-size: 9.5pt;">$2.10</strong></td>
+          <td><strong>¡Duplica su dinero! (Gana +110%)</strong></td>
+        </tr>
+        <tr>
+          <td><strong>🟡 Quedan Empatados</strong><br><small>Nadie apostó al empate</small></td>
+          <td>0 personas ($0)</td>
+          <td>El pozo queda desierto</td>
+          <td><strong>$0.00</strong></td>
+          <td><strong>El 100% ($15.00) pasa a la Liga</strong> o pozo acumulado final.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 class="section-title" style="margin-top: 14px;">5. Proyección de Ingresos Mensuales para la Liga</h2>
+    
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Volumen por Fecha (Fin de semana)</th>
+          <th>Total Recaudado</th>
+          <th>🏆 Premios Hinchas (70%)</th>
+          <th>🏦 Ganancia Neta Liga (30%)</th>
+          <th>Ingreso Mensual Liga (4 Fechas)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>50 apuestas de $2.00</td>
+          <td>$100.00</td>
+          <td>$70.00</td>
+          <td><strong>$30.00</strong></td>
+          <td><strong>$120.00 / mes</strong></td>
+        </tr>
+        <tr>
+          <td>150 apuestas de $2.00</td>
+          <td>$300.00</td>
+          <td>$210.00</td>
+          <td><strong>$90.00</strong></td>
+          <td><strong>$360.00 / mes</strong></td>
+        </tr>
+        <tr class="highlight-row">
+          <td>300 apuestas de $2.00</td>
+          <td>$600.00</td>
+          <td>$420.00</td>
+          <td><strong>$180.00</strong></td>
+          <td><strong style="color: #15803d; font-size: 10pt;">$720.00 / mes</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="doc-footer">
+      <span>Liga Deportiva Barrial Argelia Alta — Plataforma Digital LDBAA</span>
+      <span>Página 2 de 3</span>
+    </div>
+  </div>
+
+  <!-- ==================== PÁGINA 3: FLUJO OPERATIVO Y SEGURIDAD ==================== -->
+  <div class="page">
+    <div class="doc-header">
+      <div class="brand">
+        <strong style="font-family: 'Outfit'; font-size: 11pt; color: #0f172a;">LIGABET — OPERACIÓN, PAGOS Y SEGURIDAD</strong>
+      </div>
+      <span class="badge-tag">Operación y Transparencia</span>
+    </div>
+
+    <h2 class="section-title">6. Flujo de Usuario y Pago (DeUna / Transferencia)</h2>
+
+    <div class="card">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <strong>Selección de Partido y Monto en la Web (LigaBet)</strong>
+          <p>El hincha entra a la página desde su celular, escoge el partido y la opción deseada (Local, Empate o Visita) y digita el monto (ej. $1, $2, $5).</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <strong>Pago Seguro por DeUna / QR</strong>
+          <p>La plataforma muestra el código QR de DeUna oficial de la Liga. El usuario transfiere y anota los <strong>últimos dígitos del comprobante</strong> en el formulario.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <strong>Generación Instantánea de Ticket Activo</strong>
+          <p>Para no generar cuellos de botella en la cancha, el sistema emite inmediatamente su <strong>Ticket Digital con Código Único (ej. BET-482)</strong> y queda registrado en el pozo del partido.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <strong>Cierre Automático con la Mesa de Vocalía</strong>
+          <p>Apenas el árbitro pita el inicio del partido en cancha, el sistema bloquea nuevas apuestas para ese encuentro. Al finalizar el partido en <code>vocalias.html</code>, el sistema marca automáticamente a los ganadores.</p>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <strong>Liquidación y Cobro Oficial en Sesión de los Martes</strong>
+          <p>El día martes, el Tesorero abre el panel <code>ligabet-admin.html</code>, coteja los comprobantes en la cuenta bancaria/DeUna de la Liga y realiza el pago de premios a los ganadores legítimos.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">7. Reglas de Transparencia y Casos Especiales</h2>
+
+    <div class="grid-2">
+      <div class="card">
+        <strong style="display:block; color: #0f172a; margin-bottom: 4px; font-size: 9pt;">🔒 Blindaje contra Comprobantes Falsos</strong>
+        <p style="font-size: 8pt; color: #475569;">Si alguien registra una apuesta con un número de comprobante falso o adulterado, el tesorero lo detecta el día martes al cotejar con el extracto bancario. Ese ticket queda automáticamente <strong>ANULADO</strong> y no cobra premio.</p>
+      </div>
+
+      <div class="card">
+        <strong style="display:block; color: #0f172a; margin-bottom: 4px; font-size: 9pt;">🌧️ Partidos Suspendidos</strong>
+        <p style="font-size: 8pt; color: #475569;">Si un partido se suspende por lluvia, falta de garantías o fuerza mayor antes de completarse, el sistema <strong>devuelve el 100% del dinero apostado</strong> a cada participante el día martes.</p>
+      </div>
+    </div>
+
+    <h2 class="section-title">8. Conclusión y Recomendación para la Directiva</h2>
+    <div class="card card-highlight">
+      <p style="font-size: 8.5pt; color: #166534; line-height: 1.5;">
+        <strong>Conclusión:</strong> La implementación de <strong>LigaBet</strong> representa una oportunidad histórica de autogestión para la <strong>Liga Barrial Argelia Alta</strong>. Permite generar ingresos limpios semanales que pueden destinarse a premiación, mantenimiento del complejo deportivo y arbitraje, sin arriesgar el patrimonio de la liga y ofreciendo a la hinchada una experiencia moderna e interactiva de nivel profesional.
+      </p>
+    </div>
+
+    <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center; font-size: 8pt; color: #475569;">
+      <div>
+        <div style="width: 140px; border-bottom: 1px solid #94a3b8; margin-bottom: 4px; height: 30px;"></div>
+        <strong>Comisión Técnica Digital</strong><br>
+        Plataforma LDBAA
+      </div>
+      <div>
+        <div style="width: 140px; border-bottom: 1px solid #94a3b8; margin-bottom: 4px; height: 30px;"></div>
+        <strong>Directiva Central LDBAA</strong><br>
+        Liga Deportiva Barrial
+      </div>
+      <div>
+        <div style="width: 140px; border-bottom: 1px solid #94a3b8; margin-bottom: 4px; height: 30px;"></div>
+        <strong>Tesorería General</strong><br>
+        Control Financiero
+      </div>
+    </div>
+
+    <div class="doc-footer">
+      <span>Liga Deportiva Barrial Argelia Alta — Plataforma Digital LDBAA</span>
+      <span>Página 3 de 3</span>
+    </div>
+  </div>
+
+</body>
+</html>

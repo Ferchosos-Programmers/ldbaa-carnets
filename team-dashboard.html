@@ -1483,6 +1483,17 @@
         currentTeam = teamSnap.docs[0].data();
         currentTeam.id = teamSnap.docs[0].id;
 
+        // Cargar nombre del campeonato si está presente el ID
+        if (currentTeam.championshipId || currentTeam.campeonatoId) {
+          try {
+            const cId = currentTeam.championshipId || currentTeam.campeonatoId;
+            const champDoc = await db.collection("championships").doc(cId).get();
+            if (champDoc.exists) {
+              currentTeam.championshipName = champDoc.data().name || champDoc.data().nombre || "";
+            }
+          } catch(e) {}
+        }
+
         setupUI();
         loadData();
       });
@@ -1607,16 +1618,32 @@
           });
 
           // 2. Cartas Pases (Desde la colección de compras de Cartas Pases de Tesorería)
+          let passDocs = [];
           const passSnapRaw = await db
             .collection("cartas_pases")
             .where("teamId", "==", currentTeam.id)
             .get();
             
-          let passDocs = [];
-          passSnapRaw.forEach((doc) => { passDocs.push({id: doc.id, ...doc.data()}) });
+          passSnapRaw.forEach((doc) => { passDocs.push({ id: doc.id, ...doc.data() }); });
+
+          // Fallback: buscar también por nombre del club por compatibilidad
+          if (currentTeam.name) {
+            try {
+              const passSnapName = await db
+                .collection("cartas_pases")
+                .where("teamName", "==", currentTeam.name)
+                .get();
+              passSnapName.forEach((doc) => {
+                if (!passDocs.some(p => p.id === doc.id)) {
+                  passDocs.push({ id: doc.id, ...doc.data() });
+                }
+              });
+            } catch (eName) { console.warn(eName); }
+          }
+
           passDocs.sort((a, b) => {
-            const tA = a.createdAt ? a.createdAt.toMillis() : 0;
-            const tB = b.createdAt ? b.createdAt.toMillis() : 0;
+            const tA = a.createdAt ? (a.createdAt.toMillis ? a.createdAt.toMillis() : (a.createdAt.seconds ? a.createdAt.seconds * 1000 : 0)) : 0;
+            const tB = b.createdAt ? (b.createdAt.toMillis ? b.createdAt.toMillis() : (b.createdAt.seconds ? b.createdAt.seconds * 1000 : 0)) : 0;
             return tB - tA;
           });
  
@@ -2661,10 +2688,34 @@
                 didOpen: () => { Swal.showLoading(); }
               });
 
+              // Obtener campeonato del equipo
+              let teamCampId = currentTeam.championshipId || currentTeam.campeonatoId || "";
+              let teamCampName = currentTeam.championshipName || "";
+              if (!teamCampId) {
+                try {
+                  const tDoc = await db.collection("teams").doc(currentTeam.id).get();
+                  if (tDoc.exists) {
+                    teamCampId = tDoc.data().championshipId || tDoc.data().campeonatoId || "";
+                    teamCampName = tDoc.data().championshipName || "";
+                  }
+                } catch(eCamp) {}
+              }
+              if (teamCampId && !teamCampName) {
+                try {
+                  const cDoc = await db.collection("championships").doc(teamCampId).get();
+                  if (cDoc.exists) {
+                    teamCampName = cDoc.data().name || cDoc.data().nombre || "";
+                  }
+                } catch(eCampName) {}
+              }
+
               // Registrar solicitud de cartas pases en la colección 'cartas_pases' como 'pending'
               await db.collection("cartas_pases").add({
                 teamId: currentTeam.id,
                 teamName: currentTeam.name,
+                championshipId: teamCampId || "",
+                championshipName: teamCampName || "",
+                category: currentTeam.category || "",
                 quantity: quantity,
                 value: 1.00,
                 totalValue: totalValue,
