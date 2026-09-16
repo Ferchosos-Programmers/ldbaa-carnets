@@ -1652,7 +1652,7 @@
           if (window.cupoCompleto && mode === "register") {
             Swal.fire({
               title: "Cupo Completo",
-              text: "Tu equipo ya tiene el máximo de 25 jugadores permitidos. Para ingresar un nuevo jugador, debes eliminar uno existente de la lista lateral mientras la calificación esté abierta.",
+              text: "Tu equipo ya tiene el máximo de 27 jugadores permitidos. Para ingresar un nuevo jugador, debes eliminar uno existente de la lista lateral mientras la calificación esté abierta.",
               icon: "warning",
               confirmButtonColor: "#28a745",
             });
@@ -1684,7 +1684,7 @@
             ) {
               Swal.fire({
                 title: "Cupo Principal Completo",
-                text: "Ya tienes 25 jugadores. Solo puedes registrar jugadores menores de 15 años (cupos especiales).",
+                text: "Ya tienes 27 jugadores. Solo puedes registrar jugadores menores de 15 años (cupos especiales).",
                 icon: "warning",
                 confirmButtonColor: "#28a745",
               });
@@ -2085,7 +2085,7 @@
           }
         });
 
-        const maxTotal = 25;
+        const maxTotal = 27;
         const totalJugadores = regular + master;
         const totalRegistrados = regular + master + recalificados; // Total incluyendo recalificados
         const faltanTotal = maxTotal - totalJugadores;
@@ -2127,7 +2127,7 @@
         }
 
         // Actualizar barras de progreso principales
-        const progresoRegular = (regular / 24) * 100;
+        const progresoRegular = (regular / 26) * 100;
         const progresoMaster = (master / 1) * 100;
         const progresoTotal = (totalJugadores / maxTotal) * 100;
         const progresoTotalRegistrados =
@@ -2145,9 +2145,13 @@
 
         // Actualizar estados textuales de los cupos
         document.getElementById("jugadoresRegularesStatus").textContent = 
-          regular >= 24 ? "Cupo máximo alcanzado (24/24)" : `${24 - regular} cupos libres de 24`;
+          regular >= 26 ? "Cupo máximo alcanzado (26/26)" : `${26 - regular} cupos libres de 26`;
         document.getElementById("jugadoresMasterStatus").textContent = 
           master >= 1 ? `Cupo cubierto (${master} registrado/s)` : "Falta mínimo 1 jugador Master";
+        const totalStatusEl = document.getElementById("jugadoresTotalStatus");
+        if (totalStatusEl) {
+          totalStatusEl.textContent = totalJugadores >= maxTotal ? "Cupo máximo alcanzado (27/27)" : `${faltanTotal} cupos disponibles de 27`;
+        }
 
         // Actualizar estado del total de registrados
         document.getElementById("jugadoresRegistradosTotalStatus").textContent =
@@ -2171,10 +2175,10 @@
           cupoAlert.style.display = "block";
         } else if (totalJugadores >= maxTotal) {
           cupoAlert.className = "alert alert-success mt-3";
-          cupoAlertText.innerHTML = `<strong>¡Cupo completo!</strong> Tu equipo tiene el máximo de 25 jugadores permitidos (24 regulares y ${master} master). Para registrar otro jugador, puedes eliminar uno de la lista lateral mientras el período de calificación esté activo.`;
+          cupoAlertText.innerHTML = `<strong>¡Cupo completo!</strong> Tu equipo tiene el máximo de 27 jugadores permitidos (26 regulares y ${master} master). Para registrar otro jugador, puedes eliminar uno de la lista lateral mientras el período de calificación esté activo.`;
           cupoAlert.style.display = "block";
         } else {
-          let mensaje = `<strong>Progreso del cupo:</strong> Tienes ${totalJugadores} jugador${totalJugadores !== 1 ? "es" : ""} registrados: ${regular} regular${regular !== 1 ? "es" : ""} y ${master} master (>=40 años). Te faltan ${faltanTotal} jugador${faltanTotal !== 1 ? "es" : ""} para completar el máximo de 25.`;
+          let mensaje = `<strong>Progreso del cupo:</strong> Tienes ${totalJugadores} jugador${totalJugadores !== 1 ? "es" : ""} registrados: ${regular} regular${regular !== 1 ? "es" : ""} y ${master} master (>=40 años). Te faltan ${faltanTotal} jugador${faltanTotal !== 1 ? "es" : ""} para completar el máximo de 27.`;
           if (master < 1) {
             mensaje += ` <strong class="text-danger">¡Recuerda que requieres al menos 1 jugador Master!</strong>`;
           }
@@ -2187,7 +2191,7 @@
         }
 
         window.cupoCompleto = totalJugadores >= maxTotal;
-        window.cupoRegularesCompleto = regular >= 24;
+        window.cupoRegularesCompleto = regular >= 26;
         window.cupoMasterCompleto = master >= 1;
         manejarEstadoFormulario();
       }
@@ -2781,7 +2785,7 @@
             overlay.innerHTML = `
               <div class="text-center p-4">
                 <i class="fas fa-users-slash text-warning" style="font-size: 3rem; margin-bottom: 1rem; filter: drop-shadow(0 0 10px rgba(241,196,15,0.3));"></i>
-                <h5 class="text-white fw-bold mb-2">Cupo Máximo Alcanzado (25 Jugadores)</h5>
+                <h5 class="text-white fw-bold mb-2">Cupo Máximo Alcanzado (27 Jugadores)</h5>
                 <p class="text-white-50 mb-0" style="font-size: 0.9rem; max-width: 320px;">
                   Para registrar un nuevo jugador, puedes <strong class="text-white">eliminar a uno</strong> en la lista lateral mientras la fecha de calificación esté abierta.
                 </p>
@@ -2830,7 +2834,7 @@
             submitButton.textContent = "Cupo Regulares Completo";
             Swal.fire({
               title: "Cupo de Regulares Completo",
-              text: "Ya tienes 24 jugadores regulares. Solo puedes registrar un jugador Master (>= 40 años) para completar el cupo.",
+              text: "Ya tienes 26 jugadores regulares. Solo puedes registrar un jugador Master (>= 40 años) para completar el cupo.",
               icon: "warning",
               confirmButtonColor: "#28a745",
             });
